@@ -115,7 +115,7 @@ async def image_yellow_judge(group_id: int, sender: int, img: Image, usage_occas
         ]
     """
     await set_get_img_ready(group_id, sender, False, "yellowPredictReady")
-    yellow_predict_count = await get_total_calls("searchCount") + 1
+    yellow_predict_count = await get_total_calls("search") + 1
     await update_total_calls(yellow_predict_count, "search")
     if usage_occasion == "yellowPredict":
         path = "%s%s.png" % (await get_config("yellowJudgePath"), yellow_predict_count)

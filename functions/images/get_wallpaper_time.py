@@ -30,8 +30,8 @@ async def get_wallpaper_time(group_id: int, sender: int) -> list:
             MessageChain: Message to be send(MessageChain)
         ]
     """
-    clock_called = await get_total_calls("clockCalled") + 1
-    await update_total_calls(clock_called, "clockCalled")
+    clock_called = await get_total_calls("clock") + 1
+    await update_total_calls(clock_called, "clock")
     if await get_user_clock_wallpaper_selected(group_id, sender) is None:
         msg_list = [
             At(target=sender),
@@ -58,8 +58,8 @@ async def get_wallpaper_time(group_id: int, sender: int) -> list:
         t = t.replace(":", "")
         path_list = [
             await get_config("clockWallpaperSavedPath"),
-            str(get_user_clock_wallpaper_selected(group_id, sender)),
-            "/%s.png" % t
+            str(await get_user_clock_wallpaper_selected(group_id, sender)),
+            "\\%s.png" % t
         ]
         path = "".join(path_list)
         return [

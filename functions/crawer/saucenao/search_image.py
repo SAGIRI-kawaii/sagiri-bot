@@ -14,7 +14,7 @@ from functions.basics.get_config import get_config
 
 async def search_image(group_id, sender, img):
     await set_get_img_ready(group_id, sender, False, "searchReady")
-    search_total_count = await get_total_calls("searchCount") + 1
+    search_total_count = await get_total_calls("search") + 1
     await update_total_calls(search_total_count, "search")
     path = "%s%s.png" % (await get_config("searchPath"), search_total_count)
     async with aiohttp.ClientSession() as session:

@@ -27,6 +27,23 @@ async def get_total_calls(data_name: str) -> int:
     Return:
         int
     """
-    sql = "SELECT %s from calledCount" % data_name
-    data = await execute_sql(sql)
-    return data[0][0]
+    data_name_dict = {
+        "setu": "setuCalled",
+        "real": "realCalled",
+        "bizhi": "bizhiCalled",
+        "weather": "weatherCalled",
+        "response": "responseCalled",
+        "clock": "clockCalled",
+        "search": "searchCount",
+        "botSetuCount": "botSetuCount",
+        "predict": "predictCount",
+        "yellow": "yellowPredictCount",
+        "quotes": "quotesCount"
+    }
+    if data_name in data_name_dict.keys():
+        sql = "SELECT %s from calledCount" % data_name_dict[data_name]
+        await execute_sql(sql)
+        data = await execute_sql(sql)
+        return data[0][0]
+    else:
+        raise Exception("error: none operationType named %s!" % data_name)
