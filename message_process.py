@@ -16,6 +16,7 @@ from functions.crawer.saucenao.search_image import search_image
 from functions.images.image_yellow_judge import image_yellow_judge
 from functions.data_manage.update_data.update_dragon import update_dragon_data
 from functions.images.get_wallpaper_time import get_wallpaper_time
+from functions.images.get_wallpaper_time import show_clock_wallpaper
 
 
 async def group_message_process(
@@ -86,11 +87,13 @@ async def group_message_process(
             ]
     elif message_text == "几点了":
         return await get_wallpaper_time(group_id, sender)
+    elif message_text.startswith("选择表盘"):
+        if message_text == "选择表盘":
+            return await show_clock_wallpaper(sender)
 
     elif message_text == "搜图":
         if await get_setting(group_id, "search"):
-            res = await set_get_img_ready(group_id, sender, True, "searchReady")
-            # print("res:", res)
+            await set_get_img_ready(group_id, sender, True, "searchReady")
             return [
                 "None",
                 MessageChain.create([

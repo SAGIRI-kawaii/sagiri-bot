@@ -12,7 +12,24 @@ from functions.data_manage.update_data.update_total_calls import update_total_ca
 from functions.basics.get_config import get_config
 
 
-async def search_image(group_id, sender, img):
+async def search_image(group_id: int, sender: int, img: Image) -> list:
+    """
+    Return search result
+
+    Args:
+        group_id: Group id
+        sender: Sender
+        img: Image to search
+
+    Examples:
+        message = await search_image(group_id, sender, image)
+
+    Return:
+        [
+            str: Auxiliary treatment to be done(Such as add statement),
+            MessageChain: Message to be send(MessageChain)
+        ]
+    """
     await set_get_img_ready(group_id, sender, False, "searchReady")
     search_total_count = await get_total_calls("search") + 1
     await update_total_calls(search_total_count, "search")
