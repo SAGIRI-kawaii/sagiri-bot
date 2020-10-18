@@ -114,7 +114,7 @@ async def group_message_process(
         return await search_image(group_id, sender, image)
 
     elif message_text == "这张图涩吗":
-        if not await get_setting(group_id,"yellowPredict"):
+        if not await get_setting(group_id, "yellowPredict"):
             return [
                 "None",
                 MessageChain.create([
