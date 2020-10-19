@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 import asyncio
-import json
 
 from graia.broadcast import Broadcast
 from graia.application import GraiaMiraiApplication, Session
-from graia.application.message.chain import MessageChain
 
 from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import At
@@ -14,9 +12,8 @@ from graia.application.event.messages import *
 from graia.application.event.mirai import *
 from graia.application.exceptions import *
 
-from message_process import group_message_process
-from functions.basics.get_config import get_config
-from functions.basics.get_json_code import get_json_code
+from SAGIRIBOT.process.message_process import group_message_process
+from SAGIRIBOT.basics.get_config import get_config
 
 loop = asyncio.get_event_loop()
 
