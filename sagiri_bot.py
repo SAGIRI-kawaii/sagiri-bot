@@ -44,19 +44,22 @@ async def group_assist_process(received_message: MessageChain, message: list, gr
     Return:
         None
     """
-    if len(message) > 1 and message[0] == "None":
-        await app.sendGroupMessage(group, MessageChain(__root__=[
-            Plain("This message was sent by the new version of SAGIRI-Bot")
-        ]))
-        await app.sendGroupMessage(group, message[1])
-    elif len(message) > 1 and message[0] == "AtSender":
-        await app.sendGroupMessage(group, message[1])
-    elif len(message) > 1 and message[0] == "quoteSource":
-        await app.sendGroupMessage(group, message[1], quote=received_message[Source][0])
-    elif len(message) > 1 and message[0] == "revoke":
-        msg = await app.sendGroupMessage(group, message[1])
-        await asyncio.sleep(10)
-        await app.revokeMessage(msg)
+    try:
+        if len(message) > 1 and message[0] == "None":
+            await app.sendGroupMessage(group, MessageChain(__root__=[
+                Plain("This message was sent by the new version of SAGIRI-Bot")
+            ]))
+            await app.sendGroupMessage(group, message[1])
+        elif len(message) > 1 and message[0] == "AtSender":
+            await app.sendGroupMessage(group, message[1])
+        elif len(message) > 1 and message[0] == "quoteSource":
+            await app.sendGroupMessage(group, message[1], quote=received_message[Source][0])
+        elif len(message) > 1 and message[0] == "revoke":
+            msg = await app.sendGroupMessage(group, message[1])
+            await asyncio.sleep(10)
+            await app.revokeMessage(msg)
+    except AccountMuted:
+        pass
 
 
 @bcc.receiver("FriendMessage")
@@ -161,7 +164,7 @@ async def member_join(
                 }"""
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
-                App(welcome_json)
+                App(content=welcome_json)
             ])
         )
     except AccountMuted:
@@ -173,36 +176,84 @@ async def member_leave(app: GraiaMiraiApplication, event: MemberLeaveEventQuit):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
-                Plain(text="%s怎么走了呐~是纱雾不够可爱吗嘤嘤嘤" % event.member.id)
+                Plain(text="%s怎么走了呐~是纱雾不够可爱吗嘤嘤嘤" % event.member.name)
             ])
         )
     except AccountMuted:
         pass
 
 
-# @bcc.receiver("MemberMuteEvent")
-# async def member_muted(app: GraiaMiraiApplication, event: MemberMuteEvent):
-#     if event.operator is not None:
-#         if event.member.id == HostQQ:
-#             try:
-#                 await app.unmute(event.member.group.id, event.member.id)
-#                 await app.sendGroupMessage(
-#                     event.member.group.id, [
-#                         Plain(text="保护！保护！")
-#                     ]
-#                 )
-#             except Exception:
-#                 pass
-#         else:
-#             try:
-#                 await app.sendGroupMessage(
-#                     event.member.group.id, [
-#                         Plain(text="哦~看看是谁被关进小黑屋了？\n哦我的上帝啊~是%s！他将在小黑屋里呆%s哦~" % (
-#                         qq2name(MemberList[event.member.group.id], event.member.id), sec2Str(event.durationSeconds)))
-#                     ]
-#                 )
-#             except exceptions.BotMutedError:
-#                 pass
+@bcc.receiver("MemberMuteEvent")
+async def member_muted(app: GraiaMiraiApplication, event: MemberMuteEvent):
+    if event.operator is not None:
+        if event.member.id == await get_config("HostQQ"):
+            try:
+                await app.unmute(event.member.group.id, event.member.id)
+                await app.sendGroupMessage(
+                    event.member.group.id, MessageChain.create([
+                        Plain(text="保护！保护！")
+                    ])
+                )
+            except PermissionError:
+                pass
+        else:
+            try:
+                await app.sendGroupMessage(
+                    event.member.group.id, MessageChain.create([
+                        Plain(text="哦~看看是谁被关进小黑屋了？\n"),
+                        Plain(text="哦我的上帝啊~是%s！他将在小黑屋里呆%s哦~" % (event.member.name, str(event.durationSeconds)))
+                    ])
+                )
+            except AccountMuted:
+                pass
+
+
+@bcc.receiver("MemberUnmuteEvent")
+async def member_join(app: GraiaMiraiApplication, event: MemberUnmuteEvent):
+    try:
+        await app.sendGroupMessage(
+            event.member.group.id, MessageChain.create([
+                Plain(text="啊嘞嘞？%s被放出来了呢~" % event.member.name)
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("MemberLeaveEventKick")
+async def member_kicked(app: GraiaMiraiApplication, event: MemberLeaveEventKick):
+    try:
+        await app.sendGroupMessage(
+            event.member.group.id, MessageChain.create([
+                Plain(text="%s滚蛋了呐~" % event.member.name)
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("MemberSpecialTitleChangeEvent")
+async def member_join(app: GraiaMiraiApplication, event: MemberSpecialTitleChangeEvent):
+    try:
+        await app.sendGroupMessage(
+            event.member.group.id, MessageChain.create([
+                Plain(text="啊嘞嘞？%s的群头衔变成%s了呐~" % (event.member.name, event.current))
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("MemberPermissionChangeEvent")
+async def member_join(app: GraiaMiraiApplication, event: MemberPermissionChangeEvent):
+    try:
+        await app.sendGroupMessage(
+            event.member.group.id, MessageChain.create([
+                Plain(text="啊嘞嘞？%s的权限变成%s了呐~" % (event.member.name, event.current))
+            ])
+        )
+    except AccountMuted:
+        pass
 
 
 app.launch_blocking()
