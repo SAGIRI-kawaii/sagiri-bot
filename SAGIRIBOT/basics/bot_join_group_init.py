@@ -20,6 +20,6 @@ async def bot_join_group_init(group_id: int, group_name: str) -> None:
     (groupId,groupName,`repeat`,setuLocal,bizhiLocal,countLimit,`limit`,setu,bizhi,`real`,r18,search,speakMode,music,switch,forbiddenCount) 
     VALUES 
     (%d,'%s',%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,'%s','%s','%s',0)
-    """ % (group_id, group_name, True, True, True, True, 6, True, True, True, False, True, "normal","wyy", "online")
+    """ % (group_id, group_name, True, True, True, True, 6, True, True, True, False, True, "normal", "wyy", "online")
     await execute_sql(sql)
     print("join group database init finished!")
