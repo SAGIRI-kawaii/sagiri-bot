@@ -58,4 +58,6 @@ async def get_pic(image_type: str) -> list:
     message = MessageChain.create([
         Image.fromLocalFile(target_pic_path)
     ])
+    if image_type == "setu18":
+        return ["revoke", message]
     return ["None", message]

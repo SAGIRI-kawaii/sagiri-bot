@@ -53,6 +53,10 @@ async def group_assist_process(received_message: MessageChain, message: list, gr
         await app.sendGroupMessage(group, message[1])
     elif len(message) > 1 and message[0] == "quoteSource":
         await app.sendGroupMessage(group, message[1], quote=received_message[Source][0])
+    elif len(message) > 1 and message[0] == "revoke":
+        msg = await app.sendGroupMessage(group, message[1])
+        await asyncio.sleep(10)
+        await app.revokeMessage(msg)
 
 
 @bcc.receiver("FriendMessage")

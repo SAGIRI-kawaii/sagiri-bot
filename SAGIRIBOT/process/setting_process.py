@@ -4,6 +4,10 @@ from graia.application.message.elements.internal import Plain
 from SAGIRIBOT.data_manage.get_data.get_admin import get_admin
 from SAGIRIBOT.data_manage.update_data.update_setting import update_setting
 
+setting_value = {"Disable": False, "Enable": True, "on": True, "off": False, "Local": True, "Net": False,
+                 "normal": "normal", "zuanLow": "zuanLow", "zuanHigh": "zuanHigh", "rainbow": "rainbow",
+                 "chat": "chat", "online": "online", "offline": "offline", "wyy": "wyy", "qq": "qq", }
+
 
 async def judge_setting_legitimacy(config: str, new_value: str) -> bool:
     """
@@ -19,9 +23,6 @@ async def judge_setting_legitimacy(config: str, new_value: str) -> bool:
     Return:
          bool
     """
-    setting_value = {"Disable": 0, "Enable": 1, "on": 1, "off": 0, "Local": 1, "Net": 0, "normal": "normal",
-                     "zuanLow": "zuanLow", "zuanHigh": "zuanHigh", "rainbow": "rainbow", "chat": "chat",
-                     "online": "online", "offline": "offline", "wyy": "wyy", "qq": "qq", }
     setting_torf = [
         "repeat", "countLimit", "tribute", "listen", "setu", "real", "bizhi", "search", "r18", "imgPredict",
         "imgLightning",
@@ -75,7 +76,7 @@ async def setting_process(group_id: int, sender: int, config: str, new_value: st
         ]
     else:
         if await judge_setting_legitimacy(config, new_value):
-            await update_setting(group_id, config, new_value)
+            await update_setting(group_id, config, setting_value[new_value])
             return [
                 "None",
                 MessageChain.create([

@@ -51,12 +51,12 @@ async def group_message_process(
     sender = message_info.sender.id
     group_id = message_info.sender.group.id
 
-    if message.has(At) and message.get(At)[0] == await get_config("BotQQ"):
+    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
         await update_user_called_data(group_id, sender, "at", 1)
 
-    if message.has(At) and message.get(At)[0] == await get_config("BotQQ") and re.search(" setting.*", message_text):
+    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search("@.* setting.*", message_text):
         try:
-            _, command_name, config, new_value = message_text.split(".")
+            _, config, new_value = message_text.split(".")
             return await setting_process(group_id, sender, config, new_value)
         except ValueError:
             return [
@@ -79,7 +79,10 @@ async def group_message_process(
         if await get_setting(group_id, "setu"):
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "setu", 1)
-            return await get_pic("setu")
+            if await get_setting(group_id, "r18"):
+                return await get_pic("setu18")
+            else:
+                return await get_pic("setu")
         else:
             return [
                 "None",
