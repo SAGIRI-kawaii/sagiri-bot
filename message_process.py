@@ -48,6 +48,9 @@ async def group_message_process(
     sender = message_info.sender.id
     group_id = message_info.sender.group.id
 
+    if message.has(At) and message.get(At)[0] == await get_config("BotQQ"):
+        await update_user_called_data(group_id, sender, "at", 1)
+
     """
     图片功能：
         setu
@@ -60,6 +63,7 @@ async def group_message_process(
     if message_text == "setu":
         if await get_setting(group_id, "setu"):
             await update_dragon_data(group_id, sender, "normal")
+            await update_user_called_data(group_id, sender, "setu", 1)
             return await get_pic("setu")
         else:
             return [
@@ -71,6 +75,7 @@ async def group_message_process(
 
     elif message_text == "real":
         if await get_setting(group_id, "real"):
+            await update_user_called_data(group_id, sender, "real", 1)
             return await get_pic("real")
         else:
             return [
@@ -82,6 +87,7 @@ async def group_message_process(
 
     elif message_text == "bizhi":
         if await get_setting(group_id, "bizhi"):
+            await update_user_called_data(group_id, sender, "bizhi", 1)
             return await get_pic("bizhi")
         else:
             return [
@@ -90,8 +96,10 @@ async def group_message_process(
                     Plain(text="壁纸功能关闭了呐~想要打开的话就联系管理员吧~")
                 ])
             ]
+
     elif message_text == "几点了":
         return await get_wallpaper_time(group_id, sender)
+
     elif message_text.startswith("选择表盘"):
         if message_text == "选择表盘":
             return await show_clock_wallpaper(sender)
@@ -116,18 +124,11 @@ async def group_message_process(
             ]
     elif message.has(Image) and await get_setting(group_id, "search") and await get_image_ready(group_id, sender, "searchReady"):
         image = message.get(Image)[0]
+        await update_user_called_data(group_id, sender, "search", 1)
         return await search_image(group_id, sender, image)
 
     elif message_text == "这张图涩吗":
-        if not await get_setting(group_id, "yellowPredict"):
-            return [
-                "None",
-                MessageChain.create([
-                    At(target=sender),
-                    Plain(text="图片涩度评价功能关闭了呐~想要打开就联系机器人管理员吧~")
-                ])
-            ]
-        else:
+        if await get_setting(group_id, "yellowPredict"):
             await set_get_img_ready(group_id, sender, True, "yellowPredictReady")
             return [
                 "None",
@@ -136,8 +137,17 @@ async def group_message_process(
                     Plain(text="请发送要预测的图片呐~")
                 ])
             ]
+        else:
+            return [
+                "None",
+                MessageChain.create([
+                    At(target=sender),
+                    Plain(text="图片涩度评价功能关闭了呐~想要打开就联系机器人管理员吧~")
+                ])
+            ]
     elif message.has(Image) and await get_setting(group_id, "yellowPredict") and await get_image_ready(group_id, sender, "yellowPredictReady"):
         image = message.get(Image)[0]
+        await update_user_called_data(group_id, sender, "yellowPredict", 1)
         return await image_yellow_judge(group_id, sender, image, "yellowPredict")
 
     # 爬虫相关功能
