@@ -19,80 +19,8 @@ from functions.basics.get_config import get_config
 from functions.data_manage.update_data.set_get_image_ready import set_get_img_ready
 from functions.data_manage.update_data.update_total_calls import update_total_calls
 from functions.data_manage.get_data.get_total_calls import get_total_calls
-
-
-async def base_64(pic_path: str) -> str:
-    """
-    Compress the image and transcode to Base64
-
-    Args:
-        pic_path: Img path
-
-    Examples:
-        img_base64 = await base_64(path)
-
-    Return:
-        str
-    """
-    size = os.path.getsize(pic_path) / 1024
-    if size > 900:
-        print('>>>>压缩<<<<')
-        with IMG.open(pic_path) as img:
-            w, h = img.size
-            new_width = 500
-            new_height = round(new_width / w * h)
-            img = img.resize((new_width, new_height), IMG.ANTIALIAS)
-            img_buffer = io.BytesIO()  # 生成buffer
-            img.save(img_buffer, format='PNG', quality=70)
-            byte_data = img_buffer.getvalue()
-            base64_data = base64.b64encode(byte_data)
-            code = base64_data.decode()
-            return code
-    with open(pic_path, 'rb') as f:
-        coding = base64.b64encode(f.read())  # 读取文件内容，转换为base64编码
-        return coding.decode()
-
-
-async def curl_md5(src: str) -> str:
-    """
-    MD5
-
-    Args:
-        src: sign
-
-    Examples:
-        sign = await curl_md5(sign)
-
-    Return:
-        str
-    """
-    m = hashlib.md5(src.encode('UTF-8'))
-    return m.hexdigest().upper()
-
-
-async def get_sign(params: dict) -> str:
-    """
-    Get sign of Tencent Ai Platform
-
-    Args:
-        params: Dict to send
-
-    Examples:
-        sign = await get_sign(params)
-
-    Return:
-        str
-    """
-    app_key = await get_config("txAppKey")
-    params_keys = sorted(params.keys())
-    sign = ""
-    for i in params_keys:
-        if params[i] != '':
-            sign += "%s=%s&" % (i, parse.quote(params[i], safe=''))
-    sign += "app_key=%s" % app_key
-    sign = await curl_md5(sign)
-    print("signMD5:", sign)
-    return sign
+from functions.basics.tools import get_tx_sign
+from functions.basics.tools import img_to_base_64
 
 
 async def image_yellow_judge(group_id: int, sender: int, img: Image, usage_occasion: str) -> list:
@@ -130,7 +58,7 @@ async def image_yellow_judge(group_id: int, sender: int, img: Image, usage_occas
 
     image = IMG.open(BytesIO(img_content))
     image.save(path)
-    img_base64 = await base_64(path)
+    img_base64 = await img_to_base_64(path)
     url = "https://api.ai.qq.com/fcgi-bin/vision/vision_porn"
     # 请求时间戳（秒级），用于防止请求重放（保证签名5分钟有效)
     t = time.time()
@@ -144,8 +72,8 @@ async def image_yellow_judge(group_id: int, sender: int, img: Image, usage_occas
         'time_stamp': time_stamp,
         'nonce_str': nonce_str,
         'image': img_base64
-        }
-    params['sign'] = await get_sign(params)
+    }
+    params['sign'] = await get_tx_sign(params)
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url=url, data=params) as resp:

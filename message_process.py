@@ -1,3 +1,5 @@
+import re
+
 from graia.application.event.messages import *
 
 from graia.application.message.elements.internal import Plain
@@ -5,6 +7,7 @@ from graia.application.message.elements.internal import At
 from graia.application.message.elements.internal import Image
 
 from functions.images.get_image import get_pic
+from functions.basics.get_config import get_config
 from functions.crawer.weibo.weibo_crawer import get_weibo_hot
 from functions.crawer.bilibili.bangumi_crawer import formatted_output_bangumi
 from functions.crawer.leetcode.leetcode_user_info_crawer import get_leetcode_statics
@@ -17,6 +20,8 @@ from functions.images.image_yellow_judge import image_yellow_judge
 from functions.data_manage.update_data.update_dragon import update_dragon_data
 from functions.images.get_wallpaper_time import get_wallpaper_time
 from functions.images.get_wallpaper_time import show_clock_wallpaper
+from functions.functions.get_translate import get_translate
+from functions.data_manage.update_data.update_user_called_data import update_user_called_data
 
 
 async def group_message_process(
@@ -139,7 +144,6 @@ async def group_message_process(
     """
     SAGIRI API相关功能：
         历史上的今天
-        
     """
     """
     微博相关功能：
@@ -178,4 +182,12 @@ async def group_message_process(
     """
     if message_text.startswith("steam "):
         return await get_steam_game_search(message_text.replace("steam ", ""))
+
+    """
+    实用功能:
+        文本翻译
+    """
+    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说", message_text):
+        return await get_translate(message_text, sender)
+
     return ["None"]
