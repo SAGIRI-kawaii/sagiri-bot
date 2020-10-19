@@ -13,6 +13,7 @@ from graia.application.event.mirai import *
 from graia.application.exceptions import *
 
 from SAGIRIBOT.process.message_process import group_message_process
+from SAGIRIBOT.basics.bot_join_group_init import bot_join_group_init
 from SAGIRIBOT.basics.get_config import get_config
 
 loop = asyncio.get_event_loop()
@@ -254,6 +255,20 @@ async def member_join(app: GraiaMiraiApplication, event: MemberPermissionChangeE
         )
     except AccountMuted:
         pass
+
+
+@bcc.receiver("BotJoinGroupEvent")
+async def member_join(app: GraiaMiraiApplication, event: BotJoinGroupEvent):
+    print("add group")
+    try:
+        await app.sendGroupMessage(
+            event.group, MessageChain.create([
+                Plain(text="欸嘿嘿~我来啦！宇宙无敌小可爱纱雾酱华丽登场！")
+            ])
+        )
+    except AccountMuted:
+        pass
+    await bot_join_group_init(event.group.id, event.group.name)
 
 
 app.launch_blocking()
