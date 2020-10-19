@@ -25,6 +25,7 @@ from SAGIRIBOT.data_manage.update_data.update_user_called_data import update_use
 from SAGIRIBOT.functions.order_music import get_song_ordered
 from SAGIRIBOT.functions.get_history_today import get_history_today
 from SAGIRIBOT.process.setting_process import setting_process
+from SAGIRIBOT.process.reply_process import reply_process
 
 
 async def group_message_process(
@@ -226,5 +227,8 @@ async def group_message_process(
     elif message_text.startswith("点歌 ") and len(message_text) >= 4:
         print("search song:", message_text[3:])
         return await get_song_ordered(message_text[3:])
+
+    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
+        return await reply_process(group_id, sender, message_text)
 
     return ["None"]

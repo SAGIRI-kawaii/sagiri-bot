@@ -3,7 +3,6 @@ import time
 import random
 import string
 import aiohttp
-from urllib.parse import quote
 
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import Plain
@@ -11,8 +10,6 @@ from graia.application.message.elements.internal import At
 
 from SAGIRIBOT.basics.get_config import get_config
 from SAGIRIBOT.basics.tools import get_tx_sign
-from SAGIRIBOT.basics.tools import curl_md5
-
 
 async def text_detect(text: str) -> str:
     """
