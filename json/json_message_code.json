@@ -1,0 +1,3 @@
+{
+  "MemberJoinEvent": "{\"prompt\": \"[欢迎入群]\",\"extraApps\": [],\"sourceUrl\": \"\",\"appID\": \"\",\"sourceName\": \"\",\"desc\": \"\",\"app\": \"com.tencent.qqpay.qqmp.groupmsg\", \"ver\": \"1.0.0.7\", \"view\": \"groupPushView\", \"meta\": {\"groupPushData\": {\"fromIcon\": \"\", \"fromName\": \"name\", \"time\": \"\", \"report_url\": \"http:\\/\\/kf.qq.com\\/faq\\/180522RRRVvE180522NzuuYB.html\", \"cancel_url\": \"http:\\/\\/www.baidu.com\", \"summaryTxt\": \"\", \"bannerTxt\": \"欸嘿~欢迎进群呐~进来了就不许走了哦~\", \"item1Img\": \"\", \"bannerLink\": \"\", \"bannerImg\": \"http:\\/\\/gchat.qpic.cn\\/gchatpic_new\\/12904366\\/1046209507-2584598286-E7FCC807BECA2938EBE5D57E7E4980FF\\/0?term=2\"}}, \"actionData\": \"\", \"actionData_A\": \"\"}"
+}

@@ -24,6 +24,6 @@ async def update_user_called_data(group_id: int, member_id: int, operation: str,
         sql = "insert into userCalled (groupId,memberId) values (%d,%d)" % (group_id, member_id)
         await execute_sql(sql)
     if operation in sql_key_word:
-        name = '`' + operation + '`'
-    sql = "UPDATE userCalled SET %s=%s+%d WHERE groupId=%d and memberId=%d" % (name, name, count, group_id, member_id)
+        operation = '`' + operation + '`'
+    sql = "UPDATE userCalled SET %s=%s+%d WHERE groupId=%d and memberId=%d" % (operation, operation, count, group_id, member_id)
     await execute_sql(sql)

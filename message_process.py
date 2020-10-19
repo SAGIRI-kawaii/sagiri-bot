@@ -22,6 +22,7 @@ from functions.images.get_wallpaper_time import get_wallpaper_time
 from functions.images.get_wallpaper_time import show_clock_wallpaper
 from functions.functions.get_translate import get_translate
 from functions.data_manage.update_data.update_user_called_data import update_user_called_data
+from functions.functions.order_music import get_song_ordered
 
 
 async def group_message_process(
@@ -199,5 +200,9 @@ async def group_message_process(
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说", message_text):
         return await get_translate(message_text, sender)
+
+    elif message_text.startswith("点歌 ") and len(message_text) >= 4:
+        print("search song:", message_text[3:])
+        return await get_song_ordered(message_text[3:])
 
     return ["None"]
