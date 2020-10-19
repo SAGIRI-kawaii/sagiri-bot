@@ -10,8 +10,6 @@ from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import At
 from graia.application.message.elements.internal import App
 from graia.application.message.elements.internal import Source
-from graia.application.message.elements.internal import Json
-from graia.application.message.elements.internal import Xml
 from graia.application.event.messages import *
 from graia.application.event.mirai import *
 from graia.application.exceptions import *

@@ -23,6 +23,7 @@ from functions.images.get_wallpaper_time import show_clock_wallpaper
 from functions.functions.get_translate import get_translate
 from functions.data_manage.update_data.update_user_called_data import update_user_called_data
 from functions.functions.order_music import get_song_ordered
+from functions.functions.get_history_today import get_history_today
 
 
 async def group_message_process(
@@ -156,6 +157,8 @@ async def group_message_process(
     SAGIRI API相关功能：
         历史上的今天
     """
+    if message_text == "历史上的今天":
+        return await get_history_today()
     """
     微博相关功能：
         微博热搜

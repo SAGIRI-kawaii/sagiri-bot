@@ -6,8 +6,23 @@ from graia.application.message.elements.internal import App
 
 
 async def get_song_ordered(keyword: str) -> list:
+    """
+    Search song from CloudMusic
+
+    Args:
+        keyword: Keyword to search
+
+    Examples:
+        message = await get_song_ordered("lemon")
+
+    Return:
+        [
+            str: Auxiliary treatment to be done(Such as add statement),
+            MessageChain: Message to be send(MessageChain)
+        ]
+    """
     song_search_url = "http://music.163.com/api/search/get/web?csrf_token=hlpretag=&hlposttag=&s={%s}&type=1&offset=0&total=true&limit=1" % keyword
-    print(song_search_url)
+    # print(song_search_url)
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url=song_search_url) as resp:
