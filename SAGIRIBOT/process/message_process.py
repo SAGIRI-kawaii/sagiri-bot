@@ -26,6 +26,7 @@ from SAGIRIBOT.functions.order_music import get_song_ordered
 from SAGIRIBOT.functions.get_history_today import get_history_today
 from SAGIRIBOT.process.setting_process import setting_process
 from SAGIRIBOT.process.reply_process import reply_process
+from SAGIRIBOT.crawer.bangumi.get_bangumi_info import get_bangumi_info
 
 
 async def group_message_process(
@@ -217,8 +218,19 @@ async def group_message_process(
         return await get_steam_game_search(message_text.replace("steam ", ""))
 
     """
+    bangumi相关功能：
+        番剧查询
+    """
+    if message_text.startswith("番剧 "):
+        keyword = message_text[3:]
+        return await get_bangumi_info(sender, keyword)
+
+    """
     实用功能:
         文本翻译
+        点歌
+        机器人帮助
+        自动回复
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
                                                                                                 message_text):
@@ -228,10 +240,7 @@ async def group_message_process(
         print("search song:", message_text[3:])
         return await get_song_ordered(message_text[3:])
 
-    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
-        return await reply_process(group_id, sender, message_text)
-
-    elif message_text == "help" or message_text == "!help" or message_text == "/help" or message_text == "！help":
+    if message_text == "help" or message_text == "!help" or message_text == "/help" or message_text == "！help":
         return [
             "None",
             MessageChain.create([
@@ -239,4 +248,8 @@ async def group_message_process(
                 Plain(text="文档尚未完善，功能说明还在陆续增加中！")
             ])
         ]
+
+    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
+        return await reply_process(group_id, sender, message_text)
+
     return ["None"]

@@ -82,7 +82,7 @@ async def get_steam_game_search(keyword: str) -> list:
         if not os.path.exists(path):
             async with aiohttp.ClientSession() as session:
                 async with session.get(url=result["avatar"]) as resp:
-                    img_content = await resp.content
+                    img_content = await resp.read()
             image = IMG.open(BytesIO(img_content))
             image.save(path)
         description = await get_steam_game_description(result["app_id"])

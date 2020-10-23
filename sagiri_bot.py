@@ -69,10 +69,10 @@ async def bot_init(app: GraiaMiraiApplication):
     print("Bot init start")
     group_list = await app.groupList()
     await check_group_data_init(group_list)
-    for i in group_list:
-        await app.sendGroupMessage(i, MessageChain.create([
-            Plain(text="SAGIRI-Bot is online")
-        ]))
+    # for i in group_list:
+    #     await app.sendGroupMessage(i, MessageChain.create([
+    #         Plain(text="SAGIRI-Bot is online")
+    #     ]))
     print("Bot init end")
 
 
