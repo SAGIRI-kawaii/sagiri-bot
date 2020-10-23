@@ -231,4 +231,12 @@ async def group_message_process(
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
         return await reply_process(group_id, sender, message_text)
 
+    elif message_text == "help" or message_text == "!help" or message_text == "/help" or message_text == "！help":
+        return [
+            "None",
+            MessageChain.create([
+                Plain(text="点击链接查看帮助：http://doc.sagiri-web.com/web/#/p/c79d523043f6ec05c1ac1416885477c7\n"),
+                Plain(text="文档尚未完善，功能说明还在陆续增加中！")
+            ])
+        ]
     return ["None"]

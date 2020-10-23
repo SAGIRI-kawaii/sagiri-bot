@@ -14,6 +14,7 @@ from graia.application.exceptions import *
 
 from SAGIRIBOT.process.message_process import group_message_process
 from SAGIRIBOT.basics.bot_join_group_init import bot_join_group_init
+from SAGIRIBOT.basics.check_group_data_init import check_group_data_init
 from SAGIRIBOT.basics.get_config import get_config
 
 loop = asyncio.get_event_loop()
@@ -61,6 +62,18 @@ async def group_assist_process(received_message: MessageChain, message: list, gr
             await app.revokeMessage(msg)
     except AccountMuted:
         pass
+
+
+@bcc.receiver("ApplicationLaunched")
+async def bot_init(app: GraiaMiraiApplication):
+    print("Bot init start")
+    group_list = await app.groupList()
+    await check_group_data_init(group_list)
+    for i in group_list:
+        await app.sendGroupMessage(i, MessageChain.create([
+            Plain(text="SAGIRI-Bot is online")
+        ]))
+    print("Bot init end")
 
 
 @bcc.receiver("FriendMessage")
