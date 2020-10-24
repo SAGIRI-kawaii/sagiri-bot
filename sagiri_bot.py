@@ -16,6 +16,7 @@ from SAGIRIBOT.process.message_process import group_message_process
 from SAGIRIBOT.basics.bot_join_group_init import bot_join_group_init
 from SAGIRIBOT.basics.check_group_data_init import check_group_data_init
 from SAGIRIBOT.basics.get_config import get_config
+from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 
 loop = asyncio.get_event_loop()
 
@@ -30,6 +31,8 @@ app = GraiaMiraiApplication(
     )
 )
 
+# 复读判断
+group_repeat = dict()
 
 async def group_assist_process(received_message: MessageChain, message: list, group: Group) -> None:
     """
@@ -68,6 +71,8 @@ async def group_assist_process(received_message: MessageChain, message: list, gr
 async def bot_init(app: GraiaMiraiApplication):
     print("Bot init start")
     group_list = await app.groupList()
+    for i in group_list:
+        group_repeat[i.id] = {"lastMsg": "", "thisMsg": "", "stopMsg": ""}
     await check_group_data_init(group_list)
     # for i in group_list:
     #     await app.sendGroupMessage(i, MessageChain.create([
@@ -94,42 +99,18 @@ async def group_message_listener(
         message: MessageChain,
         message_info: GroupMessage
 ):
-    if message_info.sender.id == await get_config("HostQQ") and message.asDisplay() == "test":
-        # welcome_json = await get_json_code("MemberJoinEvent")
-        welcome_json = """{
-            "prompt": "[欢迎入群]",
-            "extraApps": [],
-            "sourceUrl": "",
-            "appID": "",
-            "sourceName": "",
-            "desc": "",
-            "app": "com.tencent.qqpay.qqmp.groupmsg",
-            "ver": "1.0.0.7",
-            "view": "groupPushView",
-            "meta": {
-                "groupPushData": {
-                    "fromIcon": "",
-                    "fromName": "name",
-                    "time": "",
-                    "report_url": "http:\\/\\/kf.qq.com\\/faq\\/180522RRRVvE180522NzuuYB.html",
-                    "cancel_url": "http:\\/\\/www.baidu.com",
-                    "summaryTxt": "",
-                    "bannerTxt": "欸嘿~欢迎进群呐~进来了就不许走了哦~",
-                    "item1Img": "",
-                    "bannerLink": "",
-                    "bannerImg": "http:\\/\\/gchat.qpic.cn\\/gchatpic_new\\/12904366\\/1046209507-2584598286-E7FCC807BECA2938EBE5D57E7E4980FF\\/0?term=2"
-                }
-            },
-            "actionData": "",
-            "actionData_A": ""
-        }"""
-        print(welcome_json)
-        await app.sendGroupMessage(
-            group, MessageChain.create([
-                App(content=welcome_json)
-            ])
-        )
     print("接收到组%s中来自%s的消息:%s" % (group.name, message_info.sender.name, message.asDisplay()))
+
+    # 复读
+    group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
+    group_repeat[group.id]["thisMsg"] = message.asDisplay()
+    if group_repeat[group.id]["lastMsg"] != group_repeat[group.id]["thisMsg"]:
+        group_repeat[group.id]["stopMsg"] = ""
+    if await get_setting(group.id, "repeat"):
+        if group_repeat[group.id]["lastMsg"] == group_repeat[group.id]["thisMsg"]:
+            if group_repeat[group.id]["lastMsg"] != group_repeat[group.id]["stopMsg"]:
+                await app.sendGroupMessage(group, message.asSendable())
+
     message_send = await group_message_process(message, message_info)
     print(message)
     await group_assist_process(message, message_send, group)
