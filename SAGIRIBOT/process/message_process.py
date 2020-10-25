@@ -27,6 +27,7 @@ from SAGIRIBOT.functions.get_history_today import get_history_today
 from SAGIRIBOT.process.setting_process import setting_process
 from SAGIRIBOT.process.reply_process import reply_process
 from SAGIRIBOT.crawer.bangumi.get_bangumi_info import get_bangumi_info
+from SAGIRIBOT.data_manage.get_data.get_admin import get_admin
 
 
 async def group_message_process(
@@ -82,9 +83,9 @@ async def group_message_process(
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "setu", 1)
             if await get_setting(group_id, "r18"):
-                return await get_pic("setu18")
+                return await get_pic("setu18", group_id)
             else:
-                return await get_pic("setu")
+                return await get_pic("setu", group_id)
         else:
             return [
                 "None",
@@ -96,7 +97,7 @@ async def group_message_process(
     elif message_text == "real":
         if await get_setting(group_id, "real"):
             await update_user_called_data(group_id, sender, "real", 1)
-            return await get_pic("real")
+            return await get_pic("real", group_id)
         else:
             return [
                 "None",
@@ -108,12 +109,72 @@ async def group_message_process(
     elif message_text == "bizhi":
         if await get_setting(group_id, "bizhi"):
             await update_user_called_data(group_id, sender, "bizhi", 1)
-            return await get_pic("bizhi")
+            return await get_pic("bizhi", group_id)
         else:
             return [
                 "None",
                 MessageChain.create([
                     Plain(text="壁纸功能关闭了呐~想要打开的话就联系管理员吧~")
+                ])
+            ]
+
+    elif message_text.startswith("setu*") or message_text.startswith("real*") or message_text.startswith("bizhi*"):
+        if message_text.startswith("bizhi*"):
+            command = "bizhi"
+            num = message_text[6:]
+        else:
+            command = message_text[:4]
+            num = message_text[5:]
+        if num.isdigit():
+            num = int(num)
+            if sender not in await get_admin(group_id):
+                if 0 <= num <= 5:
+                    return [
+                        "None",
+                        MessageChain.create([
+                            Plain(text="只有主人和管理员可以使用%s*num命令哦~你没有权限的呐~" % command)
+                        ])
+                    ]
+                elif num < 0:
+                    return [
+                        "None",
+                        MessageChain.create([
+                            Plain(text="%d？你有问题？不如给爷吐出%d张来" % (num, -num))
+                        ])
+                    ]
+                else:
+                    return [
+                        "None",
+                        MessageChain.create([
+                            Plain(text="不是管理员你要你🐎呢？老色批！还要那么多？给你🐎一拳，给爷爬！")
+                        ])
+                    ]
+            if num < 0:
+                return [
+                    "None",
+                    MessageChain.create([
+                        Plain(text="%d？你有问题？不如给爷吐出%d张来" % (num, -num))
+                    ])
+                ]
+            elif num >= 5:
+                if sender == await get_config("HostQQ"):
+                    return ["%s*" % command, num]
+                else:
+                    return [
+                        "None",
+                        MessageChain.create([
+                            Plain(text="管理最多也只能要5张呐~我可不会被轻易玩儿坏呢！！！！")
+                        ])
+                    ]
+            else:
+                if sender != await get_config("HostQQ"):
+                    await update_user_called_data(group_id, sender, command, num)
+                return ["%s*" % command, int(num)]
+        else:
+            return [
+                "None",
+                MessageChain.create([
+                    Plain(text="必须为数字！")
                 ])
             ]
 

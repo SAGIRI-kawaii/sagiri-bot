@@ -17,6 +17,7 @@ from SAGIRIBOT.basics.bot_join_group_init import bot_join_group_init
 from SAGIRIBOT.basics.check_group_data_init import check_group_data_init
 from SAGIRIBOT.basics.get_config import get_config
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
+from SAGIRIBOT.images.get_image import get_pic
 
 loop = asyncio.get_event_loop()
 
@@ -50,7 +51,7 @@ async def group_assist_process(received_message: MessageChain, message: list, gr
         None
     """
     try:
-        if len(message) > 1:
+        if len(message) > 1 and "*" not in message[0]:
             group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
             group_repeat[group.id]["thisMsg"] = message[1].asDisplay()
         if len(message) > 1 and message[0] == "None":
@@ -66,6 +67,18 @@ async def group_assist_process(received_message: MessageChain, message: list, gr
             msg = await app.sendGroupMessage(group, message[1])
             await asyncio.sleep(10)
             await app.revokeMessage(msg)
+        elif len(message) > 1 and message[0] == "setu*":
+            for _ in range(message[1]):
+                message = await get_pic("setu", group.id)
+                await app.sendGroupMessage(group, message[1])
+        elif len(message) > 1 and message[0] == "real*":
+            for _ in range(message[1]):
+                message = await get_pic("real", group.id)
+                await app.sendGroupMessage(group, message[1])
+        elif len(message) > 1 and message[0] == "bizhi*":
+            for _ in range(message[1]):
+                message = await get_pic("bizhi", group.id)
+                await app.sendGroupMessage(group, message[1])
     except AccountMuted:
         pass
 

@@ -6,7 +6,8 @@ from SAGIRIBOT.data_manage.update_data.update_setting import update_setting
 
 setting_value = {"Disable": False, "Enable": True, "on": True, "off": False, "Local": True, "Net": False,
                  "normal": "normal", "zuanLow": "zuanLow", "zuanHigh": "zuanHigh", "rainbow": "rainbow",
-                 "chat": "chat", "online": "online", "offline": "offline", "wyy": "wyy", "qq": "qq", }
+                 "chat": "chat", "online": "online", "offline": "offline", "wyy": "wyy", "qq": "qq",
+                 "flashImage": "flashImage", "revoke": "revoke"}
 
 
 async def judge_setting_legitimacy(config: str, new_value: str) -> bool:
@@ -43,6 +44,8 @@ async def judge_setting_legitimacy(config: str, new_value: str) -> bool:
             new_value == "normal" or new_value == "zuanHigh" or new_value == "zuanLow" or new_value == "rainbow" or new_value == "chat"):
         return True
     elif config == "switch" and (new_value == "online" or new_value == "offline"):
+        return True
+    elif config == "r18Process" and (new_value == "flashImage" or new_value == "revoke"):
         return True
     return False
 
