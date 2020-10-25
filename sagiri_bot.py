@@ -50,6 +50,9 @@ async def group_assist_process(received_message: MessageChain, message: list, gr
         None
     """
     try:
+        if len(message) > 1:
+            group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
+            group_repeat[group.id]["thisMsg"] = message[1].asDisplay()
         if len(message) > 1 and message[0] == "None":
             await app.sendGroupMessage(group, MessageChain(__root__=[
                 Plain("This message was sent by the new version of SAGIRI-Bot")
@@ -104,11 +107,13 @@ async def group_message_listener(
     # 复读
     group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
     group_repeat[group.id]["thisMsg"] = message.asDisplay()
+    # print(group_repeat[group.id])
     if group_repeat[group.id]["lastMsg"] != group_repeat[group.id]["thisMsg"]:
         group_repeat[group.id]["stopMsg"] = ""
     if await get_setting(group.id, "repeat"):
         if group_repeat[group.id]["lastMsg"] == group_repeat[group.id]["thisMsg"]:
-            if group_repeat[group.id]["lastMsg"] != group_repeat[group.id]["stopMsg"]:
+            if group_repeat[group.id]["thisMsg"] != group_repeat[group.id]["stopMsg"]:
+                group_repeat[group.id]["stopMsg"] = group_repeat[group.id]["thisMsg"]
                 await app.sendGroupMessage(group, message.asSendable())
 
     message_send = await group_message_process(message, message_info)
