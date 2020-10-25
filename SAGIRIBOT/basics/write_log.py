@@ -5,6 +5,7 @@ from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
 async def write_log(operation, pic_url, sender, group_id, result, operationType):
     time_now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if operationType == 'img':
+        pic_url = pic_url.replace("\\", "\\\\")
         sql = """INSERT INTO imgCalled 
                 (time,operation,picUrl,sender,groupId,result) 
                     VALUES 

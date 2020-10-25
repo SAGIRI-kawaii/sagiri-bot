@@ -5,9 +5,10 @@ from graia.application.message.elements.internal import FlashImage
 from SAGIRIBOT.basics.functions import random_pic
 from SAGIRIBOT.basics.get_config import get_config
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
+from SAGIRIBOT.basics.write_log import write_log
 
 
-async def get_pic(image_type: str, group_id: int) -> list:
+async def get_pic(image_type: str, group_id: int, sender: int) -> list:
     """
     Return random pics message
 
@@ -19,6 +20,7 @@ async def get_pic(image_type: str, group_id: int) -> list:
                 real: hPics(real person R-15)
                 bizhi: Wallpaper(animate All age)
         group_id: Group id
+        sender: Sender
 
     Examples:
         assist_process = await get_pic("setu")[0]
@@ -61,6 +63,7 @@ async def get_pic(image_type: str, group_id: int) -> list:
     message = MessageChain.create([
         Image.fromLocalFile(target_pic_path)
     ])
+    await write_log(image_type, target_pic_path, sender, group_id, True, "img")
     if image_type == "setu18":
         operation = await get_setting(group_id, "r18Process")
         if operation == "revoke":

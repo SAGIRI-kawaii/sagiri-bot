@@ -83,9 +83,9 @@ async def group_message_process(
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "setu", 1)
             if await get_setting(group_id, "r18"):
-                return await get_pic("setu18", group_id)
+                return await get_pic("setu18", group_id, sender)
             else:
-                return await get_pic("setu", group_id)
+                return await get_pic("setu", group_id, sender)
         else:
             return [
                 "None",
@@ -97,7 +97,7 @@ async def group_message_process(
     elif message_text == "real":
         if await get_setting(group_id, "real"):
             await update_user_called_data(group_id, sender, "real", 1)
-            return await get_pic("real", group_id)
+            return await get_pic("real", group_id, sender)
         else:
             return [
                 "None",
@@ -109,7 +109,7 @@ async def group_message_process(
     elif message_text == "bizhi":
         if await get_setting(group_id, "bizhi"):
             await update_user_called_data(group_id, sender, "bizhi", 1)
-            return await get_pic("bizhi", group_id)
+            return await get_pic("bizhi", group_id, sender)
         else:
             return [
                 "None",

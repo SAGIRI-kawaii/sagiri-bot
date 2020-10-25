@@ -35,7 +35,7 @@ app = GraiaMiraiApplication(
 # 复读判断
 group_repeat = dict()
 
-async def group_assist_process(received_message: MessageChain, message: list, group: Group) -> None:
+async def group_assist_process(received_message: MessageChain, message_info: GroupMessage, message: list, group: Group) -> None:
     """
     Complete the auxiliary work that the function: message_process has not completed
 
@@ -65,19 +65,19 @@ async def group_assist_process(received_message: MessageChain, message: list, gr
             await app.sendGroupMessage(group, message[1], quote=received_message[Source][0])
         elif len(message) > 1 and message[0] == "revoke":
             msg = await app.sendGroupMessage(group, message[1])
-            await asyncio.sleep(10)
+            await asyncio.sleep(20)
             await app.revokeMessage(msg)
         elif len(message) > 1 and message[0] == "setu*":
             for _ in range(message[1]):
-                message = await get_pic("setu", group.id)
+                message = await get_pic("setu", group.id, message_info.sender.id)
                 await app.sendGroupMessage(group, message[1])
         elif len(message) > 1 and message[0] == "real*":
             for _ in range(message[1]):
-                message = await get_pic("real", group.id)
+                message = await get_pic("real", group.id, message_info.sender.id)
                 await app.sendGroupMessage(group, message[1])
         elif len(message) > 1 and message[0] == "bizhi*":
             for _ in range(message[1]):
-                message = await get_pic("bizhi", group.id)
+                message = await get_pic("bizhi", group.id, message_info.sender.id)
                 await app.sendGroupMessage(group, message[1])
     except AccountMuted:
         pass
@@ -131,7 +131,7 @@ async def group_message_listener(
 
     message_send = await group_message_process(message, message_info)
     print(message)
-    await group_assist_process(message, message_send, group)
+    await group_assist_process(message, message_info, message_send, group)
 
 
 @bcc.receiver("MemberJoinEvent")
