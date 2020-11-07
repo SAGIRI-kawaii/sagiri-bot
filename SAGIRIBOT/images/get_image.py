@@ -53,13 +53,13 @@ async def get_pic(image_type: str, group_id: int, sender: int) -> list:
         return pic_path
 
     switch = {
-        "setu": color(),
-        "setu18": color18(),
-        "real": real(),
-        "bizhi": wallpaper()
+        "setu": await color(),
+        "setu18": await color18(),
+        "real": await real(),
+        "bizhi": await wallpaper()
     }
 
-    target_pic_path = await switch[image_type]
+    target_pic_path = switch[image_type]
     message = MessageChain.create([
         Image.fromLocalFile(target_pic_path)
     ])
@@ -70,7 +70,7 @@ async def get_pic(image_type: str, group_id: int, sender: int) -> list:
             return ["revoke", message]
         elif operation == "flashImage":
             message = MessageChain.create([
-                FlashImage.fromLocalFile(target_pic_path)
+                Image.fromLocalFile(target_pic_path).asFlash()
             ])
-            return ["revoke", message]
+            return ["None", message]
     return ["None", message]

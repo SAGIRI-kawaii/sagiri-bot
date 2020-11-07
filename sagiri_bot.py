@@ -35,6 +35,7 @@ app = GraiaMiraiApplication(
 # 复读判断
 group_repeat = dict()
 
+
 async def group_assist_process(received_message: MessageChain, message_info: GroupMessage, message: list, group: Group) -> None:
     """
     Complete the auxiliary work that the function: message_process has not completed
@@ -42,6 +43,7 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
     Args:
         received_message: Received message
         message: message list([what_needs_to_be_done, message_to_be_send])
+        message_info： Message information
         group: Group class from the receive message
 
     Examples:
@@ -55,9 +57,9 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
             group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
             group_repeat[group.id]["thisMsg"] = message[1].asDisplay()
         if len(message) > 1 and message[0] == "None":
-            await app.sendGroupMessage(group, MessageChain(__root__=[
-                Plain("This message was sent by the new version of SAGIRI-Bot")
-            ]))
+            # await app.sendGroupMessage(group, MessageChain(__root__=[
+            #     Plain("This message was sent by the new version of SAGIRI-Bot")
+            # ]))
             await app.sendGroupMessage(group, message[1])
         elif len(message) > 1 and message[0] == "AtSender":
             await app.sendGroupMessage(group, message[1])
@@ -69,16 +71,16 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
             await app.revokeMessage(msg)
         elif len(message) > 1 and message[0] == "setu*":
             for _ in range(message[1]):
-                message = await get_pic("setu", group.id, message_info.sender.id)
-                await app.sendGroupMessage(group, message[1])
+                msg = await get_pic("setu", group.id, message_info.sender.id)
+                await app.sendGroupMessage(group, msg[1])
         elif len(message) > 1 and message[0] == "real*":
             for _ in range(message[1]):
-                message = await get_pic("real", group.id, message_info.sender.id)
-                await app.sendGroupMessage(group, message[1])
+                msg = await get_pic("real", group.id, message_info.sender.id)
+                await app.sendGroupMessage(group, msg[1])
         elif len(message) > 1 and message[0] == "bizhi*":
             for _ in range(message[1]):
-                message = await get_pic("bizhi", group.id, message_info.sender.id)
-                await app.sendGroupMessage(group, message[1])
+                msg = await get_pic("bizhi", group.id, message_info.sender.id)
+                await app.sendGroupMessage(group, msg[1])
     except AccountMuted:
         pass
 
@@ -130,7 +132,7 @@ async def group_message_listener(
                 await app.sendGroupMessage(group, message.asSendable())
 
     message_send = await group_message_process(message, message_info)
-    print(message)
+    # print(message)
     await group_assist_process(message, message_info, message_send, group)
 
 

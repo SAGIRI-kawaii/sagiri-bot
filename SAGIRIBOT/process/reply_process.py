@@ -2,6 +2,7 @@ import aiohttp
 
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import Plain
+from graia.application.message.elements.internal import At
 
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 from SAGIRIBOT.functions.get_chat_reply import get_chat_reply
@@ -52,6 +53,7 @@ async def reply_process(group_id: int, sender: int, message_text: str) -> list:
     return [
         "None",
         MessageChain.create([
+            At(sender),
             Plain(text=text)
         ])
     ]

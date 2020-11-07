@@ -156,7 +156,7 @@ async def group_message_process(
                         Plain(text="%d？你有问题？不如给爷吐出%d张来" % (num, -num))
                     ])
                 ]
-            elif num >= 5:
+            elif num > 5:
                 if sender == await get_config("HostQQ"):
                     return ["%s*" % command, num]
                 else:
