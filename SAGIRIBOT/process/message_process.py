@@ -1,6 +1,7 @@
 import re
 
 from graia.application.event.messages import *
+from graia.application import GraiaMiraiApplication
 
 from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import At
@@ -28,11 +29,13 @@ from SAGIRIBOT.process.setting_process import setting_process
 from SAGIRIBOT.process.reply_process import reply_process
 from SAGIRIBOT.crawer.bangumi.get_bangumi_info import get_bangumi_info
 from SAGIRIBOT.data_manage.get_data.get_admin import get_admin
+from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 
 
 async def group_message_process(
         message: MessageChain,
-        message_info: GroupMessage
+        message_info: GroupMessage,
+        app: GraiaMiraiApplication
 ) -> list:
     """
     Process the received message and return the corresponding message
@@ -40,6 +43,7 @@ async def group_message_process(
     Args:
         message: Received message(MessageChain)
         message_info: Received message(GroupMessage)
+        app: APP
 
     Examples:
         message_list = await message_process(message, message_info)
@@ -77,6 +81,7 @@ async def group_message_process(
         time
         search
         yellow predict
+        lsp rank
     """
     if message_text == "setu":
         if await get_setting(group_id, "setu"):
@@ -232,6 +237,9 @@ async def group_message_process(
         image = message.get(Image)[0]
         await update_user_called_data(group_id, sender, "yellowPredict", 1)
         return await image_yellow_judge(group_id, sender, image, "yellowPredict")
+
+    elif message_text == "rank":
+        return await get_rank(group_id, app)
 
     # 爬虫相关功能
     """

@@ -2,6 +2,8 @@
 import asyncio
 
 from graia.broadcast import Broadcast
+from graia.scheduler import GraiaScheduler
+from graia.scheduler import timers
 from graia.application import GraiaMiraiApplication, Session
 
 from graia.application.message.elements.internal import Plain
@@ -12,16 +14,21 @@ from graia.application.event.messages import *
 from graia.application.event.mirai import *
 from graia.application.exceptions import *
 
-from SAGIRIBOT.process.message_process import group_message_process
+from SAGIRIBOT.images.get_image import get_pic
+from SAGIRIBOT.functions.get_dragon_king import get_dragon_king
+from SAGIRIBOT.basics.get_config import get_config
 from SAGIRIBOT.basics.bot_join_group_init import bot_join_group_init
 from SAGIRIBOT.basics.check_group_data_init import check_group_data_init
-from SAGIRIBOT.basics.get_config import get_config
+from SAGIRIBOT.process.message_process import group_message_process
+from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
-from SAGIRIBOT.images.get_image import get_pic
+from SAGIRIBOT.data_manage.update_data.update_dragon import update_dragon_data
 
 loop = asyncio.get_event_loop()
 
 bcc = Broadcast(loop=loop)
+sche = GraiaScheduler(loop=loop, broadcast=bcc)
+
 app = GraiaMiraiApplication(
     broadcast=bcc,
     connect_info=Session(
@@ -43,7 +50,7 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
     Args:
         received_message: Received message
         message: message list([what_needs_to_be_done, message_to_be_send])
-        message_info： Message information
+        message_info: Message information
         group: Group class from the receive message
 
     Examples:
@@ -83,6 +90,23 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
                 await app.sendGroupMessage(group, msg[1])
     except AccountMuted:
         pass
+
+
+@sche.schedule(timers.crontabify("30 22 * * *"))
+async def declare_dragon():
+    print("123")
+    groups = await app.groupList()
+    print(groups)
+    for i in groups:
+        print(i.id)
+        if await get_setting(i.id, "setu") or await get_setting(i.id, "real"):
+            msg = await get_dragon_king(i.id, app)
+            await update_dragon_data(i.id, 0, "all")
+            print(msg)
+            try:
+                await app.sendGroupMessage(i.id, msg)
+            except AccountMuted:
+                pass
 
 
 @bcc.receiver("ApplicationLaunched")
@@ -131,7 +155,13 @@ async def group_message_listener(
                 group_repeat[group.id]["stopMsg"] = group_repeat[group.id]["thisMsg"]
                 await app.sendGroupMessage(group, message.asSendable())
 
-    message_send = await group_message_process(message, message_info)
+    if message.asDisplay() == "test" and message_info.sender.id == await get_config("HostQQ"):
+        await app.sendGroupMessage(group, await get_dragon_king(group.id, app))
+    if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
+        msg = await get_rank(group.id, app)
+        await app.sendGroupMessage(group, msg[1])
+
+    message_send = await group_message_process(message, message_info, app)
     # print(message)
     await group_assist_process(message, message_info, message_send, group)
 
