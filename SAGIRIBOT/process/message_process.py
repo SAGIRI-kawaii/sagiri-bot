@@ -30,6 +30,8 @@ from SAGIRIBOT.process.reply_process import reply_process
 from SAGIRIBOT.crawer.bangumi.get_bangumi_info import get_bangumi_info
 from SAGIRIBOT.data_manage.get_data.get_admin import get_admin
 from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
+from SAGIRIBOT.basics.write_log import write_log
+from SAGIRIBOT.functions.get_joke import *
 
 
 async def group_message_process(
@@ -61,7 +63,8 @@ async def group_message_process(
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
         await update_user_called_data(group_id, sender, "at", 1)
 
-    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search("@.* setting.*", message_text):
+    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search("@.* setting.*",
+                                                                                                message_text):
         try:
             _, config, new_value = message_text.split(".")
             return await setting_process(group_id, sender, config, new_value)
@@ -295,11 +298,12 @@ async def group_message_process(
         return await get_bangumi_info(sender, keyword)
 
     """
-    实用功能:
+    其他功能:
         文本翻译
         点歌
         机器人帮助
         自动回复
+        笑话
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
                                                                                                 message_text):
@@ -320,5 +324,31 @@ async def group_message_process(
 
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
         return await reply_process(group_id, sender, message_text)
+
+    if re.search("来点.*笑话", message_text):
+        joke_dict = {
+            "苏联": "soviet",
+            "法国": "french",
+            "法兰西": "french",
+            "美国": "america",
+            "美利坚": "america"
+        }
+        name = re.findall(r'来点(.*?)笑话', message_text, re.S)
+        if name == ['']:
+            return [
+                "None",
+                MessageChain.create([
+                    At(target=sender),
+                    Plain(text="来点儿啥笑话啊，你又不告诉人家！哼！")
+                ])
+            ]
+        elif name[0] in joke_dict.keys():
+            msg = await get_key_joke(joke_dict[name[0]])
+            await write_log("joke", "none", sender, group_id, True, "function")
+            return msg
+        else:
+            msg = await get_joke(name[0])
+            await write_log("joke", "none", sender, group_id, True, "function")
+            return msg
 
     return ["None"]
