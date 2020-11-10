@@ -19,7 +19,8 @@ from SAGIRIBOT.functions.get_dragon_king import get_dragon_king
 from SAGIRIBOT.basics.get_config import get_config
 from SAGIRIBOT.basics.bot_join_group_init import bot_join_group_init
 from SAGIRIBOT.basics.check_group_data_init import check_group_data_init
-from SAGIRIBOT.process.message_process import group_message_process
+from SAGIRIBOT.process.group_message_process import group_message_process
+from SAGIRIBOT.process.friend_message_process import friend_message_process
 from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 from SAGIRIBOT.data_manage.update_data.update_dragon import update_dragon_data
@@ -129,9 +130,7 @@ async def friend_message_listener(
         friend: Friend,
         message: MessageChain
 ):
-    await app.sendFriendMessage(friend, MessageChain(__root__=[
-        Plain("你好！")
-    ]))
+    await friend_message_process(app, friend, message)
 
 
 @bcc.receiver("GroupMessage")

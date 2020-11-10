@@ -76,7 +76,7 @@ async def get_steam_game_search(keyword: str) -> list:
         ]
     else:
         result = result["data"]["results"][0]
-        base_path = await get_config("steamSearch")
+        base_path = await get_config("steamSearchPath")
         path = "%s%s.png" % (base_path, result["app_id"])
         print("cache:%s" % os.path.exists(path))
         if not os.path.exists(path):

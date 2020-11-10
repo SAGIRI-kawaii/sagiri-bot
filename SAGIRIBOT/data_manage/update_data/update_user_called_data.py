@@ -20,7 +20,7 @@ async def update_user_called_data(group_id: int, member_id: int, operation: str,
     sql_key_word = ["real", "at"]
     sql = "select memberId from userCalled where groupId=%d and memberId=%d" % (group_id, member_id)
     data = await execute_sql(sql)
-    if data[0] is None:
+    if data == ():
         sql = "insert into userCalled (groupId,memberId) values (%d,%d)" % (group_id, member_id)
         await execute_sql(sql)
     if operation in sql_key_word:

@@ -14,19 +14,19 @@ async def get_chat_session(group_id: int, sender: int) -> str:
     sql = "select `session` from chatSession where groupId=%d and memberId=%d" % (group_id, sender)
     data = await execute_sql(sql)
     print(data)
-    data = data[0]
-    if data is not None:
-        session = data[0]
+    if data != ():
+        data = data[0]
+        session = data
         print("智能闲聊 sender:%s,session:%s" % (sender, session))
         return str(session)
     else:
         sql = "select MAX(`session`) from chatSession"
         data = await execute_sql(sql)
-        data = data[0]
         print(data)
-        if data is None:
+        if data == ():
             session = 1
         else:
+            data = data[0]
             session = int(data) + 1
         sql = "INSERT INTO chatSession (groupId,memberId,`session`) VALUES (%d,%d,%d)" % (group_id, sender, session)
         await execute_sql(sql)
