@@ -213,6 +213,7 @@ async def group_message_process(
             ]
     elif message.has(Image) and await get_setting(group_id, "search") and await get_image_ready(group_id, sender,
                                                                                                 "searchReady"):
+        # print("status:", await get_image_ready(group_id, sender, "searchReady"))
         image = message.get(Image)[0]
         await update_user_called_data(group_id, sender, "search", 1)
         return await search_image(group_id, sender, image)

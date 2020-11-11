@@ -4,7 +4,7 @@
 
 New version of sagiri-bot based on Mirai and Graia
 
-## Document
+## 使用文档
 
 文档缓慢更新中（老鸽子了）
 

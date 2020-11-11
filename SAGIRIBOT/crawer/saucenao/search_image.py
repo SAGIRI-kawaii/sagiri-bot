@@ -10,6 +10,7 @@ from SAGIRIBOT.data_manage.update_data.set_get_image_ready import set_get_img_re
 from SAGIRIBOT.data_manage.get_data.get_total_calls import get_total_calls
 from SAGIRIBOT.data_manage.update_data.update_total_calls import update_total_calls
 from SAGIRIBOT.basics.get_config import get_config
+from SAGIRIBOT.data_manage.get_data.get_image_ready import get_image_ready
 
 
 async def search_image(group_id: int, sender: int, img: Image) -> list:
@@ -31,6 +32,9 @@ async def search_image(group_id: int, sender: int, img: Image) -> list:
         ]
     """
     await set_get_img_ready(group_id, sender, False, "searchReady")
+
+    print(await get_image_ready(group_id, sender, "searchReady"))
+
     search_total_count = await get_total_calls("search") + 1
     await update_total_calls(search_total_count, "search")
     path = "%s%s.png" % (await get_config("searchPath"), search_total_count)

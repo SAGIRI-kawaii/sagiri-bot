@@ -17,7 +17,7 @@ async def get_image_ready(group_id, sender, target_db):
     try:
         result = await execute_sql(sql)
         # print(result)
-        result = result[0]
+        result = result[0][0]
     except TypeError:
         sql = "INSERT INTO %s (groupId,memberId,`status`) VALUES (%d,%d,%d)" % (target_db, group_id, sender, False)
         await execute_sql(sql)
