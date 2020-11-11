@@ -24,6 +24,7 @@ from SAGIRIBOT.process.friend_message_process import friend_message_process
 from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 from SAGIRIBOT.data_manage.update_data.update_dragon import update_dragon_data
+from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
 
 loop = asyncio.get_event_loop()
 
@@ -153,12 +154,22 @@ async def group_message_listener(
             if group_repeat[group.id]["thisMsg"] != group_repeat[group.id]["stopMsg"]:
                 group_repeat[group.id]["stopMsg"] = group_repeat[group.id]["thisMsg"]
                 await app.sendGroupMessage(group, message.asSendable())
-
+    if message_info.sender.id == 304741833:
+        await app.sendGroupMessage(group, MessageChain.create([
+            Plain(text="快去学大创！")
+        ]), quote=message[Source][0])
     if message.asDisplay() == "test" and message_info.sender.id == await get_config("HostQQ"):
         await app.sendGroupMessage(group, await get_dragon_king(group.id, app))
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
         msg = await get_rank(group.id, app)
         await app.sendGroupMessage(group, msg[1])
+    if message.asDisplay()[:4] == "sql:" and message_info.sender.id == await get_config("HostQQ"):
+        result = await execute_sql(message.asDisplay()[4:])
+        if type(result) != bool:
+            if len(result) > 30:
+                await app.sendGroupMessage(group, MessageChain.create([Plain(text="数据过长！自动中止发送！")]))
+        else:
+            await app.sendGroupMessage(group, MessageChain.create([Plain(text=str(result))]))
 
     message_send = await group_message_process(message, message_info, app)
     # print(message)

@@ -104,6 +104,7 @@ async def group_message_process(
 
     elif message_text == "real":
         if await get_setting(group_id, "real"):
+            await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "real", 1)
             return await get_pic("real", group_id, sender)
         else:
