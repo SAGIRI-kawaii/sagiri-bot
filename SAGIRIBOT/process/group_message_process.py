@@ -308,6 +308,7 @@ async def group_message_process(
         自动回复
         笑话
         群语录
+        平安经（群人数过多时慎用）
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
                                                                                                 message_text):
@@ -377,4 +378,14 @@ async def group_message_process(
             else:
                 return await get_group_quotes(group_id, app, name, "select", "nickname")
 
+    if message_text == "平安":
+        member_list = await app.memberList(group_id)
+        msg = list()
+        msg.append(Plain(text=f"群{message_info.sender.group.name}平安经\n"))
+        for i in member_list:
+            msg.append(Plain(text=f"{i.name}平安\n"))
+        return [
+            "None",
+            MessageChain.create(msg)
+        ]
     return ["None"]
