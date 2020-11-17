@@ -96,7 +96,6 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
 
 @sche.schedule(timers.crontabify("30 22 * * *"))
 async def declare_dragon():
-    print("123")
     groups = await app.groupList()
     print(groups)
     for i in groups:
@@ -154,10 +153,10 @@ async def group_message_listener(
             if group_repeat[group.id]["thisMsg"] != group_repeat[group.id]["stopMsg"]:
                 group_repeat[group.id]["stopMsg"] = group_repeat[group.id]["thisMsg"]
                 await app.sendGroupMessage(group, message.asSendable())
-    if message_info.sender.id == 304741833:
-        await app.sendGroupMessage(group, MessageChain.create([
-            Plain(text="快去学大创！")
-        ]), quote=message[Source][0])
+    # if message_info.sender.id == 304741833:
+    #     await app.sendGroupMessage(group, MessageChain.create([
+    #         Plain(text="快去学大创！")
+    #     ]), quote=message[Source][0])
     if message.asDisplay() == "test" and message_info.sender.id == await get_config("HostQQ"):
         await app.sendGroupMessage(group, await get_dragon_king(group.id, app))
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):

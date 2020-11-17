@@ -32,6 +32,7 @@ from SAGIRIBOT.data_manage.get_data.get_admin import get_admin
 from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 from SAGIRIBOT.basics.write_log import write_log
 from SAGIRIBOT.functions.get_joke import *
+from SAGIRIBOT.functions.get_group_quotes import get_group_quotes
 
 
 async def group_message_process(
@@ -306,6 +307,7 @@ async def group_message_process(
         机器人帮助
         自动回复
         笑话
+        群语录
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
                                                                                                 message_text):
@@ -352,5 +354,27 @@ async def group_message_process(
             msg = await get_joke(name[0])
             await write_log("joke", "none", sender, group_id, True, "function")
             return msg
+
+    if message_text == "群语录":
+        return await get_group_quotes(group_id, app, "None", "random", "None")
+    elif re.search("来点.*语录", message_text):
+        name = re.findall(r'来点(.*?)语录', message_text, re.S)[0]
+        at_obj = message.get(At)
+        if name == [] and at_obj == []:
+            return ["None"]
+        elif at_obj:
+            at_str = at_obj[0].asSerializationString()
+            member_id = re.findall(r'\[mirai:at:(.*?),@.*?\]', at_str, re.S)[0]
+            await write_log("quotes", "None", sender, group_id, True, "function")
+            if message_text[-4:] == ".all":
+                return await get_group_quotes(group_id, app, member_id, "all", "memberId")
+            else:
+                return await get_group_quotes(group_id, app, member_id, "select", "memberId")
+        elif name:
+            await write_log("quotes", "None", sender, group_id, True, "function")
+            if message_text[-4:] == ".all":
+                return await get_group_quotes(group_id, app, name, "all", "nickname")
+            else:
+                return await get_group_quotes(group_id, app, name, "select", "nickname")
 
     return ["None"]
