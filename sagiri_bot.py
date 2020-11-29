@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import os
 
 from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
@@ -153,10 +154,20 @@ async def group_message_listener(
             if group_repeat[group.id]["thisMsg"] != group_repeat[group.id]["stopMsg"]:
                 group_repeat[group.id]["stopMsg"] = group_repeat[group.id]["thisMsg"]
                 await app.sendGroupMessage(group, message.asSendable())
-    # if message_info.sender.id == 304741833:
-    #     await app.sendGroupMessage(group, MessageChain.create([
-    #         Plain(text="快去学大创！")
-    #     ]), quote=message[Source][0])
+
+    if message.asDisplay() == "start old version" and message_info.sender.id == await get_config("HostQQ"):
+        await app.sendGroupMessage(group, message.create([Plain(text="即将切换至旧版本...")]))
+        await app.sendGroupMessage(group, message.create([Plain(text="切换成功！")]))
+        os.system("%s \"%s\"" % (await get_config("environment"), await get_config("oldVersion")))
+
+    if message.asDisplay() == "bot shutdown" and message_info.sender.id == await get_config("HostQQ"):
+        await app.sendGroupMessage(group, message.create([Plain(text="即将退出机器人...")]))
+        exit(0)
+
+    if message.asDisplay() == "pc shutdown" and message_info.sender.id == await get_config("HostQQ"):
+        await app.sendGroupMessage(group, message.create([Plain(text="即将关机...")]))
+        os.system("shutdown -s")
+
     if message.asDisplay() == "test" and message_info.sender.id == await get_config("HostQQ"):
         await app.sendGroupMessage(group, await get_dragon_king(group.id, app))
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):

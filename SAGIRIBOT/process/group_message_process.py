@@ -33,6 +33,7 @@ from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 from SAGIRIBOT.basics.write_log import write_log
 from SAGIRIBOT.functions.get_joke import *
 from SAGIRIBOT.functions.get_group_quotes import get_group_quotes
+from SAGIRIBOT.functions.get_jlu_csw_notice import get_jlu_csw_notice
 
 
 async def group_message_process(
@@ -327,8 +328,8 @@ async def group_message_process(
             ])
         ]
 
-    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
-        return await reply_process(group_id, sender, message_text)
+    if message_text == "教务通知":
+        return await get_jlu_csw_notice()
 
     if re.search("来点.*笑话", message_text):
         joke_dict = {
@@ -388,4 +389,7 @@ async def group_message_process(
             "None",
             MessageChain.create(msg)
         ]
+
+    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
+        return await reply_process(group_id, sender, message_text)
     return ["None"]
