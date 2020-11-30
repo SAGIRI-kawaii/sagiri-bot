@@ -34,6 +34,11 @@ from SAGIRIBOT.basics.write_log import write_log
 from SAGIRIBOT.functions.get_joke import *
 from SAGIRIBOT.functions.get_group_quotes import get_group_quotes
 from SAGIRIBOT.functions.get_jlu_csw_notice import get_jlu_csw_notice
+from SAGIRIBOT.basics.get_response_set import get_response_set
+
+
+# 关键词字典
+response_set = get_response_set()
 
 
 async def group_message_process(
@@ -88,7 +93,7 @@ async def group_message_process(
         yellow predict
         lsp rank
     """
-    if message_text == "setu":
+    if message_text in response_set["setu"]:
         if await get_setting(group_id, "setu"):
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "setu", 1)
@@ -104,7 +109,7 @@ async def group_message_process(
                 ])
             ]
 
-    elif message_text == "real":
+    elif message_text in response_set["real"]:
         if await get_setting(group_id, "real"):
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "real", 1)
@@ -117,7 +122,7 @@ async def group_message_process(
                 ])
             ]
 
-    elif message_text == "bizhi":
+    elif message_text in response_set["bizhi"]:
         if await get_setting(group_id, "bizhi"):
             await update_user_called_data(group_id, sender, "bizhi", 1)
             return await get_pic("bizhi", group_id, sender)

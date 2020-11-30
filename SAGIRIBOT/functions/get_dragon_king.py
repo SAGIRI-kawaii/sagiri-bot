@@ -9,6 +9,19 @@ from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
 
 
 async def get_dragon_king(group_id: int, app: GraiaMiraiApplication) -> MessageChain:
+    """
+    Get daily dragon king
+
+    Args:
+        group_id: Group Id
+        app: Graia app
+
+    Examples:
+        msg = await get_dragon_king()
+
+    Return:
+        MessageChain: message to send
+    """
     sql = "select * from dragon where groupId=%d order by count desc" % group_id
     lsp_rank = await execute_sql(sql)
     print(lsp_rank)

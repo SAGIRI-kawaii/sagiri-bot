@@ -46,7 +46,8 @@ app = GraiaMiraiApplication(
 group_repeat = dict()
 
 
-async def group_assist_process(received_message: MessageChain, message_info: GroupMessage, message: list, group: Group) -> None:
+async def group_assist_process(received_message: MessageChain, message_info: GroupMessage, message: list,
+                               group: Group) -> None:
     """
     Complete the auxiliary work that the function: message_process has not completed
 
@@ -95,6 +96,7 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
         pass
 
 
+# 定时任务
 @sche.schedule(timers.crontabify("30 22 * * *"))
 async def declare_dragon():
     groups = await app.groupList()
@@ -111,6 +113,7 @@ async def declare_dragon():
                 pass
 
 
+# 初始化
 @bcc.receiver("ApplicationLaunched")
 async def bot_init(app: GraiaMiraiApplication):
     print("Bot init start")
@@ -118,10 +121,6 @@ async def bot_init(app: GraiaMiraiApplication):
     for i in group_list:
         group_repeat[i.id] = {"lastMsg": "", "thisMsg": "", "stopMsg": ""}
     await check_group_data_init(group_list)
-    # for i in group_list:
-    #     await app.sendGroupMessage(i, MessageChain.create([
-    #         Plain(text="SAGIRI-Bot is online")
-    #     ]))
     print("Bot init end")
 
 

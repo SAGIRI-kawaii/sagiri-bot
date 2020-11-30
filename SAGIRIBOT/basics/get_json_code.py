@@ -28,5 +28,3 @@ async def get_json_code(name: str):
         return configs[name]
     else:
         print("getJsonCode Error:%s" % name)
-
-
