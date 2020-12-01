@@ -19,4 +19,5 @@ def get_response_set() -> dict:
     response_set["setu"] = set(response_set["setu"])
     response_set["real"] = set(response_set["real"])
     response_set["bizhi"] = set(response_set["bizhi"])
+    response_set["realHighq"] = set(response_set["realHighq"])
     return response_set

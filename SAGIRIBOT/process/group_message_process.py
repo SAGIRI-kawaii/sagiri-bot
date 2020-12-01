@@ -64,6 +64,7 @@ async def group_message_process(
         ]
     """
     message_text = message.asDisplay()
+    message_serialization = message.asSerializationString()
     sender = message_info.sender.id
     group_id = message_info.sender.group.id
 
@@ -121,6 +122,20 @@ async def group_message_process(
                     Plain(text="我们是正规群呐，不搞那一套哦，想看去辣种群看哟~")
                 ])
             ]
+
+    elif message_text in response_set["realHighq"]:
+        if await get_setting(group_id, "real"):
+            await update_dragon_data(group_id, sender, "normal")
+            await update_user_called_data(group_id, sender, "real", 1)
+            return await get_pic("realHighq", group_id, sender)
+        else:
+            return [
+                "None",
+                MessageChain.create([
+                    Plain(text="我们是正规群呐，不搞那一套哦，想看去辣种群看哟~")
+                ])
+            ]
+
 
     elif message_text in response_set["bizhi"]:
         if await get_setting(group_id, "bizhi"):

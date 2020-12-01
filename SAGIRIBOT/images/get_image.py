@@ -47,6 +47,11 @@ async def get_pic(image_type: str, group_id: int, sender: int) -> list:
         pic_path = await random_pic(base_path)
         return pic_path
 
+    async def real_highq() -> str:
+        base_path = await get_config("realHighqPath")
+        pic_path = await random_pic(base_path)
+        return pic_path
+
     async def wallpaper() -> str:
         base_path = await get_config("wallpaperPath")
         pic_path = await random_pic(base_path)
@@ -56,6 +61,7 @@ async def get_pic(image_type: str, group_id: int, sender: int) -> list:
         "setu": await color(),
         "setu18": await color18(),
         "real": await real(),
+        "realHighq": await real_highq(),
         "bizhi": await wallpaper()
     }
 

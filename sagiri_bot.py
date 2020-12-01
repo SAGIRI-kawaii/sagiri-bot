@@ -240,7 +240,7 @@ async def member_leave(app: GraiaMiraiApplication, event: MemberLeaveEventQuit):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
-                Plain(text="%s怎么走了呐~是纱雾不够可爱吗嘤嘤嘤" % event.member.name)
+                Plain(text="%s怎么走了呐~是因为偷袭了69岁的老同志吗嘤嘤嘤" % event.member.name)
             ])
         )
     except AccountMuted:
