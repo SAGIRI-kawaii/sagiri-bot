@@ -123,6 +123,12 @@ Bot init end
 | bizhi | 壁纸图片功能触发关键词（可添加图片，按照\[mirai:image:{ImageMD5}.mirai\]的格式添加即可，可使用 `message.asSerializationString()` 函数查看） |
 | realHighq | 高质量三次元图片功能触发关键词（可添加图片，按照\[mirai:image:{ImageMD5}.mirai\]的格式添加即可，可使用 `message.asSerializationString()` 函数查看） |
 
+## 注意
+目前机器人尚未完善，仍有许多bug存在，若您在使用中发现了bug或有更好的建议，请提ISSUE
+目前已知bug：
+- 短时间内同时发送大量图片会导致发送失败
+- 发送多张图片的指令如 `setu*`, `real*`, `bizhi*`在交叉使用是会打断前面的任务（如`setu*5`，`real*5`，`real*5` 发送以后 `setu*5` 的任务就会被打断）
+（↑如果知道解决办法也可向我提ISSUE）
 
 ## 鸽子宣言
 剩下的过两天再写.jpg
