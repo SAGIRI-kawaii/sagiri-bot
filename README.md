@@ -20,6 +20,54 @@ New version of sagiri-bot based on Mirai and Graia
 - 打开 `configdemo.json`，配置好个人信息，并将文件更名为 `config.json`，配置说明见[config文件参数说明]()
 - ~~最重要的当然是准备好各种图片~~
 
+### 如何启动
+
+在文件夹下执行 `python sagiri-bot.py` 即可
+你应当见到类似如下格式的信息：
+```angular2
+[2020-12-01 11:42:02,059][INFO]: initializing app...
+[2020-12-01 11:42:02,069][INFO]: detecting remote's version...
+[2020-12-01 11:42:02,073][INFO]: detected remote's version: 1.7.3
+[2020-12-01 11:42:02,075][INFO]: using pure websocket to receive event
+[2020-12-01 11:42:02,075][INFO]: found websocket disabled, so it has been enabled.
+Bot init start
+[2020-12-01 11:42:02,077][INFO]: event receive method checked.
+[2020-12-01 11:42:02,077][INFO]: this application's initialization has been completed.
+[2020-12-01 11:42:02,077][INFO]: --- setting start ---
+[2020-12-01 11:42:02,077][INFO]: broadcast using: <graia.broadcast.Broadcast object at 0x00000233C18D8688>
+[2020-12-01 11:42:02,078][INFO]: enable log of chat: yes
+[2020-12-01 11:42:02,078][INFO]: debug: no
+[2020-12-01 11:42:02,078][INFO]: version(remote): 1.7.3
+[2020-12-01 11:42:02,078][INFO]: --- setting end ---
+[2020-12-01 11:42:02,078][INFO]: application has been initialized, used 0.019s
+[2020-12-01 11:42:02,079][DEBUG]: caching sha2: succeeded by fast path.
+[2020-12-01 11:42:02,082][DEBUG]: caching sha2: succeeded by fast path.
+[2020-12-01 11:42:02,083][DEBUG]: caching sha2: succeeded by fast path.
+[2020-12-01 11:42:02,085][DEBUG]: caching sha2: succeeded by fast path.
+[2020-12-01 11:42:02,086][DEBUG]: caching sha2: succeeded by fast path.
+[2020-12-01 11:42:02,087][DEBUG]: caching sha2: succeeded by fast path.
+[2020-12-01 11:42:02,089][DEBUG]: caching sha2: succeeded by fast path.
+[2020-12-01 11:42:02,090][DEBUG]: caching sha2: succeeded by fast path.
+[123564623, 12343143214, 45346146, 6135464, 13461463143, 123413241234, 652466542, 8679675867, 45142316431, 123442341]
+123564623 : xxxxxxxx
+12343143214 : xxxxxxxx
+45346146 : xxxxxxxx
+6135464 : xxxxxxxx
+13461463143 : xxxxxxxx
+123413241234 : xxxxxxxx
+652466542 : xxxxxxxx
+8679675867 : xxxxxxxx
+45142316431 : xxxxxxxx
+123442341 : xxxxxxxx
+{123564623, 12343143214, 45346146, 6135464, 13461463143, 123413241234, 652466542, 08679675867, 45142316431, 123442341}
+Bot init end
+[2020-12-01 11:42:02,092][DEBUG]: caching sha2: succeeded by fast path.
+[2020-12-01 11:42:02,093][DEBUG]: caching sha2: succeeded by fast path.
+[2020-12-01 11:42:02,094][DEBUG]: caching sha2: succeeded by fast path.
+```
+其中各种数字为此账号所加入的所有群组的群号，冒号后面xxxxxxxx的为群号对应群名
+现在，来试一试你的机器人吧！
+
 ### 参数说明
 
 #### config.json
