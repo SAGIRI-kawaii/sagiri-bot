@@ -31,7 +31,7 @@ New version of sagiri-bot based on Mirai and Graia
 - 使用 `pip install -r requirements` 命令安装所需库
 - 执行 `dbInit.sql` 文件，这将帮助你建立一个适合 SAGIRI-BOT 的数据库
 - 下载 [mirai-console](https://github.com/mamoe/mirai-console) 并配置 [mirai-api-http](https://github.com/project-mirai/mirai-api-http) ，这些都可以在 [mirai](https://github.com/mamoe/mirai) 项目中找到
-- 打开 `configdemo.json`，配置好个人信息，并将文件更名为 `config.json`，配置说明见[config文件参数说明](#config)
+- 打开 `configdemo.json`，配置好个人信息，并将文件更名为 `config.json`，配置说明见[config文件参数说明](#configjson)
 - ~~最重要的当然是准备好各种图片~~
 
 ### 如何启动
