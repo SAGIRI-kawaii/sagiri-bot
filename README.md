@@ -1,3 +1,6 @@
+[TOC]
+
+
 # SAGIRI-BOT
 
 基于 Mirai 和 Graia 的船新版本，~~是兄弟就来砍我~~
