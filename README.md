@@ -1,4 +1,3 @@
-[TOC]
 
 
 # SAGIRI-BOT
@@ -6,6 +5,18 @@
 基于 Mirai 和 Graia 的船新版本，~~是兄弟就来砍我~~
 
 New version of sagiri-bot based on Mirai and Graia
+
+## 目录
+- [SAGIRI-BOT](#sagiri-bot)
+  * [目录](#目录)
+  * [使用文档](#使用文档)
+  * [开始使用](#开始使用)
+    + [使用前准备](#使用前准备)
+    + [如何启动](#如何启动)
+    + [参数说明](#参数说明)
+      - [config.json](#configjson)
+      - [response_set.json](#response-setjson)
+  * [鸽子宣言](#鸽子宣言)
 
 ## 使用文档
 
@@ -73,7 +84,7 @@ Bot init end
 
 ### 参数说明
 
-#### config.json<span id="config"></span>
+#### config.json
 用于存储机器人的各种配置，可随时进行更改
 
 |  参数名   | 说明  |
