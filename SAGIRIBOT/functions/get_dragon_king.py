@@ -76,7 +76,11 @@ async def get_dragon_king(group_id: int, app: GraiaMiraiApplication) -> MessageC
                 add = 0
                 add_bool = False
                 last = i[3]
+            print(group_id, i[2])
             member = await app.getMember(group_id, i[2])
-            text += "\n%i.%-20s %3d" % (index, member.name, i[3])
+            try:
+                text += "\n%i.%-20s %3d" % (index, member.name, i[3])
+            except AttributeError:
+                pass
         msg.append(Plain(text=text))
         return MessageChain.create(msg)

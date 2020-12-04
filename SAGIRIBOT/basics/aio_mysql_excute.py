@@ -1,4 +1,5 @@
 import aiomysql
+import asyncio
 from SAGIRIBOT.basics.get_config import get_config
 
 
@@ -12,6 +13,7 @@ class Pmysql:
     def __init__(self):
         self.cursor = None
         self.connection = None
+        self.pool = None
 
     @staticmethod
     async def getconnection():
@@ -20,16 +22,26 @@ class Pmysql:
             user = await get_config("dbUser")
             passwd = await get_config("dbPass")
             db = await get_config("dbName")
-            conn = await aiomysql.connect(
+            loop = asyncio.get_event_loop()
+            pool = await aiomysql.create_pool(
                 host=host,
                 user=user,
                 password=passwd,
                 db=db,
                 port=3306,
+                loop=loop
                 )
-            if conn:
-                Pmysql.__connection = conn
-                return conn
+            # conn = await aiomysql.connect(
+            #     host=host,
+            #     user=user,
+            #     password=passwd,
+            #     db=db,
+            #     port=3306,
+            #     )
+            if pool:
+                # Pmysql.__connection = conn
+                Pmysql.__pool = pool
+                return pool
             else:
                 raise Exception("connect to mysql error ")
         else:
@@ -77,15 +89,37 @@ async def execute_sql(sql: str):
     Returns:
         Query results (tuple)
     """
-    mysql_obj = Pmysql()
-    conn = await Pmysql.getconnection()
-    mysql_obj.connection = conn
-    await conn.ping()
+    # mysql_obj = Pmysql()
+    pool = await Pmysql.getconnection()
     if sql[:6] == "select" or sql[:6] == "SELECT":
-        res = await mysql_obj.query(sql)
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(sql)
+                # await cur.commit()
+                res = await cur.fetchall()
     else:
-        res = await mysql_obj.execute(sql)
+        async with pool.acquire() as conn:
+            async with conn.cursor(aiomysql.Cursor) as cursor:
+                res = await cursor.execute(sql)
+                await conn.commit()
+                return res
 
-        # print(res)
-    conn.close()
+            # print(res)
+        # res = await mysql_obj.query(sql)
+    # else:
+    #     res = await mysql_obj.execute(sql)
+    pool.close()
     return res
+
+
+    # conn = await Pmysql.getconnection()
+    # mysql_obj.connection = conn
+    # await conn.ping()
+    # if sql[:6] == "select" or sql[:6] == "SELECT":
+    #     res = await mysql_obj.query(sql)
+    # else:
+    #     res = await mysql_obj.execute(sql)
+    #
+    #     # print(res)
+    # conn.close()
+    # return res

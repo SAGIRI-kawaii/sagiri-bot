@@ -44,6 +44,13 @@ app = GraiaMiraiApplication(
 
 # 复读判断
 group_repeat = dict()
+tasks = []
+
+
+async def group_message_sender(message_info: GroupMessage, message: list, group: Group,
+                               app: GraiaMiraiApplication) -> None:
+    message_send = await group_message_process(message, message_info, app)
+    await group_assist_process(message, message_info, message_send, group)
 
 
 async def group_assist_process(received_message: MessageChain, message_info: GroupMessage, message: list,
@@ -180,9 +187,14 @@ async def group_message_listener(
         else:
             await app.sendGroupMessage(group, MessageChain.create([Plain(text=str(result))]))
 
-    message_send = await group_message_process(message, message_info, app)
-    # print(message)
-    await group_assist_process(message, message_info, message_send, group)
+    task = asyncio.create_task(group_message_sender(message_info, message, group, app))
+    tasks.append(task)
+    await asyncio.wait([task], timeout=5)
+    # done, pending = await asyncio.wait(tasks, timeout=120)
+
+    # message_send = await group_message_process(message, message_info, app)
+    # # print(message)
+    # await group_assist_process(message, message_info, message_send, group)
 
 
 @bcc.receiver("MemberJoinEvent")

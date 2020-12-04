@@ -96,6 +96,13 @@ async def group_message_process(
     """
     if message_text in response_set["setu"]:
         if await get_setting(group_id, "setu"):
+            if sender == 80000000:
+                return [
+                    "None",
+                    MessageChain.create([
+                        Plain(text="要涩图就光明正大！匿名算什么好汉！")
+                    ])
+                ]
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "setu", 1)
             if await get_setting(group_id, "r18"):
@@ -112,6 +119,13 @@ async def group_message_process(
 
     elif message_text in response_set["real"]:
         if await get_setting(group_id, "real"):
+            if sender == 80000000:
+                return [
+                    "None",
+                    MessageChain.create([
+                        Plain(text="要涩图就光明正大！匿名算什么好汉！")
+                    ])
+                ]
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "real", 1)
             return await get_pic("real", group_id, sender)
@@ -125,6 +139,13 @@ async def group_message_process(
 
     elif message_text in response_set["realHighq"]:
         if await get_setting(group_id, "real"):
+            if sender == 80000000:
+                return [
+                    "None",
+                    MessageChain.create([
+                        Plain(text="要涩图就光明正大！匿名算什么好汉！")
+                    ])
+                ]
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "real", 1)
             return await get_pic("realHighq", group_id, sender)
@@ -136,9 +157,15 @@ async def group_message_process(
                 ])
             ]
 
-
     elif message_text in response_set["bizhi"]:
         if await get_setting(group_id, "bizhi"):
+            if sender == 80000000:
+                return [
+                    "None",
+                    MessageChain.create([
+                        Plain(text="要涩图就光明正大！匿名算什么好汉！")
+                    ])
+                ]
             await update_user_called_data(group_id, sender, "bizhi", 1)
             return await get_pic("bizhi", group_id, sender)
         else:
