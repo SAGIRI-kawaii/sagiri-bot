@@ -27,7 +27,7 @@ async def get_jlu_csw_notice() -> list:
 
     data = res["data"]
     content = "----------------------------------\n"
-    for i in range(10):
+    for i in range(5):
         content += f"{data[i]['title']}\n"
         content += f"{data[i]['href']}\n"
         content += f"                                        {data[i]['time'].replace('-', '.')}\n"

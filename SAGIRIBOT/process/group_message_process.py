@@ -3,9 +3,11 @@ import re
 from graia.application.event.messages import *
 from graia.application import GraiaMiraiApplication
 
+from graia.application.message.elements.internal import MessageChain
 from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import At
 from graia.application.message.elements.internal import Image
+from graia.application.message.elements.internal import Source
 
 from SAGIRIBOT.images.get_image import get_pic
 from SAGIRIBOT.basics.get_config import get_config
@@ -35,6 +37,7 @@ from SAGIRIBOT.functions.get_joke import *
 from SAGIRIBOT.functions.get_group_quotes import get_group_quotes
 from SAGIRIBOT.functions.get_jlu_csw_notice import get_jlu_csw_notice
 from SAGIRIBOT.basics.get_response_set import get_response_set
+from SAGIRIBOT.images.get_setu_keyword import get_setu_keyword
 
 
 # 关键词字典
@@ -67,6 +70,8 @@ async def group_message_process(
     message_serialization = message.asSerializationString()
     sender = message_info.sender.id
     group_id = message_info.sender.group.id
+
+    # print("message_serialization:", message_serialization)
 
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
         await update_user_called_data(group_id, sender, "at", 1)
@@ -109,6 +114,42 @@ async def group_message_process(
                 return await get_pic("setu18", group_id, sender)
             else:
                 return await get_pic("setu", group_id, sender)
+        else:
+            return [
+                "None",
+                MessageChain.create([
+                    Plain(text="我们是正规群呐，不搞那一套哦，想看去辣种群看哟~")
+                ])
+            ]
+
+    elif re.search("来点.*[色涩]图", message_text):
+        if await get_setting(group_id, "setu"):
+            if sender == 80000000:
+                return [
+                    "None",
+                    MessageChain.create([
+                        Plain(text="要涩图就光明正大！匿名算什么好汉！")
+                    ])
+                ]
+            keyword = re.findall("来点(.*?)[涩色]图", message_text, re.S)[0]
+            print(keyword)
+            if keyword in ["r18", "R18", "r-18", "R-18"]:
+                return [
+                    "quoteSource",
+                    MessageChain.create([
+                        Plain(text="此功能暂时还不支持搜索R18涩图呐~忍忍吧LSP！")
+                    ])
+                ]
+            await app.sendGroupMessage(
+                group=group_id,
+                message=MessageChain.create([
+                    Plain(text=f"你要的是{keyword}涩图对叭~等等呐~网很慢的>^<，没有反应就不要等了呐~")
+                ]),
+                quote=message[Source][0]
+            )
+            await update_dragon_data(group_id, sender, "normal")
+            await update_user_called_data(group_id, sender, "setu", 1)
+            return await get_setu_keyword(keyword=keyword)
         else:
             return [
                 "None",
