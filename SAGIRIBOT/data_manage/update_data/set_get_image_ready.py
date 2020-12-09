@@ -3,7 +3,7 @@ from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
 
 async def set_get_img_ready(group_id, sender, status, target_db):
     """
-    Change status of member search/predict/yellow predict/tribute ready in database
+    Change status of member search/predict/yellow predict/tribute/searchBangumi ready in database
 
     Args:
         group_id: Group id
@@ -23,8 +23,8 @@ async def set_get_img_ready(group_id, sender, status, target_db):
         # print(result)
         sql = "UPDATE %s SET `status`=%d WHERE groupId=%d and memberId=%d" % (target_db, status, group_id, sender)
         status = await execute_sql(sql)
-        print(status)
-    except TypeError:
+        # print(status)
+    except IndexError:
         sql = "INSERT INTO %s (groupId,memberId,Status) VALUES (%d,%d,%d)" % (target_db, group_id, sender, status)
         await execute_sql(sql)
     print(sql)

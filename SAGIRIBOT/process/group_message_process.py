@@ -20,6 +20,7 @@ from SAGIRIBOT.data_manage.update_data.set_get_image_ready import set_get_img_re
 from SAGIRIBOT.data_manage.get_data.get_image_ready import get_image_ready
 from SAGIRIBOT.crawer.saucenao.search_image import search_image
 from SAGIRIBOT.images.image_yellow_judge import image_yellow_judge
+from SAGIRIBOT.crawer.tracemoe.search_bangumi import search_bangumi
 from SAGIRIBOT.data_manage.update_data.update_dragon import update_dragon_data
 from SAGIRIBOT.images.get_wallpaper_time import get_wallpaper_time
 from SAGIRIBOT.images.get_wallpaper_time import show_clock_wallpaper
@@ -143,7 +144,7 @@ async def group_message_process(
             await app.sendGroupMessage(
                 group=group_id,
                 message=MessageChain.create([
-                    Plain(text=f"你要的是{keyword}涩图对叭~等等呐~网很慢的>^<，没有反应就不要等了呐~")
+                    Plain(text=f"你要的是{keyword}涩图对叭~等等呐~网很慢的>^<，没有反应不是卡死了就是图发出来被屏蔽了呐~就不要等了呐~")
                 ]),
                 quote=message[Source][0]
             )
@@ -328,10 +329,35 @@ async def group_message_process(
                 ])
             ]
     elif message.has(Image) and await get_setting(group_id, "yellowPredict") and await get_image_ready(group_id, sender,
-                                                                                                       "yellowPredictReady"):
+                                                                                                "yellowPredictReady"):
         image = message.get(Image)[0]
         await update_user_called_data(group_id, sender, "yellowPredict", 1)
         return await image_yellow_judge(group_id, sender, image, "yellowPredict")
+
+    elif message_text == "搜番":
+        if await get_setting(group_id, "searchBangumi"):
+            await set_get_img_ready(group_id, sender, True, "searchBangumiReady")
+            return [
+                "None",
+                MessageChain.create([
+                    At(sender),
+                    Plain(text="请发送要搜索的图片呐~(仅支持番剧图片搜索呐！)")
+                ])
+            ]
+        else:
+            return [
+                "None",
+                MessageChain.create([
+                    At(sender),
+                    Plain(text="搜番功能关闭了呐~想要打开就联系管理员吧~")
+                ])
+            ]
+    elif message.has(Image) and await get_setting(group_id, "searchBangumi") and await get_image_ready(group_id, sender,
+                                                                                                "searchBangumiReady"):
+        # print("status:", await get_image_ready(group_id, sender, "searchReady"))
+        image = message.get(Image)[0]
+        await update_user_called_data(group_id, sender, "search", 1)
+        return await search_bangumi(group_id, sender, image.url)
 
     elif message_text == "rank":
         return await get_rank(group_id, app)
