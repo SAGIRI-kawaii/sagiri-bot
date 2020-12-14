@@ -26,7 +26,7 @@ async def get_chat_session(group_id: int, sender: int) -> str:
         if data == ():
             session = 1
         else:
-            data = data[0]
+            data = data[0][0]
             session = int(data) + 1
         sql = "INSERT INTO chatSession (groupId,memberId,`session`) VALUES (%d,%d,%d)" % (group_id, sender, session)
         await execute_sql(sql)

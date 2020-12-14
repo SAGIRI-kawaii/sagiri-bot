@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import os
+from multiprocessing import Queue
+from threading import Thread
 
 from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
@@ -8,6 +10,7 @@ from graia.scheduler import timers
 from graia.application import GraiaMiraiApplication, Session
 
 from graia.application.message.elements.internal import Plain
+from graia.application.message.elements.internal import Image
 from graia.application.message.elements.internal import At
 from graia.application.message.elements.internal import App
 from graia.application.message.elements.internal import Source
@@ -26,6 +29,9 @@ from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 from SAGIRIBOT.data_manage.update_data.update_dragon import update_dragon_data
 from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
+from SAGIRIBOT.basics.tasks_listener import tasks_listener
+from SAGIRIBOT.functions.search_magnet import search_magnet
+from SAGIRIBOT.functions.petpet import petpet
 
 loop = asyncio.get_event_loop()
 
@@ -44,7 +50,7 @@ app = GraiaMiraiApplication(
 
 # 复读判断
 group_repeat = dict()
-tasks = []
+tasks = Queue()
 
 
 # async def group_message_sender(message_info: GroupMessage, message: list, group: Group,
@@ -128,6 +134,8 @@ async def bot_init(app: GraiaMiraiApplication):
     for i in group_list:
         group_repeat[i.id] = {"lastMsg": "", "thisMsg": "", "stopMsg": ""}
     await check_group_data_init(group_list)
+    # listener = Thread(target=tasks_listener, args=(app, tasks, loop))
+    # listener.start()
     print("Bot init end")
 
 
@@ -166,6 +174,11 @@ async def group_message_listener(
         await app.sendGroupMessage(group, message.create([Plain(text="切换成功！")]))
         os.system("%s \"%s\"" % (await get_config("environment"), await get_config("oldVersion")))
 
+    if message.asDisplay() == "restart bot" and message_info.sender.id == await get_config("HostQQ"):
+        await app.sendGroupMessage(group, message.create([Plain(text="即将重启机器人...")]))
+        await app.sendGroupMessage(group, message.create([Plain(text="重启成功！")]))
+        os.system("%s \"%s\"" % (await get_config("environment"), await get_config("newVersion")))
+
     if message.asDisplay() == "bot shutdown" and message_info.sender.id == await get_config("HostQQ"):
         await app.sendGroupMessage(group, message.create([Plain(text="即将退出机器人...")]))
         exit(0)
@@ -175,10 +188,16 @@ async def group_message_listener(
         os.system("shutdown -s")
 
     if message.asDisplay() == "test" and message_info.sender.id == await get_config("HostQQ"):
-        await app.sendGroupMessage(group, await get_dragon_king(group.id, app))
+        msg = await search_magnet("star")
+        await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
         msg = await get_rank(group.id, app)
         await app.sendGroupMessage(group, msg[1])
+    if message.asDisplay() == "test2" and message_info.sender.id == await get_config("HostQQ"):
+        await petpet(message_info.sender.id)
+        await app.sendGroupMessage(group, MessageChain.create([
+            Image.fromLocalFile(f'./statics/temp/tempPetPet-{message_info.sender.id}.gif')
+        ]))
     if message.asDisplay()[:4] == "sql:" and message_info.sender.id == await get_config("HostQQ"):
         result = await execute_sql(message.asDisplay()[4:])
         if type(result) != bool:
@@ -193,8 +212,11 @@ async def group_message_listener(
     # done, pending = await asyncio.wait(tasks, timeout=120)
 
     message_send = await group_message_process(message, message_info, app)
-    # print(message)
-    await group_assist_process(message, message_info, message_send, group)
+    if len(message_send) >= 2 and message_send[1].has(Image):
+        message_send.append(group)
+        tasks.put(message_send)
+    else:
+        await group_assist_process(message, message_info, message_send, group)
 
 
 @bcc.receiver("MemberJoinEvent")

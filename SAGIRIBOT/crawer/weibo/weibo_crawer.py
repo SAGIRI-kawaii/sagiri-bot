@@ -1,4 +1,6 @@
 import aiohttp
+import random
+
 from graia.application.message.elements.internal import Plain
 from graia.application.message.chain import MessageChain
 
@@ -9,7 +11,7 @@ async def get_weibo_hot() -> list:
         async with session.get(url=weibo_hot_url) as resp:
             data = await resp.json()
     data = data["data"]
-    text_list = ["微博实时热榜:"]
+    text_list = [f"随机数:{random.randint(0,10000)}", "\n微博实时热榜:"]
     index = 0
     for i in data:
         index += 1

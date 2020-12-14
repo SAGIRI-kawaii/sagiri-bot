@@ -22,5 +22,8 @@
     "steamSearchPath": "",
     "txAppId": "",
     "txAppKey": "",
-    "shadiaoAppName": ""
+    "shadiaoAppName": "",
+    "environment": "",
+    "oldVersion": "",
+    "newVersion": ""
 }

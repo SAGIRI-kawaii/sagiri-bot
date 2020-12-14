@@ -31,13 +31,13 @@ async def check_group_data_init(group_list: list) -> None:
         else:
             sql = "update setting set groupName='%s' where groupId=%s" % (i.name, i.id)
             await execute_sql(sql)
-    group_id_now = set()
-    for i in group_list:
-        group_id_now.add(i.id)
-    print(group_id_now)
-    for i in group_id:
-        if i not in group_id_now:
-            sql = "delete from setting where groupId=%s" % i
-            await execute_sql(sql)
-            sql = "delete from admin where groupId=%s" % i
-            await execute_sql(sql)
+    # group_id_now = set()
+    # for i in group_list:
+    #     group_id_now.add(i.id)
+    # print(group_id_now)
+    # for i in group_id:
+    #     if i not in group_id_now:
+    #         sql = "delete from setting where groupId=%s" % i
+    #         await execute_sql(sql)
+    #         sql = "delete from admin where groupId=%s" % i
+    #         await execute_sql(sql)
