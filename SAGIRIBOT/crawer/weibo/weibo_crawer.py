@@ -2,7 +2,10 @@ import aiohttp
 import random
 
 from graia.application.message.elements.internal import Plain
+from graia.application.message.elements.internal import Image
 from graia.application.message.chain import MessageChain
+
+from SAGIRIBOT.basics.tools import text2piiic
 
 
 async def get_weibo_hot() -> list:
@@ -17,9 +20,18 @@ async def get_weibo_hot() -> list:
         index += 1
         text_list.append("\n%d.%s" % (index, i["word"]))
     text = "".join(text_list).replace("#", "")
+    img = text2piiic(string=text, poster="", length=max(len(x) for x in text.split("\n")))
+    img.save("./statics/temp/tempWeibo.png")
+    # img.show()
     return [
         "None",
         MessageChain.create([
-            Plain(text=text)
+            Image.fromLocalFile("./statics/temp/tempWeibo.png")
         ])
     ]
+    # return [
+    #     "None",
+    #     MessageChain.create([
+    #         Plain(text=text)
+    #     ])
+    # ]

@@ -1,4 +1,5 @@
 import re
+import os
 
 from graia.application.event.messages import *
 from graia.application import GraiaMiraiApplication
@@ -40,6 +41,7 @@ from SAGIRIBOT.functions.get_jlu_csw_notice import get_jlu_csw_notice
 from SAGIRIBOT.basics.get_response_set import get_response_set
 from SAGIRIBOT.images.get_setu_keyword import get_setu_keyword
 from SAGIRIBOT.functions.petpet import petpet
+from SAGIRIBOT.functions.pornhub_style_image import make_ph_style_logo
 
 
 # 关键词字典
@@ -375,13 +377,13 @@ async def group_message_process(
         微博热搜
     """
     if message_text == "weibo" or message_text == "微博":
-        return [
-            "None",
-            MessageChain.create([
-                Plain(text="本功能已停用，短时间内不再开放！请勿多次申请")
-            ])
-        ]
-        # return await get_weibo_hot()
+        # return [
+        #     "None",
+        #     MessageChain.create([
+        #         Plain(text="本功能已停用，短时间内不再开放！请勿多次申请")
+        #     ])
+        # ]
+        return await get_weibo_hot()
 
     """
     B站相关功能:
@@ -431,6 +433,7 @@ async def group_message_process(
         笑话
         群语录
         平安经（群人数过多时慎用）
+        pornhub风格图片生成
         摸~
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
@@ -510,6 +513,36 @@ async def group_message_process(
         return [
             "None",
             MessageChain.create(msg)
+        ]
+
+    if message_text.startswith("ph ") and len(message_text.split(" ")) == 3:
+        if "\\" in message_text or "/" in message_text:
+            return [
+                "None",
+                MessageChain.create([
+                    Plain(text="不支持 '/' 与 '\\' ！")
+                ])
+            ]
+        args = message_text.split(" ")
+        left_text = args[1]
+        right_text = args[2]
+        path = f'./statics/temp/ph_{left_text}_{right_text}.png'
+        if not os.path.exists(path):
+            try:
+                await make_ph_style_logo(left_text, right_text)
+            except OSError as e:
+                if "[Errno 22] Invalid argument:" in str(e):
+                    return [
+                        "quoteSource",
+                        MessageChain.create([
+                            Plain(text="非法字符！")
+                        ])
+                    ]
+        return [
+            "None",
+            MessageChain.create([
+                Image.fromLocalFile(path)
+            ])
         ]
 
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸 "):
