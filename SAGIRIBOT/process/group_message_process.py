@@ -144,13 +144,8 @@ async def group_message_process(
                         Plain(text="此功能暂时还不支持搜索R18涩图呐~忍忍吧LSP！")
                     ])
                 ]
-            await app.sendGroupMessage(
-                group=group_id,
-                message=MessageChain.create([
-                    Plain(text=f"你要的是{keyword}涩图对叭~等等呐~网很慢的>^<，没有反应不是卡死了就是图发出来被屏蔽了呐~就不要等了呐~")
-                ]),
-                quote=message[Source][0]
-            )
+            # await app.sendGroupMessage(
+
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "setu", 1)
             return await get_setu_keyword(keyword=keyword)

@@ -36,9 +36,10 @@ async def get_chat_session(group_id: int, sender: int) -> str:
 
 async def get_chat_reply(group_id: int, sender: int, text: str):
     url = "https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat"
-    temp_list = re.findall("@.* ", text, re.S)
+    temp_list = re.findall(r"@(.*?) ", text, re.S)
+    print(text, temp_list)
     if temp_list is not None:
-        text = text.replace(temp_list[0], "")
+        text = text.replace(f"@{temp_list[0]} ", "")
 
     app_id = await get_config("txAppId")
     t = time.time()

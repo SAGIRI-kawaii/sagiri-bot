@@ -30,7 +30,9 @@ async def reply_process(group_id: int, sender: int, message_text: str) -> list:
     mode_now = await get_setting(group_id, "speakMode")
     text = ""
     if mode_now == "normal":
-        pass
+        return [
+            "None"
+        ]
     elif mode_now == "chat":
         text = await get_chat_reply(group_id, sender, message_text)
         if text == "":

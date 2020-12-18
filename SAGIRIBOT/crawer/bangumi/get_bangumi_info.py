@@ -2,6 +2,7 @@ import aiohttp
 import os
 from PIL import Image as IMG
 from io import BytesIO
+import urllib.parse as parse
 
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import Plain
@@ -16,8 +17,8 @@ async def get_bangumi_info(sender: int, keyword: str) -> list:
         "user-agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36"
     }
-    url = "https://api.bgm.tv/search/subject/%s?type=2&responseGroup=Large&max_results=1" % keyword
-
+    url = "https://api.bgm.tv/search/subject/%s?type=2&responseGroup=Large&max_results=1" % parse.quote(keyword)
+    print(url)
     async with aiohttp.ClientSession() as session:
         async with session.post(url=url, headers=headers) as resp:
             data = await resp.json()
@@ -30,7 +31,7 @@ async def get_bangumi_info(sender: int, keyword: str) -> list:
                 Plain(text="番剧 %s 未搜索到结果！" % keyword)
             ])
         ]
-
+    print(data)
     bangumi_id = data["list"][0]["id"]
     url = "https://api.bgm.tv/subject/%s?responseGroup=medium" % bangumi_id
     print(url)

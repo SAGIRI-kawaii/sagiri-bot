@@ -3,6 +3,7 @@ import asyncio
 import os
 from multiprocessing import Queue
 from threading import Thread
+import json
 
 from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
@@ -38,12 +39,15 @@ loop = asyncio.get_event_loop()
 bcc = Broadcast(loop=loop)
 sche = GraiaScheduler(loop=loop, broadcast=bcc)
 
+with open('config.json', 'r', encoding='utf-8') as f:  # 从json读配置
+    configs = json.loads(f.read())
+
 app = GraiaMiraiApplication(
     broadcast=bcc,
     connect_info=Session(
         host="http://localhost:8080",
         authKey="1234567890",
-        account=1785007019,
+        account=configs["BotQQ"],
         websocket=True
     )
 )
