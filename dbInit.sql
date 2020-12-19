@@ -317,6 +317,20 @@ CREATE TABLE `predictready` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `searchbangumiready`
+--
+
+DROP TABLE IF EXISTS `searchbangumiready`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `searchbangumiready` (
+  `groupId` bigint DEFAULT NULL,
+  `memberId` bigint DEFAULT NULL,
+  `status` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `searchready`
 --
 
@@ -352,7 +366,9 @@ CREATE TABLE `setting` (
   `search` tinyint(1) DEFAULT NULL,
   `imgPredict` tinyint(1) DEFAULT NULL,
   `yellowPredict` tinyint(1) DEFAULT NULL,
+  `searchBangumi` int NOT NULL,
   `imgLightning` tinyint(1) DEFAULT NULL,
+  `longTextType` text,
   `listen` tinyint(1) DEFAULT '0',
   `tribute` tinyint(1) DEFAULT '0',
   `tributeQuantity` int DEFAULT '10',
@@ -478,4 +494,4 @@ CREATE TABLE `yellowpredictready` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-12-01 18:12:51
+-- Dump completed on 2020-12-19 16:16:13
