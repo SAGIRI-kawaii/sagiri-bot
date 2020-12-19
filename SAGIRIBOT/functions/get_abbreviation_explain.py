@@ -43,7 +43,7 @@ async def get_abbreviation_explain(abbreviation: str, group_id: int) -> list:
             img = text2piiic(string=result, poster="", length=max(len(x) for x in result.split("\n")))
             img.save("./statics/temp/tempAbbreviation.png")
             return [
-                "None",
+                "quoteSource",
                 MessageChain.create([
                     Image.fromLocalFile("./statics/temp/tempAbbreviation.png")
                 ])
