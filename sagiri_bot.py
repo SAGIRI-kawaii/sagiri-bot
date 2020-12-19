@@ -33,6 +33,7 @@ from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
 from SAGIRIBOT.basics.tasks_listener import tasks_listener
 from SAGIRIBOT.functions.search_magnet import search_magnet
 from SAGIRIBOT.functions.petpet import petpet
+from SAGIRIBOT.functions.get_abbreviation_explain import get_abbreviation_explain
 
 loop = asyncio.get_event_loop()
 
@@ -198,10 +199,7 @@ async def group_message_listener(
         msg = await get_rank(group.id, app)
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test2" and message_info.sender.id == await get_config("HostQQ"):
-        await petpet(message_info.sender.id)
-        await app.sendGroupMessage(group, MessageChain.create([
-            Image.fromLocalFile(f'./statics/temp/tempPetPet-{message_info.sender.id}.gif')
-        ]))
+        await get_abbreviation_explain("nbnhhsh")
     if message.asDisplay()[:4] == "sql:" and message_info.sender.id == await get_config("HostQQ"):
         result = await execute_sql(message.asDisplay()[4:])
         if type(result) != bool:

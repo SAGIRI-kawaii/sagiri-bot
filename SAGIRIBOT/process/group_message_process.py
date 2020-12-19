@@ -33,6 +33,7 @@ from SAGIRIBOT.process.setting_process import setting_process
 from SAGIRIBOT.process.reply_process import reply_process
 from SAGIRIBOT.crawer.bangumi.get_bangumi_info import get_bangumi_info
 from SAGIRIBOT.data_manage.get_data.get_admin import get_admin
+from SAGIRIBOT.data_manage.get_data.get_blacklist import get_blacklist
 from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 from SAGIRIBOT.basics.write_log import write_log
 from SAGIRIBOT.functions.get_joke import *
@@ -42,7 +43,7 @@ from SAGIRIBOT.basics.get_response_set import get_response_set
 from SAGIRIBOT.images.get_setu_keyword import get_setu_keyword
 from SAGIRIBOT.functions.petpet import petpet
 from SAGIRIBOT.functions.pornhub_style_image import make_ph_style_logo
-
+from SAGIRIBOT.functions.get_abbreviation_explain import get_abbreviation_explain
 
 # 关键词字典
 response_set = get_response_set()
@@ -74,6 +75,11 @@ async def group_message_process(
     message_serialization = message.asSerializationString()
     sender = message_info.sender.id
     group_id = message_info.sender.group.id
+
+    # 黑名单检测
+    if sender in await get_blacklist():
+        print("Blacklist!No reply!")
+        return ["None"]
 
     # print("message_serialization:", message_serialization)
 
@@ -327,7 +333,7 @@ async def group_message_process(
                 ])
             ]
     elif message.has(Image) and await get_setting(group_id, "yellowPredict") and await get_image_ready(group_id, sender,
-                                                                                                "yellowPredictReady"):
+                                                                                                       "yellowPredictReady"):
         image = message.get(Image)[0]
         await update_user_called_data(group_id, sender, "yellowPredict", 1)
         return await image_yellow_judge(group_id, sender, image, "yellowPredict")
@@ -351,7 +357,7 @@ async def group_message_process(
                 ])
             ]
     elif message.has(Image) and await get_setting(group_id, "searchBangumi") and await get_image_ready(group_id, sender,
-                                                                                                "searchBangumiReady"):
+                                                                                                       "searchBangumiReady"):
         # print("status:", await get_image_ready(group_id, sender, "searchReady"))
         image = message.get(Image)[0]
         await update_user_called_data(group_id, sender, "search", 1)
@@ -378,7 +384,7 @@ async def group_message_process(
         #         Plain(text="本功能已停用，短时间内不再开放！请勿多次申请")
         #     ])
         # ]
-        return await get_weibo_hot()
+        return await get_weibo_hot(group_id)
 
     """
     B站相关功能:
@@ -393,7 +399,7 @@ async def group_message_process(
                 Plain(text="参数错误！必须为数字1-7！")
             ]
         else:
-            return await formatted_output_bangumi(int(num))
+            return await formatted_output_bangumi(int(num), group_id)
 
     """
     力扣相关功能：
@@ -429,6 +435,7 @@ async def group_message_process(
         群语录
         平安经（群人数过多时慎用）
         pornhub风格图片生成
+        缩写
         摸~
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
@@ -449,7 +456,7 @@ async def group_message_process(
         ]
 
     if message_text == "教务通知":
-        return await get_jlu_csw_notice()
+        return await get_jlu_csw_notice(group_id)
 
     if re.search("来点.*笑话", message_text):
         joke_dict = {
@@ -539,6 +546,19 @@ async def group_message_process(
                 Image.fromLocalFile(path)
             ])
         ]
+
+    if message_text.startswith("缩 "):
+        abbreviation = message_text[2:]
+        print(abbreviation)
+        if abbreviation.isalnum():
+            return await get_abbreviation_explain(abbreviation, group_id)
+        else:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text="只能包含数字及字母！")
+                ])
+            ]
 
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸 "):
         target_id = message.get(At)[0].target

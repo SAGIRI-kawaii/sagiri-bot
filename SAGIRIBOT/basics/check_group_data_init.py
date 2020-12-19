@@ -15,11 +15,12 @@ async def check_group_data_init(group_list: list) -> None:
             sql = """
             INSERT INTO setting 
             (groupId,groupName,`repeat`,setuLocal,bizhiLocal,countLimit,`limit`,setu,bizhi,
-            `real`,r18,search,imgPredict,yellowPredict,searchBangumi,imgLightning,music,speakMode,switch,forbiddenCount) 
+            `real`,r18,search,imgPredict,yellowPredict,searchBangumi,imgLightning,longTextType,
+            music,speakMode,switch,forbiddenCount) 
             VALUES 
-            (%d,'%s',%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,'%s','%s','%s',0)
+            (%d,'%s',%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,'%s','%s','%s','%s',0)
             """ % (i.id, i.name, True, True, True, True, 6, False, False,
-                   False, False, False, False, False, False, False, "off", "normal", "online")
+                   False, False, False, False, False, False, False, "img", "off", "normal", "online")
             await execute_sql(sql)
             sql = """
             INSERT INTO admin 

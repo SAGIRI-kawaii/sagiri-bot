@@ -3,6 +3,10 @@ import aiohttp
 import datetime
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import Plain
+from graia.application.message.elements.internal import Image
+
+from SAGIRIBOT.basics.tools import text2piiic
+from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 
 
 async def get_new_bangumi_json() -> dict:
@@ -72,12 +76,13 @@ async def get_formatted_new_bangumi_json() -> list:
     return formatted_bangumi_data
 
 
-async def formatted_output_bangumi(days: int) -> list:
+async def formatted_output_bangumi(days: int, group_id: int) -> list:
     """
     Formatted output json data
 
     Args:
         days: The number of days to output(1-7)
+        group_id: Group id
 
     Examples:
         data_str = formatted_output_bangumi(7)
@@ -96,9 +101,29 @@ async def formatted_output_bangumi(days: int) -> list:
             temp_output_substring.append("url:%s\n" % (data["url"]))
         temp_output_substring.append("\n\n----------------\n\n")
         now += datetime.timedelta(days=1)
-    return [
-        "None",
-        MessageChain.create([
-            Plain(text="".join(temp_output_substring))
-        ])
-    ]
+
+    long_text_setting = await get_setting(group_id, "longTextType")
+    content = "".join(temp_output_substring)
+    if long_text_setting == "img":
+        img = text2piiic(string=content, poster="", length=max(len(x) for x in content.split("\n")))
+        img.save("./statics/temp/tempBungumiTimeTable.png")
+        return [
+            "None",
+            MessageChain.create([
+                Image.fromLocalFile("./statics/temp/tempBungumiTimeTable.png")
+            ])
+        ]
+    elif long_text_setting == "text":
+        return [
+            "None",
+            MessageChain.create([
+                Plain(text=content)
+            ])
+        ]
+    else:
+        return [
+            "None",
+            MessageChain.create([
+                Plain(text="数据库 longTextType 项出错！请检查！")
+            ])
+        ]
