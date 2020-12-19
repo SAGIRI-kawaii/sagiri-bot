@@ -2,7 +2,7 @@
 import asyncio
 import os
 from multiprocessing import Queue
-from threading import Thread
+import threading
 import json
 
 from graia.broadcast import Broadcast
@@ -56,6 +56,7 @@ app = GraiaMiraiApplication(
 # 复读判断
 group_repeat = dict()
 tasks = Queue()
+lock=threading.Lock()
 
 
 # async def group_message_sender(message_info: GroupMessage, message: list, group: Group,
@@ -83,8 +84,10 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
     """
     try:
         if len(message) > 1 and "*" not in message[0]:
+            lock.acquire()
             group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
             group_repeat[group.id]["thisMsg"] = message[1].asDisplay()
+            lock.release()
         if len(message) > 1 and message[0] == "None":
             # await app.sendGroupMessage(group, MessageChain(__root__=[
             #     Plain("This message was sent by the new version of SAGIRI-Bot")
@@ -102,14 +105,26 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
             for _ in range(message[1]):
                 msg = await get_pic("setu", group.id, message_info.sender.id)
                 await app.sendGroupMessage(group, msg[1])
+                lock.acquire()
+                group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
+                group_repeat[group.id]["thisMsg"] = msg[1].asDisplay()
+                lock.release()
         elif len(message) > 1 and message[0] == "real*":
             for _ in range(message[1]):
                 msg = await get_pic("real", group.id, message_info.sender.id)
                 await app.sendGroupMessage(group, msg[1])
+                lock.acquire()
+                group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
+                group_repeat[group.id]["thisMsg"] = msg[1].asDisplay()
+                lock.release()
         elif len(message) > 1 and message[0] == "bizhi*":
             for _ in range(message[1]):
                 msg = await get_pic("bizhi", group.id, message_info.sender.id)
                 await app.sendGroupMessage(group, msg[1])
+                lock.acquire()
+                group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
+                group_repeat[group.id]["thisMsg"] = msg[1].asDisplay()
+                lock.release()
     except AccountMuted:
         pass
 
@@ -163,6 +178,7 @@ async def group_message_listener(
     print("接收到组%s中来自%s的消息:%s" % (group.name, message_info.sender.name, message.asDisplay()))
 
     # 复读
+    lock.acquire()
     group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
     group_repeat[group.id]["thisMsg"] = message.asDisplay()
     # print(group_repeat[group.id])
@@ -173,6 +189,7 @@ async def group_message_listener(
             if group_repeat[group.id]["thisMsg"] != group_repeat[group.id]["stopMsg"]:
                 group_repeat[group.id]["stopMsg"] = group_repeat[group.id]["thisMsg"]
                 await app.sendGroupMessage(group, message.asSendable())
+    lock.release()
 
     if message.asDisplay() == "start old version" and message_info.sender.id == await get_config("HostQQ"):
         await app.sendGroupMessage(group, message.create([Plain(text="即将切换至旧版本...")]))
@@ -214,11 +231,11 @@ async def group_message_listener(
     # done, pending = await asyncio.wait(tasks, timeout=120)
 
     message_send = await group_message_process(message, message_info, app)
-    if len(message_send) >= 2 and message_send[1].has(Image):
-        message_send.append(group)
-        tasks.put(message_send)
-    else:
-        await group_assist_process(message, message_info, message_send, group)
+    # if len(message_send) >= 2 and message_send[1].has(Image):
+    #     message_send.append(group)
+    #     tasks.put(message_send)
+    # else:
+    await group_assist_process(message, message_info, message_send, group)
 
 
 @bcc.receiver("MemberJoinEvent")
