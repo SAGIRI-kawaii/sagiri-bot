@@ -22,7 +22,9 @@ New version of sagiri-bot based on Mirai and Graia
 
 文档缓慢更新中（老鸽子了）
 
-文档地址: http://doc.sagiri-web.com/web/#/p/c79d523043f6ec05c1ac1416885477c7
+~~文档地址: http://doc.sagiri-web.com/web/#/p/c79d523043f6ec05c1ac1416885477c7~~
+
+文档将在近期重新编写，老版文档已经有多处不再适用
 
 ## 开始使用
 
@@ -130,7 +132,9 @@ Bot init end
 - 发送多张图片的指令如 `setu*`, `real*`, `bizhi*`在交叉使用是会打断前面的任务（如`setu*5`，`real*5`，`real*5` 发送以后 `setu*5` 的任务就会被打断）
 （↑如果知道解决办法也可向我提ISSUE）
 
-<font color=#FF0000 >特别注意：机器人中有许多功能使用的是我自己的API，可能会随时修改或关闭，请及时寻找替代用API，因API改动造成的程序错误概不负责</font>
+```diff
+- 特别注意：机器人中有许多功能使用的是我自己的API，可能会随时修改或关闭，请及时寻找替代用API，因API改动造成的程序错误概不负责
+````
 
 ## 鸽子宣言
 剩下的过两天再写.jpg
