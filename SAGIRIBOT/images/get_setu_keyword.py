@@ -1,7 +1,9 @@
 import aiohttp
+import asyncio
 from PIL import Image as IMG
 from io import BytesIO
 import os
+from urllib.parse import quote
 
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import Plain
@@ -26,7 +28,7 @@ async def get_setu_keyword(keyword: str) -> list:
             MessageChain: Message to be send(MessageChain)
         ]
     """
-    url = f"http://api.sagiri-web.com/setu/?keyword={keyword}"
+    url = f"https://api.sagiri-web.com/setu/?keyword={quote(keyword)}"
     # print(url)
     async with aiohttp.ClientSession() as session:
         async with session.get(url=url) as resp:
@@ -65,3 +67,12 @@ async def get_setu_keyword(keyword: str) -> list:
             Plain(text=f"\nurl:{data['url']}\n")
         ])
     ]
+
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    # Blocking call which returns when the display_date() coroutine is done
+    res = loop.run_until_complete(get_setu_keyword("刀剑神域"))
+    print(res)
+    loop.stop()
+    loop.close()

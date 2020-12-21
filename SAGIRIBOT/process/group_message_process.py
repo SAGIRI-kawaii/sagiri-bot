@@ -547,18 +547,18 @@ async def group_message_process(
             ])
         ]
 
-    if message_text.startswith("缩 "):
-        abbreviation = message_text[2:]
-        print(abbreviation)
-        if abbreviation.isalnum():
-            return await get_abbreviation_explain(abbreviation, group_id)
-        else:
-            return [
-                "quoteSource",
-                MessageChain.create([
-                    Plain(text="只能包含数字及字母！")
-                ])
-            ]
+    # if message_text.startswith("缩 "):
+    #     abbreviation = message_text[2:]
+    #     print(abbreviation)
+    #     if abbreviation.isalnum():
+    #         return await get_abbreviation_explain(abbreviation, group_id)
+    #     else:
+    #         return [
+    #             "quoteSource",
+    #             MessageChain.create([
+    #                 Plain(text="只能包含数字及字母！")
+    #             ])
+    #         ]
 
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸 "):
         target_id = message.get(At)[0].target

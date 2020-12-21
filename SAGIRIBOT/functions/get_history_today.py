@@ -20,7 +20,7 @@ async def get_history_today() -> list:
             MessageChain: Message to be send(MessageChain)
         ]
     """
-    api_url = "http://api.sagiri-web.com/historyToday/"
+    api_url = "https://api.sagiri-web.com/historyToday/"
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url=api_url) as resp:

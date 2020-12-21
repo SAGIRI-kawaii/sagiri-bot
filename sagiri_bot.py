@@ -188,7 +188,10 @@ async def group_message_listener(
         if group_repeat[group.id]["lastMsg"] == group_repeat[group.id]["thisMsg"]:
             if group_repeat[group.id]["thisMsg"] != group_repeat[group.id]["stopMsg"]:
                 group_repeat[group.id]["stopMsg"] = group_repeat[group.id]["thisMsg"]
-                await app.sendGroupMessage(group, message.asSendable())
+                try:
+                    await app.sendGroupMessage(group, message.asSendable())
+                except AccountMuted:
+                    pass
     lock.release()
 
     if message.asDisplay() == "start old version" and message_info.sender.id == await get_config("HostQQ"):

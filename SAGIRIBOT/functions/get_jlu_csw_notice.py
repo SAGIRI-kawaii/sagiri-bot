@@ -23,7 +23,7 @@ async def get_jlu_csw_notice(group_id: int) -> list:
             MessageChain: Message to be send(MessageChain)
         ]
     """
-    url = "http://api.sagiri-web.com/JLUCSWNotice/"
+    url = "https://api.sagiri-web.com/JLUCSWNotice/"
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url=url) as resp:
