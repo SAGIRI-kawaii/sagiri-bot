@@ -44,6 +44,7 @@ from SAGIRIBOT.images.get_setu_keyword import get_setu_keyword
 from SAGIRIBOT.functions.petpet import petpet
 from SAGIRIBOT.functions.pornhub_style_image import make_ph_style_logo
 from SAGIRIBOT.functions.get_abbreviation_explain import get_abbreviation_explain
+from SAGIRIBOT.functions.search_magnet import search_magnet
 
 # 关键词字典
 response_set = get_response_set()
@@ -436,6 +437,7 @@ async def group_message_process(
         平安经（群人数过多时慎用）
         pornhub风格图片生成
         缩写
+        获取磁力链
         摸~
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
@@ -559,6 +561,10 @@ async def group_message_process(
     #                 Plain(text="只能包含数字及字母！")
     #             ])
     #         ]
+
+    if message_text.startswith("magnet "):
+        target = message_text[7:]
+        return await search_magnet(target, group_id)
 
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸 "):
         target_id = message.get(At)[0].target

@@ -3,20 +3,43 @@ from bs4 import BeautifulSoup
 import re
 
 from graia.application.message.elements.internal import Plain
+from graia.application.message.elements.internal import Image
 from graia.application.message.chain import MessageChain
 
+from SAGIRIBOT.basics.tools import text2piiic
+from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
+from SAGIRIBOT.functions.get_proxy import get_proxy
 
-async def search_magnet(keyword: str) -> list:
+
+async def search_magnet(keyword: str, group_id: int) -> list:
     url = f"https://btsow.com/search/{keyword}"
     headers = {
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
         "referer": f"https://btsow.com/search/{keyword}"
     }
     print(url)
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url=url, headers=headers) as resp:
-            html = await resp.text()
-    print("html:", html)
+
+    proxy = await get_proxy()
+    proxies = {"http": f"http://{proxy['proxy']}"} if proxy.get("proxy") else None
+    print("proxy:", proxies)
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url=url, headers=headers, proxy=proxies["http"]) as resp:
+                html = await resp.text()
+    except (aiohttp.client_exceptions.ClientHttpProxyError,
+            aiohttp.client_exceptions.ClientProxyConnectionError,
+            aiohttp.client_exceptions.ClientOSError,
+            TypeError):
+        return [
+            "quoteSource",
+            MessageChain.create([
+                Plain(text="Proxy Error!")
+            ])
+        ]
+
+
+    # print("html:", html)
     if not html:
         return [
             "None",
@@ -59,9 +82,28 @@ async def search_magnet(keyword: str) -> list:
         text += f"磁力：{data['magnet']}\n"
         text += "--------------------\n"
 
-    return [
-        "None",
-        MessageChain.create([
-            Plain(text=text)
-        ])
-    ]
+    long_text_setting = await get_setting(group_id, "longTextType")
+    if long_text_setting == "img":
+        img = text2piiic(string=text, poster="", length=max(len(x) for x in text.split("\n")))
+        img.save("./statics/temp/tempMagnet.png")
+        return [
+            "quoteSource",
+            MessageChain.create([
+                Image.fromLocalFile("./statics/temp/tempMagnet.png")
+            ])
+        ]
+    elif long_text_setting == "text":
+        return [
+            "quoteSource",
+            MessageChain.create([
+                Plain(text=text)
+            ])
+        ]
+    else:
+        return [
+            "None",
+            MessageChain.create([
+                Plain(text="数据库 longTextType 项出错！请检查！")
+            ])
+        ]
+

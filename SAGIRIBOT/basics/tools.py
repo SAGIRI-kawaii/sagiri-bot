@@ -143,6 +143,7 @@ async def get_tx_sign(params: dict) -> str:
     """
     app_key = await get_config("txAppKey")
     params_keys = sorted(params.keys())
+    # print(params_keys)
     sign = ""
     for i in params_keys:
         if params[i] != '':

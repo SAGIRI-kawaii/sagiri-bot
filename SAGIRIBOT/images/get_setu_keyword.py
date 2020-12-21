@@ -54,6 +54,15 @@ async def get_setu_keyword(keyword: str) -> list:
         async with aiohttp.ClientSession() as session:
             async with session.get(url=img_url) as resp:
                 img_content = await resp.read()
+                code = resp.status
+
+        if code == 404:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text="404 Not Found!")
+                ])
+            ]
 
         image = IMG.open(BytesIO(img_content))
         image.save(path)

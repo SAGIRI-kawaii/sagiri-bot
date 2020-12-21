@@ -13,11 +13,10 @@ from SAGIRIBOT.basics.tools import get_tx_sign
 async def get_chat_session(group_id: int, sender: int) -> str:
     sql = "select `session` from chatSession where groupId=%d and memberId=%d" % (group_id, sender)
     data = await execute_sql(sql)
-    print(data)
     if data != ():
-        data = data[0]
+        data = data[0][0]
         session = data
-        print("智能闲聊 sender:%s,session:%s" % (sender, session))
+        print("智能闲聊 sender:%s, session:%s" % (sender, session))
         return str(session)
     else:
         sql = "select MAX(`session`) from chatSession"
@@ -30,17 +29,18 @@ async def get_chat_session(group_id: int, sender: int) -> str:
             session = int(data) + 1
         sql = "INSERT INTO chatSession (groupId,memberId,`session`) VALUES (%d,%d,%d)" % (group_id, sender, session)
         await execute_sql(sql)
-        print("智能闲聊 sender:%s,session:%s" % (sender, session))
+        print("智能闲聊 sender:%s, session:%s" % (sender, session))
         return str(session)
 
 
 async def get_chat_reply(group_id: int, sender: int, text: str):
     url = "https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat"
     temp_list = re.findall(r"@(.*?) ", text, re.S)
-    print(text, temp_list)
+    # print(text, temp_list)
     if temp_list is not None:
         text = text.replace(f"@{temp_list[0]} ", "")
-
+    print("question:", text)
+    text = text.strip()
     app_id = await get_config("txAppId")
     t = time.time()
     time_stamp = str(int(t))
@@ -55,8 +55,12 @@ async def get_chat_reply(group_id: int, sender: int, text: str):
     }
     sign = await get_tx_sign(params)
     params["sign"] = sign
+    # print(params)
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url=url, params=params) as resp:
             res = await resp.json()
+    print(res)
+    if res["ret"] > 0:
+        return f"Error:{res['msg']}"
     return res["data"]["answer"]
