@@ -233,7 +233,37 @@ async def group_message_listener(
     # await asyncio.wait([task], timeout=5)
     # done, pending = await asyncio.wait(tasks, timeout=120)
 
-    message_send = await group_message_process(message, message_info, app)
+    switch = await get_setting(group.id, "switch")
+    if switch == "online":
+        try:
+            message_send = await group_message_process(message, message_info, app)
+        except Exception as e:
+            message_send = [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text=str(e))
+                ])
+            ]
+    elif switch == "offline" and message_info.sender.id != await get_config("HostQQ"):
+        message_send = ["None"]
+    elif message_info.sender.id == await get_config("HostQQ"):
+        try:
+            message_send = await group_message_process(message, message_info, app)
+        except Exception as e:
+            message_send = [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text=str(e))
+                ])
+            ]
+    else:
+        message_send = [
+            "quoteSource",
+            MessageChain.create([
+                Plain(text="数据项switch错误！请检查数据库！")
+            ])
+        ]
+
     # if len(message_send) >= 2 and message_send[1].has(Image):
     #     message_send.append(group)
     #     tasks.put(message_send)
