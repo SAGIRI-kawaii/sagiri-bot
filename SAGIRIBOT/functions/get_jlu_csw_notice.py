@@ -3,7 +3,7 @@ from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import Image
 
-from SAGIRIBOT.basics.text_to_image import text2piiic
+from SAGIRIBOT.basics.tools import text2piiic
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 
 
@@ -12,7 +12,7 @@ async def get_jlu_csw_notice(group_id: int) -> list:
     Get JLU CSW notice
 
     Args:
-        None
+        group_id: Group id
 
     Examples:
         msg = await get_jlu_csw_notice()
