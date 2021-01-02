@@ -31,9 +31,9 @@ from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 from SAGIRIBOT.data_manage.update_data.update_dragon import update_dragon_data
 from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
 from SAGIRIBOT.basics.tasks_listener import tasks_listener
-from SAGIRIBOT.functions.search_magnet import search_magnet
-from SAGIRIBOT.functions.petpet import petpet
-from SAGIRIBOT.functions.get_abbreviation_explain import get_abbreviation_explain
+from SAGIRIBOT.basics.frequency_limit_module import frequency_limit
+from SAGIRIBOT.functions.get_review import get_personal_review
+from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
 
 loop = asyncio.get_event_loop()
 
@@ -56,8 +56,9 @@ app = GraiaMiraiApplication(
 # 复读判断
 group_repeat = dict()
 tasks = Queue()
-lock=threading.Lock()
-
+lock = threading.Lock()
+frequency_limit_dict = {}
+frequency_limit_instance = None
 
 # async def group_message_sender(message_info: GroupMessage, message: list, group: Group,
 #                                app: GraiaMiraiApplication) -> None:
@@ -153,7 +154,11 @@ async def bot_init(app: GraiaMiraiApplication):
     group_list = await app.groupList()
     for i in group_list:
         group_repeat[i.id] = {"lastMsg": "", "thisMsg": "", "stopMsg": ""}
+        frequency_limit_dict[i.id] = 0
     await check_group_data_init(group_list)
+    frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
+    limiter = threading.Thread(target=frequency_limit, args=(frequency_limit_instance,))
+    limiter.start()
     # listener = Thread(target=tasks_listener, args=(app, tasks, loop))
     # listener.start()
     print("Bot init end")
@@ -213,13 +218,13 @@ async def group_message_listener(
         os.system("shutdown -s")
 
     if message.asDisplay() == "test" and message_info.sender.id == await get_config("HostQQ"):
-        msg = await search_magnet("star")
+        msg = await get_personal_review(group.id, message_info.sender.id, "year")
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
         msg = await get_rank(group.id, app)
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test2" and message_info.sender.id == await get_config("HostQQ"):
-        await get_abbreviation_explain("nbnhhsh")
+        await get_personal_review(group.id, message_info.sender.id, "year")
     if message.asDisplay()[:4] == "sql:" and message_info.sender.id == await get_config("HostQQ"):
         result = await execute_sql(message.asDisplay()[4:])
         if type(result) != bool:
@@ -236,7 +241,7 @@ async def group_message_listener(
     switch = await get_setting(group.id, "switch")
     if switch == "online":
         try:
-            message_send = await group_message_process(message, message_info, app)
+            message_send = await group_message_process(message, message_info, app, frequency_limit_dict)
         except Exception as e:
             message_send = [
                 "quoteSource",
