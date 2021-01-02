@@ -152,3 +152,29 @@ async def get_tx_sign(params: dict) -> str:
     sign = await curl_md5(sign)
     print("signMD5:", sign)
     return sign
+
+
+async def filter_label(label_list: list) -> list:
+    """
+    Filter labels
+
+    Args:
+        label_list: Words to filter
+
+    Examples:
+        result = await filter_label(label_list)
+
+    Return:
+        list
+    """
+    not_filter = ["草"]
+    image_filter = "mirai:"
+    result = []
+    for i in label_list:
+        if image_filter in i:
+            continue
+        elif i in not_filter:
+            result.append(i)
+        elif len(i) != 1 and i.find('nbsp') < 0:
+            result.append(i)
+    return result

@@ -1,5 +1,7 @@
 import re
 import os
+import pkuseg
+import threading
 
 from graia.application.event.messages import *
 from graia.application import GraiaMiraiApplication
@@ -45,15 +47,35 @@ from SAGIRIBOT.functions.petpet import petpet
 from SAGIRIBOT.functions.pornhub_style_image import make_ph_style_logo
 from SAGIRIBOT.functions.get_abbreviation_explain import get_abbreviation_explain
 from SAGIRIBOT.functions.search_magnet import search_magnet
+from SAGIRIBOT.data_manage.update_data.write_chat_record import write_chat_record
+from SAGIRIBOT.functions.get_review import *
+from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
 
 # 关键词字典
 response_set = get_response_set()
+
+seg = pkuseg.pkuseg()
+
+
+async def limit_exceeded_judge(group_id: int, weight: int) -> list:
+    frequency_limit_instance = GlobalFrequencyLimitDict()
+    frequency_limit_instance.update(group_id, weight)
+    if frequency_limit_instance.get(group_id) >= 10:
+        return [
+            "quoteSource",
+            MessageChain.create([
+                Plain(text="Frequency limit exceeded every 10 seconds!")
+            ])
+        ]
+    else:
+        return []
 
 
 async def group_message_process(
         message: MessageChain,
         message_info: GroupMessage,
-        app: GraiaMiraiApplication
+        app: GraiaMiraiApplication,
+        frequency_limit_dict: dict
 ) -> list:
     """
     Process the received message and return the corresponding message
@@ -62,6 +84,7 @@ async def group_message_process(
         message: Received message(MessageChain)
         message_info: Received message(GroupMessage)
         app: APP
+        frequency_limit_dict: Frequency limit dict
 
     Examples:
         message_list = await message_process(message, message_info)
@@ -81,6 +104,7 @@ async def group_message_process(
     if sender in await get_blacklist():
         print("Blacklist!No reply!")
         return ["None"]
+    await write_chat_record(seg, group_id, sender, message_text)
 
     # print("message_serialization:", message_serialization)
 
@@ -111,6 +135,12 @@ async def group_message_process(
         lsp rank
     """
     if message_text in response_set["setu"]:
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if await get_setting(group_id, "setu"):
             if sender == 80000000:
                 return [
@@ -134,6 +164,12 @@ async def group_message_process(
             ]
 
     elif re.search("来点.*[色涩]图", message_text):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if await get_setting(group_id, "setu"):
             if sender == 80000000:
                 return [
@@ -165,6 +201,12 @@ async def group_message_process(
             ]
 
     elif message_text in response_set["real"]:
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if await get_setting(group_id, "real"):
             if sender == 80000000:
                 return [
@@ -185,6 +227,12 @@ async def group_message_process(
             ]
 
     elif message_text in response_set["realHighq"]:
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if await get_setting(group_id, "real"):
             if sender == 80000000:
                 return [
@@ -205,6 +253,12 @@ async def group_message_process(
             ]
 
     elif message_text in response_set["bizhi"]:
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if await get_setting(group_id, "bizhi"):
             if sender == 80000000:
                 return [
@@ -287,10 +341,22 @@ async def group_message_process(
         return await get_wallpaper_time(group_id, sender)
 
     elif message_text.startswith("选择表盘"):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if message_text == "选择表盘":
             return await show_clock_wallpaper(sender)
 
     elif message_text == "搜图":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 2)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if await get_setting(group_id, "search"):
             await set_get_img_ready(group_id, sender, True, "searchReady")
             return [
@@ -316,6 +382,12 @@ async def group_message_process(
         return await search_image(group_id, sender, image)
 
     elif message_text == "这张图涩吗":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 2)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if await get_setting(group_id, "yellowPredict"):
             await set_get_img_ready(group_id, sender, True, "yellowPredictReady")
             return [
@@ -340,6 +412,12 @@ async def group_message_process(
         return await image_yellow_judge(group_id, sender, image, "yellowPredict")
 
     elif message_text == "搜番":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 2)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if await get_setting(group_id, "searchBangumi"):
             await set_get_img_ready(group_id, sender, True, "searchBangumiReady")
             return [
@@ -359,6 +437,12 @@ async def group_message_process(
             ]
     elif message.has(Image) and await get_setting(group_id, "searchBangumi") and await get_image_ready(group_id, sender,
                                                                                                        "searchBangumiReady"):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 2)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         # print("status:", await get_image_ready(group_id, sender, "searchReady"))
         image = message.get(Image)[0]
         await update_user_called_data(group_id, sender, "search", 1)
@@ -373,18 +457,24 @@ async def group_message_process(
         历史上的今天
     """
     if message_text == "历史上的今天":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         return await get_history_today()
     """
     微博相关功能：
         微博热搜
     """
     if message_text == "weibo" or message_text == "微博":
-        # return [
-        #     "None",
-        #     MessageChain.create([
-        #         Plain(text="本功能已停用，短时间内不再开放！请勿多次申请")
-        #     ])
-        # ]
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         return await get_weibo_hot(group_id)
 
     """
@@ -393,6 +483,12 @@ async def group_message_process(
         B站直播间查询
     """
     if message_text[-4:] == "日内新番":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         num = message_text[:-4]
         if not num.isdigit() or int(num) <= 0 or int(num) > 7:
             return [
@@ -416,6 +512,12 @@ async def group_message_process(
         steam游戏查询
     """
     if message_text.startswith("steam "):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 2)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         return await get_steam_game_search(message_text.replace("steam ", ""))
 
     """
@@ -423,6 +525,12 @@ async def group_message_process(
         番剧查询
     """
     if message_text.startswith("番剧 "):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 2)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         keyword = message_text[3:]
         return await get_bangumi_info(sender, keyword)
 
@@ -438,13 +546,26 @@ async def group_message_process(
         pornhub风格图片生成
         缩写
         获取磁力链
+        年度报告
         摸~
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
                                                                                                 message_text):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         return await get_translate(message_text, sender)
 
     elif message_text.startswith("点歌 ") and len(message_text) >= 4:
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 3)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         print("search song:", message_text[3:])
         return await get_song_ordered(message_text[3:])
 
@@ -458,6 +579,12 @@ async def group_message_process(
         ]
 
     if message_text == "教务通知":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         return await get_jlu_csw_notice(group_id)
 
     if re.search("来点.*笑话", message_text):
@@ -509,6 +636,12 @@ async def group_message_process(
                 return await get_group_quotes(group_id, app, name, "select", "nickname")
 
     if message_text == "平安":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 6)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         member_list = await app.memberList(group_id)
         msg = list()
         msg.append(Plain(text=f"群{message_info.sender.group.name}平安经\n"))
@@ -520,6 +653,12 @@ async def group_message_process(
         ]
 
     if message_text.startswith("ph ") and len(message_text.split(" ")) == 3:
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         if "\\" in message_text or "/" in message_text:
             return [
                 "None",
@@ -563,10 +702,37 @@ async def group_message_process(
     #         ]
 
     if message_text.startswith("magnet "):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 6)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         target = message_text[7:]
         return await search_magnet(target, group_id)
 
+    if message_text == "我的2020":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 6)
+            if frequency_limit_res:
+                return frequency_limit_res
+        return await get_personal_review(group_id, sender, "year")
+
+    if message_text == "本群2020" and sender == await get_config("HostQQ"):
+        lock = threading.Lock()
+        lock.acquire()
+        msg = await get_group_review(group_id, sender, "year")
+        lock.release()
+        return msg
+
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸 "):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
         target_id = message.get(At)[0].target
         await petpet(target_id)
         return [
