@@ -41,6 +41,7 @@ New version of sagiri-bot based on Mirai and Graia
 
 ### 如何启动
 
+首先，启动 mirai-console，确保其正常运行且插件正常安装
 在文件夹下执行 `python sagiri-bot.py` 即可
 你应当见到类似如下格式的信息：
 ```angular2
