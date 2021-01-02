@@ -16,7 +16,6 @@ New version of sagiri-bot based on Mirai and Graia
     + [参数说明](#参数说明)
       - [config.json](#configjson)
       - [response_set.json](#response-setjson)
-  * [使用文档](#使用文档)
   * [注意](#注意)
   * [鸽子宣言](#鸽子宣言)
 
@@ -27,6 +26,8 @@ New version of sagiri-bot based on Mirai and Graia
 ~~文档地址: http://doc.sagiri-web.com/web/#/p/c79d523043f6ec05c1ac1416885477c7~~
 
 文档将在近期重新编写，老版文档已经有多处不再适用
+
+- [功能介绍及使用](docs/functions.md)
 
 ## 开始使用
 
@@ -127,8 +128,6 @@ Bot init end
 | bizhi | 壁纸图片功能触发关键词（可添加图片，按照\[mirai:image:{ImageMD5}.mirai\]的格式添加即可，可使用 `message.asSerializationString()` 函数查看） |
 | realHighq | 高质量三次元图片功能触发关键词（可添加图片，按照\[mirai:image:{ImageMD5}.mirai\]的格式添加即可，可使用 `message.asSerializationString()` 函数查看） |
 
-## 使用文档
-[功能介绍及使用](docs/functions.md)
 
 ## 注意
 目前机器人尚未完善，仍有许多bug存在，若您在使用中发现了bug或有更好的建议，请提ISSUE
