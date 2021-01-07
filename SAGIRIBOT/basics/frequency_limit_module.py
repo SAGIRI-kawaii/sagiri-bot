@@ -41,7 +41,7 @@ class GlobalFrequencyLimitDict:
 
     def set_zero(self):
         for key in self.frequency_limit_dict.keys():
-            print(f"group {key} frequency count set to 0!")
+            # print(f"group {key} frequency count set to 0!")
             self.frequency_limit_dict[key] = 0
 
     def update(self, group_id: int, weight: int):

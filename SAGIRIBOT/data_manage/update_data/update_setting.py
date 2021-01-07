@@ -16,7 +16,7 @@ async def update_setting(group_id, setting_name, new_setting_value) -> None:
     Return:
         None
     """
-    str_key_word = ["speakMode", "switch", "music", "r18Process"]
+    str_key_word = ["speakMode", "switch", "music", "r18Process", "longTextType"]
     sql_key_word = ["repeat", "real", "limit"]
     if setting_name in sql_key_word:
         setting_name = '`'+setting_name+'`'
