@@ -95,6 +95,7 @@ async def group_message_process(
             MessageChain: Message to be send(MessageChain)
         ]
     """
+    # print("debug")
     message_text = message.asDisplay()
     message_serialization = message.asSerializationString()
     sender = message_info.sender.id
@@ -711,19 +712,34 @@ async def group_message_process(
         target = message_text[7:]
         return await search_magnet(target, group_id)
 
-    if message_text == "我的2020":
-
+    if message_text == "我的年内总结":
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 6)
             if frequency_limit_res:
                 return frequency_limit_res
+
         return await get_personal_review(group_id, sender, "year")
 
-    if message_text == "本群2020" and sender == await get_config("HostQQ"):
-        lock = threading.Lock()
-        lock.acquire()
+    if message_text == "我的月内总结":
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 6)
+            if frequency_limit_res:
+                return frequency_limit_res
+
+        return await get_personal_review(group_id, sender, "month")
+
+    if message_text == "本群年内总结" and sender == await get_config("HostQQ"):
+        # lock = threading.Lock()
+        # lock.acquire()
         msg = await get_group_review(group_id, sender, "year")
-        lock.release()
+        # lock.release()
+        return msg
+
+    if message_text == "本群月内总结" and sender == await get_config("HostQQ"):
+        # lock = threading.Lock()
+        # lock.acquire()
+        msg = await get_group_review(group_id, sender, "month")
+        # lock.release()
         return msg
 
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸 "):

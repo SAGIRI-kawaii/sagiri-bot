@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image as IMG
 from wordcloud import WordCloud, ImageColorGenerator
+from dateutil.relativedelta import relativedelta
 
 from graia.application.message.elements.internal import MessageChain
 from graia.application.message.elements.internal import Plain
@@ -48,40 +49,15 @@ async def draw_word_cloud(read_name):
 
 
 async def get_personal_review(group_id: int, member_id: int, review_type: str) -> list:
+    time = datetime.datetime.now()
+    year, month, day, hour, minute, second = time.strftime("%Y %m %d %H %M %S").split(" ")
+    tag = ""
     if review_type == "year":
-        time = datetime.datetime.now().strftime("%Y")
-        sql = f"""SELECT * FROM chatRecord 
-                        WHERE 
-                    groupId={group_id} AND memberId={member_id} AND time>'{'2020-01-01 00:00:00'}'"""
-        # print(sql)
-        res = await execute_sql(sql)
-        texts = []
-        for i in res:
-            if i[4]:
-                texts += i[4].split(",")
-            else:
-                texts.append(i[3])
-        print(texts)
-        top_n = await count_words(texts, 500)
-        await draw_word_cloud(top_n)
-        sql = f"""SELECT count(*) FROM chatRecord 
-                        WHERE 
-                    groupId={group_id} AND memberId={member_id} AND time>'{'2020-01-01 00:00:00'}'"""
-        res = await execute_sql(sql)
-        times = res[0][0]
-        return [
-            "quoteSource",
-            MessageChain.create([
-                Plain(text=f"时间飞逝，转眼就到了2021年\n自有记录以来，你一共发了{times}条消息\n下面是你的年度词云"),
-                Image.fromLocalFile("./statics/tempWordCloud.png")
-            ])
-        ]
+        yearp, monthp, dayp, hourp, minutep, secondp = (time - relativedelta(years=1)).strftime("%Y %m %d %H %M %S").split(" ")
+        tag = "年内"
     elif review_type == "month":
-        time = datetime.datetime.now().strftime("%Y-%m")
-        sql = f"""SELECT * FROM chatRecord 
-                        WHERE 
-                    groupId={group_id} AND memberId={member_id} AND time>'{time + '-01 00:00:00'}'"""
-        print(sql)
+        yearp, monthp, dayp, hourp, minutep, secondp = (time - relativedelta(months=1)).strftime("%Y %m %d %H %M %S").split(" ")
+        tag = "月内"
     else:
         return [
             "None",
@@ -89,43 +65,51 @@ async def get_personal_review(group_id: int, member_id: int, review_type: str) -
                 Plain(text="Error: review_type invalid!")
             ])
         ]
+
+    sql = f"""SELECT * FROM chatRecord 
+                    WHERE 
+                groupId={group_id} AND memberId={member_id} AND time<'{year}-{month}-{day} {hour}:{minute}:{second}'
+                                                AND time>'{yearp}-{monthp}-{dayp} {hourp}:{minutep}:{secondp}'"""
+    # print(sql)
+    res = await execute_sql(sql)
+    texts = []
+    for i in res:
+        if i[4]:
+            texts += i[4].split(",")
+        else:
+            texts.append(i[3])
+    print(texts)
+    top_n = await count_words(texts, 500)
+    await draw_word_cloud(top_n)
+    sql = f"""SELECT count(*) FROM chatRecord 
+                    WHERE 
+                groupId={group_id} AND memberId={member_id} AND time<'{year}-{month}-{day} {hour}:{minute}:{second}'
+                                                AND time>'{yearp}-{monthp}-{dayp} {hourp}:{minutep}:{secondp}'"""
+    res = await execute_sql(sql)
+    times = res[0][0]
+    return [
+        "quoteSource",
+        MessageChain.create([
+            Plain(text="记录时间：\n"),
+            Plain(text=f"{yearp}-{monthp}-{dayp} {hourp}:{minutep}:{secondp}"),
+            Plain(text="\n---------至---------\n"),
+            Plain(text=f"{year}-{month}-{day} {hour}:{minute}:{second}"),
+            Plain(text=f"\n自有记录以来，你一共发了{times}条消息\n下面是你的{tag}个人词云:\n"),
+            Image.fromLocalFile("./statics/tempWordCloud.png")
+        ])
+    ]
 
 
 async def get_group_review(group_id: int, member_id: int, review_type: str) -> list:
+    time = datetime.datetime.now()
+    year, month, day, hour, minute, second = time.strftime("%Y %m %d %H %M %S").split(" ")
+    tag = ""
     if review_type == "year":
-        time = datetime.datetime.now().strftime("%Y")
-        sql = f"""SELECT * FROM chatRecord 
-                        WHERE 
-                    groupId={group_id} AND time>'{'2020-01-01 00:00:00'}'"""
-        # print(sql)
-        res = await execute_sql(sql)
-        texts = []
-        for i in res:
-            if i[4]:
-                texts += i[4].split(",")
-            else:
-                texts.append(i[3])
-        print(texts)
-        top_n = await count_words(texts, 500)
-        await draw_word_cloud(top_n)
-        sql = f"""SELECT count(*) FROM chatRecord 
-                        WHERE 
-                    groupId={group_id} AND time>'{'2020-01-01 00:00:00'}'"""
-        res = await execute_sql(sql)
-        times = res[0][0]
-        return [
-            "quoteSource",
-            MessageChain.create([
-                Plain(text=f"时间飞逝，转眼就到了2021年\n自有记录以来，本群一共发了{times}条消息\n下面是本群的年度词云"),
-                Image.fromLocalFile("./statics/tempWordCloud.png")
-            ])
-        ]
+        yearp, monthp, dayp, hourp, minutep, secondp = (time - relativedelta(years=1)).strftime("%Y %m %d %H %M %S").split(" ")
+        tag = "年内"
     elif review_type == "month":
-        time = datetime.datetime.now().strftime("%Y-%m")
-        sql = f"""SELECT * FROM chatRecord 
-                        WHERE 
-                    groupId={group_id} AND time>'{time + '-01 00:00:00'}'"""
-        print(sql)
+        yearp, monthp, dayp, hourp, minutep, secondp = (time - relativedelta(months=1)).strftime("%Y %m %d %H %M %S").split(" ")
+        tag = "月内"
     else:
         return [
             "None",
@@ -133,3 +117,36 @@ async def get_group_review(group_id: int, member_id: int, review_type: str) -> l
                 Plain(text="Error: review_type invalid!")
             ])
         ]
+    sql = f"""SELECT * FROM chatRecord 
+                        WHERE 
+                    groupId={group_id} AND time<'{year}-{month}-{day} {hour}:{minute}:{second}'
+                                                    AND time>'{yearp}-{monthp}-{dayp} {hourp}:{minutep}:{secondp}'"""
+    # print(sql)
+    res = await execute_sql(sql)
+    texts = []
+    for i in res:
+        if i[4]:
+            texts += i[4].split(",")
+        else:
+            if i[3]:
+                texts.append(i[3])
+    print(texts)
+    top_n = await count_words(texts, 500)
+    await draw_word_cloud(top_n)
+    sql = f"""SELECT count(*) FROM chatRecord 
+                        WHERE 
+                    groupId={group_id} AND time<'{year}-{month}-{day} {hour}:{minute}:{second}'
+                                                    AND time>'{yearp}-{monthp}-{dayp} {hourp}:{minutep}:{secondp}'"""
+    res = await execute_sql(sql)
+    times = res[0][0]
+    return [
+        "None",
+        MessageChain.create([
+            Plain(text="记录时间：\n"),
+            Plain(text=f"{yearp}-{monthp}-{dayp} {hourp}:{minutep}:{secondp}"),
+            Plain(text="\n---------至---------\n"),
+            Plain(text=f"{year}-{month}-{day} {hour}:{minute}:{second}"),
+            Plain(text=f"\n自有记录以来，本群一共发了{times}条消息\n下面是本群的{tag}词云:\n"),
+            Image.fromLocalFile("./statics/tempWordCloud.png")
+        ])
+    ]

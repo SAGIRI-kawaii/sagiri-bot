@@ -183,7 +183,7 @@ async def group_message_listener(
     print("接收到组%s中来自%s的消息:%s" % (group.name, message_info.sender.name, message.asDisplay()))
 
     # 复读
-    lock.acquire()
+    # lock.acquire()
     group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
     group_repeat[group.id]["thisMsg"] = message.asDisplay()
     # print(group_repeat[group.id])
@@ -197,7 +197,7 @@ async def group_message_listener(
                     await app.sendGroupMessage(group, message.asSendable())
                 except AccountMuted:
                     pass
-    lock.release()
+    # lock.release()
 
     if message.asDisplay() == "start old version" and message_info.sender.id == await get_config("HostQQ"):
         await app.sendGroupMessage(group, message.create([Plain(text="即将切换至旧版本...")]))
