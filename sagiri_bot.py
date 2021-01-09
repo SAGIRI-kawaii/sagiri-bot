@@ -137,7 +137,7 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
     except ClientResponseError:
         message += [received_message, message_info, group, 1]
         exception_resender_instance.addTask(message)
-        print("Error!!!!!!")
+        # print("Error!!!!!!")
 
 
 # 定时任务
