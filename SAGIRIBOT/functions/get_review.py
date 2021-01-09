@@ -45,7 +45,7 @@ async def draw_word_cloud(read_name):
     plt.imshow(wc)
     plt.axis("off")
     # plt.show()
-    wc.to_file('./statics/tempWordCloud.png')
+    wc.to_file('./statics/temp/tempWordCloud.png')
 
 
 async def get_personal_review(group_id: int, member_id: int, review_type: str) -> list:
@@ -95,7 +95,7 @@ async def get_personal_review(group_id: int, member_id: int, review_type: str) -
             Plain(text="\n---------至---------\n"),
             Plain(text=f"{year}-{month}-{day} {hour}:{minute}:{second}"),
             Plain(text=f"\n自有记录以来，你一共发了{times}条消息\n下面是你的{tag}个人词云:\n"),
-            Image.fromLocalFile("./statics/tempWordCloud.png")
+            Image.fromLocalFile("./statics/temp/tempWordCloud.png")
         ])
     ]
 
@@ -147,6 +147,6 @@ async def get_group_review(group_id: int, member_id: int, review_type: str) -> l
             Plain(text="\n---------至---------\n"),
             Plain(text=f"{year}-{month}-{day} {hour}:{minute}:{second}"),
             Plain(text=f"\n自有记录以来，本群一共发了{times}条消息\n下面是本群的{tag}词云:\n"),
-            Image.fromLocalFile("./statics/tempWordCloud.png")
+            Image.fromLocalFile("./statics/temp/tempWordCloud.png")
         ])
     ]
