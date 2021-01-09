@@ -5,5 +5,5 @@ async def save_birthday(member_id: int, group_id: int, birthday: str) -> None:
     sql = f"""REPLACE INTO birthday (memberId, groupId, birthday, announce) 
                 VALUES 
             ({member_id}, {group_id}, '{birthday}', false)"""
-    print(sql)
+    # print(sql)
     await execute_sql(sql)
