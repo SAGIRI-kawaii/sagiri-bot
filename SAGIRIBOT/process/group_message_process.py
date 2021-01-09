@@ -57,10 +57,9 @@ response_set = get_response_set()
 seg = pkuseg.pkuseg()
 
 
-async def limit_exceeded_judge(group_id: int, weight: int) -> list:
+async def limit_exceeded_judge(group_id: int, weight: int):
     frequency_limit_instance = GlobalFrequencyLimitDict()
-    frequency_limit_instance.update(group_id, weight)
-    if frequency_limit_instance.get(group_id) >= 10:
+    if frequency_limit_instance.get(group_id) + weight >= 10:
         return [
             "quoteSource",
             MessageChain.create([
@@ -68,7 +67,8 @@ async def limit_exceeded_judge(group_id: int, weight: int) -> list:
             ])
         ]
     else:
-        return []
+        frequency_limit_instance.update(group_id, weight)
+        return None
 
 
 async def group_message_process(

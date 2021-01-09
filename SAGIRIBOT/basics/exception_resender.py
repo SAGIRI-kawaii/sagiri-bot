@@ -96,5 +96,5 @@ def exception_resender_listener(app: GraiaMiraiApplication, exception_resender_i
                 else:
                     asyncio.run_coroutine_threadsafe(app.sendGroupMessage(task[4], MessageChain.create([
                         Plain(text="Maximum number of retries exceeded! Task cancelled!")
-                    ])), loop)
+                    ]), quote=task[2][Source][0]), loop)
         time.sleep(1)
