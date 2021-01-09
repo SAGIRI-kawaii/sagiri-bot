@@ -4,12 +4,12 @@ import os
 from multiprocessing import Queue
 import threading
 import json
+from aiohttp.client_exceptions import ClientResponseError
 
 from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
 from graia.scheduler import timers
 from graia.application import GraiaMiraiApplication, Session
-
 from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import Image
 from graia.application.message.elements.internal import At
@@ -34,11 +34,15 @@ from SAGIRIBOT.basics.tasks_listener import tasks_listener
 from SAGIRIBOT.basics.frequency_limit_module import frequency_limit
 from SAGIRIBOT.functions.get_review import get_personal_review
 from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
+from SAGIRIBOT.basics.exception_resender import ExceptionReSender
+from SAGIRIBOT.basics.exception_resender import exception_resender_listener
+
 
 loop = asyncio.get_event_loop()
 
 bcc = Broadcast(loop=loop)
 sche = GraiaScheduler(loop=loop, broadcast=bcc)
+
 
 with open('config.json', 'r', encoding='utf-8') as f:  # 从json读配置
     configs = json.loads(f.read())
@@ -59,6 +63,7 @@ tasks = Queue()
 lock = threading.Lock()
 frequency_limit_dict = {}
 frequency_limit_instance = None
+exception_resender_instance = None
 
 # async def group_message_sender(message_info: GroupMessage, message: list, group: Group,
 #                                app: GraiaMiraiApplication) -> None:
@@ -83,12 +88,13 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
     Return:
         None
     """
+    global exception_resender_instance
     try:
         if len(message) > 1 and "*" not in message[0]:
-            lock.acquire()
+            # lock.acquire()
             group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
             group_repeat[group.id]["thisMsg"] = message[1].asDisplay()
-            lock.release()
+            # lock.release()
         if len(message) > 1 and message[0] == "None":
             # await app.sendGroupMessage(group, MessageChain(__root__=[
             #     Plain("This message was sent by the new version of SAGIRI-Bot")
@@ -106,28 +112,32 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
             for _ in range(message[1]):
                 msg = await get_pic("setu", group.id, message_info.sender.id)
                 await app.sendGroupMessage(group, msg[1])
-                lock.acquire()
+                # lock.acquire()
                 group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
                 group_repeat[group.id]["thisMsg"] = msg[1].asDisplay()
-                lock.release()
+                # lock.release()
         elif len(message) > 1 and message[0] == "real*":
             for _ in range(message[1]):
                 msg = await get_pic("real", group.id, message_info.sender.id)
                 await app.sendGroupMessage(group, msg[1])
-                lock.acquire()
+                # lock.acquire()
                 group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
                 group_repeat[group.id]["thisMsg"] = msg[1].asDisplay()
-                lock.release()
+                # lock.release()
         elif len(message) > 1 and message[0] == "bizhi*":
             for _ in range(message[1]):
                 msg = await get_pic("bizhi", group.id, message_info.sender.id)
                 await app.sendGroupMessage(group, msg[1])
-                lock.acquire()
+                # lock.acquire()
                 group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
                 group_repeat[group.id]["thisMsg"] = msg[1].asDisplay()
-                lock.release()
+                # lock.release()
     except AccountMuted:
         pass
+    except ClientResponseError:
+        message += [received_message, message_info, group, 1]
+        exception_resender_instance.addTask(message)
+        print("Error!!!!!!")
 
 
 # 定时任务
@@ -150,6 +160,9 @@ async def declare_dragon():
 # 初始化
 @bcc.receiver("ApplicationLaunched")
 async def bot_init(app: GraiaMiraiApplication):
+    global frequency_limit_instance
+    global exception_resender_instance
+    global loop
     print("Bot init start")
     group_list = await app.groupList()
     for i in group_list:
@@ -159,8 +172,10 @@ async def bot_init(app: GraiaMiraiApplication):
     frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
     limiter = threading.Thread(target=frequency_limit, args=(frequency_limit_instance,))
     limiter.start()
-    # listener = Thread(target=tasks_listener, args=(app, tasks, loop))
-    # listener.start()
+    exception_resender_instance = ExceptionReSender(app)
+    # await exception_resender_listener(app, exception_resender_instance)
+    listener = threading.Thread(target=exception_resender_listener, args=(app, exception_resender_instance, loop))
+    listener.start()
     print("Bot init end")
 
 

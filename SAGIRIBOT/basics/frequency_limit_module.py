@@ -22,7 +22,7 @@ class GlobalFrequencyLimitDict:
     __first_init = False
     frequency_limit_dict = None
 
-    def __new__(cls, frequency_limit_dict:dict):
+    def __new__(cls, frequency_limit_dict: dict):
         if not cls.__instance:
             cls.__instance = object.__new__(cls)
         return cls.__instance
