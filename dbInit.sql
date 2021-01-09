@@ -91,6 +91,22 @@ CREATE TABLE `celebrityquotes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `chatrecord`
+--
+
+DROP TABLE IF EXISTS `chatrecord`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chatrecord` (
+  `time` datetime NOT NULL,
+  `groupId` bigint NOT NULL,
+  `memberId` bigint NOT NULL,
+  `content` text NOT NULL,
+  `seg` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `chatsession`
 --
 
@@ -494,4 +510,4 @@ CREATE TABLE `yellowpredictready` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-12-19 16:16:13
+-- Dump completed on 2021-01-09 21:22:56
