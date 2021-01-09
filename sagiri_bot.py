@@ -267,9 +267,12 @@ async def group_message_listener(
         await get_personal_review(group.id, message_info.sender.id, "year")
     if message.asDisplay()[:4] == "sql:" and message_info.sender.id == await get_config("HostQQ"):
         result = await execute_sql(message.asDisplay()[4:])
+        print(result)
         if type(result) != bool:
             if len(result) > 30:
                 await app.sendGroupMessage(group, MessageChain.create([Plain(text="数据过长！自动中止发送！")]))
+            else:
+                await app.sendGroupMessage(group, MessageChain.create([Plain(text=str(result))]))
         else:
             await app.sendGroupMessage(group, MessageChain.create([Plain(text=str(result))]))
 
