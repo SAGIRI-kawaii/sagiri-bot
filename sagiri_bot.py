@@ -157,6 +157,31 @@ async def declare_dragon():
                 pass
 
 
+@sche.schedule(timers.crontabify("0 0 * * *"))
+async def happy_birthday_check_first():
+    sql = "UPDATE birthday set announce=false"
+    await execute_sql(sql)
+    today = datetime.now().strftime("%m-%d")
+    groups = await app.groupList()
+    for i in groups:
+        sql = f"select memberId from birthday where groupId={i.id} and birthday='{today}'"
+        members = await execute_sql(sql)
+        print(i, members)
+        if members:
+            members = members[0]
+            msg = [Plain(text=f"今天是{today}\n本群有{len(members)}位群友过生日哦~\n它们分别是：\n")]
+            for j in members:
+                msg.append(At(target=j))
+                msg.append(Plain(text="\n"))
+            msg.append(Plain(text="让我们祝他们生日快乐！！！"))
+            try:
+                await app.sendGroupMessage(i.id, MessageChain.create(msg))
+                for j in members:
+                    sql = f"update birthday set announce=true where memberId={j}"
+            except AccountMuted:
+                pass
+
+
 # 初始化
 @bcc.receiver("ApplicationLaunched")
 async def bot_init(app: GraiaMiraiApplication):

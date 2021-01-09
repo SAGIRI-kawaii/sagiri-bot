@@ -50,6 +50,7 @@ from SAGIRIBOT.functions.search_magnet import search_magnet
 from SAGIRIBOT.data_manage.update_data.write_chat_record import write_chat_record
 from SAGIRIBOT.functions.get_review import *
 from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
+from SAGIRIBOT.data_manage.update_data.save_birthday import save_birthday
 
 # 关键词字典
 response_set = get_response_set()
@@ -689,18 +690,18 @@ async def group_message_process(
             ])
         ]
 
-    # if message_text.startswith("缩 "):
-    #     abbreviation = message_text[2:]
-    #     print(abbreviation)
-    #     if abbreviation.isalnum():
-    #         return await get_abbreviation_explain(abbreviation, group_id)
-    #     else:
-    #         return [
-    #             "quoteSource",
-    #             MessageChain.create([
-    #                 Plain(text="只能包含数字及字母！")
-    #             ])
-    #         ]
+    if message_text.startswith("缩 "):
+        abbreviation = message_text[2:]
+        # print(abbreviation)
+        if abbreviation.isalnum():
+            return await get_abbreviation_explain(abbreviation, group_id)
+        else:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text="只能包含数字及字母！")
+                ])
+            ]
 
     if message_text.startswith("magnet "):
 
@@ -757,6 +758,26 @@ async def group_message_process(
                 Image.fromLocalFile(f'./statics/temp/tempPetPet-{target_id}.gif')
             ])
         ]
+
+    if message_text.startswith("添加生日 "):
+        birthday = message_text[5:]
+        try:
+            birthday = datetime.datetime.strptime(birthday, "%m-%d").strftime("%m-%d")
+            await save_birthday(sender, group_id, birthday)
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text=f"用户: {sender}\n生日: {birthday}\n添加成功！")
+                ])
+            ]
+        except Exception as e:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text=str(e)),
+                    Plain(text="请检查格式！格式应为%m-%d的形式！")
+                ])
+            ]
 
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
         return await reply_process(group_id, sender, message_text)
