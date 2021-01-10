@@ -10,6 +10,7 @@ New version of sagiri-bot based on Mirai and Graia
 - [SAGIRI-BOT](#sagiri-bot)
   * [目录](#目录)
   * [使用文档](#使用文档)
+    + [新版文档](#新版文档)
   * [开始使用](#开始使用)
     + [使用前准备](#使用前准备)
     + [如何启动](#如何启动)
@@ -25,9 +26,12 @@ New version of sagiri-bot based on Mirai and Graia
 
 ~~文档地址: http://doc.sagiri-web.com/web/#/p/c79d523043f6ec05c1ac1416885477c7~~
 
-文档将在近期重新编写，老版文档已经有多处不再适用
+文档将在近期重新编写，老版文档已经有多处不再适用，但你也可以适当参考
 
-- [功能介绍及使用](docs/functions.md)
+
+### 新版文档
+- [群组内功能](docs/functions.md)
+- [群组管理](docs/manage.md)
 
 ## 开始使用
 
@@ -133,7 +137,7 @@ Bot init end
 ## 注意
 目前机器人尚未完善，仍有许多bug存在，若您在使用中发现了bug或有更好的建议，请提ISSUE
 目前已知bug：
-- 短时间内同时发送大量图片会导致发送失败（降低单张图片大小也许可以解决）
+- ~~短时间内同时发送大量图片会导致发送失败（降低单张图片大小也许可以解决）~~
 - 发送多张图片的指令如 `setu*`, `real*`, `bizhi*`在交叉使用是会打断前面的任务（如`setu*5`，`real*5`，`real*5` 发送以后 `setu*5` 的任务就会被打断）
 （↑如果知道解决办法也可向我提ISSUE）
 
