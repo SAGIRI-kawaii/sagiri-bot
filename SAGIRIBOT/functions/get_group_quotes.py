@@ -28,7 +28,8 @@ async def get_group_quotes(group_id: int, app: GraiaMiraiApplication, nickname: 
 
     if quote_type == "random":
         sql = "select * from celebrityQuotes where groupId=%d order by rand() limit 1" % group_id
-        quotes = await execute_sql(sql)[0]
+        quotes = await execute_sql(sql)
+        quotes = quotes[0]
         # print(quotes)
         if quotes is None:
             return [
