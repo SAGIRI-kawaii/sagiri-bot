@@ -15,6 +15,8 @@ from graia.application.message.elements.internal import Source
 from SAGIRIBOT.images.get_image import get_pic
 from SAGIRIBOT.basics.get_config import get_config
 from SAGIRIBOT.crawer.weibo.weibo_crawer import get_weibo_hot
+from SAGIRIBOT.crawer.zhihu.zhihu_crawer import get_zhihu_hot
+from SAGIRIBOT.crawer.github.github_crawer import get_github_hot
 from SAGIRIBOT.crawer.bilibili.bangumi_crawer import formatted_output_bangumi
 from SAGIRIBOT.crawer.leetcode.leetcode_user_info_crawer import get_leetcode_statics
 from SAGIRIBOT.crawer.steam.steam_game_info_crawer import get_steam_game_search
@@ -467,17 +469,36 @@ async def group_message_process(
 
         return await get_history_today()
     """
-    微博相关功能：
+    热榜相关：
         微博热搜
+        知乎热搜
     """
     if message_text == "weibo" or message_text == "微博":
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, 5)
             if frequency_limit_res:
                 return frequency_limit_res
 
         return await get_weibo_hot(group_id)
+
+    if message_text == "zhihu" or message_text == "知乎":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 5)
+            if frequency_limit_res:
+                return frequency_limit_res
+
+        return await get_zhihu_hot(group_id)
+
+    if message_text == "github热榜" or message_text == "github trend":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 6)
+            if frequency_limit_res:
+                return frequency_limit_res
+
+        return await get_github_hot(group_id)
 
     """
     B站相关功能:

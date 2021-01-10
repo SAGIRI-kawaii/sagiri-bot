@@ -36,6 +36,8 @@ from SAGIRIBOT.functions.get_review import get_personal_review
 from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
 from SAGIRIBOT.basics.exception_resender import ExceptionReSender
 from SAGIRIBOT.basics.exception_resender import exception_resender_listener
+from SAGIRIBOT.functions.get_almanac import get_almanac
+from SAGIRIBOT.crawer.github.github_crawer import get_github_hot
 
 
 loop = asyncio.get_event_loop()
@@ -258,7 +260,7 @@ async def group_message_listener(
         os.system("shutdown -s")
 
     if message.asDisplay() == "test" and message_info.sender.id == await get_config("HostQQ"):
-        msg = await get_personal_review(group.id, message_info.sender.id, "year")
+        msg = await get_github_hot(group.id)
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
         msg = await get_rank(group.id, app)
