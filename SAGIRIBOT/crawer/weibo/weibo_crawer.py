@@ -19,7 +19,7 @@ async def get_weibo_hot(group_id: int) -> list:
     index = 0
     for i in data:
         index += 1
-        text_list.append("\n%d.%s" % (index, i["word"]))
+        text_list.append("\n%d. %s" % (index, i["word"]))
     text = "".join(text_list).replace("#", "")
     long_text_setting = await get_setting(group_id, "longTextType")
     if long_text_setting == "img":
