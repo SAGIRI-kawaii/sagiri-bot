@@ -30,14 +30,14 @@ from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 from SAGIRIBOT.data_manage.update_data.update_dragon import update_dragon_data
 from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
-from SAGIRIBOT.basics.tasks_listener import tasks_listener
 from SAGIRIBOT.basics.frequency_limit_module import frequency_limit
 from SAGIRIBOT.functions.get_review import get_personal_review
 from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
 from SAGIRIBOT.basics.exception_resender import ExceptionReSender
 from SAGIRIBOT.basics.exception_resender import exception_resender_listener
 from SAGIRIBOT.functions.get_almanac import get_almanac
-from SAGIRIBOT.crawer.github.github_crawer import get_github_hot
+from SAGIRIBOT.functions.get_xml_image import get_xml_setu
+from SAGIRIBOT.functions.get_time import get_time
 
 
 loop = asyncio.get_event_loop()
@@ -260,10 +260,10 @@ async def group_message_listener(
         os.system("shutdown -s")
 
     if message.asDisplay() == "test" and message_info.sender.id == await get_config("HostQQ"):
-        msg = await get_github_hot(group.id)
+        msg = await get_xml_setu("fs")
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
-        msg = await get_rank(group.id, app)
+        msg = await get_time()
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test2" and message_info.sender.id == await get_config("HostQQ"):
         await get_personal_review(group.id, message_info.sender.id, "year")

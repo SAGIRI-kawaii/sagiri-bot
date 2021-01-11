@@ -53,6 +53,8 @@ from SAGIRIBOT.data_manage.update_data.write_chat_record import write_chat_recor
 from SAGIRIBOT.functions.get_review import *
 from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
 from SAGIRIBOT.data_manage.update_data.save_birthday import save_birthday
+from SAGIRIBOT.functions.register import register
+from SAGIRIBOT.functions.check996 import check996
 
 # 关键词字典
 response_set = get_response_set()
@@ -170,7 +172,7 @@ async def group_message_process(
     elif re.search("来点.*[色涩]图", message_text):
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, 3)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -569,7 +571,10 @@ async def group_message_process(
         pornhub风格图片生成
         缩写
         获取磁力链
-        年度报告
+        年内报告
+        月内报告
+        签到
+        996查询
         摸~
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
@@ -596,7 +601,7 @@ async def group_message_process(
         return [
             "None",
             MessageChain.create([
-                Plain(text="点击链接查看帮助：http://doc.sagiri-web.com/web/#/p/c79d523043f6ec05c1ac1416885477c7\n"),
+                Plain(text="点击链接查看帮助：http://doc.sagiri-web.com/web/#/p/7a0f42b15bbbda2d96869bbd8673d910\n"),
                 Plain(text="文档尚未完善，功能说明还在陆续增加中！")
             ])
         ]
@@ -797,6 +802,26 @@ async def group_message_process(
                 MessageChain.create([
                     Plain(text=str(e)),
                     Plain(text="请检查格式！格式应为%m-%d的形式！")
+                ])
+            ]
+
+    if message_text == "签到":
+        return await register(group_id, sender)
+
+    if message_text.startswith("996 "):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
+        if len(message_text) > 4:
+            return await check996(message_text[4:])
+        else:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text="请输入关键词！")
                 ])
             ]
 
