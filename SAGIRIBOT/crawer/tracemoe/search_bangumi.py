@@ -1,11 +1,20 @@
 import base64
 import aiohttp
 from urllib.parse import quote
+from PIL import Image as IMG
+from io import BytesIO
 
 from graia.application.message.elements.internal import MessageChain
 from graia.application.message.elements.internal import Plain
+from graia.application.message.elements.internal import Image
 
 from SAGIRIBOT.data_manage.update_data.set_get_image_ready import set_get_img_ready
+
+
+async def sec_to_str(seconds: int) -> str:
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return "%02d:%02d:%02d" % (h, m, s)
 
 
 async def search_bangumi(group_id: int, sender: int, img_url: str) -> list:
@@ -40,6 +49,19 @@ async def search_bangumi(group_id: int, sender: int, img_url: str) -> list:
             anilist_id = docs[0]["anilist_id"]
             time_from = docs[0]["from"]
             time_to = docs[0]["to"]
+
+            t = docs[0]["t"]
+            tokenthumb = docs[0]["tokenthumb"]
+            thumbnail_url = f"https://trace.moe/thumbnail.php?anilist_id={anilist_id}&file={quote(file_name)}&t={t}&token={tokenthumb}"
+            print(thumbnail_url)
+            # 下载缩略图
+            path = "./statics/temp/tempSearchBangumi.jpg"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url=thumbnail_url) as resp:
+                    thumbnail_content = await resp.read()
+            image = IMG.open(BytesIO(thumbnail_content))
+            image.save(path)
+
             url = f"https://trace.moe/info?anilist_id={anilist_id}"
             async with aiohttp.ClientSession() as session:
                 async with session.get(url=url) as resp:
@@ -52,10 +74,11 @@ async def search_bangumi(group_id: int, sender: int, img_url: str) -> list:
                 "quoteSource",
                 MessageChain.create([
                     Plain(text="搜索到结果：\n"),
+                    Image.fromLocalFile(path),
                     Plain(text=f"name: {title_origin}\n"),
                     Plain(text=f"Chinese name: {title_chinese}\n"),
                     Plain(text=f"file name: {file_name}\n"),
-                    Plain(text=f"time: {time_from}s ~ {time_to}s\n"),
+                    Plain(text=f"time: {await sec_to_str(time_from)} ~ {await sec_to_str(time_to)}\n"),
                     Plain(text=f"score: {score}\n"),
                     Plain(text=f"Broadcast date: {start_date} ~ {end_date}\n")
                 ])
