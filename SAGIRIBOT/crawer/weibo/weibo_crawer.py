@@ -6,6 +6,7 @@ from graia.application.message.elements.internal import Image
 from graia.application.message.chain import MessageChain
 
 from SAGIRIBOT.basics.tools import text2piiic
+from SAGIRIBOT.basics.tools import count_len
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 
 
@@ -23,7 +24,7 @@ async def get_weibo_hot(group_id: int) -> list:
     text = "".join(text_list).replace("#", "")
     long_text_setting = await get_setting(group_id, "longTextType")
     if long_text_setting == "img":
-        img = text2piiic(string=text, poster="", length=max(len(x) for x in text.split("\n")))
+        img = text2piiic(string=text, poster="", length=int(max(count_len(line) for line in content.split("\n")) / 2))
         img.save("./statics/temp/tempWeibo.png")
         return [
             "None",

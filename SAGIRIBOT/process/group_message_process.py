@@ -476,6 +476,7 @@ async def group_message_process(
     热榜相关：
         微博热搜
         知乎热搜
+        github热搜
     """
     if message_text == "weibo" or message_text == "微博":
 
@@ -733,23 +734,23 @@ async def group_message_process(
                 ])
             ]
 
-    if message_text.startswith("magnet "):
-
-        if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, 6)
-            if frequency_limit_res:
-                return frequency_limit_res
-
-        target = message_text[7:]
-        if target:
-            return await search_magnet(target, group_id)
-        else:
-            return [
-                "quoteSource",
-                MessageChain.create([
-                    Plain(text="请输入关键词！")
-                ])
-            ]
+    # if message_text.startswith("magnet "):
+    #
+    #     if await get_setting(group_id, "countLimit"):
+    #         frequency_limit_res = await limit_exceeded_judge(group_id, 6)
+    #         if frequency_limit_res:
+    #             return frequency_limit_res
+    #
+    #     target = message_text[7:]
+    #     if target:
+    #         return await search_magnet(target, group_id)
+    #     else:
+    #         return [
+    #             "quoteSource",
+    #             MessageChain.create([
+    #                 Plain(text="请输入关键词！")
+    #             ])
+    #         ]
 
     if message_text.startswith("pdf ") or message_text.startswith("PDF "):
 

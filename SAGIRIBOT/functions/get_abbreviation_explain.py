@@ -6,6 +6,7 @@ from graia.application.message.elements.internal import Image
 
 from SAGIRIBOT.basics.tools import text2piiic
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
+from SAGIRIBOT.basics.tools import count_len
 
 
 async def get_abbreviation_explain(abbreviation: str, group_id: int) -> list:
@@ -40,7 +41,7 @@ async def get_abbreviation_explain(abbreviation: str, group_id: int) -> list:
     long_text_setting = await get_setting(group_id, "longTextType")
     if has_result:
         if long_text_setting == "img":
-            img = text2piiic(string=result, poster="", length=max(len(x) for x in result.split("\n")))
+            img = text2piiic(string=result, poster="", length=int(max(count_len(line) for line in result.split("\n")) / 2))
             img.save("./statics/temp/tempAbbreviation.png")
             return [
                 "quoteSource",

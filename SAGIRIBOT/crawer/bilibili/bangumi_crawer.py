@@ -6,6 +6,7 @@ from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import Image
 
 from SAGIRIBOT.basics.tools import text2piiic
+from SAGIRIBOT.basics.tools import count_len
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 
 
@@ -105,7 +106,7 @@ async def formatted_output_bangumi(days: int, group_id: int) -> list:
     long_text_setting = await get_setting(group_id, "longTextType")
     content = "".join(temp_output_substring)
     if long_text_setting == "img":
-        img = text2piiic(string=content, poster="", length=max(len(x) for x in content.split("\n")))
+        img = text2piiic(string=content, poster="", length=int(max(count_len(line) for line in content.split("\n")) / 2))
         img.save("./statics/temp/tempBungumiTimeTable.png")
         return [
             "None",
