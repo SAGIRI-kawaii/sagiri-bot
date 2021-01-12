@@ -266,7 +266,41 @@ async def group_message_listener(
         msg = await get_time()
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test2" and message_info.sender.id == await get_config("HostQQ"):
-        await get_personal_review(group.id, message_info.sender.id, "year")
+        welcome_json = """
+                {
+                    "prompt": "欢迎入群",
+                    "sourceUrl": "",
+                    "extraApps": [],
+                    "appID": "",
+                    "sourceName": "",
+                    "desc": "",
+                    "app": "com.tencent.miniapp",
+                    "config": {
+                        "forward": true
+                    },
+                    "ver": "1.0.0.89",
+                    "view": "all",
+                    "meta": {
+                        "all": {
+                            "preview": "http:/gchat.qpic.cn/gchatpic_new/12904366/1030673292-3125245045-E7FCC807BECA2938EBE5D57E7E4980FF/0?term=2",
+                            "title": "欢迎入群",
+                            "buttons": [{
+                                "name": "---FROM SAGIRI-BOT---",
+                                "action": "http://www.qq.com"
+                            }],
+                            "jumpUrl": "",
+                            "summary": "欢迎进群呐~进群了就不许走了呐~\r\n"
+                        }
+                    },
+                    "actionData": "",
+                    "actionData_A": ""
+                }"""
+        print(("test2"))
+        await app.sendGroupMessage(
+            group.id, MessageChain.create([
+                App(content=welcome_json)
+            ])
+        )
     if message.asDisplay()[:4] == "sql:" and message_info.sender.id == await get_config("HostQQ"):
         result = await execute_sql(message.asDisplay()[4:])
         print(result)
@@ -335,36 +369,96 @@ async def member_join(
         )
         # welcome_json = json.dumps(eval(await get_json_code("MemberJoinEvent")))
         # print(welcome_json)
-        welcome_json = """{
-                    "prompt": "[欢迎入群]",
-                    "extraApps": [],
-                    "sourceUrl": "",
-                    "appID": "",
-                    "sourceName": "",
-                    "desc": "",
-                    "app": "com.tencent.qqpay.qqmp.groupmsg",
-                    "ver": "1.0.0.7",
-                    "view": "groupPushView",
-                    "meta": {
-                        "groupPushData": {
-                            "fromIcon": "",
-                            "fromName": "name",
-                            "time": "",
-                            "report_url": "http:\\/\\/kf.qq.com\\/faq\\/180522RRRVvE180522NzuuYB.html",
-                            "cancel_url": "http:\\/\\/www.baidu.com",
-                            "summaryTxt": "",
-                            "bannerTxt": "欸嘿~欢迎进群呐~进来了就不许走了哦~",
-                            "item1Img": "",
-                            "bannerLink": "",
-                            "bannerImg": "http:\\/\\/gchat.qpic.cn\\/gchatpic_new\\/12904366\\/1046209507-2584598286-E7FCC807BECA2938EBE5D57E7E4980FF\\/0?term=2"
-                        }
-                    },
-                    "actionData": "",
-                    "actionData_A": ""
-                }"""
+        # welcome_json = """{
+        #             "prompt": "[欢迎入群]",
+        #             "extraApps": [],
+        #             "sourceUrl": "",
+        #             "appID": "",
+        #             "sourceName": "",
+        #             "desc": "",
+        #             "app": "com.tencent.qqpay.qqmp.groupmsg",
+        #             "ver": "1.0.0.7",
+        #             "view": "groupPushView",
+        #             "meta": {
+        #                 "groupPushData": {
+        #                     "fromIcon": "",
+        #                     "fromName": "name",
+        #                     "time": "",
+        #                     "report_url": "http:\\/\\/kf.qq.com\\/faq\\/180522RRRVvE180522NzuuYB.html",
+        #                     "cancel_url": "http:\\/\\/www.baidu.com",
+        #                     "summaryTxt": "",
+        #                     "bannerTxt": "欸嘿~欢迎进群呐~进来了就不许走了哦~",
+        #                     "item1Img": "",
+        #                     "bannerLink": "",
+        #                     "bannerImg": "http:\\/\\/gchat.qpic.cn\\/gchatpic_new\\/12904366\\/1046209507-2584598286-E7FCC807BECA2938EBE5D57E7E4980FF\\/0?term=2"
+        #                 }
+        #             },
+        #             "actionData": "",
+        #             "actionData_A": ""
+        #         }"""
+        welcome_json = """
+        {
+            "prompt": "SAGIRI",
+            "sourceUrl": "",
+            "extraApps": [],
+            "appID": "",
+            "sourceName": "",
+            "desc": "",
+            "app": "com.tencent.miniapp",
+            "config": {
+                "forward": true
+            },
+            "ver": "1.0.0.89",
+            "view": "all",
+            "meta": {
+                "all": {
+                    "preview": "http:\/\/gchat.qpic.cn\/gchatpic_new\/12904366\/1030673292-3125245045-E7FCC807BECA2938EBE5D57E7E4980FF\/0?term=2",
+                    "title": "欢迎入群",
+                    "buttons": [{
+                        "name": "---FROM SAGIRI-BOT---",
+                        "action": "http:\/\/www.qq.com"
+                    }],
+                    "jumpUrl": "",
+                    "summary": "欢迎进群呐~进群了就不许走了呐~\r\n"
+                }
+            },
+            "actionData": "",
+            "actionData_A": ""
+        }"""
+        test_json = """
+            {
+                "app": "com.tencent.mannounce",
+                "config": {
+                    "ctime": 1610424762,
+                    "forward": 0,
+                    "token": "190bcca54b1eb9c543676aa1c82762ab"
+                },
+                "desc": "群公告",
+                "extra": {
+                    "app_type": 1,
+                    "appid": 1101236949,
+                    "uin": 1900384123
+                },
+                "meta": {
+                    "mannounce": {
+                        "cr": 1,
+                        "encode": 1,
+                        "fid": "93206d3900000000ba21fd5fa58a0500",
+                        "gc": "963453075",
+                        "sign": "cbbf90a7cbf1dc938ac5bdb8224fc3cb",
+                        "text": "dGVzdA==",
+                        "title": "576k5YWs5ZGK",
+                        "tw": 1,
+                        "uin": "1900384123"
+                    }
+                },
+                "prompt": "[群公告]test",
+                "ver": "1.0.0.43",
+                "view": "main"
+            }"""
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
-                App(content=welcome_json)
+                App(content=test_json)
             ])
         )
     except AccountMuted:

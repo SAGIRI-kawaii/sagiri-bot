@@ -24,9 +24,12 @@ async def get_github_hot(group_id: int) -> list:
     text_list = [f"随机数:{random.randint(0,10000)}", "\ngithub实时热榜:\n"]
     index = 0
     for i in articles:
-        index += 1
-        text_list.append("\n%d. %s\n" % (index, i.find("h1").get_text().replace("\n", "").replace(" ", "").replace("\\", " \\ ")))
-        text_list.append("\n    %s\n" % i.find("p").get_text().strip())
+        try:
+            index += 1
+            text_list.append("\n%d. %s\n" % (index, i.find("h1").get_text().replace("\n", "").replace(" ", "").replace("\\", " \\ ")))
+            text_list.append("\n    %s\n" % i.find("p").get_text().strip())
+        except Exception:
+            pass
 
     text = "".join(text_list).replace("#", "")
     long_text_setting = await get_setting(group_id, "longTextType")
