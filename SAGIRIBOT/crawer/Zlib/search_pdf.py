@@ -40,8 +40,8 @@ async def search_pdf(group_id: int, keyword: str) -> list:
 
         text += f"{count}.\n"
         text += f"名字：{name}\n"
-        text += f"作者：{authors}\n"
-        text += f"出版社：{publisher}\n"
+        text += f"作者：{authors}\n" if authors else ""
+        text += f"出版社：{publisher}\n" if publisher else ""
         text += f"页面链接：{base_url + href}\n\n"
 
         books.append({
@@ -62,7 +62,7 @@ async def search_pdf(group_id: int, keyword: str) -> list:
         img = text2piiic(string=text, poster="", length=max(len(x) for x in text.split("\n")))
         img.save("./statics/temp/tempPDFSearch.png")
         return [
-            "None",
+            "quoteSource",
             MessageChain.create([
                 Image.fromLocalFile("./statics/temp/tempPDFSearch.png")
             ])
