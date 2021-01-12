@@ -7,6 +7,7 @@ from graia.application.message.elements.internal import Image
 from graia.application.message.elements.internal import Plain
 
 from SAGIRIBOT.basics.tools import text2piiic
+from SAGIRIBOT.basics.tools import text2piiic_with_link
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 
 
@@ -56,16 +57,25 @@ async def search_pdf(group_id: int, keyword: str) -> list:
 
     if not books:
         text = "未搜索到结果呢 >A<\n要不要换个关键词试试呢~"
-
-    long_text_setting = await get_setting(group_id, "longTextType")
-    if long_text_setting == "img":
-        img = text2piiic(string=text, poster="", length=max(len(x) for x in text.split("\n")))
-        img.save("./statics/temp/tempPDFSearch.png")
         return [
             "quoteSource",
             MessageChain.create([
-                Image.fromLocalFile("./statics/temp/tempPDFSearch.png")
+                Plain(text=text)
             ])
+        ]
+
+    long_text_setting = await get_setting(group_id, "longTextType")
+    if long_text_setting == "img":
+        # img = text2piiic(string=text, poster="", length=max(len(x) for x in text.split("\n")))
+        text = text.replace("搜索到以下结果：\n\n", "")
+        pics_path = await text2piiic_with_link(text=text)
+        msg = [Plain(text="搜索到以下结果：\n\n")]
+        for path in pics_path:
+            msg.append(Image.fromLocalFile(path))
+        # img.save("./statics/temp/tempPDFSearch.png")
+        return [
+            "quoteSource",
+            MessageChain.create(msg)
         ]
     elif long_text_setting == "text":
         return [

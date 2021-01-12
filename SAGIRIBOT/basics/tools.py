@@ -23,6 +23,12 @@ def carry(x, y):
     return x // y
 
 
+def is_chinese(ch):
+    if '\u4e00' <= ch <= '\u9fff':
+        return True
+    return False
+
+
 def insert_poster(sections, poster, num=3):
     if num > len(sections):
         num = len(sections)
@@ -183,3 +189,45 @@ async def filter_label(label_list: list) -> list:
         elif len(i) != 1 and i.find('nbsp') < 0:
             result.append(i)
     return result
+
+
+def count_len(string: str) -> int:
+    length = 0
+    for i in string:
+        length += 2 if is_chinese(i) else 1
+    return length
+
+
+async def text2piiic_with_link(text: str, fontsize=40, x=20, y=40, spacing=15):
+    pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    match_res = re.findall(pattern, text, re.S)
+    for mres in match_res:
+        text = text.replace(mres, "|||\n\n\n|||")
+    for i in range(len(match_res)):
+        qrcode_img = qrcode.make(match_res[i])
+        qrcode_img.save(f"./statics/temp/tempQrcodeWithLink{i+1}.jpg")
+    blocks = text.split("|||\n\n\n|||\n\n")
+    block_count = 0
+    font = ImageFont.truetype('./simhei.ttf', fontsize, encoding="utf-8")
+    for block in blocks:
+        if not block:
+            break
+        block_count += 1
+        lines = block.strip().split("\n")
+        length = max(count_len(line) for line in lines)
+        width = x * 2 + int(fontsize * length / 2)
+        height = y * 2 + (fontsize + spacing) * len(lines) + width
+        qr_img = IMG.open(f"./statics/temp/tempQrcodeWithLink{block_count}.jpg")
+        qr_img = qr_img.resize((width, width))
+        picture = Image.new('RGB', (width, height), (255, 255, 255))
+        draw = ImageDraw.Draw(picture)
+        for i in range(len(lines)):
+            y_pos = y + i * (fontsize + spacing)
+            draw.text((x, y_pos), lines[i], font=font, fill=(0, 0, 0))
+        y_pos = y + len(lines) * (fontsize + spacing)
+        picture.paste(qr_img, (0, y_pos))
+        picture.save(f"./statics/temp/tempText2piiicWithLink{block_count}.jpg")
+
+    return [
+        f"./statics/temp/tempText2piiicWithLink{i + 1}.jpg" for i in range(block_count)
+    ]

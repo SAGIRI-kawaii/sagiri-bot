@@ -5,6 +5,7 @@ from multiprocessing import Queue
 import threading
 import json
 from aiohttp.client_exceptions import ClientResponseError
+import traceback
 
 from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
@@ -334,6 +335,7 @@ async def group_message_listener(
         try:
             message_send = await group_message_process(message, message_info, app)
         except Exception as e:
+            traceback.print_exc()
             message_send = [
                 "quoteSource",
                 MessageChain.create([
