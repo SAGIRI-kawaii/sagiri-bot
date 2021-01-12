@@ -55,7 +55,7 @@ async def search_pdf(group_id: int, keyword: str) -> list:
         print(name, href, publisher, authors, sep="\n", end="\n\n")
 
     if not books:
-        text = "未搜索到结果呢 >^<\n要不要换个关键词试试呢~"
+        text = "未搜索到结果呢 >A<\n要不要换个关键词试试呢~"
 
     long_text_setting = await get_setting(group_id, "longTextType")
     if long_text_setting == "img":
