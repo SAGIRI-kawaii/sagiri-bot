@@ -41,6 +41,22 @@ CREATE TABLE `americajokes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `birthday`
+--
+
+DROP TABLE IF EXISTS `birthday`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `birthday` (
+  `memberId` bigint NOT NULL,
+  `groupId` bigint NOT NULL,
+  `birthday` text NOT NULL,
+  `announce` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`memberId`,`groupId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `blacklist`
 --
 
@@ -154,6 +170,21 @@ CREATE TABLE `clockchoice` (
   `groupId` bigint DEFAULT NULL,
   `memberId` bigint DEFAULT NULL,
   `choice` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `db996`
+--
+
+DROP TABLE IF EXISTS `db996`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `db996` (
+  `city` text NOT NULL,
+  `name` text NOT NULL,
+  `exposure` text,
+  `description` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -329,6 +360,20 @@ CREATE TABLE `predictready` (
   `groupId` bigint DEFAULT NULL,
   `memberId` bigint DEFAULT NULL,
   `status` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `registerrecord`
+--
+
+DROP TABLE IF EXISTS `registerrecord`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `registerrecord` (
+  `groupId` bigint NOT NULL,
+  `memberId` bigint NOT NULL,
+  `date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -510,4 +555,4 @@ CREATE TABLE `yellowpredictready` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-09 21:22:56
+-- Dump completed on 2021-01-12 20:00:52
