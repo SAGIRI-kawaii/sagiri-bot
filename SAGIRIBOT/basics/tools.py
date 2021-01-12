@@ -215,8 +215,8 @@ async def text2piiic_with_link(text: str, fontsize=40, x=20, y=40, spacing=15):
         block_count += 1
         lines = block.strip().split("\n")
         length = max(count_len(line) for line in lines)
-        width = x * 2 + int(fontsize * length / 2)
-        height = y * 2 + (fontsize + spacing) * len(lines) + width
+        width = x * 4 + int(fontsize * length / 2)
+        height = y * 4 + (fontsize + spacing) * len(lines) + width
         qr_img = IMG.open(f"./statics/temp/tempQrcodeWithLink{block_count}.jpg")
         qr_img = qr_img.resize((width, width))
         picture = Image.new('RGB', (width, height), (255, 255, 255))
