@@ -10,3 +10,4 @@ pkuseg~=0.0.25
 matplotlib~=3.2.2
 wordcloud~=1.8.1
 python-dateutil~=2.8.1
+qrcode~=6.1

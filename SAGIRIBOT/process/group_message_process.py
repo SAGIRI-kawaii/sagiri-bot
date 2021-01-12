@@ -56,6 +56,7 @@ from SAGIRIBOT.data_manage.update_data.save_birthday import save_birthday
 from SAGIRIBOT.functions.register import register
 from SAGIRIBOT.functions.check996 import check996
 from SAGIRIBOT.crawer.Zlib.search_pdf import search_pdf
+from SAGIRIBOT.functions.make_qrcode import make_qrcode
 
 # 关键词字典
 response_set = get_response_set()
@@ -577,6 +578,7 @@ async def group_message_process(
         月内报告
         签到
         996查询
+        qrcode生成
         摸~
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
@@ -843,13 +845,33 @@ async def group_message_process(
             if frequency_limit_res:
                 return frequency_limit_res
 
-        if len(message_text) > 4:
-            return await check996(message_text[4:])
+        keyword = message_text[4:]
+
+        if keyword:
+            return await check996(keyword)
         else:
             return [
                 "quoteSource",
                 MessageChain.create([
                     Plain(text="请输入关键词！")
+                ])
+            ]
+
+    if message_text.startswith("qrcode "):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
+        content = message_text[7:]
+        if content:
+            return await make_qrcode(content)
+        else:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text="请输入要转为二维🐎的内容！")
                 ])
             ]
 
