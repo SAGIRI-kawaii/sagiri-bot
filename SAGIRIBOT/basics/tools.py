@@ -7,6 +7,8 @@ from PIL import Image as IMG
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 import random
+import re
+import qrcode
 
 from SAGIRIBOT.basics.get_config import get_config
 
@@ -54,6 +56,9 @@ def text2piiic(string, poster, length, fontsize=20, x=20, y=40, spacing=20):
     picture = Image.new('RGB', (width, heigh), (255, 255, 255))
     draw = ImageDraw.Draw(picture)
     for i in range(len(lins)):
+        if re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', lins[i], re.S):
+            qrcode_img = qrcode.make(re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', lins[i], re.S)[0])
+            qrcode_img.save(f"./statics/temp/tempQr{i}.jpg")
         y_pos = y + i * (fontsize + spacing)
         draw.text((x, y_pos), lins[i], font=font, fill=(0, 0, 0))
     return picture

@@ -492,10 +492,12 @@ async def member_muted(app: GraiaMiraiApplication, event: MemberMuteEvent):
                 pass
         else:
             try:
+                m, s = divmod(event.durationSeconds, 60)
+                h, m = divmod(m, 60)
                 await app.sendGroupMessage(
                     event.member.group.id, MessageChain.create([
                         Plain(text="哦~看看是谁被关进小黑屋了？\n"),
-                        Plain(text="哦我的上帝啊~是%s！他将在小黑屋里呆%s哦~" % (event.member.name, str(event.durationSeconds)))
+                        Plain(text="哦我的上帝啊~是%s！他将在小黑屋里呆%s哦~" % (event.member.name, "%02d:%02d:%02d" % (h, m, s)))
                     ])
                 )
             except AccountMuted:
