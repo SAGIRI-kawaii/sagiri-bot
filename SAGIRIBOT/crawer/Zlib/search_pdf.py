@@ -14,7 +14,7 @@ from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 async def search_pdf(group_id: int, keyword: str) -> list:
     url = f"https://zh.1lib.us/s/?q={keyword}"
     base_url = "https://zh.1lib.us"
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(limit=64, verify_ssl=False)) as session:
         async with session.get(url=url) as resp:
             html = await resp.read()
     soup = BeautifulSoup(html, "html.parser")
