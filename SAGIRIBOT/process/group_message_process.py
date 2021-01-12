@@ -55,6 +55,7 @@ from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
 from SAGIRIBOT.data_manage.update_data.save_birthday import save_birthday
 from SAGIRIBOT.functions.register import register
 from SAGIRIBOT.functions.check996 import check996
+from SAGIRIBOT.crawer.Zlib.search_pdf import search_pdf
 
 # 关键词字典
 response_set = get_response_set()
@@ -571,6 +572,7 @@ async def group_message_process(
         pornhub风格图片生成
         缩写
         获取磁力链
+        搜索pdf
         年内报告
         月内报告
         签到
@@ -737,7 +739,33 @@ async def group_message_process(
                 return frequency_limit_res
 
         target = message_text[7:]
-        return await search_magnet(target, group_id)
+        if target:
+            return await search_magnet(target, group_id)
+        else:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text="请输入关键词！")
+                ])
+            ]
+
+    if message_text.startswith("pdf ") or message_text.startswith("PDF "):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 6)
+            if frequency_limit_res:
+                return frequency_limit_res
+
+        keyword = message_text[4:]
+        if keyword:
+            return await search_pdf(group_id, keyword)
+        else:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text="请输入关键词！")
+                ])
+            ]
 
     if message_text == "我的年内总结":
         if await get_setting(group_id, "countLimit"):
