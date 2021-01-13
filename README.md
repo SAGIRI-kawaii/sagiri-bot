@@ -96,6 +96,7 @@ Bot init end
 
 #### config.json
 用于存储机器人的各种配置，可随时进行更改
+注意：所有路径的结尾都应该有斜杠，如："/bot/setuPath/" 或 "\bot\setuPath\" 等
 
 |  参数名   | 说明  |
 |  ----  | ----  |
