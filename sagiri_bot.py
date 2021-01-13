@@ -53,8 +53,8 @@ with open('config.json', 'r', encoding='utf-8') as f:  # 从json读配置
 app = GraiaMiraiApplication(
     broadcast=bcc,
     connect_info=Session(
-        host="http://localhost:8080",
-        authKey="1234567890",
+        host=configs["miraiHost"],
+        authKey=configs["authKey"],
         account=configs["BotQQ"],
         websocket=True
     )
@@ -264,7 +264,8 @@ async def group_message_listener(
         msg = await get_xml_setu("fs")
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
-        msg = await get_time()
+        # msg = await get_time()
+        msg = await get_almanac()
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test2" and message_info.sender.id == await get_config("HostQQ"):
         welcome_json = """
