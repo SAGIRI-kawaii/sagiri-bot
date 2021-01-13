@@ -24,7 +24,7 @@ async def get_weibo_hot(group_id: int) -> list:
     text = "".join(text_list).replace("#", "")
     long_text_setting = await get_setting(group_id, "longTextType")
     if long_text_setting == "img":
-        img = text2piiic(string=text, poster="", length=int(max(count_len(line) for line in content.split("\n")) / 2))
+        img = text2piiic(string=text, poster="", length=int(max(count_len(line) for line in text.split("\n")) / 2))
         img.save("./statics/temp/tempWeibo.png")
         return [
             "None",
