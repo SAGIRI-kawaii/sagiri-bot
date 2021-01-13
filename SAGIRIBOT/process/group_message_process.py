@@ -171,7 +171,7 @@ async def group_message_process(
                 ])
             ]
 
-    elif re.search("来点.*[色涩]图", message_text):
+    elif message_text.startswith("来点") and re.search("来点.*[色涩]图", message_text):
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 3)
