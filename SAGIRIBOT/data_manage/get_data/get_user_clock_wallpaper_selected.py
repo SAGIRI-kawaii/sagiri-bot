@@ -15,7 +15,7 @@ async def get_user_clock_wallpaper_selected(group_id: int, sender: int):
     sql = "SELECT choice from clockChoice WHERE groupId=%d and memberId=%d" % (group_id, sender)
     try:
         result = await execute_sql(sql)
-        result = result[0][0]
+        result = result[0]
         return result
     except TypeError:
         return None

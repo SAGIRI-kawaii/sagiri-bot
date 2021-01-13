@@ -99,7 +99,7 @@ async def formatted_output_bangumi(days: int, group_id: int) -> list:
         temp_output_substring.append("即将播出：")
         for data in formatted_bangumi_data[index]:
             temp_output_substring.append("\n%s %s %s\n" % (data["pub_time"], data["title"], data["pub_index"]))
-            temp_output_substring.append("url:%s\n" % (data["url"]))
+            # temp_output_substring.append("url:%s\n" % (data["url"]))
         temp_output_substring.append("\n\n----------------\n\n")
         now += datetime.timedelta(days=1)
 

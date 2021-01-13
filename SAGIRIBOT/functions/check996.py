@@ -8,7 +8,7 @@ async def check996(keyword: str) -> list:
     sql = f"SELECT * FROM db996 WHERE `name` LIKE '%{keyword}%'"
     result = await execute_sql(sql)
     if result:
-        if len(result) > 10:
+        if len(result) > 5:
             return [
                 "quoteSource",
                 MessageChain.create([
