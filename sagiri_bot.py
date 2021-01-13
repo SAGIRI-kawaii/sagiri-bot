@@ -38,7 +38,7 @@ from SAGIRIBOT.basics.exception_resender import ExceptionReSender
 from SAGIRIBOT.basics.exception_resender import exception_resender_listener
 from SAGIRIBOT.functions.get_almanac import get_almanac
 from SAGIRIBOT.functions.get_xml_image import get_xml_setu
-from SAGIRIBOT.functions.get_time import get_time
+from SAGIRIBOT.functions.get_group_announcement import get_group_announcement
 
 
 loop = asyncio.get_event_loop()
@@ -265,7 +265,7 @@ async def group_message_listener(
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
         # msg = await get_time()
-        msg = await get_almanac()
+        msg = await get_group_announcement("测试")
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test2" and message_info.sender.id == await get_config("HostQQ"):
         welcome_json = """
@@ -461,7 +461,7 @@ async def member_join(
             }"""
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
-                App(content=test_json)
+                App(content=welcome_json)
             ])
         )
     except AccountMuted:
