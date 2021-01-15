@@ -6,7 +6,6 @@ from graia.application.message.elements.internal import MessageChain
 from graia.application.message.elements.internal import Image
 from graia.application.message.elements.internal import Plain
 
-from SAGIRIBOT.basics.tools import text2piiic
 from SAGIRIBOT.basics.tools import text2piiic_with_link
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 

@@ -1,16 +1,10 @@
 import re
 import os
 import pkuseg
-import threading
 
 from graia.application.event.messages import *
 from graia.application import GraiaMiraiApplication
-
-from graia.application.message.elements.internal import MessageChain
-from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import At
-from graia.application.message.elements.internal import Image
-from graia.application.message.elements.internal import Source
 
 from SAGIRIBOT.images.get_image import get_pic
 from SAGIRIBOT.basics.get_config import get_config
@@ -57,6 +51,12 @@ from SAGIRIBOT.functions.register import register
 from SAGIRIBOT.functions.check996 import check996
 from SAGIRIBOT.crawer.Zlib.search_pdf import search_pdf
 from SAGIRIBOT.functions.make_qrcode import make_qrcode
+# from SAGIRIBOT.functions.object_predict import object_predict_vgg16
+from SAGIRIBOT.data_manage.update_data.update_total_calls import update_total_calls
+from SAGIRIBOT.data_manage.update_data.update_total_calls import update_total_calls_once
+from SAGIRIBOT.data_manage.get_data.get_total_calls import get_total_calls
+from SAGIRIBOT.bot_status.get_gallery_status import get_gallery_status
+from SAGIRIBOT.crawer.douban.get_book_recommand_by_tag import get_book_recommand_by_tag
 
 # 关键词字典
 response_set = get_response_set()
@@ -107,7 +107,6 @@ async def group_message_process(
     message_serialization = message.asSerializationString()
     sender = message_info.sender.id
     group_id = message_info.sender.group.id
-
     # 黑名单检测
     if sender in await get_blacklist():
         print("Blacklist!No reply!")
@@ -129,6 +128,26 @@ async def group_message_process(
                 "None",
                 MessageChain.create([
                     Plain(text="Command Error!")
+                ])
+            ]
+
+    if message_text.startswith("/status"):
+        if message_text.startswith("/status "):
+            base_name = message_text[8:]
+            if base_name:
+                return await get_gallery_status(base_name)
+            else:
+                return [
+                    "quoteSource",
+                    MessageChain.create([
+                        Plain(text="请给出base_name!")
+                    ])
+                ]
+        else:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text="请给出base_name!")
                 ])
             ]
 
@@ -159,6 +178,8 @@ async def group_message_process(
                 ]
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "setu", 1)
+            await update_total_calls_once("response")
+            await update_total_calls_once("setu")
             if await get_setting(group_id, "r18"):
                 return await get_pic("setu18", group_id, sender)
             else:
@@ -199,6 +220,8 @@ async def group_message_process(
 
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "setu", 1)
+            await update_total_calls_once("response")
+            await update_total_calls_once("setu")
             return await get_setu_keyword(keyword=keyword)
         else:
             return [
@@ -225,6 +248,8 @@ async def group_message_process(
                 ]
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "real", 1)
+            await update_total_calls_once("response")
+            await update_total_calls_once("real")
             return await get_pic("real", group_id, sender)
         else:
             return [
@@ -251,6 +276,8 @@ async def group_message_process(
                 ]
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "real", 1)
+            await update_total_calls_once("response")
+            await update_total_calls_once("real")
             return await get_pic("realHighq", group_id, sender)
         else:
             return [
@@ -276,6 +303,8 @@ async def group_message_process(
                     ])
                 ]
             await update_user_called_data(group_id, sender, "bizhi", 1)
+            await update_total_calls_once("response")
+            await update_total_calls_once("bizhi")
             return await get_pic("bizhi", group_id, sender)
         else:
             return [
@@ -346,10 +375,11 @@ async def group_message_process(
             ]
 
     elif message_text == "几点了":
+        await update_total_calls_once("response")
         return await get_wallpaper_time(group_id, sender)
 
     elif message_text.startswith("选择表盘"):
-
+        await update_total_calls_once("response")
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 1)
             if frequency_limit_res:
@@ -359,7 +389,8 @@ async def group_message_process(
             return await show_clock_wallpaper(sender)
 
     elif message_text == "搜图":
-
+        await update_total_calls_once("response")
+        await update_total_calls_once("search")
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 2)
             if frequency_limit_res:
@@ -384,12 +415,16 @@ async def group_message_process(
             ]
     elif message.has(Image) and await get_setting(group_id, "search") and await get_image_ready(group_id, sender,
                                                                                                 "searchReady"):
-        # print("status:", await get_image_ready(group_id, sender, "searchReady"))
         image = message.get(Image)[0]
         await update_user_called_data(group_id, sender, "search", 1)
+        await update_total_calls_once("response")
+        await update_total_calls_once("search")
         return await search_image(group_id, sender, image)
 
     elif message_text == "这张图涩吗":
+
+        await update_total_calls_once("response")
+        await update_total_calls_once("yellow")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 2)
@@ -417,10 +452,45 @@ async def group_message_process(
                                                                                                        "yellowPredictReady"):
         image = message.get(Image)[0]
         await update_user_called_data(group_id, sender, "yellowPredict", 1)
+        await update_total_calls_once("response")
+        await update_total_calls_once("yellow")
         return await image_yellow_judge(group_id, sender, image, "yellowPredict")
+
+    # elif message_text == "这张图里是什么":
+    #
+    #     if await get_setting(group_id, "countLimit"):
+    #         frequency_limit_res = await limit_exceeded_judge(group_id, 6)
+    #         if frequency_limit_res:
+    #             return frequency_limit_res
+    #
+    #     if await get_setting(group_id, "imgPredict"):
+    #         await set_get_img_ready(group_id, sender, True, "predictReady")
+    #         return [
+    #             "None",
+    #             MessageChain.create([
+    #                 At(sender),
+    #                 Plain(text="请发送要搜索的图片呐~(仅支持现实图片搜索呐！)")
+    #             ])
+    #         ]
+    #     else:
+    #         return [
+    #             "None",
+    #             MessageChain.create([
+    #                 At(sender),
+    #                 Plain(text="现实图片预测功能关闭了呐~想要打开就联系管理员吧~")
+    #             ])
+    #         ]
+    # elif message.has(Image) and await get_setting(group_id, "imgPredict") and await get_image_ready(group_id, sender,
+    #                                                                                             "predictReady"):
+    #     # print("status:", await get_image_ready(group_id, sender, "searchReady"))
+    #     image = message.get(Image)[0]
+    #     await update_user_called_data(group_id, sender, "imgPredict", 1)
+    #     return await object_predict_vgg16(group_id, sender, image)
 
     elif message_text == "搜番":
 
+        await update_total_calls_once("response")
+        await update_total_calls_once("search")
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 2)
             if frequency_limit_res:
@@ -446,6 +516,8 @@ async def group_message_process(
     elif message.has(Image) and await get_setting(group_id, "searchBangumi") and await get_image_ready(group_id, sender,
                                                                                                        "searchBangumiReady"):
 
+        await update_total_calls_once("response")
+        await update_total_calls_once("search")
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 2)
             if frequency_limit_res:
@@ -457,6 +529,7 @@ async def group_message_process(
         return await search_bangumi(group_id, sender, image.url)
 
     elif message_text == "rank":
+        await update_total_calls_once("response")
         return await get_rank(group_id, app)
 
     # 爬虫相关功能
@@ -465,6 +538,8 @@ async def group_message_process(
         历史上的今天
     """
     if message_text == "历史上的今天":
+
+        await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 1)
@@ -480,6 +555,8 @@ async def group_message_process(
     """
     if message_text == "weibo" or message_text == "微博":
 
+        await update_total_calls_once("response")
+
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 5)
             if frequency_limit_res:
@@ -489,6 +566,8 @@ async def group_message_process(
 
     if message_text == "zhihu" or message_text == "知乎":
 
+        await update_total_calls_once("response")
+
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 5)
             if frequency_limit_res:
@@ -497,6 +576,8 @@ async def group_message_process(
         return await get_zhihu_hot(group_id)
 
     if message_text == "github热榜" or message_text == "github trend":
+
+        await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 6)
@@ -511,6 +592,8 @@ async def group_message_process(
         B站直播间查询
     """
     if message_text[-4:] == "日内新番":
+
+        await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 1)
@@ -533,6 +616,7 @@ async def group_message_process(
         具体题目查询
     """
     if message_text.startswith("leetcode "):
+        await update_total_calls_once("response")
         return await get_leetcode_statics(message_text.replace("leetcode ", ""))
 
     """
@@ -540,6 +624,8 @@ async def group_message_process(
         steam游戏查询
     """
     if message_text.startswith("steam "):
+
+        await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 2)
@@ -549,10 +635,36 @@ async def group_message_process(
         return await get_steam_game_search(message_text.replace("steam ", ""))
 
     """
+    douban相关功能：
+        douban书籍推荐（tag）
+    """
+    if message_text.startswith("douban "):
+
+        await update_total_calls_once("response")
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 2)
+            if frequency_limit_res:
+                return frequency_limit_res
+
+        tag = message_text[7:]
+        if tag:
+            return await get_book_recommand_by_tag(tag)
+        else:
+            return [
+                "None",
+                MessageChain.create([
+                    Plain(text="你倒是说要什么标签的书籍啊！你这样子人家不知道搜什么了啦~")
+                ])
+            ]
+
+    """
     bangumi相关功能：
         番剧查询
     """
     if message_text.startswith("番剧 "):
+
+        await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 2)
@@ -585,6 +697,8 @@ async def group_message_process(
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
                                                                                                 message_text):
 
+        await update_total_calls_once("response")
+
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 1)
             if frequency_limit_res:
@@ -593,6 +707,8 @@ async def group_message_process(
         return await get_translate(message_text, sender)
 
     elif message_text.startswith("点歌 ") and len(message_text) >= 4:
+
+        await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 3)
@@ -603,6 +719,9 @@ async def group_message_process(
         return await get_song_ordered(message_text[3:])
 
     if message_text == "help" or message_text == "!help" or message_text == "/help" or message_text == "！help":
+
+        await update_total_calls_once("response")
+
         return [
             "None",
             MessageChain.create([
@@ -613,6 +732,8 @@ async def group_message_process(
 
     if message_text == "教务通知":
 
+        await update_total_calls_once("response")
+
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 1)
             if frequency_limit_res:
@@ -621,6 +742,7 @@ async def group_message_process(
         return await get_jlu_csw_notice(group_id)
 
     if re.search("来点.*笑话", message_text):
+        await update_total_calls_once("response")
         joke_dict = {
             "苏联": "soviet",
             "法国": "french",
@@ -647,8 +769,10 @@ async def group_message_process(
             return msg
 
     if message_text == "群语录":
+        await update_total_calls_once("response")
         return await get_group_quotes(group_id, app, "None", "random", "None")
     elif re.search("来点.*语录", message_text):
+        await update_total_calls_once("response")
         name = re.findall(r'来点(.*?)语录', message_text, re.S)[0]
         at_obj = message.get(At)
         if name == [] and at_obj == []:
@@ -670,6 +794,8 @@ async def group_message_process(
 
     if message_text == "平安":
 
+        await update_total_calls_once("response")
+
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 6)
             if frequency_limit_res:
@@ -686,6 +812,8 @@ async def group_message_process(
         ]
 
     if message_text.startswith("ph ") and len(message_text.split(" ")) == 3:
+
+        await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 1)
@@ -722,6 +850,9 @@ async def group_message_process(
         ]
 
     if message_text.startswith("缩 "):
+
+        await update_total_calls_once("response")
+
         abbreviation = message_text[2:]
         # print(abbreviation)
         if abbreviation.isalnum():
@@ -754,6 +885,8 @@ async def group_message_process(
 
     if message_text.startswith("pdf ") or message_text.startswith("PDF "):
 
+        await update_total_calls_once("response")
+
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 6)
             if frequency_limit_res:
@@ -771,6 +904,7 @@ async def group_message_process(
             ]
 
     if message_text == "我的年内总结":
+        await update_total_calls_once("response")
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 6)
             if frequency_limit_res:
@@ -779,6 +913,7 @@ async def group_message_process(
         return await get_personal_review(group_id, sender, "year")
 
     if message_text == "我的月内总结":
+        await update_total_calls_once("response")
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 6)
             if frequency_limit_res:
@@ -787,20 +922,18 @@ async def group_message_process(
         return await get_personal_review(group_id, sender, "month")
 
     if message_text == "本群年内总结" and sender == await get_config("HostQQ"):
-        # lock = threading.Lock()
-        # lock.acquire()
+        await update_total_calls_once("response")
         msg = await get_group_review(group_id, sender, "year")
-        # lock.release()
         return msg
 
     if message_text == "本群月内总结" and sender == await get_config("HostQQ"):
-        # lock = threading.Lock()
-        # lock.acquire()
+        await update_total_calls_once("response")
         msg = await get_group_review(group_id, sender, "month")
-        # lock.release()
         return msg
 
     if message.has(At) and message_text.startswith("摸") or message_text.startswith("摸 "):
+
+        await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 1)
@@ -817,6 +950,7 @@ async def group_message_process(
         ]
 
     if message_text.startswith("添加生日 "):
+        await update_total_calls_once("response")
         birthday = message_text[5:]
         try:
             birthday = datetime.datetime.strptime(birthday, "%m-%d").strftime("%m-%d")
@@ -837,9 +971,12 @@ async def group_message_process(
             ]
 
     if message_text == "签到":
+        await update_total_calls_once("response")
         return await register(group_id, sender)
 
     if message_text.startswith("996 "):
+
+        await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 1)
@@ -860,6 +997,8 @@ async def group_message_process(
 
     if message_text.startswith("qrcode "):
 
+        await update_total_calls_once("response")
+
         if await get_setting(group_id, "countLimit"):
             frequency_limit_res = await limit_exceeded_judge(group_id, 1)
             if frequency_limit_res:
@@ -877,5 +1016,6 @@ async def group_message_process(
             ]
 
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
+        await update_total_calls_once("response")
         return await reply_process(group_id, sender, message_text)
     return ["None"]

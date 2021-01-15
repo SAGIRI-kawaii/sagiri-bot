@@ -35,7 +35,7 @@ async def reply_process(group_id: int, sender: int, message_text: str) -> list:
         ]
     elif mode_now == "chat":
         text = await get_chat_reply(group_id, sender, message_text)
-        if text == "":
+        if text == "" or text == "Error:char answer not found":
             text = "我不知道怎么回答呐~抱歉哦~"
     elif mode_now == "zuanLow":
         url = "https://nmsl.shadiao.app/api.php?level=min&from=%s" % await get_config("shadiaoAppName")

@@ -7,6 +7,7 @@ from graia.application.friend import Friend
 from graia.application.event.messages import MessageChain
 from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import Image
+from graia.application.exceptions import AccountMuted
 
 from SAGIRIBOT.basics.get_config import get_config
 from SAGIRIBOT.data_manage.get_data.get_total_calls import get_total_calls
@@ -21,11 +22,14 @@ async def friend_message_process(app: GraiaMiraiApplication, friend: Friend, mes
     if friend.id == await get_config("HostQQ"):
         if message_test[:5] == "发布消息：":
             msg = MessageChain.create([
-                Plain(text=message_test.replace("发布消息：", ""))
+                Plain(text=message_test[5:])
             ])
             group_list = await app.groupList()
             for i in group_list:
-                await app.sendGroupMessage(i, msg)
+                try:
+                    await app.sendGroupMessage(i, msg)
+                except AccountMuted:
+                    pass
         elif message.has(Image):
             imgs = message.get(Image)
             for i in imgs:

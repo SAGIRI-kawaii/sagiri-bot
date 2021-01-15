@@ -6,6 +6,7 @@ import threading
 import json
 from aiohttp.client_exceptions import ClientResponseError
 import traceback
+import time
 
 from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
@@ -27,18 +28,16 @@ from SAGIRIBOT.basics.bot_join_group_init import bot_join_group_init
 from SAGIRIBOT.basics.check_group_data_init import check_group_data_init
 from SAGIRIBOT.process.group_message_process import group_message_process
 from SAGIRIBOT.process.friend_message_process import friend_message_process
-from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
 from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 from SAGIRIBOT.data_manage.update_data.update_dragon import update_dragon_data
 from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
 from SAGIRIBOT.basics.frequency_limit_module import frequency_limit
-from SAGIRIBOT.functions.get_review import get_personal_review
 from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
 from SAGIRIBOT.basics.exception_resender import ExceptionReSender
 from SAGIRIBOT.basics.exception_resender import exception_resender_listener
-from SAGIRIBOT.functions.get_almanac import get_almanac
 from SAGIRIBOT.functions.get_xml_image import get_xml_setu
 from SAGIRIBOT.functions.get_group_announcement import get_group_announcement
+from SAGIRIBOT.crawer.douban.get_new_books import get_douban_new_books
 
 
 loop = asyncio.get_event_loop()
@@ -75,7 +74,7 @@ exception_resender_instance = None
 
 
 async def group_assist_process(received_message: MessageChain, message_info: GroupMessage, message: list,
-                               group: Group) -> None:
+                               group: Group, program_start) -> None:
     """
     Complete the auxiliary work that the function: message_process has not completed
 
@@ -84,6 +83,7 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
         message: message list([what_needs_to_be_done, message_to_be_send])
         message_info: Message information
         group: Group class from the receive message
+        program_start: process start time
 
     Examples:
         await group_assist_process(message, message_send, group)
@@ -91,6 +91,7 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
     Return:
         None
     """
+
     global exception_resender_instance
     try:
         if len(message) > 1 and "*" not in message[0]:
@@ -99,15 +100,36 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
             group_repeat[group.id]["thisMsg"] = message[1].asDisplay()
             # lock.release()
         if len(message) > 1 and message[0] == "None":
+
             # await app.sendGroupMessage(group, MessageChain(__root__=[
             #     Plain("This message was sent by the new version of SAGIRI-Bot")
             # ]))
+            program_end = time.time()
+            if await get_setting(group.id, "debug"):
+                message[1].plus(MessageChain.create([Plain(text=f"\n\nProgram execution time:\n{str(program_end - program_start)}")]))
+
             await app.sendGroupMessage(group, message[1])
         elif len(message) > 1 and message[0] == "AtSender":
+
+            program_end = time.time()
+            if await get_setting(group.id, "debug"):
+                message[1].plus(MessageChain.create([Plain(text=f"\n\nProgram execution time:\n{str(program_end - program_start)}")]))
+
             await app.sendGroupMessage(group, message[1])
         elif len(message) > 1 and message[0] == "quoteSource":
+
+            program_end = time.time()
+            if await get_setting(group.id, "debug"):
+                message[1].plus(MessageChain.create([Plain(text=f"\n\nProgram execution time:\n{str(program_end - program_start)}")]))
+
             await app.sendGroupMessage(group, message[1], quote=received_message[Source][0])
         elif len(message) > 1 and message[0] == "revoke":
+
+            program_end = time.time()
+            if await get_setting(group.id, "debug"):
+                message[1].plus(MessageChain.create([Plain(text=f"\n\nProgram execution time:\n{str(program_end - program_start)}")]))
+                
+
             msg = await app.sendGroupMessage(group, message[1])
             await asyncio.sleep(20)
             await app.revokeMessage(msg)
@@ -223,6 +245,8 @@ async def group_message_listener(
         message: MessageChain,
         message_info: GroupMessage
 ):
+    program_start = time.time()
+
     print("接收到组%s中来自%s的消息:%s" % (group.name, message_info.sender.name, message.asDisplay()))
 
     # 复读
@@ -265,7 +289,8 @@ async def group_message_listener(
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
         # msg = await get_time()
-        msg = await get_group_announcement("测试")
+        # msg = await get_group_announcement("测试")\
+        msg = await get_douban_new_books()
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test2" and message_info.sender.id == await get_config("HostQQ"):
         welcome_json = """
@@ -355,7 +380,7 @@ async def group_message_listener(
     #     message_send.append(group)
     #     tasks.put(message_send)
     # else:
-    await group_assist_process(message, message_info, message_send, group)
+    await group_assist_process(message, message_info, message_send, group, program_start)
 
 
 @bcc.receiver("MemberJoinEvent")
@@ -508,7 +533,7 @@ async def member_muted(app: GraiaMiraiApplication, event: MemberMuteEvent):
 
 
 @bcc.receiver("MemberUnmuteEvent")
-async def member_join(app: GraiaMiraiApplication, event: MemberUnmuteEvent):
+async def member_unmuted(app: GraiaMiraiApplication, event: MemberUnmuteEvent):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
@@ -532,7 +557,7 @@ async def member_kicked(app: GraiaMiraiApplication, event: MemberLeaveEventKick)
 
 
 @bcc.receiver("MemberSpecialTitleChangeEvent")
-async def member_join(app: GraiaMiraiApplication, event: MemberSpecialTitleChangeEvent):
+async def member_special_title_change(app: GraiaMiraiApplication, event: MemberSpecialTitleChangeEvent):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
@@ -544,11 +569,11 @@ async def member_join(app: GraiaMiraiApplication, event: MemberSpecialTitleChang
 
 
 @bcc.receiver("MemberPermissionChangeEvent")
-async def member_join(app: GraiaMiraiApplication, event: MemberPermissionChangeEvent):
+async def member_permission_change(app: GraiaMiraiApplication, event: MemberPermissionChangeEvent):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
-                Plain(text="啊嘞嘞？%s的权限变成%s了呐~" % (event.member.name, event.current))
+                Plain(text="啊嘞嘞？%s的权限变成%s了呐~跪舔大佬！" % (event.member.name, event.current))
             ])
         )
     except AccountMuted:
@@ -556,8 +581,9 @@ async def member_join(app: GraiaMiraiApplication, event: MemberPermissionChangeE
 
 
 @bcc.receiver("BotJoinGroupEvent")
-async def member_join(app: GraiaMiraiApplication, event: BotJoinGroupEvent):
+async def bot_join_group(app: GraiaMiraiApplication, event: BotJoinGroupEvent):
     print("add group")
+    group_repeat[event.group.id] = {"lastMsg": "", "thisMsg": "", "stopMsg": ""}
     try:
         await app.sendGroupMessage(
             event.group, MessageChain.create([
@@ -567,6 +593,12 @@ async def member_join(app: GraiaMiraiApplication, event: BotJoinGroupEvent):
     except AccountMuted:
         pass
     await bot_join_group_init(event.group.id, event.group.name)
+
+
+@bcc.receiver("BotLeaveEventKick")
+async def bot_leave_group(app: GraiaMiraiApplication, event: BotLeaveEventKick):
+    app.logger.warn("leave！")
+    print("leave group")
 
 
 app.launch_blocking()

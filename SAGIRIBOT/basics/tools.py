@@ -203,16 +203,16 @@ async def text2piiic_with_link(text: str, fontsize=40, x=20, y=40, spacing=15):
     for i in range(len(match_res)):
         qrcode_img = qrcode.make(match_res[i])
         qrcode_img.save(f"./statics/temp/tempQrcodeWithLink{i+1}.jpg")
-    blocks = text.split("|||\n\n\n|||\n\n")
+    blocks = text.split("|||\n\n\n|||")
     block_count = 0
     font = ImageFont.truetype('./simhei.ttf', fontsize, encoding="utf-8")
     for block in blocks:
-        if not block:
+        if not block or not block.strip():
             break
         block_count += 1
         lines = block.strip().split("\n")
         length = max(count_len(line) for line in lines)
-        width = x * 4 + int(fontsize * length / 2)
+        width = x * 4 + int(fontsize * (length + 10) / 2)
         height = y * 4 + (fontsize + spacing) * len(lines) + width
         qr_img = IMG.open(f"./statics/temp/tempQrcodeWithLink{block_count}.jpg")
         qr_img = qr_img.resize((width, width))

@@ -62,5 +62,6 @@ async def get_chat_reply(group_id: int, sender: int, text: str):
             res = await resp.json()
     print(res)
     if res["ret"] > 0:
+        print(res)
         return f"Error:{res['msg']}"
     return res["data"]["answer"]

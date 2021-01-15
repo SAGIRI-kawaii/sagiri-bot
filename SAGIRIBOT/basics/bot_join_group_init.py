@@ -1,4 +1,5 @@
 from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
+from SAGIRIBOT.basics.get_config import get_config
 
 
 async def bot_join_group_init(group_id: int, group_name: str) -> None:
@@ -16,10 +17,20 @@ async def bot_join_group_init(group_id: int, group_name: str) -> None:
         None
     """
     sql = """
-    INSERT INTO setting 
-    (groupId,groupName,`repeat`,setuLocal,bizhiLocal,countLimit,`limit`,setu,bizhi,`real`,r18,search,speakMode,music,switch,forbiddenCount) 
+    INSERT IGNORE INTO setting 
+    (groupId,groupName,`repeat`,setuLocal,bizhiLocal,countLimit,`limit`,setu,bizhi,
+    `real`,r18,search,imgPredict,yellowPredict,searchBangumi,imgLightning,longTextType,
+    music,speakMode,switch,forbiddenCount) 
     VALUES 
-    (%d,'%s',%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,'%s','%s','%s',0)
-    """ % (group_id, group_name, True, True, True, True, 6, True, True, True, False, True, "normal", "wyy", "online")
+    (%d,'%s',%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,'%s','%s','%s','%s',0)
+    """ % (group_id, group_name, True, True, True, True, 6, False, False,
+           False, False, False, False, False, False, False, "img", "off", "normal", "online")
+    await execute_sql(sql)
+    sql = """
+    INSERT INTO admin 
+    (groupId,adminId) 
+    VALUES 
+    (%d,%d)
+    """ % (group_id, await get_config("HostQQ"))
     await execute_sql(sql)
     print("join group database init finished!")
