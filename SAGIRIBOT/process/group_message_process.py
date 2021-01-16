@@ -57,6 +57,7 @@ from SAGIRIBOT.data_manage.update_data.update_total_calls import update_total_ca
 from SAGIRIBOT.data_manage.get_data.get_total_calls import get_total_calls
 from SAGIRIBOT.bot_status.get_gallery_status import get_gallery_status
 from SAGIRIBOT.crawer.douban.get_book_recommand_by_tag import get_book_recommand_by_tag
+from SAGIRIBOT.basics.keyword_reply import keyword_reply
 
 # 关键词字典
 response_set = get_response_set()
@@ -1014,6 +1015,10 @@ async def group_message_process(
                     Plain(text="请输入要转为二维🐎的内容！")
                 ])
             ]
+
+    auto_reply = await keyword_reply(message_text)
+    if auto_reply:
+        return auto_reply
 
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
         await update_total_calls_once("response")
