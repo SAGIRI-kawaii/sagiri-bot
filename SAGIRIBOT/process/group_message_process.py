@@ -58,7 +58,7 @@ from SAGIRIBOT.data_manage.get_data.get_total_calls import get_total_calls
 from SAGIRIBOT.bot_status.get_gallery_status import get_gallery_status
 from SAGIRIBOT.crawer.douban.get_book_recommand_by_tag import get_book_recommand_by_tag
 from SAGIRIBOT.basics.keyword_reply import keyword_reply
-from SAGIRIBOT.crawer.runoob.network_compile import network_py3_compile
+from SAGIRIBOT.crawer.runoob.network_compile import network_compile
 
 # 关键词字典
 response_set = get_response_set()
@@ -1018,10 +1018,18 @@ async def group_message_process(
                 ])
             ]
 
-    if message_text.startswith("super py3:"):
+    if re.search(r"super .*?:[\r\n]", message_text) and message_text.startswith("super "):
         if await get_setting(group_id, "compile"):
-            code = message_text[10:]
-            result = await network_py3_compile(code)
+            language = re.findall(r"super (.*?):", message_text, re.S)[0]
+            code = message_text[7 + len(language):]
+            result = await network_compile(language, code)
+            if isinstance(result, str):
+                return [
+                    "quoteSource",
+                    MessageChain.create([
+                        Plain(text=result)
+                    ])
+                ]
             return [
                 "quoteSource",
                 MessageChain.create([
