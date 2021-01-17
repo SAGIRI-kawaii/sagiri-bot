@@ -26,7 +26,7 @@ async def judge_setting_legitimacy(config: str, new_value: str) -> bool:
     """
     setting_torf = [
         "repeat", "countLimit", "tribute", "listen", "setu", "real", "bizhi", "search", "r18", "imgPredict",
-        "imgLightning", "yellowPredict", "debug", "searchBangumi"
+        "imgLightning", "yellowPredict", "debug", "searchBangumi", "compile"
     ]
     setting_torf = set(setting_torf)
     if (config == "limit" or config == "tributeQuantity") and new_value.isnumeric():

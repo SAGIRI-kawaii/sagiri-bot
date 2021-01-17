@@ -58,6 +58,7 @@ from SAGIRIBOT.data_manage.get_data.get_total_calls import get_total_calls
 from SAGIRIBOT.bot_status.get_gallery_status import get_gallery_status
 from SAGIRIBOT.crawer.douban.get_book_recommand_by_tag import get_book_recommand_by_tag
 from SAGIRIBOT.basics.keyword_reply import keyword_reply
+from SAGIRIBOT.crawer.runoob.network_compile import network_py3_compile
 
 # 关键词字典
 response_set = get_response_set()
@@ -693,6 +694,7 @@ async def group_message_process(
         签到
         996查询
         qrcode生成
+        在线py环境
         摸~
     """
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".*用.*怎么说",
@@ -1013,6 +1015,24 @@ async def group_message_process(
                 "quoteSource",
                 MessageChain.create([
                     Plain(text="请输入要转为二维🐎的内容！")
+                ])
+            ]
+
+    if message_text.startswith("super py3:"):
+        if await get_setting(group_id, "compile"):
+            code = message_text[10:]
+            result = await network_py3_compile(code)
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text=result["output"] if result["output"] else result["errors"])
+                ])
+            ]
+        else:
+            return [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text="网络编译器功能尚未开启哦~")
                 ])
             ]
 
