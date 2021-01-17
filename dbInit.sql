@@ -414,7 +414,7 @@ DROP TABLE IF EXISTS `setting`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `setting` (
   `groupId` bigint DEFAULT NULL,
-  `groupName` varchar(20) NOT NULL,
+  `groupName` text,
   `repeat` tinyint(1) DEFAULT NULL,
   `setuLocal` tinyint(1) DEFAULT NULL,
   `bizhiLocal` tinyint(1) DEFAULT NULL,
@@ -429,6 +429,7 @@ CREATE TABLE `setting` (
   `yellowPredict` tinyint(1) DEFAULT NULL,
   `searchBangumi` int NOT NULL,
   `imgLightning` tinyint(1) DEFAULT NULL,
+  `debug` tinyint(1) DEFAULT '0',
   `longTextType` text,
   `listen` tinyint(1) DEFAULT '0',
   `tribute` tinyint(1) DEFAULT '0',
@@ -478,6 +479,18 @@ DROP TABLE IF EXISTS `subscribelisten`;
 CREATE TABLE `subscribelisten` (
   `roomId` bigint DEFAULT NULL,
   `platform` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `test`
+--
+
+DROP TABLE IF EXISTS `test`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `test` (
+  `test` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -555,4 +568,4 @@ CREATE TABLE `yellowpredictready` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-12 20:00:52
+-- Dump completed on 2021-01-17 18:25:37
