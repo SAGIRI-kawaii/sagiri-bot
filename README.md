@@ -37,7 +37,7 @@ New version of sagiri-bot based on Mirai and Graia
 
 ### 使用前准备
 
-- 使用 `pip install -r requirements` 命令安装所需库
+- 使用 `pip install -r requirements` 命令安装所需库，注意：若不需要图像预测功能（尚未写完）请将requirements.txt中的Keras删除再执行安装命令
 - 执行 `dbInit.sql` 文件，这将帮助你建立一个适合 SAGIRI-BOT 的数据库
 - 下载 [mirai-console](https://github.com/mamoe/mirai-console) 并配置 [mirai-api-http](https://github.com/project-mirai/mirai-api-http) ，这些都可以在 [mirai](https://github.com/mamoe/mirai) 项目中找到
 - 若上一条不会配置，请考虑使用 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader) 加载器进行配置
