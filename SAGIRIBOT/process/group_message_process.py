@@ -59,6 +59,7 @@ from SAGIRIBOT.bot_status.get_gallery_status import get_gallery_status
 from SAGIRIBOT.crawer.douban.get_book_recommand_by_tag import get_book_recommand_by_tag
 from SAGIRIBOT.basics.keyword_reply import keyword_reply
 from SAGIRIBOT.crawer.runoob.network_compile import network_compile
+from SAGIRIBOT.bot_status.get_user_info import get_user_info
 
 # 关键词字典
 response_set = get_response_set()
@@ -104,7 +105,6 @@ async def group_message_process(
             MessageChain: Message to be send(MessageChain)
         ]
     """
-    # print("debug")
     message_text = message.asDisplay()
     message_serialization = message.asSerializationString()
     sender = message_info.sender.id
@@ -113,6 +113,7 @@ async def group_message_process(
     if sender in await get_blacklist():
         print("Blacklist!No reply!")
         return ["None"]
+
     await write_chat_record(seg, group_id, sender, message_text)
 
     # print("message_serialization:", message_serialization)
@@ -152,6 +153,9 @@ async def group_message_process(
                     Plain(text="请给出base_name!")
                 ])
             ]
+
+    if message_text.lower() == "/myinfo":
+        return await get_user_info(group_id, sender, message_info.sender.name)
 
     """
     图片功能：
