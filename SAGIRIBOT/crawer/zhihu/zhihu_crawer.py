@@ -11,9 +11,9 @@ from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
 
 
 async def get_zhihu_hot(group_id: int) -> list:
-    weibo_hot_url = "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true"
+    zhihu_hot_url = "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true"
     async with aiohttp.ClientSession() as session:
-        async with session.get(url=weibo_hot_url) as resp:
+        async with session.get(url=zhihu_hot_url) as resp:
             data = await resp.json()
     print(data)
     data = data["data"]

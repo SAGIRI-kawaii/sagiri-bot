@@ -155,7 +155,7 @@ async def group_message_process(
             ]
 
     if message_text.lower() == "/myinfo":
-        return await get_user_info(group_id, sender, message_info.sender.name)
+        return await get_user_info(group_id, sender, message_info.sender.name, len(await app.memberList(group_id)))
 
     """
     图片功能：

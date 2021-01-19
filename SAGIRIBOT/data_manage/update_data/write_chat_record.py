@@ -6,6 +6,7 @@ from SAGIRIBOT.basics.tools import filter_label
 
 
 async def write_chat_record(seg, group_id: int, member_id: int, content: str) -> None:
+    content = content.replace("\\", "/")
     filter_words = re.findall(r"\[mirai:(.*?)\]", content, re.S)
     for i in filter_words:
         content = content.replace(f"[mirai:{i}]", "")
