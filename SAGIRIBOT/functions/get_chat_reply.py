@@ -34,6 +34,8 @@ async def get_chat_session(group_id: int, sender: int) -> str:
 
 
 async def get_chat_reply(group_id: int, sender: int, text: str):
+    if text.strip() == "":
+        return "@纱雾干什么呐~是想找纱雾玩嘛~"
     url = "https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat"
     temp_list = re.findall(r"@(.*?) ", text, re.S)
     # print(text, temp_list)
@@ -61,6 +63,8 @@ async def get_chat_reply(group_id: int, sender: int, text: str):
         async with session.get(url=url, params=params) as resp:
             res = await resp.json()
     print(res)
+    if res["ret"] == 16394:
+        return "抱歉呐~我不知道怎么回答呢~问我点别的吧~"
     if res["ret"] > 0:
         print(res)
         return f"Error:{res['msg']}"
