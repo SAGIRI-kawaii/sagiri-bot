@@ -9,6 +9,7 @@ from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import Image
 
 from SAGIRIBOT.data_manage.update_data.set_get_image_ready import set_get_img_ready
+from SAGIRIBOT.basics.tools import messagechain_to_img
 
 
 async def sec_to_str(seconds: int) -> str:
@@ -70,9 +71,7 @@ async def search_bangumi(group_id: int, sender: int, img_url: str) -> list:
             start_date = f"{result['startDate']['year']}-{result['startDate']['month']}-{result['startDate']['day']}"
             end_date = f"{result['endDate']['year']}-{result['endDate']['month']}-{result['endDate']['day']}"
             score = result["averageScore"]
-            return [
-                "quoteSource",
-                MessageChain.create([
+            message = MessageChain.create([
                     Plain(text="搜索到结果：\n"),
                     Image.fromLocalFile(path),
                     Plain(text=f"name: {title_origin}\n"),
@@ -82,6 +81,9 @@ async def search_bangumi(group_id: int, sender: int, img_url: str) -> list:
                     Plain(text=f"score: {score}\n"),
                     Plain(text=f"Broadcast date: {start_date} ~ {end_date}\n")
                 ])
+            return [
+                "quoteSource",
+                await messagechain_to_img(message=message, max_width=1080, img_fixed=True)
             ]
         except Exception as e:
             return [

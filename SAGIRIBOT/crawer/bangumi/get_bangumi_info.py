@@ -10,6 +10,7 @@ from graia.application.message.elements.internal import At
 from graia.application.message.elements.internal import Image
 
 from SAGIRIBOT.basics.get_config import get_config
+from SAGIRIBOT.basics.tools import messagechain_to_img
 
 
 async def get_bangumi_info(sender: int, keyword: str) -> list:
@@ -56,11 +57,7 @@ async def get_bangumi_info(sender: int, keyword: str) -> list:
                 img_content = await resp.read()
         image = IMG.open(BytesIO(img_content))
         image.save(path)
-
-    return [
-        "None",
-        MessageChain.create([
-            At(target=sender),
+    message = MessageChain.create([
             Plain(text="查询到以下信息：\n"),
             Image.fromLocalFile(path),
             Plain(text="名字:%s\n\n中文名字:%s\n\n" % (name, cn_name)),
@@ -68,4 +65,7 @@ async def get_bangumi_info(sender: int, keyword: str) -> list:
             Plain(text="bangumi评分:%s(参与评分%s人)\n\n" % (score, rating_total)),
             Plain(text="bangumi排名:%s" % rank)
         ])
+    return [
+        "quoteSource",
+        await messagechain_to_img(message=message, max_width=1080, img_fixed=True)
     ]
