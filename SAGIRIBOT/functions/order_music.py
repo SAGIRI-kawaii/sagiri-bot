@@ -31,6 +31,14 @@ async def get_song_ordered(keyword: str) -> list:
             data_json = await resp.read()
     data_json = json.loads(data_json)
 
+    if data_json["code"] != 200:
+        return [
+            "quoteSource",
+            MessageChain.create([
+                Plain(text=f"服务器返回错误：{data_json['message']}")
+            ])
+        ]
+
     if data_json["result"]["songCount"] == 0:
         return [
             "quoteSource",
