@@ -413,32 +413,34 @@ DROP TABLE IF EXISTS `setting`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `setting` (
-  `groupId` bigint DEFAULT NULL,
+  `groupId` bigint NOT NULL,
   `groupName` text,
-  `repeat` tinyint(1) DEFAULT NULL,
-  `setuLocal` tinyint(1) DEFAULT NULL,
-  `bizhiLocal` tinyint(1) DEFAULT NULL,
-  `countLimit` tinyint(1) DEFAULT NULL,
-  `limit` int DEFAULT NULL,
-  `setu` tinyint(1) DEFAULT NULL,
-  `bizhi` tinyint(1) DEFAULT NULL,
-  `real` tinyint(1) DEFAULT NULL,
-  `r18` tinyint(1) DEFAULT NULL,
-  `search` tinyint(1) DEFAULT NULL,
-  `imgPredict` tinyint(1) DEFAULT NULL,
-  `yellowPredict` tinyint(1) DEFAULT NULL,
-  `searchBangumi` int NOT NULL,
-  `imgLightning` tinyint(1) DEFAULT NULL,
-  `debug` tinyint(1) DEFAULT '0',
-  `longTextType` text,
-  `listen` tinyint(1) DEFAULT '0',
-  `tribute` tinyint(1) DEFAULT '0',
-  `tributeQuantity` int DEFAULT '10',
-  `r18Process` varchar(10) DEFAULT 'revoke',
-  `speakMode` char(10) DEFAULT NULL,
-  `music` varchar(10) DEFAULT 'wyy',
-  `switch` char(10) DEFAULT NULL,
-  `forbiddenCount` int NOT NULL
+  `repeat` tinyint(1) NOT NULL DEFAULT '0',
+  `setuLocal` tinyint(1) NOT NULL DEFAULT '0',
+  `bizhiLocal` tinyint(1) NOT NULL DEFAULT '0',
+  `countLimit` tinyint(1) NOT NULL DEFAULT '1',
+  `limit` int NOT NULL DEFAULT '6',
+  `setu` tinyint(1) NOT NULL DEFAULT '0',
+  `bizhi` tinyint(1) NOT NULL DEFAULT '1',
+  `real` tinyint(1) NOT NULL DEFAULT '0',
+  `r18` tinyint(1) NOT NULL DEFAULT '0',
+  `search` tinyint(1) NOT NULL DEFAULT '0',
+  `imgPredict` tinyint(1) NOT NULL DEFAULT '0',
+  `yellowPredict` tinyint(1) NOT NULL DEFAULT '0',
+  `searchBangumi` tinyint(1) NOT NULL DEFAULT '0',
+  `imgLightning` tinyint(1) NOT NULL DEFAULT '0',
+  `debug` tinyint(1) NOT NULL DEFAULT '0',
+  `compile` tinyint(1) NOT NULL DEFAULT '0',
+  `longTextType` varchar(4) NOT NULL DEFAULT 'text',
+  `listen` tinyint(1) NOT NULL DEFAULT '0',
+  `tribute` tinyint(1) NOT NULL DEFAULT '0',
+  `tributeQuantity` int NOT NULL DEFAULT '10',
+  `r18Process` varchar(10) NOT NULL DEFAULT 'revoke',
+  `speakMode` char(10) NOT NULL DEFAULT 'normal',
+  `music` varchar(10) NOT NULL DEFAULT 'wyy',
+  `switch` char(10) NOT NULL DEFAULT 'on',
+  `forbiddenCount` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`groupId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -568,4 +570,4 @@ CREATE TABLE `yellowpredictready` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-17 18:25:37
+-- Dump completed on 2021-01-21 23:35:54
