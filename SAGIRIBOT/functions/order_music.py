@@ -2,6 +2,7 @@ import json
 import aiohttp
 
 from graia.application.message.chain import MessageChain
+from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import App
 
 
@@ -21,7 +22,8 @@ async def get_song_ordered(keyword: str) -> list:
             MessageChain: Message to be send(MessageChain)
         ]
     """
-    song_search_url = "http://music.163.com/api/search/get/web?csrf_token=hlpretag=&hlposttag=&s={%s}&type=1&offset=0&total=true&limit=1" % keyword
+    song_search_url = "http://music.163.com/api/search/get/web?csrf_token=hlpretag=&hlposttag=&s={" \
+                      "%s}&type=1&offset=0&total=true&limit=1" % keyword
     # print(song_search_url)
 
     async with aiohttp.ClientSession() as session:
@@ -36,6 +38,14 @@ async def get_song_ordered(keyword: str) -> list:
     async with aiohttp.ClientSession() as session:
         async with session.get(url=detail_url) as resp:
             data_json = await resp.json()
+
+    if data_json["result"]["songCount"] == 0:
+        return [
+            "quoteSource",
+            MessageChain.create([
+                Plain(text="没有搜索到呐~换一首歌试试吧！")
+            ])
+        ]
 
     song_name = data_json["songs"][0]["name"]
     pic_url = data_json["songs"][0]["al"]["picUrl"]
