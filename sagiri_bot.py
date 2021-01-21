@@ -128,8 +128,6 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
             program_end = time.time()
             if await get_setting(group.id, "debug"):
                 message[1].plus(MessageChain.create([Plain(text=f"\n\nProgram execution time:\n{str(program_end - program_start)}")]))
-                
-
             msg = await app.sendGroupMessage(group, message[1])
             await asyncio.sleep(20)
             await app.revokeMessage(msg)
@@ -561,7 +559,7 @@ async def member_special_title_change(app: GraiaMiraiApplication, event: MemberS
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
-                Plain(text="啊嘞嘞？%s的群头衔变成%s了呐~" % (event.member.name, event.current))
+                Plain(text="啊嘞嘞？%s的群头衔从%s变成%s了呐~" % (event.member.name, event.origin, event.current))
             ])
         )
     except AccountMuted:
@@ -581,24 +579,153 @@ async def member_permission_change(app: GraiaMiraiApplication, event: MemberPerm
 
 
 @bcc.receiver("BotJoinGroupEvent")
-async def bot_join_group(app: GraiaMiraiApplication, event: BotJoinGroupEvent):
-    print("add group")
-    group_repeat[event.group.id] = {"lastMsg": "", "thisMsg": "", "stopMsg": ""}
+async def bot_join_group(app: GraiaMiraiApplication, group: Group):
+    print(f"add group {group.name}")
+    group_repeat[group.id] = {"lastMsg": "", "thisMsg": "", "stopMsg": ""}
     try:
         await app.sendGroupMessage(
-            event.group, MessageChain.create([
+            group, MessageChain.create([
                 Plain(text="欸嘿嘿~我来啦！宇宙无敌小可爱纱雾酱华丽登场！")
             ])
         )
     except AccountMuted:
         pass
-    await bot_join_group_init(event.group.id, event.group.name)
+    await bot_join_group_init(group.id, group.name)
 
 
 @bcc.receiver("BotLeaveEventKick")
 async def bot_leave_group(app: GraiaMiraiApplication, event: BotLeaveEventKick):
-    app.logger.warn("leave！")
-    print("leave group")
+    print("bot has been kicked!")
+    await app.sendFriendMessage(
+        await get_config("HostQQ"), MessageChain.create([
+            Plain(text=f"呜呜呜主人我被踢出{event.group.name}群了")
+        ])
+    )
+
+
+@bcc.receiver("GroupNameChangeEvent")
+async def group_name_changed(app: GraiaMiraiApplication, event: GroupNameChangeEvent):
+    try:
+        await app.sendGroupMessage(
+            event.group, MessageChain.create([
+                Plain(text=f"群名改变啦！告别过去，迎接未来哟~\n本群名称由{event.origin}变为{event.current}辣！")
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("GroupEntranceAnnouncementChangeEvent")
+async def group_entrance_announcement_changed(app: GraiaMiraiApplication, event: GroupEntranceAnnouncementChangeEvent):
+    try:
+        await app.sendGroupMessage(
+            event.group, MessageChain.create([
+                Plain(text=f"入群公告改变啦！注意查看呐~\n原公告：{event.origin}\n新公告：{event.current}")
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("GroupAllowAnonymousChatEvent")
+async def group_allow_anonymous_chat_changed(app: GraiaMiraiApplication, event: GroupAllowAnonymousChatEvent):
+    try:
+        await app.sendGroupMessage(
+            event.group, MessageChain.create([
+                Plain(text=f"匿名功能现在{'开启辣！畅所欲言吧！' if event.current else '关闭辣！光明正大做人吧！'}")
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("GroupAllowConfessTalkEvent")
+async def group_allow_confess_talk_changed(app: GraiaMiraiApplication, event: GroupAllowConfessTalkEvent):
+    try:
+        await app.sendGroupMessage(
+            event.group, MessageChain.create([
+                Plain(text=f"坦白说功能现在{'开启辣！快来让大家更加了解你吧！' if event.current else '关闭辣！有时候也要给自己留点小秘密哟~'}")
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("GroupAllowMemberInviteEvent")
+async def group_allow_member_invite_changed(app: GraiaMiraiApplication, event: GroupAllowMemberInviteEvent):
+    try:
+        await app.sendGroupMessage(
+            event.group, MessageChain.create([
+                Plain(text=f"现在{'允许邀请成员加入辣！快把朋友拉进来玩叭！' if event.current else '不允许邀请成员加入辣！要注意哦~'}")
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("MemberCardChangeEvent")
+async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChangeEvent):
+    try:
+        await app.sendGroupMessage(
+            event.group, MessageChain.create([
+                Plain(text=f"啊嘞嘞？{event.member.name}的群名片被{event.operator.name}从{event.origin}改为{event.current}了呢！")
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("NewFriendRequestEvent")
+async def new_friend_request(app: GraiaMiraiApplication, event: NewFriendRequestEvent):
+    await app.sendFriendMessage(
+        await get_config("HostQQ"), MessageChain.create([
+            Plain(text=f"主人主人，有个人来加我好友啦！\n"),
+            Plain(text=f"ID：{event.supplicant}\n"),
+            Plain(text=f"来自：{event.nickname}\n"),
+            Plain(text=f"描述：{event.message}\n"),
+            Plain(text=f"source：{event.sourceGroup}")
+        ])
+    )
+
+
+@bcc.receiver("MemberJoinRequestEvent")
+async def new_member_join_request(app: GraiaMiraiApplication, event: MemberJoinRequestEvent):
+    try:
+        await app.sendGroupMessage(
+            event.groupId, MessageChain.create([
+                Plain(text=f"有个新的加群加群请求哟~管理员们快去看看叭！\n"),
+                Plain(text=f"ID：{event.supplicant}\n"),
+                Plain(text=f"昵称：{event.nickname}\n"),
+                Plain(text=f"描述：{event.message}\n")
+            ])
+        )
+    except AccountMuted:
+        pass
+
+
+@bcc.receiver("BotInvitedJoinGroupRequestEvent")
+async def bot_invited_join_group(app: GraiaMiraiApplication, event: BotInvitedJoinGroupRequestEvent):
+    if event.supplicant != await get_config("HostQQ"):
+        await app.sendFriendMessage(
+            await get_config("HostQQ"), MessageChain.create([
+                Plain(text=f"主人主人，有个人拉我进群啦！\n"),
+                Plain(text=f"ID：{event.supplicant}\n"),
+                Plain(text=f"来自：{event.nickname}\n"),
+                Plain(text=f"描述：{event.message}\n")
+            ])
+        )
+
+
+# @bcc.receiver("GroupRecallEvent")
+# async def anti_revoke(app: GraiaMiraiApplication, event: GroupRecallEvent):
+#     print("revoke!")
+#     try:
+#         await app.sendGroupMessage(
+#             event.group,
+#             await app.messageFromId(event.messageId).messagechain
+#         )
+#     except AccountMuted:
+#         pass
 
 
 app.launch_blocking()
