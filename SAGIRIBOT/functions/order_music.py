@@ -29,15 +29,7 @@ async def get_song_ordered(keyword: str) -> list:
     async with aiohttp.ClientSession() as session:
         async with session.get(url=song_search_url) as resp:
             data_json = await resp.read()
-
     data_json = json.loads(data_json)
-
-    song_id = data_json["result"]["songs"][0]["id"]
-    detail_url = f"http://musicapi.leanapp.cn/song/detail?ids={song_id}"
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url=detail_url) as resp:
-            data_json = await resp.json()
 
     if data_json["result"]["songCount"] == 0:
         return [
@@ -46,6 +38,14 @@ async def get_song_ordered(keyword: str) -> list:
                 Plain(text="没有搜索到呐~换一首歌试试吧！")
             ])
         ]
+
+    song_id = data_json["result"]["songs"][0]["id"]
+    detail_url = f"http://musicapi.leanapp.cn/song/detail?ids={song_id}"
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=detail_url) as resp:
+            data_json = await resp.json()
+
 
     song_name = data_json["songs"][0]["name"]
     pic_url = data_json["songs"][0]["al"]["picUrl"]
