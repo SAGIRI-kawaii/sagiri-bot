@@ -42,6 +42,7 @@ New version of sagiri-bot based on Mirai and Graia
 - 下载 [mirai-console](https://github.com/mamoe/mirai-console) 并配置 [mirai-api-http](https://github.com/project-mirai/mirai-api-http) ，这些都可以在 [mirai](https://github.com/mamoe/mirai) 项目中找到
 - 若上一条不会配置，请考虑使用 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader) 加载器进行配置
 - 打开 `configdemo.json`，配置好个人信息，并将文件更名为 `config.json`，配置说明见[config文件参数说明](#configjson)
+- 额外要做的一件事：请将 `graia.application.message.elements.internal` 中 `Image` 类的 `asDisplay()` 方法返回值改为 `f"[mirai:image:{self.imageId}]"`
 - ~~最重要的当然是准备好各种图片~~
 
 ### 如何启动
