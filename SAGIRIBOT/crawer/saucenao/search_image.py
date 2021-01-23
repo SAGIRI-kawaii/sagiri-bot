@@ -71,12 +71,13 @@ async def search_image(group_id: int, sender: int, img: Image) -> list:
         "Sec-Fetch-User": "?1",
         "Referer": url,
         "Origin": "https://saucenao.com",
-        "Host": "saucenao.com"
+        "Host": "saucenao.com",
+        "cookie": await get_config("saucenaoCookie")
     }
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url=url, headers=headers, data=payload) as resp:
-            json_data = await resp.json()
+    # async with aiohttp.ClientSession() as session:
+    #     async with session.post(url=url, headers=headers, data=payload) as resp:
+    #         json_data = await resp.json()
 
     # print thumbnail URL.
     # print(json_data)
@@ -87,6 +88,8 @@ async def search_image(group_id: int, sender: int, img: Image) -> list:
         async with session.post(url=url, headers=headers, data=payload) as resp:
             json_data = await resp.json()
 
+    print(json_data)
+
     async with aiohttp.ClientSession() as session:
         async with session.get(url=json_data["results"][0]["header"]["thumbnail"]) as resp:
             img_content = await resp.read()
@@ -95,12 +98,11 @@ async def search_image(group_id: int, sender: int, img: Image) -> list:
     image.save(path)
     similarity = json_data["results"][0]["header"]["similarity"]
     try:
-        pixiv_url = json_data["results"][0]["data"]["ext_urls"][0]
+        pic_url = "\n".join(json_data["results"][0]["data"]["ext_urls"][0])
     except KeyError:
-        pixiv_url = "None"
+        pic_url = "None"
     if "pixiv_id" not in json_data["results"][0]["data"]:
         if "source" not in json_data["results"][0]["data"]:
-            # record("search", path, sender, group_id, False, "img")
             return [
                 "quoteSource",
                 MessageChain.create([
@@ -112,15 +114,13 @@ async def search_image(group_id: int, sender: int, img: Image) -> list:
                 creator = json_data["results"][0]["data"]["creator"][0]
             except Exception:
                 creator = "Unknown!"
-            # record("search",dist,sender,groupId,True,"img")
             return [
                 "quoteSource",
                 MessageChain.create([
-                    Plain(text="这个结果相似度很低诶。。。。要不你康康？\n"),
                     Image.fromLocalFile(path),
-                    Plain(text="\n相似度:%s%%\n"%(similarity)),
-                    Plain(text="原图地址:%s\n"%pixiv_url),
-                    Plain(text="作者:%s\n"%creator),
+                    Plain(text="\n相似度:%s%%\n" % similarity),
+                    Plain(text="原图地址:%s\n" % pic_url),
+                    Plain(text="作者:%s\n" % creator),
                     Plain(text="如果不是你想找的图的话可能因为这张图是最近才画出来的哦，网站还未收录呢~过段日子再来吧~")
                 ])
             ]
@@ -133,8 +133,8 @@ async def search_image(group_id: int, sender: int, img: Image) -> list:
             "quoteSource",
             MessageChain.create([
                 Image.fromLocalFile(path),
-                Plain(text="\n相似度:%s%%\n" % (similarity)),
-                Plain(text="原图地址:%s\n" % pixiv_url),
+                Plain(text="\n相似度:%s%%\n" % similarity),
+                Plain(text="原图地址:%s\n" % pic_url),
                 Plain(text="作品id:%s\n" % pixiv_id),
                 Plain(text="作者名字:%s\n" % user_name),
                 Plain(text="作者id:%s\n" % user_id)

@@ -125,6 +125,7 @@ Bot init end
 | txAppId | 腾讯AI开放平台AppId（自行申请） |
 | txAppKey | 腾讯AI开放平台AppKey（自行申请） |
 | shadiaoAppName | shadiaoApp 应用名（自行申请） |
+| saucenaoCookie | saucenao cookie（自行登录获取） |
 
 #### response_set.json
 用于存储各种功能触发的关键词，需要在机器人启动前进行更改，机器人运行时更改无效（将在下次启动时生效）
