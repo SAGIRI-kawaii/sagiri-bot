@@ -1,6 +1,7 @@
 import re
 import os
 import pkuseg
+import asyncio
 
 from graia.application.event.messages import *
 from graia.application import GraiaMiraiApplication
@@ -121,7 +122,7 @@ async def group_message_process(
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
         await update_user_called_data(group_id, sender, "at", 1)
 
-    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search("@.* setting.*",
+    if message.has(At) and message.get(At)[0].target == await get_config("BotQQ") and re.search(".* setting.*",
                                                                                                 message_text):
         try:
             _, config, new_value = message_text.split(".")
@@ -146,6 +147,8 @@ async def group_message_process(
                         Plain(text="请给出base_name!")
                     ])
                 ]
+        elif message_text == "/status":
+            pass
         else:
             return [
                 "quoteSource",
@@ -404,13 +407,16 @@ async def group_message_process(
 
         if await get_setting(group_id, "search"):
             await set_get_img_ready(group_id, sender, True, "searchReady")
-            return [
-                "None",
+            await app.sendGroupMessage(
+                group_id,
                 MessageChain.create([
                     At(sender),
-                    Plain(text="请发送要搜索的图片呐~(仅支持pixiv图片搜索呐！)")
+                    Plain(text="请在30秒内发送要搜索的图片呐~(仅支持pixiv图片搜索呐！)")
                 ])
-            ]
+            )
+            await asyncio.sleep(30)
+            await set_get_img_ready(group_id, sender, False, "searchReady")
+            return ["None"]
         else:
             return [
                 "None",
@@ -439,13 +445,16 @@ async def group_message_process(
 
         if await get_setting(group_id, "yellowPredict"):
             await set_get_img_ready(group_id, sender, True, "yellowPredictReady")
-            return [
-                "None",
+            await app.sendGroupMessage(
+                group_id,
                 MessageChain.create([
-                    At(target=sender),
-                    Plain(text="请发送要预测的图片呐~")
+                    At(sender),
+                    Plain(text="请在30秒内发送要预测的图片呐~")
                 ])
-            ]
+            )
+            await asyncio.sleep(30)
+            await set_get_img_ready(group_id, sender, False, "yellowPredictReady")
+            return ["None"]
         else:
             return [
                 "None",
@@ -504,13 +513,16 @@ async def group_message_process(
 
         if await get_setting(group_id, "searchBangumi"):
             await set_get_img_ready(group_id, sender, True, "searchBangumiReady")
-            return [
-                "None",
+            await app.sendGroupMessage(
+                group_id,
                 MessageChain.create([
                     At(sender),
-                    Plain(text="请发送要搜索的图片呐~(仅支持番剧图片搜索呐！)")
+                    Plain(text="请在30秒内发送要预测的图片呐~")
                 ])
-            ]
+            )
+            await asyncio.sleep(30)
+            await set_get_img_ready(group_id, sender, False, "searchBangumiReady")
+            return ["None"]
         else:
             return [
                 "None",

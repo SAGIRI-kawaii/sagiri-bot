@@ -98,7 +98,7 @@ async def search_image(group_id: int, sender: int, img: Image) -> list:
     image.save(path)
     similarity = json_data["results"][0]["header"]["similarity"]
     try:
-        pic_url = "\n".join(json_data["results"][0]["data"]["ext_urls"][0])
+        pic_url = "\n" + "\n".join(json_data["results"][0]["data"]["ext_urls"])
     except KeyError:
         pic_url = "None"
     if "pixiv_id" not in json_data["results"][0]["data"]:

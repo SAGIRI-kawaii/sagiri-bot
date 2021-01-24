@@ -664,10 +664,10 @@ async def group_allow_member_invite_changed(app: GraiaMiraiApplication, event: G
 
 
 @bcc.receiver("MemberCardChangeEvent")
-async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChangeEvent):
+async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChangeEvent, group: Group):
     try:
         await app.sendGroupMessage(
-            event.group, MessageChain.create([
+            group, MessageChain.create([
                 Plain(text=f"啊嘞嘞？{event.member.name}的群名片被{event.operator.name}从{event.origin}改为{event.current}了呢！")
             ])
         )

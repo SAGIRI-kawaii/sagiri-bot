@@ -38,11 +38,11 @@ async def get_chat_reply(group_id: int, sender: int, text: str):
         return "@纱雾干什么呐~是想找纱雾玩嘛~"
     url = "https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat"
     temp_list = re.findall(r"@(.*?) ", text, re.S)
-    # print(text, temp_list)
-    if temp_list is not None:
+    if temp_list:
         text = text.replace(f"@{temp_list[0]} ", "")
-    print("question:", text)
     text = text.strip()
+    print("question:", text)
+    print(text, temp_list)
     app_id = await get_config("txAppId")
     t = time.time()
     time_stamp = str(int(t))

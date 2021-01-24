@@ -50,6 +50,12 @@ class GlobalFrequencyLimitDict:
         else:
             pass
 
+    def add_group(self, group_id: int):
+        if group_id in self.frequency_limit_dict:
+            print(f"{group_id} is already in frequency limit module!")
+        else:
+            self.frequency_limit_dict[group_id] = 0
+
 
 def frequency_limit(frequency_limit_instance: GlobalFrequencyLimitDict) -> None:
     """
