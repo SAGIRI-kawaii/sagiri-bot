@@ -431,6 +431,7 @@ CREATE TABLE `setting` (
   `imgLightning` tinyint(1) NOT NULL DEFAULT '0',
   `debug` tinyint(1) NOT NULL DEFAULT '0',
   `compile` tinyint(1) NOT NULL DEFAULT '0',
+  `antiRevoke` tinyint(1) DEFAULT '0',
   `longTextType` varchar(4) NOT NULL DEFAULT 'text',
   `listen` tinyint(1) NOT NULL DEFAULT '0',
   `tribute` tinyint(1) NOT NULL DEFAULT '0',
@@ -570,4 +571,4 @@ CREATE TABLE `yellowpredictready` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-21 23:35:54
+-- Dump completed on 2021-01-29  1:27:07
