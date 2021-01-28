@@ -1,5 +1,6 @@
 import aiohttp
 from bs4 import BeautifulSoup
+from urllib import parse
 import re
 
 from graia.application.message.elements.internal import Plain
@@ -163,8 +164,10 @@ async def search_magnet(keyword: str, group_id: int, audio: bool = False, video:
 
     text = "--------------------\n搜索到结果：\n"
     for data in records:
+        # print(parse.unquote(''.join(data['magnet'].split('&')[:2])))
+        # print(data['magnet'])
         text += f"标题：{data['title']}\n"
-        text += f"磁力：{data['magnet']}\n"
+        text += f"磁力：{parse.unquote('&'.join(data['magnet'].split('&')[:2]))}\n"
         text += "--------------------\n"
 
     long_text_setting = await get_setting(group_id, "longTextType")

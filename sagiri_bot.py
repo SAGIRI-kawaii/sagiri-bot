@@ -724,16 +724,26 @@ async def bot_invited_join_group(app: GraiaMiraiApplication, event: BotInvitedJo
         )
 
 
-# @bcc.receiver("GroupRecallEvent")
-# async def anti_revoke(app: GraiaMiraiApplication, event: GroupRecallEvent):
-#     print("revoke!")
-#     try:
-#         await app.sendGroupMessage(
-#             event.group,
-#             await app.messageFromId(event.messageId).messagechain
-#         )
-#     except AccountMuted:
-#         pass
+@bcc.receiver("GroupRecallEvent")
+async def anti_revoke(app: GraiaMiraiApplication, event: GroupRecallEvent):
+    if await get_setting(event.group.id, "antiRevoke") and event.authorId != await get_config("BotQQ"):
+        try:
+            msg = await app.messageFromId(event.messageId)
+            revoked_msg = msg.messageChain
+            print(event.authorId)
+            author_member = await app.getMember(event.group.id, event.authorId)
+            author_name = "自己" if event.operator.id == event.authorId else author_member.name
+            resended_msg = MessageChain.join(
+                MessageChain.create([Plain(text=f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦：\n\n")]),
+                revoked_msg
+            )
+            print(msg)
+            await app.sendGroupMessage(
+                event.group,
+                resended_msg.asSendable()
+            )
+        except (AccountMuted, UnknownTarget):
+            pass
 
 
 app.launch_blocking()
