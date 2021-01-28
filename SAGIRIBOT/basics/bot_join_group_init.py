@@ -1,5 +1,6 @@
 from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
 from SAGIRIBOT.basics.get_config import get_config
+from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
 
 
 async def bot_join_group_init(group_id: int, group_name: str) -> None:

@@ -61,6 +61,7 @@ from SAGIRIBOT.crawer.douban.get_book_recommand_by_tag import get_book_recommand
 from SAGIRIBOT.basics.keyword_reply import keyword_reply
 from SAGIRIBOT.crawer.runoob.network_compile import network_compile
 from SAGIRIBOT.bot_status.get_user_info import get_user_info
+from SAGIRIBOT.bot_status.get_system_status import get_system_status
 
 # 关键词字典
 response_set = get_response_set()
@@ -148,7 +149,7 @@ async def group_message_process(
                     ])
                 ]
         elif message_text == "/status":
-            pass
+            return await get_system_status()
         else:
             return [
                 "quoteSource",

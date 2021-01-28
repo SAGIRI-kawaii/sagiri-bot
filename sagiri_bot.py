@@ -347,12 +347,20 @@ async def group_message_listener(
         try:
             message_send = await group_message_process(message, message_info, app, frequency_limit_dict)
         except Exception as e:
-            message_send = [
-                "quoteSource",
-                MessageChain.create([
-                    Plain(text=str(e))
-                ])
-            ]
+            if await get_setting(group.id, "debug"):
+                message_send = [
+                    "quoteSource",
+                    MessageChain.create([
+                        Plain(text=str(e))
+                    ])
+                ]
+            else:
+                message_send = [
+                    "quoteSource",
+                    MessageChain.create([
+                        Plain(text="出错了呐~呜呜呜")
+                    ])
+                ]
     elif switch == "offline" and message_info.sender.id != await get_config("HostQQ"):
         message_send = ["None"]
     elif message_info.sender.id == await get_config("HostQQ"):
