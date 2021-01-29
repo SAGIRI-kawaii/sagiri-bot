@@ -1,3 +1,5 @@
+# -*- encoding=utf-8 -*-
+
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,10 +27,17 @@ async def count_words(sp, n):
 
 
 async def draw_word_cloud(read_name):
-    image = IMG.open('./statics/back.jpg')
-    mask = np.array(image)
-    wc = WordCloud(font_path='./statics/simsun.ttc', background_color='White', max_words=500, width=1280, height=720, mask=mask)
-    # , mask=mask
+    mask = np.array(IMG.open('./statics/back.jpg'))
+    print(mask.shape)
+    wc = WordCloud(
+        font_path='./statics/simsun.ttc',
+        background_color='white',
+        # max_words=500,
+        max_font_size=100,
+        width=1920,
+        height=1080,
+        mask=mask
+    )
     name = []
     value = []
     for t in read_name:
@@ -39,10 +48,13 @@ async def draw_word_cloud(read_name):
         # name[i] = name[i].encode('gb2312').decode('gb2312')
     dic = dict(zip(name, value))
     print(dic)
-
+    print(len(dic.keys()))
     wc.generate_from_frequencies(dic)
-    # image_color = ImageColorGenerator(mask)
-    plt.imshow(wc)
+    image_colors = ImageColorGenerator(mask, default_color=(255, 255, 255))
+    print(image_colors.image.shape)
+    wc.recolor(color_func=image_colors)
+    plt.imshow(wc.recolor(color_func=image_colors), interpolation="bilinear")
+    # plt.imshow(wc)
     plt.axis("off")
     # plt.show()
     wc.to_file('./statics/temp/tempWordCloud.png')
@@ -51,7 +63,6 @@ async def draw_word_cloud(read_name):
 async def get_personal_review(group_id: int, member_id: int, review_type: str) -> list:
     time = datetime.datetime.now()
     year, month, day, hour, minute, second = time.strftime("%Y %m %d %H %M %S").split(" ")
-    tag = ""
     if review_type == "year":
         yearp, monthp, dayp, hourp, minutep, secondp = (time - relativedelta(years=1)).strftime("%Y %m %d %H %M %S").split(" ")
         tag = "年内"
@@ -79,7 +90,7 @@ async def get_personal_review(group_id: int, member_id: int, review_type: str) -
         else:
             texts.append(i[3])
     print(texts)
-    top_n = await count_words(texts, 500)
+    top_n = await count_words(texts, 20000)
     await draw_word_cloud(top_n)
     sql = f"""SELECT count(*) FROM chatRecord 
                     WHERE 
@@ -131,7 +142,7 @@ async def get_group_review(group_id: int, member_id: int, review_type: str) -> l
             if i[3]:
                 texts.append(i[3])
     print(texts)
-    top_n = await count_words(texts, 500)
+    top_n = await count_words(texts, 20000)
     await draw_word_cloud(top_n)
     sql = f"""SELECT count(*) FROM chatRecord 
                         WHERE 
@@ -150,3 +161,7 @@ async def get_group_review(group_id: int, member_id: int, review_type: str) -> l
             Image.fromLocalFile("./statics/temp/tempWordCloud.png")
         ])
     ]
+
+
+if __name__ == "__main__":
+    test(dic)
