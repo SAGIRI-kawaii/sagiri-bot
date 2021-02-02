@@ -159,6 +159,7 @@ Bot init end
 - [ ] 添加词云自定义蒙版（词云形状）
 - [ ] 修改优化代码结构（估计得等下个世纪了/或者会把所有功能改为插件移植到 [SagiriGraiaPlatform](https://github.com/SAGIRI-kawaii/SagiriGraiaPlatform) 上）
 - [ ] 移除图片报时功能
+- [ ] 添加GAL搜索功能
 - [ ] 添加启动提示功能
 - [ ] 添加pixiv标签搜图功能
 - [ ] 将一些自带数据整合为sql文件并上传
