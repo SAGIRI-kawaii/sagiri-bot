@@ -18,7 +18,7 @@ New version of sagiri-bot based on Mirai and Graia
       - [config.json](#configjson)
       - [response_set.json](#response-setjson)
   * [注意](#注意)
-  * [鸽子宣言](#鸽子宣言)
+  * [TODO](#TODO)
 
 ## 使用文档
 
@@ -151,5 +151,19 @@ Bot init end
 - 特别注意：机器人中有许多功能使用的是我自己的API，可能会随时修改或关闭，请及时寻找替代用API，因API改动造成的程序错误概不负责
 ````
 
-## 鸽子宣言
-剩下的过两天再写.jpg
+## TODO
+- [ ] 支持发送语音
+- [ ] 修复错误重发队列可能会丢失任务的bug
+- [ ] 添加XML大图功能（正在测试中）
+- [ ] 将种子搜索功能更换一个更可靠的网站
+- [ ] 添加词云自定义蒙版（词云形状）
+- [ ] 修改优化代码结构（估计得等下个世纪了/或者会把所有功能改为插件移植到 [SagiriGraiaPlatform](https://github.com/SAGIRI-kawaii/SagiriGraiaPlatform) 上）
+- [ ] 移除图片报时功能
+- [ ] 添加启动提示功能
+- [ ] 添加pixiv标签搜图功能
+- [ ] 将一些自带数据整合为sql文件并上传
+- [ ] 删除群语录功能，QQ已有群精华消息功能作为替代品
+- [ ] 广告识别功能（自动禁言、撤回、移除）
+- [ ] 敏感词检测功能（自动警告、禁言、撤回、移除）
+- [ ] 添加 悲报/喜报 图片生成功能
+- [ ] 完善文档
