@@ -65,6 +65,7 @@ from SAGIRIBOT.bot_status.get_system_status import get_system_status
 from SAGIRIBOT.functions.get_review import daily_chat_rank
 from SAGIRIBOT.functions.get_xml_image import get_xml_setu
 from SAGIRIBOT.functions.get_review import set_personal_wordcloud_mask
+from SAGIRIBOT.functions.achievement_system import *
 
 # 关键词字典
 response_set = get_response_set()
@@ -121,7 +122,9 @@ async def group_message_process(
 
     await write_chat_record(seg, group_id, sender, message_text)
 
-    # print("message_serialization:", message_serialization)
+    if achievement_list := await chat_achievement_check(group_id, sender):
+        if await get_setting(group_id, "achievement"):
+            await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
 
     if message.has(At) and message.get(At)[0].target == await get_config("BotQQ"):
         await update_user_called_data(group_id, sender, "at", 1)
@@ -193,6 +196,10 @@ async def group_message_process(
             await update_user_called_data(group_id, sender, "setu", 1)
             await update_total_calls_once("response")
             await update_total_calls_once("setu")
+
+            if achievement_list := await setu_achievement_check(group_id, sender, app):
+                await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
+
             if await get_setting(group_id, "r18"):
                 return await get_pic("setu18", group_id, sender)
             else:
@@ -229,12 +236,14 @@ async def group_message_process(
                         Plain(text="此功能暂时还不支持搜索R18涩图呐~忍忍吧LSP！")
                     ])
                 ]
-            # await app.sendGroupMessage(
-
             await update_dragon_data(group_id, sender, "normal")
             await update_user_called_data(group_id, sender, "setu", 1)
             await update_total_calls_once("response")
             await update_total_calls_once("setu")
+
+            if achievement_list := await setu_achievement_check(group_id, sender, app):
+                await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
+
             return await get_setu_keyword(keyword=keyword)
         else:
             return [
@@ -263,6 +272,10 @@ async def group_message_process(
             await update_user_called_data(group_id, sender, "setu", 1)
             await update_total_calls_once("response")
             await update_total_calls_once("setu")
+
+            if achievement_list := await setu_achievement_check(group_id, sender, app):
+                await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
+
             return await get_xml_setu(message_text[4:], app)
         else:
             return [
@@ -291,6 +304,10 @@ async def group_message_process(
             await update_user_called_data(group_id, sender, "real", 1)
             await update_total_calls_once("response")
             await update_total_calls_once("real")
+
+            if achievement_list := await setu_achievement_check(group_id, sender, app):
+                await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
+
             return await get_pic("real", group_id, sender)
         else:
             return [
@@ -319,6 +336,10 @@ async def group_message_process(
             await update_user_called_data(group_id, sender, "real", 1)
             await update_total_calls_once("response")
             await update_total_calls_once("real")
+
+            if achievement_list := await setu_achievement_check(group_id, sender, app):
+                await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
+
             return await get_pic("realHighq", group_id, sender)
         else:
             return [
@@ -419,15 +440,15 @@ async def group_message_process(
     #     await update_total_calls_once("response")
     #     return await get_wallpaper_time(group_id, sender)
 
-    elif message_text.startswith("选择表盘"):
-        await update_total_calls_once("response")
-        if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
-            if frequency_limit_res:
-                return frequency_limit_res
-
-        if message_text == "选择表盘":
-            return await show_clock_wallpaper(sender)
+    # elif message_text.startswith("选择表盘"):
+    #     await update_total_calls_once("response")
+    #     if await get_setting(group_id, "countLimit"):
+    #         frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+    #         if frequency_limit_res:
+    #             return frequency_limit_res
+    #
+    #     if message_text == "选择表盘":
+    #         return await show_clock_wallpaper(sender)
 
     elif message_text == "搜图":
         await update_total_calls_once("response")
@@ -819,29 +840,29 @@ async def group_message_process(
             await write_log("joke", "none", sender, group_id, True, "function")
             return msg
 
-    if message_text == "群语录":
-        await update_total_calls_once("response")
-        return await get_group_quotes(group_id, app, "None", "random", "None")
-    elif re.search("来点.*语录", message_text):
-        await update_total_calls_once("response")
-        name = re.findall(r'来点(.*?)语录', message_text, re.S)[0]
-        at_obj = message.get(At)
-        if name == [] and at_obj == []:
-            return ["None"]
-        elif at_obj:
-            at_str = at_obj[0].asSerializationString()
-            member_id = re.findall(r'\[mirai:at:(.*?),@.*?\]', at_str, re.S)[0]
-            await write_log("quotes", "None", sender, group_id, True, "function")
-            if message_text[-4:] == ".all":
-                return await get_group_quotes(group_id, app, member_id, "all", "memberId")
-            else:
-                return await get_group_quotes(group_id, app, member_id, "select", "memberId")
-        elif name:
-            await write_log("quotes", "None", sender, group_id, True, "function")
-            if message_text[-4:] == ".all":
-                return await get_group_quotes(group_id, app, name, "all", "nickname")
-            else:
-                return await get_group_quotes(group_id, app, name, "select", "nickname")
+    # if message_text == "群语录":
+    #     await update_total_calls_once("response")
+    #     return await get_group_quotes(group_id, app, "None", "random", "None")
+    # elif re.search("来点.*语录", message_text):
+    #     await update_total_calls_once("response")
+    #     name = re.findall(r'来点(.*?)语录', message_text, re.S)[0]
+    #     at_obj = message.get(At)
+    #     if name == [] and at_obj == []:
+    #         return ["None"]
+    #     elif at_obj:
+    #         at_str = at_obj[0].asSerializationString()
+    #         member_id = re.findall(r'\[mirai:at:(.*?),@.*?\]', at_str, re.S)[0]
+    #         await write_log("quotes", "None", sender, group_id, True, "function")
+    #         if message_text[-4:] == ".all":
+    #             return await get_group_quotes(group_id, app, member_id, "all", "memberId")
+    #         else:
+    #             return await get_group_quotes(group_id, app, member_id, "select", "memberId")
+    #     elif name:
+    #         await write_log("quotes", "None", sender, group_id, True, "function")
+    #         if message_text[-4:] == ".all":
+    #             return await get_group_quotes(group_id, app, name, "all", "nickname")
+    #         else:
+    #             return await get_group_quotes(group_id, app, name, "select", "nickname")
 
     if message_text == "平安":
 
