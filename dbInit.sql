@@ -16,6 +16,23 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `achievement`
+--
+
+DROP TABLE IF EXISTS `achievement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `achievement` (
+  `groupId` bigint NOT NULL,
+  `memberId` bigint NOT NULL,
+  `setu` int DEFAULT '0',
+  `lspDragon` int DEFAULT '0',
+  `chat` int DEFAULT '0',
+  PRIMARY KEY (`groupId`,`memberId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `admin`
 --
 
@@ -432,6 +449,7 @@ CREATE TABLE `setting` (
   `debug` tinyint(1) NOT NULL DEFAULT '0',
   `compile` tinyint(1) NOT NULL DEFAULT '0',
   `antiRevoke` tinyint(1) DEFAULT '0',
+  `achievement` tinyint(1) DEFAULT '0',
   `longTextType` varchar(4) NOT NULL DEFAULT 'text',
   `listen` tinyint(1) NOT NULL DEFAULT '0',
   `tribute` tinyint(1) NOT NULL DEFAULT '0',
@@ -571,4 +589,4 @@ CREATE TABLE `yellowpredictready` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-29  1:27:07
+-- Dump completed on 2021-02-05 23:11:18
