@@ -1,17 +1,36 @@
 # -*- encoding=utf-8 -*-
-
+import aiohttp
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
-from PIL import Image as IMG
+import os
 from wordcloud import WordCloud, ImageColorGenerator
 from dateutil.relativedelta import relativedelta
+from PIL import Image as IMG
+from io import BytesIO
 
+from graia.application import GraiaMiraiApplication
 from graia.application.message.elements.internal import MessageChain
 from graia.application.message.elements.internal import Plain
 from graia.application.message.elements.internal import Image
 
 from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
+
+
+async def set_personal_wordcloud_mask(group_id: int, member_id: int, mask: Image) -> list:
+    img_url = mask.url
+    path = f"./statics/wordCloud/PersonalCustomizationMask/{group_id}_{member_id}.jpg"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=img_url) as resp:
+            img_content = await resp.read()
+    image = IMG.open(BytesIO(img_content))
+    image.save(path)
+    return [
+        "quoteSource",
+        MessageChain.create([
+            Plain(text="添加成功！")
+        ])
+    ]
 
 
 async def count_words(sp, n):
@@ -26,8 +45,8 @@ async def count_words(sp, n):
     return top_n
 
 
-async def draw_word_cloud(read_name):
-    mask = np.array(IMG.open('./statics/back.jpg'))
+async def draw_word_cloud(read_name, maskpath: str = "./statics/wordCloud/back.jpg"):
+    mask = np.array(IMG.open(maskpath))
     print(mask.shape)
     wc = WordCloud(
         font_path='./statics/simsun.ttc',
@@ -61,6 +80,7 @@ async def draw_word_cloud(read_name):
 
 
 async def get_personal_review(group_id: int, member_id: int, review_type: str) -> list:
+    mask_path = f"./statics/wordCloud/PersonalCustomizationMask/{group_id}_{member_id}.jpg"
     time = datetime.datetime.now()
     year, month, day, hour, minute, second = time.strftime("%Y %m %d %H %M %S").split(" ")
     if review_type == "year":
@@ -91,7 +111,10 @@ async def get_personal_review(group_id: int, member_id: int, review_type: str) -
             texts.append(i[3])
     print(texts)
     top_n = await count_words(texts, 20000)
-    await draw_word_cloud(top_n)
+    if os.path.exists(mask_path):
+        await draw_word_cloud(top_n, mask_path)
+    else:
+        await draw_word_cloud(top_n)
     sql = f"""SELECT count(*) FROM chatRecord 
                     WHERE 
                 groupId={group_id} AND memberId={member_id} AND time<'{year}-{month}-{day} {hour}:{minute}:{second}'
@@ -163,5 +186,38 @@ async def get_group_review(group_id: int, member_id: int, review_type: str) -> l
     ]
 
 
-if __name__ == "__main__":
-    test(dic)
+async def daily_chat_rank(group_id: int, app: GraiaMiraiApplication) -> list:
+    time = datetime.datetime.now()
+    year, month, day = time.strftime("%Y %m %d").split(" ")
+    sql = f"""SELECT memberId, count(memberId) FROM chatRecord 
+                        WHERE 
+                    groupId={group_id} AND time>='{year}-{month}-{day} 00:00:00' AND memberId!=80000000
+                        GROUP BY memberId ORDER BY count(memberId) desc"""
+    # print(sql)
+    res = await execute_sql(sql)
+    res = res[:10]
+    # print(res)
+    plt.rcdefaults()
+    plt.rcParams['font.sans-serif'] = ['SimHei']
+    plt.rcParams['axes.unicode_minus'] = False
+    name = []
+    for data in res:
+        if member := await app.getMember(group_id, data[0]):
+            name.append(member.name)
+        else:
+            name.append("NameNullError!")
+    # name = [(await app.getMember(group_id, member[0])).name for member in res]
+    count = [data[1] for data in res]
+    print(name)
+    print(count)
+    plt.barh(range(len(count)), count, tick_label=name)
+    plt.title(f"群{(await app.getGroup(group_id)).name}今日发言前十（截至目前）")
+    plt.tight_layout()
+    plt.savefig("./statics/temp/tempDailyChatRank.jpg")
+    plt.close()
+    return [
+        "None",
+        MessageChain.create([
+            Image.fromLocalFile("./statics/temp/tempDailyChatRank.jpg")
+        ])
+    ]

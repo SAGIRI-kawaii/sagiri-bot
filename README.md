@@ -42,7 +42,6 @@ New version of sagiri-bot based on Mirai and Graia
 - 下载 [mirai-console](https://github.com/mamoe/mirai-console) 并配置 [mirai-api-http](https://github.com/project-mirai/mirai-api-http) ，这些都可以在 [mirai](https://github.com/mamoe/mirai) 项目中找到
 - 若上一条不会配置，请考虑使用 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader) 加载器进行配置
 - 打开 `configdemo.json`，配置好个人信息，并将文件更名为 `config.json`，配置说明见[config文件参数说明](#configjson)
-- 额外要做的一件事：请将 `graia.application.message.elements.internal` 中 `Image` 类的 `asDisplay()` 方法返回值改为 `f"[mirai:image:{self.imageId}]"`
 - ~~最重要的当然是准备好各种图片~~
 
 ### 如何启动
@@ -154,11 +153,12 @@ Bot init end
 ## TODO
 - [ ] 支持发送语音
 - [ ] 修复错误重发队列可能会丢失任务的bug
-- [ ] 添加XML大图功能（正在测试中）
+- [x] 修改复读代码使其不用修改源码（只是懒
+- [x] 添加XML大图功能（正在测试中）
 - [ ] 将种子搜索功能更换一个更可靠的网站
-- [ ] 添加词云自定义蒙版（词云形状）
+- [x] 添加词云自定义蒙版（词云形状）
 - [ ] 修改优化代码结构（估计得等下个世纪了/或者会把所有功能改为插件移植到 [SagiriGraiaPlatform](https://github.com/SAGIRI-kawaii/SagiriGraiaPlatform) 上）
-- [ ] 移除图片报时功能
+- [x] 移除图片报时功能
 - [ ] 添加GAL搜索功能
 - [ ] 添加启动提示功能
 - [ ] 添加pixiv标签搜图功能
@@ -168,4 +168,5 @@ Bot init end
 - [ ] 敏感词检测功能（自动警告、禁言、撤回、移除）
 - [ ] 添加 悲报/喜报 图片生成功能
 - [ ] 添加错误日志记录功能
+- [ ] 成就系统
 - [ ] 完善文档

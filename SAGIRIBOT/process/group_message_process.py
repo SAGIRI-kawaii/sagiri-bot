@@ -62,6 +62,9 @@ from SAGIRIBOT.basics.keyword_reply import keyword_reply
 from SAGIRIBOT.crawer.runoob.network_compile import network_compile
 from SAGIRIBOT.bot_status.get_user_info import get_user_info
 from SAGIRIBOT.bot_status.get_system_status import get_system_status
+from SAGIRIBOT.functions.get_review import daily_chat_rank
+from SAGIRIBOT.functions.get_xml_image import get_xml_setu
+from SAGIRIBOT.functions.get_review import set_personal_wordcloud_mask
 
 # 关键词字典
 response_set = get_response_set()
@@ -241,6 +244,34 @@ async def group_message_process(
                 ])
             ]
 
+    if message_text.lower().startswith("xml "):
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 6)
+            if frequency_limit_res:
+                return frequency_limit_res
+
+        if await get_setting(group_id, "setu"):
+            if sender == 80000000:
+                return [
+                    "None",
+                    MessageChain.create([
+                        Plain(text="要涩图就光明正大！匿名算什么好汉！")
+                    ])
+                ]
+            await update_dragon_data(group_id, sender, "normal")
+            await update_user_called_data(group_id, sender, "setu", 1)
+            await update_total_calls_once("response")
+            await update_total_calls_once("setu")
+            return await get_xml_setu(message_text[4:], app)
+        else:
+            return [
+                "None",
+                MessageChain.create([
+                    Plain(text="我们是正规群呐，不搞那一套哦，想看去辣种群看哟~")
+                ])
+            ]
+
     elif message_text in response_set["real"]:
 
         if await get_setting(group_id, "countLimit"):
@@ -384,9 +415,9 @@ async def group_message_process(
                 ])
             ]
 
-    elif message_text == "几点了":
-        await update_total_calls_once("response")
-        return await get_wallpaper_time(group_id, sender)
+    # elif message_text == "几点了":
+    #     await update_total_calls_once("response")
+    #     return await get_wallpaper_time(group_id, sender)
 
     elif message_text.startswith("选择表盘"):
         await update_total_calls_once("response")
@@ -923,6 +954,11 @@ async def group_message_process(
                 ])
             ]
 
+    if "设置总结模板" in message_text and message.get(Image):
+        mask = message.get(Image)[0]
+        await update_total_calls_once("response")
+        return await set_personal_wordcloud_mask(group_id, sender, mask)
+
     if message_text == "我的年内总结":
         await update_total_calls_once("response")
         if await get_setting(group_id, "countLimit"):
@@ -1034,6 +1070,9 @@ async def group_message_process(
                     Plain(text="请输入要转为二维🐎的内容！")
                 ])
             ]
+
+    if message_text == "今日发言图表":
+        return await daily_chat_rank(group_id, app)
 
     if re.search(r"super .*?:[\r\n]", message_text) and message_text.startswith("super "):
         if await get_setting(group_id, "compile"):

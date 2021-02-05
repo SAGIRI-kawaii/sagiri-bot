@@ -6,6 +6,7 @@ import threading
 import json
 from aiohttp.client_exceptions import ClientResponseError
 import traceback
+import re
 import time
 
 from graia.broadcast import Broadcast
@@ -38,6 +39,7 @@ from SAGIRIBOT.basics.exception_resender import exception_resender_listener
 from SAGIRIBOT.functions.get_xml_image import get_xml_setu
 from SAGIRIBOT.functions.get_group_announcement import get_group_announcement
 from SAGIRIBOT.crawer.douban.get_new_books import get_douban_new_books
+from SAGIRIBOT.functions.get_review import daily_chat_rank
 
 
 loop = asyncio.get_event_loop()
@@ -247,10 +249,15 @@ async def group_message_listener(
 
     print("接收到组%s中来自%s的消息:%s" % (group.name, message_info.sender.name, message.asDisplay()))
 
+    message_serialization = message.asSerializationString()
+    message_serialization = message_serialization.replace(
+        "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message_serialization, re.S)[0] + "]",
+        ""
+    )
     # 复读
     # lock.acquire()
     group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
-    group_repeat[group.id]["thisMsg"] = message.asDisplay()
+    group_repeat[group.id]["thisMsg"] = message_serialization
     # print(group_repeat[group.id])
     if group_repeat[group.id]["lastMsg"] != group_repeat[group.id]["thisMsg"]:
         group_repeat[group.id]["stopMsg"] = ""
@@ -269,7 +276,7 @@ async def group_message_listener(
         await app.sendGroupMessage(group, message.create([Plain(text="切换成功！")]))
         os.system("%s \"%s\"" % (await get_config("environment"), await get_config("oldVersion")))
 
-    if message.asDisplay() == "restart bot" and message_info.sender.id == await get_config("HostQQ"):
+    if message.asDisplay() == "bot restart" and message_info.sender.id == await get_config("HostQQ"):
         await app.sendGroupMessage(group, message.create([Plain(text="即将重启机器人...")]))
         await app.sendGroupMessage(group, message.create([Plain(text="重启成功！")]))
         os.system("%s \"%s\"" % (await get_config("environment"), await get_config("newVersion")))
@@ -283,7 +290,7 @@ async def group_message_listener(
         os.system("shutdown -s")
 
     if message.asDisplay() == "test" and message_info.sender.id == await get_config("HostQQ"):
-        msg = await get_xml_setu("fs")
+        msg = await daily_chat_rank(group.id, app)
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
         # msg = await get_time()
@@ -336,11 +343,6 @@ async def group_message_listener(
                 await app.sendGroupMessage(group, MessageChain.create([Plain(text=str(result))]))
         else:
             await app.sendGroupMessage(group, MessageChain.create([Plain(text=str(result))]))
-
-    # task = asyncio.create_task(group_message_sender(message_info, message, group, app))
-    # tasks.append(task)
-    # await asyncio.wait([task], timeout=5)
-    # done, pending = await asyncio.wait(tasks, timeout=120)
 
     switch = await get_setting(group.id, "switch")
     if switch == "online":
