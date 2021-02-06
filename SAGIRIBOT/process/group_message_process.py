@@ -197,7 +197,7 @@ async def group_message_process(
             await update_total_calls_once("response")
             await update_total_calls_once("setu")
 
-            if achievement_list := await setu_achievement_check(group_id, sender, app):
+            if achievement_list := await setu_achievement_check(group_id, sender):
                 await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
 
             if await get_setting(group_id, "r18"):
@@ -232,7 +232,7 @@ async def group_message_process(
             await update_total_calls_once("response")
             await update_total_calls_once("setu")
 
-            if achievement_list := await setu_achievement_check(group_id, sender, app):
+            if achievement_list := await setu_achievement_check(group_id, sender):
                 await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
 
             return await get_pic("sketch", group_id, sender)
@@ -273,7 +273,7 @@ async def group_message_process(
             await update_total_calls_once("response")
             await update_total_calls_once("setu")
 
-            if achievement_list := await setu_achievement_check(group_id, sender, app):
+            if achievement_list := await setu_achievement_check(group_id, sender):
                 await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
 
             return await get_setu_keyword(keyword=keyword)
@@ -305,7 +305,7 @@ async def group_message_process(
             await update_total_calls_once("response")
             await update_total_calls_once("setu")
 
-            if achievement_list := await setu_achievement_check(group_id, sender, app):
+            if achievement_list := await setu_achievement_check(group_id, sender):
                 await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
 
             return await get_xml_setu(message_text[4:], app)
@@ -337,7 +337,7 @@ async def group_message_process(
             await update_total_calls_once("response")
             await update_total_calls_once("real")
 
-            if achievement_list := await setu_achievement_check(group_id, sender, app):
+            if achievement_list := await setu_achievement_check(group_id, sender):
                 await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
 
             return await get_pic("real", group_id, sender)
@@ -369,7 +369,7 @@ async def group_message_process(
             await update_total_calls_once("response")
             await update_total_calls_once("real")
 
-            if achievement_list := await setu_achievement_check(group_id, sender, app):
+            if achievement_list := await setu_achievement_check(group_id, sender):
                 await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
 
             return await get_pic("realHighq", group_id, sender)
