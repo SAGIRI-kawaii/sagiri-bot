@@ -57,12 +57,18 @@ async def get_pic(image_type: str, group_id: int, sender: int) -> list:
         pic_path = await random_pic(base_path)
         return pic_path
 
+    async def sketch() -> str:
+        base_path = await get_config("sketchPath")
+        pic_path = await random_pic(base_path)
+        return pic_path
+
     switch = {
         "setu": await color(),
         "setu18": await color18(),
         "real": await real(),
         "realHighq": await real_highq(),
-        "bizhi": await wallpaper()
+        "bizhi": await wallpaper(),
+        "sketch": await sketch()
     }
 
     target_pic_path = switch[image_type]

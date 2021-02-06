@@ -212,6 +212,38 @@ async def group_message_process(
                 ])
             ]
 
+    elif message_text == "线稿":
+
+        if await get_setting(group_id, "countLimit"):
+            frequency_limit_res = await limit_exceeded_judge(group_id, 1)
+            if frequency_limit_res:
+                return frequency_limit_res
+
+        if await get_setting(group_id, "setu"):
+            if sender == 80000000:
+                return [
+                    "None",
+                    MessageChain.create([
+                        Plain(text="要涩图就光明正大！匿名算什么好汉！")
+                    ])
+                ]
+            await update_dragon_data(group_id, sender, "normal")
+            await update_user_called_data(group_id, sender, "setu", 1)
+            await update_total_calls_once("response")
+            await update_total_calls_once("setu")
+
+            if achievement_list := await setu_achievement_check(group_id, sender, app):
+                await app.sendGroupMessage(group_id, MessageChain.create(achievement_list))
+
+            return await get_pic("sketch", group_id, sender)
+        else:
+            return [
+                "None",
+                MessageChain.create([
+                    Plain(text="我们是正规群呐，不搞那一套哦，想看去辣种群看哟~")
+                ])
+            ]
+
     elif message_text.startswith("来点") and re.search("来点.*[色涩]图", message_text):
 
         if await get_setting(group_id, "countLimit"):
@@ -791,7 +823,6 @@ async def group_message_process(
         return await get_song_ordered(message_text[3:])
 
     if message_text == "help" or message_text == "!help" or message_text == "/help" or message_text == "！help":
-
         await update_total_calls_once("response")
 
         return [
@@ -974,6 +1005,9 @@ async def group_message_process(
                     Plain(text="请输入关键词！")
                 ])
             ]
+
+    if message_text == "我的成就":
+        return await get_personal_achievement(group_id, sender)
 
     if "设置总结模板" in message_text and message.get(Image):
         mask = message.get(Image)[0]

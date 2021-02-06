@@ -14,6 +14,7 @@
 | 图片鉴黄 | 是否开放图片鉴黄功能  | yellowPredict  | Enable/Disable |   |
 | 番剧名搜索 | 是否开放番剧名搜索功能 | searchBangumi  | Enable/Disable |   |
 | debug | 显示每个请求所执行的时间（从收到消息到发送） | debug | Enable/Disable |  |
+| 成就系统 | 决定bot是否发布新成就达成消息通知 | achievement | Enable/Disable |  |
 | 网络编译器 | 菜鸟教程网络编译器开关 | compile | Enable/Disable |  |
 | 长文本形式 | 控制长文本是以图片还是文字方式发出 | longTextType | img/text | 长文本发送过多可能会被tx风控 |
 | R-18处理方式 | 对发送的R-18图片做撤回/闪照处理 | r18Process  | revoke/flashImage | 仅在r18选项开启时起作用，后期可能会加入不作处理选项 |
