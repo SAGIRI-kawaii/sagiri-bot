@@ -172,3 +172,11 @@ Bot init end
 - [ ] 添加错误日志记录功能
 - [ ] 成就系统
 - [ ] 完善文档
+
+## 鸣谢
+- [mirai](https://github.com/mamoe/mirai) ，高效率 QQ 机器人框架 / High-performance bot framework for Tencent QQ
+
+- [mirai-api-http](https://github.com/project-mirai/mirai-api-http) ，Mirai HTTP API (console) plugin
+
+- [Graia Appliation](https://github.com/GraiaProject/Application) ，一个设计精巧, 协议实现完备的, 基于 mirai-api-http 的即时聊天软件自动化框架.
+
