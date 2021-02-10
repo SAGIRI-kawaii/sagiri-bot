@@ -1038,7 +1038,7 @@ async def group_message_process(
     if message_text == "我的月内总结":
         await update_total_calls_once("response")
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 16)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6)
             if frequency_limit_res:
                 return frequency_limit_res
 
