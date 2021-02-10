@@ -59,3 +59,4 @@ async def object_predict_vgg16(group_id: int, member_id: int, img: Image):
         "quoteSource",
         MessageChain.create(msg)
     ]
+

@@ -40,6 +40,8 @@ from SAGIRIBOT.functions.get_xml_image import get_xml_setu
 from SAGIRIBOT.functions.get_group_announcement import get_group_announcement
 from SAGIRIBOT.crawer.douban.get_new_books import get_douban_new_books
 from SAGIRIBOT.functions.get_review import daily_chat_rank
+# from SAGIRIBOT.high_performances.porn_identification import porn_identification
+# from SAGIRIBOT.basics.tools import save_img
 
 
 loop = asyncio.get_event_loop()
@@ -47,9 +49,12 @@ loop = asyncio.get_event_loop()
 bcc = Broadcast(loop=loop)
 sche = GraiaScheduler(loop=loop, broadcast=bcc)
 
-
 with open('config.json', 'r', encoding='utf-8') as f:  # 从json读配置
     configs = json.loads(f.read())
+
+if configs["highPerformance"]:
+    from SAGIRIBOT.high_performances.porn_identification import porn_identification
+    from SAGIRIBOT.basics.tools import save_img
 
 app = GraiaMiraiApplication(
     broadcast=bcc,
@@ -254,6 +259,7 @@ async def group_message_listener(
         "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message_serialization, re.S)[0] + "]",
         ""
     )
+    # print(message_serialization)
     # 复读
     # lock.acquire()
     group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
@@ -295,6 +301,8 @@ async def group_message_listener(
     if message.asDisplay() == "test1" and message_info.sender.id == await get_config("HostQQ"):
         # msg = await get_time()
         # msg = await get_group_announcement("测试")\
+        # path = await save_img(message.get(Image)[0])
+        # msg = await porn_identification(path)
         msg = await get_douban_new_books()
         await app.sendGroupMessage(group, msg[1])
     if message.asDisplay() == "test2" and message_info.sender.id == await get_config("HostQQ"):

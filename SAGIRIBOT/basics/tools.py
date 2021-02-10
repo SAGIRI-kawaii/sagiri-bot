@@ -12,6 +12,8 @@ import qrcode
 import math
 import asyncio
 import time
+import aiohttp
+from io import BytesIO
 
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import Plain
@@ -355,6 +357,16 @@ async def messagechain_to_img(
     return MessageChain.create([
         Image.fromLocalFile(save_path)
     ])
+
+
+async def save_img(image: Image) -> str:
+    path = "./statics/temp/tempSavedImage.jpg"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=image.url) as resp:
+            img_content = await resp.read()
+            image = IMG.open(BytesIO(img_content))
+            image.save(path)
+    return path
 
 
 if __name__ == "__main__":

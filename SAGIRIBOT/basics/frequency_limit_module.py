@@ -1,4 +1,6 @@
 import time
+import datetime
+from dateutil.relativedelta import relativedelta
 
 
 def singleton(cls):
@@ -20,6 +22,9 @@ def singleton(cls):
 class GlobalFrequencyLimitDict:
     __instance = None
     __first_init = False
+    __temp_blacklist = {}
+    __frequency_counter = {}
+    __blacklist_announced = {}
     frequency_limit_dict = None
 
     def __new__(cls, frequency_limit_dict: dict):
@@ -37,12 +42,16 @@ class GlobalFrequencyLimitDict:
             print(f"group {group_id} frequency: {self.frequency_limit_dict[group_id]}")
             return self.frequency_limit_dict[group_id]
         else:
-            return 10
+            self.frequency_limit_dict[group_id] = 0
+            return 0
 
     def set_zero(self):
         for key in self.frequency_limit_dict.keys():
             # print(f"group {key} frequency count set to 0!")
             self.frequency_limit_dict[key] = 0
+        for group in self.__frequency_counter:
+            for member in self.__frequency_counter[group]:
+                self.__frequency_counter[group][member] = 0
 
     def update(self, group_id: int, weight: int):
         if group_id in self.frequency_limit_dict:
@@ -55,6 +64,58 @@ class GlobalFrequencyLimitDict:
             print(f"{group_id} is already in frequency limit module!")
         else:
             self.frequency_limit_dict[group_id] = 0
+
+    def add_temp_blacklist(self, group_id: int, member_id: int):
+        if group_id in self.__temp_blacklist:
+            if member_id in self.__temp_blacklist[group_id]:
+                if datetime.datetime.now() > self.__temp_blacklist[group_id][member_id]:
+                    self.__temp_blacklist[group_id][member_id] = datetime.datetime.now() + relativedelta(hours=1)
+            else:
+                self.__temp_blacklist[group_id][member_id] = datetime.datetime.now() + relativedelta(hours=1)
+        else:
+            self.__temp_blacklist[group_id] = {}
+            self.__temp_blacklist[group_id][member_id] = datetime.datetime.now() + relativedelta(hours=1)
+        print(self.__temp_blacklist[group_id][member_id])
+
+    def blacklist_judge(self, group_id: int, member_id: int) -> bool:
+        if group_id in self.__temp_blacklist and member_id in self.__temp_blacklist[group_id]:
+            # print(datetime.datetime.now(), self.__temp_blacklist[group_id][member_id])
+            # print(datetime.datetime.now() <= self.__temp_blacklist[group_id][member_id])
+            return datetime.datetime.now() <= self.__temp_blacklist[group_id][member_id]
+        else:
+            return False
+
+    def add_record(self, group_id: int, member_id: int, weight: int):
+        if group_id in self.__frequency_counter:
+            if member_id in self.__frequency_counter:
+                self.__frequency_counter[group_id][member_id] += weight
+            else:
+                self.__frequency_counter[group_id][member_id] = weight
+        else:
+            self.__frequency_counter[group_id] = {}
+            self.__frequency_counter[group_id][member_id] = weight
+        print("debug: ", self.__frequency_counter[group_id][member_id])
+        if self.__frequency_counter[group_id][member_id] >= 10:
+            self.add_temp_blacklist(group_id, member_id)
+
+    def announce_judge(self, group_id: int, member_id: int):
+        if group_id in self.__blacklist_announced:
+            if member_id in self.__blacklist_announced[group_id]:
+                # print("1__blacklist_announced: ", self.__blacklist_announced[group_id][member_id])
+                return self.__blacklist_announced[group_id][member_id]
+            else:
+                self.__blacklist_announced[group_id][member_id] = False
+                # print("2__blacklist_announced: ", self.__blacklist_announced[group_id][member_id])
+                return False
+        else:
+            self.__blacklist_announced[group_id] = {}
+            self.__blacklist_announced[group_id][member_id] = False
+            # print("3__blacklist_announced: ", self.__blacklist_announced[group_id][member_id])
+            return False
+
+    def blacklist_announced(self, group_id: int, member_id: int):
+        self.__blacklist_announced[group_id][member_id] = True
+        # print("blacklist_announced: ", self.__blacklist_announced[group_id][member_id])
 
 
 def frequency_limit(frequency_limit_instance: GlobalFrequencyLimitDict) -> None:

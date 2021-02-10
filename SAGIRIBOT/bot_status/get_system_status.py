@@ -23,16 +23,16 @@ async def get_system_status() -> list:
         text += "Number of cores: %s\n" % cpu.NumberOfCores
         text += "Usage rate: %s%%\n" % cpu.LoadPercentage
     text += "--------------------\n"
-    # text += "GPU: \n"
-    # for gpu in w.Win32_VideoController(): 
-    #     text += "GPU Model: %s\n" % gpu.caption
-    # nvmlInit()
-    # handle = nvmlDeviceGetHandleByIndex(0)
-    # meminfo = nvmlDeviceGetMemoryInfo(handle)
-    # text += "Total memory: %2.2fG\n" % (float(meminfo.total) / 1024 / 1024 / 1024)
-    # text += "Used memory: %2.2fG\n" % (float(meminfo.used) / 1024 / 1024 / 1024)
-    # text += "Free memory: %2.2fG\n" % (float(meminfo.free) / 1024 / 1024 / 1024)
-    # text += "--------------------\n"
+    text += "GPU: \n"
+    for gpu in w.Win32_VideoController():
+        text += "GPU Model: %s\n" % gpu.caption
+    nvmlInit()
+    handle = nvmlDeviceGetHandleByIndex(0)
+    meminfo = nvmlDeviceGetMemoryInfo(handle)
+    text += "Total memory: %2.2fG\n" % (float(meminfo.total) / 1024 / 1024 / 1024)
+    text += "Used memory: %2.2fG\n" % (float(meminfo.used) / 1024 / 1024 / 1024)
+    text += "Free memory: %2.2fG\n" % (float(meminfo.free) / 1024 / 1024 / 1024)
+    text += "--------------------\n"
     text += "Memory: \n"
     for memory in m: 
         tm = float(memory.TotalPhysicalMemory) / 1024 / 1024 / 1024
