@@ -87,16 +87,20 @@ class GlobalFrequencyLimitDict:
 
     def add_record(self, group_id: int, member_id: int, weight: int):
         if group_id in self.__frequency_counter:
-            if member_id in self.__frequency_counter:
+            if member_id in self.__frequency_counter[group_id]:
+                # print("add_record1")
                 self.__frequency_counter[group_id][member_id] += weight
             else:
+                # print("add_record2")
                 self.__frequency_counter[group_id][member_id] = weight
         else:
+            # print("add_record3")
             self.__frequency_counter[group_id] = {}
             self.__frequency_counter[group_id][member_id] = weight
         # print("debug: ", self.__frequency_counter[group_id][member_id])
         if self.__frequency_counter[group_id][member_id] >= 13:
             self.add_temp_blacklist(group_id, member_id)
+        print(self.__frequency_counter[group_id][member_id])
 
     def announce_judge(self, group_id: int, member_id: int):
         if group_id in self.__blacklist_announced:
