@@ -375,7 +375,7 @@ async def group_message_listener(
         message_send = ["None"]
     elif message_info.sender.id == await get_config("HostQQ"):
         try:
-            message_send = await group_message_process(message, message_info, app)
+            message_send = await group_message_process(message, message_info, app, frequency_limit_dict)
         except Exception as e:
             traceback.print_exc()
             message_send = [
