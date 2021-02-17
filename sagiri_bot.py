@@ -224,6 +224,9 @@ async def bot_init(app: GraiaMiraiApplication):
         group_repeat[i.id] = {"lastMsg": "", "thisMsg": "", "stopMsg": ""}
         frequency_limit_dict[i.id] = 0
     await check_group_data_init(group_list)
+    for i in group_list:
+        if await get_setting(i.id, "onlineNotice"):
+            await app.sendGroupMessage(i.id, MessageChain.create([Plain(text="纱雾酱打卡上班啦！！！")]))
     frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
     limiter = threading.Thread(target=frequency_limit, args=(frequency_limit_instance,))
     limiter.start()
@@ -284,7 +287,7 @@ async def group_message_listener(
 
     if message.asDisplay() == "bot restart" and message_info.sender.id == await get_config("HostQQ"):
         await app.sendGroupMessage(group, message.create([Plain(text="即将重启机器人...")]))
-        await app.sendGroupMessage(group, message.create([Plain(text="重启成功！")]))
+        # await app.sendGroupMessage(group, message.create([Plain(text="重启成功！")]))
         os.system("%s \"%s\"" % (await get_config("environment"), await get_config("newVersion")))
 
     if message.asDisplay() == "bot shutdown" and message_info.sender.id == await get_config("HostQQ"):
@@ -374,16 +377,16 @@ async def group_message_listener(
     elif switch == "offline" and message_info.sender.id != await get_config("HostQQ"):
         message_send = ["None"]
     elif message_info.sender.id == await get_config("HostQQ"):
-        try:
-            message_send = await group_message_process(message, message_info, app)
-        except Exception as e:
-            traceback.print_exc()
-            message_send = [
-                "quoteSource",
-                MessageChain.create([
-                    Plain(text=str(e))
-                ])
-            ]
+        # try:
+        message_send = await group_message_process(message, message_info, app)
+        # except Exception as e:
+        #     traceback.print_exc()
+        #     message_send = [
+        #         "quoteSource",
+        #         MessageChain.create([
+        #             Plain(text=str(e))
+        #         ])
+        #     ]
     else:
         message_send = [
             "quoteSource",

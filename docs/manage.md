@@ -16,6 +16,7 @@
 | debug | 显示每个请求所执行的时间（从收到消息到发送） | debug | Enable/Disable |  |
 | 成就系统 | 决定bot是否发布新成就达成消息通知 | achievement | Enable/Disable |  |
 | 网络编译器 | 菜鸟教程网络编译器开关 | compile | Enable/Disable |  |
+| 上线提醒 | 机器人上线自动发送上班消息 | onlineNotice | Enable/Disable |  |
 | 长文本形式 | 控制长文本是以图片还是文字方式发出 | longTextType | img/text | 长文本发送过多可能会被tx风控 |
 | R-18处理方式 | 对发送的R-18图片做撤回/闪照处理 | r18Process  | revoke/flashImage | 仅在r18选项开启时起作用，后期可能会加入不作处理选项 |
 | 回复方式 | 决定bot被@时的反应 | speakMode  | normal/rainbow/zuanLow/zuanHigh/chat | 请慎用zuanLow 和 zuanHigh模式 |

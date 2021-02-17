@@ -98,7 +98,7 @@ class GlobalFrequencyLimitDict:
             self.__frequency_counter[group_id] = {}
             self.__frequency_counter[group_id][member_id] = weight
         # print("debug: ", self.__frequency_counter[group_id][member_id])
-        if self.__frequency_counter[group_id][member_id] >= 13:
+        if self.__frequency_counter[group_id][member_id] > 13:
             self.add_temp_blacklist(group_id, member_id)
         print(self.__frequency_counter[group_id][member_id])
 

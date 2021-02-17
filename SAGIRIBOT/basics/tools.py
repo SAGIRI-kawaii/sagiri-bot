@@ -14,6 +14,8 @@ import asyncio
 import time
 import aiohttp
 from io import BytesIO
+import aiofiles
+import traceback
 
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import Plain
@@ -213,7 +215,7 @@ async def text2piiic_with_link(text: str, fontsize=40, x=20, y=40, spacing=15):
         text = text.replace(mres, "|||\n\n\n|||")
     for i in range(len(match_res)):
         qrcode_img = qrcode.make(match_res[i])
-        qrcode_img.save(f"./statics/temp/tempQrcodeWithLink{i+1}.jpg")
+        qrcode_img.save(f"./statics/temp/tempQrcodeWithLink{i + 1}.jpg")
     blocks = text.split("|||\n\n\n|||")
     block_count = 0
     font = ImageFont.truetype('./simhei.ttf', fontsize, encoding="utf-8")
@@ -369,15 +371,55 @@ async def save_img(image: Image) -> str:
     return path
 
 
+async def silk(data, mtype='b', options=''):
+    try:
+        cache_files = ['./statics/temp/cache.wav']
+        # , './statics/temp/cache.slk'
+
+        if mtype == 'f':
+            file = data
+        elif mtype == 'b':
+            async with aiofiles.open('./statics/temp/music_cache', 'wb') as f:
+                await f.write(data)
+            file = './statics/temp/music_cache'
+            cache_files.append(file)
+        else:
+            raise ValueError("Not fit music_type. only 'f' and 'b'")
+
+        cmd = [f'ffmpeg -i "{file}" {options} -af aresample=resampler=soxr -ar 8000 -ac 1 -y -loglevel error "./statics/temp/cache.wav"',]
+        # f'"lib/silk_v3_encoder.exe" ./statics/temp/cache.wav ./statics/temp/cache.slk -quiet -tencent'
+
+        for p in cmd:
+            shell = await asyncio.create_subprocess_shell(p)
+            await shell.wait()
+
+        print(1)
+
+        async with aiofiles.open(f'./statics/temp/cache.wav', 'rb') as f:
+            b = await f.read()
+        # 清除cache
+        # for cache_file in cache_files:
+        #     await aiofiles.os.remove(cache_file)
+        # for cache_file in cache_files:
+        #     os.remove(cache_file)
+        return b
+    except Exception:
+        traceback.print_exc()
+
+
 if __name__ == "__main__":
     message = MessageChain.create([
         Plain("test"),
-        Plain("和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工\n\n\n\n单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀"),
-        Plain("asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施\n\n\n\n工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与其哎呀"),
+        Plain(
+            "和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工\n\n\n\n单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀和商务大厦记得哈施工单位与其哎呀"),
+        Plain(
+            "asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施\n\n\n\n工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与其哎呀"),
         Image.fromLocalFile("M:\pixiv\pxer_new\\1001.png"),
-        Plain("asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与\n\n\n\nasdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与其哎呀"),
+        Plain(
+            "asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与\n\n\n\nasdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与其哎呀"),
         Image.fromLocalFile("M:\pixiv\pxer_new\\1002.png"),
-        Plain("asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyqu\n\n\n\nwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与其哎呀")
+        Plain(
+            "asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyqu\n\n\n\nwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与asdbyquwbgyuedg1阿瑟帝国与邱2 1和商务大厦记得哈施工单位与其哎呀")
     ])
     loop = asyncio.get_event_loop()
     start = time.time()

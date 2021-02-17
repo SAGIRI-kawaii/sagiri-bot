@@ -73,12 +73,16 @@ response_set = get_response_set()
 seg = pkuseg.pkuseg()
 
 
-async def limit_exceeded_judge(group_id: int, member_id: int, weight: int):
+async def limit_exceeded_judge(group_id: int, member_id: int, weight: int, app: GraiaMiraiApplication):
     frequency_limit_instance = GlobalFrequencyLimitDict()
     frequency_limit_instance.add_record(group_id, member_id, weight)
     if frequency_limit_instance.blacklist_judge(group_id, member_id):
         if not frequency_limit_instance.announce_judge(group_id, member_id):
             frequency_limit_instance.blacklist_announced(group_id, member_id)
+            await app.sendGroupMessage(group_id, MessageChain.create([
+                Plain(text="本群允许每个用户10秒内访问权重最大为13，请注意请求频率，请求频率过高会被加入黑名单，每个功能的权重计数如下：\n"),
+                Plain(text="setu 1\nreal 1\n realHighq 1\nbizhi 1\n线稿 1\nxml图片 6\n搜图/番 6")
+            ]))
             return [
                 "quoteSource",
                 MessageChain.create([
@@ -192,7 +196,7 @@ async def group_message_process(
     if message_text in response_set["setu"]:
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -227,7 +231,7 @@ async def group_message_process(
     elif message_text == "线稿":
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -259,7 +263,7 @@ async def group_message_process(
     elif message_text.startswith("来点") and re.search("来点.*[色涩]图", message_text):
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 3)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 4, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -300,7 +304,7 @@ async def group_message_process(
     if message_text.lower().startswith("xml "):
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -332,7 +336,7 @@ async def group_message_process(
     elif message_text in response_set["real"]:
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -364,7 +368,7 @@ async def group_message_process(
     elif message_text in response_set["realHighq"]:
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -396,7 +400,7 @@ async def group_message_process(
     elif message_text in response_set["bizhi"]:
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -498,7 +502,7 @@ async def group_message_process(
         await update_total_calls_once("response")
         await update_total_calls_once("search")
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 3, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -536,7 +540,7 @@ async def group_message_process(
         await update_total_calls_once("yellow")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 3, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -604,7 +608,7 @@ async def group_message_process(
         await update_total_calls_once("response")
         await update_total_calls_once("search")
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 3, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -634,7 +638,7 @@ async def group_message_process(
         await update_total_calls_once("response")
         await update_total_calls_once("search")
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 3, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -657,7 +661,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -673,7 +677,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 5)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 5, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -684,7 +688,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 5)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 5, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -695,7 +699,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -711,7 +715,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 3, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -743,7 +747,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -758,7 +762,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -782,7 +786,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 2, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -816,7 +820,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -827,12 +831,12 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 3)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 3, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
         print("search song:", message_text[3:])
-        return await get_song_ordered(message_text[3:])
+        return await get_song_ordered(message_text[3:], app)
 
     if message_text == "help" or message_text == "!help" or message_text == "/help" or message_text == "！help":
         await update_total_calls_once("response")
@@ -850,7 +854,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -912,7 +916,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -931,7 +935,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -983,7 +987,7 @@ async def group_message_process(
     if message_text.startswith("magnet "):
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -1003,7 +1007,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -1029,7 +1033,7 @@ async def group_message_process(
     if message_text == "我的年内总结":
         await update_total_calls_once("response")
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -1038,7 +1042,7 @@ async def group_message_process(
     if message_text == "我的月内总结":
         await update_total_calls_once("response")
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 6, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -1059,7 +1063,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -1102,7 +1106,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
@@ -1123,7 +1127,7 @@ async def group_message_process(
         await update_total_calls_once("response")
 
         if await get_setting(group_id, "countLimit"):
-            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1)
+            frequency_limit_res = await limit_exceeded_judge(group_id, sender, 1, app)
             if frequency_limit_res:
                 return frequency_limit_res
 
