@@ -411,16 +411,16 @@ async def group_message_listener(
     elif switch == "offline" and message_info.sender.id != await get_config("HostQQ"):
         message_send = ["None"]
     elif message_info.sender.id == await get_config("HostQQ"):
-        # try:
-        message_send = await group_message_process(message, message_info, app)
-        # except Exception as e:
-        #     traceback.print_exc()
-        #     message_send = [
-        #         "quoteSource",
-        #         MessageChain.create([
-        #             Plain(text=str(e))
-        #         ])
-        #     ]
+        try:
+            message_send = await group_message_process(message, message_info, app)
+        except Exception as e:
+            traceback.print_exc()
+            message_send = [
+                "quoteSource",
+                MessageChain.create([
+                    Plain(text=str(e))
+                ])
+            ]
     else:
         message_send = [
             "quoteSource",

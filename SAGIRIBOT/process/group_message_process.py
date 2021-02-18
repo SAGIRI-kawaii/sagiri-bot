@@ -109,7 +109,7 @@ async def group_message_process(
         message: MessageChain,
         message_info: GroupMessage,
         app: GraiaMiraiApplication,
-        frequency_limit_dict: dict
+        # frequency_limit_dict: dict
 ) -> list:
     """
     Process the received message and return the corresponding message
