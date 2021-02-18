@@ -392,7 +392,7 @@ async def group_message_listener(
     switch = await get_setting(group.id, "switch")
     if switch == "online":
         try:
-            message_send = await group_message_process(message, message_info, app, frequency_limit_dict)
+            message_send = await group_message_process(message, message_info, app)
         except Exception as e:
             if await get_setting(group.id, "debug"):
                 message_send = [
