@@ -5,7 +5,8 @@ import asyncio
 
 from graia.application.event.messages import *
 from graia.application import GraiaMiraiApplication
-from graia.application.message.elements.internal import At
+from graia.application.message.elements.internal import Quote
+from graia.application.message.elements.internal import Source
 
 from SAGIRIBOT.images.get_image import get_pic
 from SAGIRIBOT.basics.get_config import get_config
@@ -66,6 +67,7 @@ from SAGIRIBOT.functions.get_review import daily_chat_rank
 from SAGIRIBOT.functions.get_xml_image import get_xml_setu
 from SAGIRIBOT.functions.get_review import set_personal_wordcloud_mask
 from SAGIRIBOT.functions.achievement_system import *
+from SAGIRIBOT.basics.message_cache import ImageMessageCache
 
 # 关键词字典
 response_set = get_response_set()
@@ -131,6 +133,7 @@ async def group_message_process(
     message_serialization = message.asSerializationString()
     sender = message_info.sender.id
     group_id = message_info.sender.group.id
+    message_id = message[Source][0].id
     # 黑名单检测
     if sender in await get_blacklist():
         print("Blacklist!No reply!")
@@ -156,6 +159,20 @@ async def group_message_process(
                 MessageChain.create([
                     Plain(text="Command Error!")
                 ])
+            ]
+
+    image_message_cache_instance: ImageMessageCache = ImageMessageCache.get_instance()
+    if message.has(Quote) and "source" in message_text:
+        path = image_message_cache_instance.get_image_path(message[Quote][0].origin[Source][0].id)
+        if path:
+            return [
+                "quoteSource",
+                MessageChain.create([Plain(text=f"本图路径为{path}")])
+            ]
+        else:
+            return [
+                "quoteSource",
+                MessageChain.create([Plain(text="可能未缓存或缓存被清理！")])
             ]
 
     if message_text.startswith("/status"):

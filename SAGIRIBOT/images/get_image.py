@@ -79,10 +79,10 @@ async def get_pic(image_type: str, group_id: int, sender: int) -> list:
     if image_type == "setu18":
         operation = await get_setting(group_id, "r18Process")
         if operation == "revoke":
-            return ["revoke", message]
+            return ["revoke", message, target_pic_path]
         elif operation == "flashImage":
             message = MessageChain.create([
                 Image.fromLocalFile(target_pic_path).asFlash()
             ])
-            return ["None", message]
-    return ["None", message]
+            return ["None", message, target_pic_path]
+    return ["None", message, target_pic_path]

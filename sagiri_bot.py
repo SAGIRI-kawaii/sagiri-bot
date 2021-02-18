@@ -18,6 +18,7 @@ from graia.application.message.elements.internal import Image
 from graia.application.message.elements.internal import At
 from graia.application.message.elements.internal import App
 from graia.application.message.elements.internal import Source
+from graia.application.message.elements.internal import Quote
 from graia.application.event.messages import *
 from graia.application.event.mirai import *
 from graia.application.exceptions import *
@@ -42,6 +43,7 @@ from SAGIRIBOT.crawer.douban.get_new_books import get_douban_new_books
 from SAGIRIBOT.functions.get_review import daily_chat_rank
 # from SAGIRIBOT.high_performances.porn_identification import porn_identification
 # from SAGIRIBOT.basics.tools import save_img
+from SAGIRIBOT.basics.message_cache import ImageMessageCache
 
 
 loop = asyncio.get_event_loop()
@@ -74,7 +76,7 @@ frequency_limit_dict = {}
 frequency_limit_instance = None
 exception_resender_instance = None
 
-# async def group_message_sender(message_info: GroupMessage, message: list, group: Group,
+# async def group_message_sender(message_info: GroupMe.ssage, message: list, group: Group,
 #                                app: GraiaMiraiApplication) -> None:
 #     message_send = await group_message_process(message, message_info, app)
 #     await group_assist_process(message, message_info, message_send, group)
@@ -100,6 +102,8 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
     """
 
     global exception_resender_instance
+    image_message_cache_instance: ImageMessageCache = ImageMessageCache.get_instance()
+
     try:
         if len(message) > 1 and "*" not in message[0]:
             # lock.acquire()
@@ -115,33 +119,56 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
             if await get_setting(group.id, "debug"):
                 message[1].plus(MessageChain.create([Plain(text=f"\n\nProgram execution time:\n{str(program_end - program_start)}")]))
 
-            await app.sendGroupMessage(group, message[1])
+            if len(message) > 2:
+                message_id = (await app.sendGroupMessage(group, message[1])).messageId
+                image_message_cache_instance.upload(message_id, message[2])
+            else:
+                await app.sendGroupMessage(group, message[1])
+
         elif len(message) > 1 and message[0] == "AtSender":
 
             program_end = time.time()
             if await get_setting(group.id, "debug"):
                 message[1].plus(MessageChain.create([Plain(text=f"\n\nProgram execution time:\n{str(program_end - program_start)}")]))
 
-            await app.sendGroupMessage(group, message[1])
+            if len(message) > 2:
+                message_id = (await app.sendGroupMessage(group, message[1])).messageId
+                image_message_cache_instance.upload(message_id, message[2])
+            else:
+                await app.sendGroupMessage(group, message[1])
+
         elif len(message) > 1 and message[0] == "quoteSource":
 
             program_end = time.time()
             if await get_setting(group.id, "debug"):
                 message[1].plus(MessageChain.create([Plain(text=f"\n\nProgram execution time:\n{str(program_end - program_start)}")]))
 
-            await app.sendGroupMessage(group, message[1], quote=received_message[Source][0])
+            if len(message) > 2:
+                message_id = (await app.sendGroupMessage(group, message[1], quote=received_message[Source][0])).messageId
+                image_message_cache_instance.upload(message_id, message[2])
+            else:
+                await app.sendGroupMessage(group, message[1], quote=received_message[Source][0])
+
         elif len(message) > 1 and message[0] == "revoke":
 
             program_end = time.time()
             if await get_setting(group.id, "debug"):
                 message[1].plus(MessageChain.create([Plain(text=f"\n\nProgram execution time:\n{str(program_end - program_start)}")]))
             msg = await app.sendGroupMessage(group, message[1])
+
+            if len(message) > 2:
+                message_id = msg.messageId
+                image_message_cache_instance.upload(message_id, message[2])
+
             await asyncio.sleep(20)
             await app.revokeMessage(msg)
         elif len(message) > 1 and message[0] == "setu*":
             for _ in range(message[1]):
                 msg = await get_pic("setu", group.id, message_info.sender.id)
-                await app.sendGroupMessage(group, msg[1])
+
+                message_id = (await app.sendGroupMessage(group, msg[1])).messageId
+                image_message_cache_instance.upload(message_id, msg[2])
+
                 # lock.acquire()
                 group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
                 group_repeat[group.id]["thisMsg"] = msg[1].asDisplay()
@@ -149,7 +176,10 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
         elif len(message) > 1 and message[0] == "real*":
             for _ in range(message[1]):
                 msg = await get_pic("real", group.id, message_info.sender.id)
-                await app.sendGroupMessage(group, msg[1])
+
+                message_id = (await app.sendGroupMessage(group, msg[1])).messageId
+                image_message_cache_instance.upload(message_id, msg[2])
+
                 # lock.acquire()
                 group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
                 group_repeat[group.id]["thisMsg"] = msg[1].asDisplay()
@@ -157,7 +187,10 @@ async def group_assist_process(received_message: MessageChain, message_info: Gro
         elif len(message) > 1 and message[0] == "bizhi*":
             for _ in range(message[1]):
                 msg = await get_pic("bizhi", group.id, message_info.sender.id)
-                await app.sendGroupMessage(group, msg[1])
+
+                message_id = (await app.sendGroupMessage(group, msg[1])).messageId
+                image_message_cache_instance.upload(message_id, msg[2])
+                
                 # lock.acquire()
                 group_repeat[group.id]["lastMsg"] = group_repeat[group.id]["thisMsg"]
                 group_repeat[group.id]["thisMsg"] = msg[1].asDisplay()
@@ -228,6 +261,7 @@ async def bot_init(app: GraiaMiraiApplication):
         if await get_setting(i.id, "onlineNotice"):
             await app.sendGroupMessage(i.id, MessageChain.create([Plain(text="纱雾酱打卡上班啦！！！")]))
     frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
+    image_cache_instance = ImageMessageCache()
     limiter = threading.Thread(target=frequency_limit, args=(frequency_limit_instance,))
     limiter.start()
     exception_resender_instance = ExceptionReSender(app)
