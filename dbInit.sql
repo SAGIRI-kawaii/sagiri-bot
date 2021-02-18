@@ -450,6 +450,7 @@ CREATE TABLE `setting` (
   `compile` tinyint(1) NOT NULL DEFAULT '0',
   `antiRevoke` tinyint(1) DEFAULT '0',
   `achievement` tinyint(1) DEFAULT '0',
+  `onlineNotice` tinyint(1) DEFAULT '0',
   `longTextType` varchar(4) NOT NULL DEFAULT 'text',
   `listen` tinyint(1) NOT NULL DEFAULT '0',
   `tribute` tinyint(1) NOT NULL DEFAULT '0',
@@ -589,4 +590,4 @@ CREATE TABLE `yellowpredictready` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-05 23:11:18
+-- Dump completed on 2021-02-18 15:05:14

@@ -393,12 +393,12 @@ async def group_message_listener(
     if switch == "online":
         try:
             message_send = await group_message_process(message, message_info, app)
-        except Exception as e:
+        except Exception:
             if await get_setting(group.id, "debug"):
                 message_send = [
                     "quoteSource",
                     MessageChain.create([
-                        Plain(text=str(e))
+                        Plain(text=traceback.format_exc())
                     ])
                 ]
             else:
