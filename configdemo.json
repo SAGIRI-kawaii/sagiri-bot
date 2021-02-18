@@ -2,7 +2,7 @@
     "BotQQ": 0,
     "HostQQ": 0,
     "authKey": "1234567890",
-    "miraiHost": "localhost:8080/",
+    "miraiHost": "http://localhost:8080",
     "dbHost": "127.0.0.1",
     "dbName": "xxx",
     "dbUser": "xxx",
