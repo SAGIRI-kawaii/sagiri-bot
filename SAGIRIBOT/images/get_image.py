@@ -63,15 +63,15 @@ async def get_pic(image_type: str, group_id: int, sender: int) -> list:
         return pic_path
 
     switch = {
-        "setu": await color(),
-        "setu18": await color18(),
-        "real": await real(),
-        "realHighq": await real_highq(),
-        "bizhi": await wallpaper(),
-        "sketch": await sketch()
+        "setu": color,
+        "setu18": color18,
+        "real": real,
+        "realHighq": real_highq,
+        "bizhi": wallpaper,
+        "sketch": sketch
     }
 
-    target_pic_path = switch[image_type]
+    target_pic_path = await switch[image_type]()
     message = MessageChain.create([
         Image.fromLocalFile(target_pic_path)
     ])

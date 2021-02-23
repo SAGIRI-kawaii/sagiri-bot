@@ -38,6 +38,7 @@ async def search_bangumi(group_id: int, sender: int, img_url: str) -> list:
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url=url, headers=headers, data=params) as resp:
+            print(await resp.text())
             result = await resp.json()
 
     docs = result["docs"]

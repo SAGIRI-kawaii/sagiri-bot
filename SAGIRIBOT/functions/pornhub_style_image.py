@@ -1,6 +1,4 @@
 from PIL import Image, ImageDraw, ImageFont
-import sys
-from pathlib import  Path
 
 
 LEFT_PART_VERTICAL_BLANK_MULTIPLY_FONT_HEIGHT = 2

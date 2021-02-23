@@ -118,7 +118,6 @@ async def group_message_process(
         message: Received message(MessageChain)
         message_info: Received message(GroupMessage)
         app: APP
-        frequency_limit_dict: Frequency limit dict
 
     Examples:
         message_list = await message_process(message, message_info)

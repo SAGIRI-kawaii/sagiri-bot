@@ -115,8 +115,8 @@ Bot init end
 | realHighqPath | 高质量三次元图片存储路径（绝对路径） |
 | searchPath | 搜图功能的图片缓存路径（绝对路径） |
 | yellowJudgePath | 鉴黄功能的图片缓存路径（绝对路径） |
-| clockWallpaperPreviewPath | 钟表功能表盘预览图片存储路径（绝对路径） |
-| clockWallpaperSavedPath | 钟表功能表盘图片存储路径（有时间的）（绝对路径） |
+| ~~clockWallpaperPreviewPath~~ | ~~钟表功能表盘预览图片存储路径（绝对路径）~~ |
+| ~~clockWallpaperSavedPath~~ | ~~钟表功能表盘图片存储路径（有时间的）（绝对路径）~~ |
 | tributePath | 上贡图片存储路径（暂未从旧版本迁移过来）（绝对路径） |
 | wallpaperPath | 壁纸图片存储路径（绝对路径） |
 | imgSavePath | 番剧查询功能图片缓存地址（绝对路径） |
@@ -164,6 +164,7 @@ Bot init end
 - [ ] 将种子搜索功能更换一个更可靠的网站
 - [ ] 修改优化代码结构（估计得等下个世纪了/或者会把所有功能改为插件移植到 [SagiriGraiaPlatform](https://github.com/SAGIRI-kawaii/SagiriGraiaPlatform) 上）
 - [ ] 添加GAL搜索功能
+- [ ] 将数据库迁移到sqlite
 - [ ] 添加pixiv标签搜图功能
 - [ ] 将一些自带数据整合为sql文件并上传
 - [ ] 广告识别功能（自动禁言、撤回、移除）
