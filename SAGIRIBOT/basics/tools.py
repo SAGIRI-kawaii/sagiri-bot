@@ -386,7 +386,10 @@ async def silk(data, mtype='b', options=''):
         else:
             raise ValueError("Not fit music_type. only 'f' and 'b'")
 
-        cmd = [f'ffmpeg -i "{file}" {options} -af aresample=resampler=soxr -ar 8000 -ac 1 -y -loglevel error "./statics/temp/cache.wav"',]
+        cmd = [
+            f'ffmpeg -i "{file}" {options} -af aresample=resampler=soxr -ar 24000 -ac 1 -y -loglevel error "./statics/temp/cache.wav"',
+            f'"./statics/tools/silk_v3_encoder.exe" "./statics/temp/cache.wav" "./statics/temp/cache.slk" -quiet -tencent'
+        ]
         # f'"lib/silk_v3_encoder.exe" ./statics/temp/cache.wav ./statics/temp/cache.slk -quiet -tencent'
 
         for p in cmd:
@@ -395,7 +398,7 @@ async def silk(data, mtype='b', options=''):
 
         print(1)
 
-        async with aiofiles.open(f'./statics/temp/cache.wav', 'rb') as f:
+        async with aiofiles.open(f'./statics/temp/cache.slk', 'rb') as f:
             b = await f.read()
         # 清除cache
         # for cache_file in cache_files:

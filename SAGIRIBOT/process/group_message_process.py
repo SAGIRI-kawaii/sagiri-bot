@@ -68,6 +68,7 @@ from SAGIRIBOT.functions.get_xml_image import get_xml_setu
 from SAGIRIBOT.functions.get_review import set_personal_wordcloud_mask
 from SAGIRIBOT.functions.achievement_system import *
 from SAGIRIBOT.basics.message_cache import ImageMessageCache
+from SAGIRIBOT.functions.get_5000zhao import gen5000_zhao_image
 
 # 关键词字典
 response_set = get_response_set()
@@ -1186,6 +1187,17 @@ async def group_message_process(
                     Plain(text="网络编译器功能尚未开启哦~")
                 ])
             ]
+
+    if re.search(r"5000兆 .* .*", message_text):
+        try:
+            _, left_text, right_text = message_text.split(" ")
+            try:
+                gen5000_zhao_image(word_a=left_text, word_b=right_text).save("./statics/temp/temp5000zhao.png")
+                return ["None", MessageChain.create([Image.fromLocalFile("./statics/temp/temp5000zhao.png")])]
+            except TypeError:
+                return ["None", MessageChain.create([Plain(text="不支持的内容！不要给我一些稀奇古怪的东西！")])]
+        except ValueError:
+            return ["None", MessageChain.create([Plain(text="参数非法！使用格式：5000兆 text1 text2")])]
 
     auto_reply = await keyword_reply(message_text)
     if auto_reply:

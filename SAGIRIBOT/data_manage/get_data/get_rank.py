@@ -4,12 +4,14 @@ from graia.application.message.elements.internal import Plain
 from graia.application import GraiaMiraiApplication
 
 from SAGIRIBOT.basics.aio_mysql_excute import execute_sql
+from SAGIRIBOT.data_manage.get_data.get_setting import get_setting
+from SAGIRIBOT.basics.tools import messagechain_to_img
 
 
 async def get_rank(group_id: int, app: GraiaMiraiApplication) -> list:
     sql = "select * from dragon where groupId=%d order by count desc" % group_id
     lsp_rank = await execute_sql(sql)
-    print(lsp_rank)
+    # print(lsp_rank)
     msg = []
     text = "啊嘞嘞，从启动到现在都没有人要过涩图的嘛!呜呜呜~\n人家。。。人家好寂寞的，快来找我玩嘛~"
     if lsp_rank == ():
@@ -51,7 +53,8 @@ async def get_rank(group_id: int, app: GraiaMiraiApplication) -> list:
             member = await app.getMember(group_id, i[2])
             text += "\n%i.%-20s %3d" % (index, member.name, i[3])
         msg.append(Plain(text=text))
+        msg = MessageChain.create(msg)
         return [
             "None",
-            MessageChain.create(msg)
+            msg if await get_setting(group_id, "longTextType") == "text" else await messagechain_to_img(msg)
         ]
