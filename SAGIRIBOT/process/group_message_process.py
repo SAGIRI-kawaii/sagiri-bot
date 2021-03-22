@@ -35,6 +35,7 @@ from SAGIRIBOT.crawer.bangumi.get_bangumi_info import get_bangumi_info
 from SAGIRIBOT.data_manage.get_data.get_admin import get_admin
 from SAGIRIBOT.data_manage.get_data.get_blacklist import get_blacklist
 from SAGIRIBOT.data_manage.get_data.get_rank import get_rank
+from SAGIRIBOT.data_manage.get_data.get_rank import get_total_rank
 from SAGIRIBOT.basics.write_log import write_log
 from SAGIRIBOT.functions.get_joke import *
 from SAGIRIBOT.functions.get_group_quotes import get_group_quotes
@@ -667,6 +668,10 @@ async def group_message_process(
     elif message_text == "rank":
         await update_total_calls_once("response")
         return await get_rank(group_id, app)
+
+    elif message_text == "trank":
+        await update_total_calls_once("response")
+        return await get_total_rank(group_id, app)
 
     # 爬虫相关功能
     """
