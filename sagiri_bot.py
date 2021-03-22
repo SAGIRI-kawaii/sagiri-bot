@@ -37,8 +37,8 @@ from SAGIRIBOT.basics.frequency_limit_module import frequency_limit
 from SAGIRIBOT.basics.frequency_limit_module import GlobalFrequencyLimitDict
 from SAGIRIBOT.basics.exception_resender import ExceptionReSender
 from SAGIRIBOT.basics.exception_resender import exception_resender_listener
-from SAGIRIBOT.functions.get_xml_image import get_xml_setu
-from SAGIRIBOT.functions.get_group_announcement import get_group_announcement
+# from SAGIRIBOT.functions.get_xml_image import get_xml_setu
+# from SAGIRIBOT.functions.get_group_announcement import get_group_announcement
 from SAGIRIBOT.crawer.douban.get_new_books import get_douban_new_books
 from SAGIRIBOT.functions.get_review import daily_chat_rank
 # from SAGIRIBOT.high_performances.porn_identification import porn_identification
@@ -53,10 +53,11 @@ sche = GraiaScheduler(loop=loop, broadcast=bcc)
 
 with open('config.json', 'r', encoding='utf-8') as f:  # 从json读配置
     configs = json.loads(f.read())
+    print(configs)
 
-if configs["highPerformance"]:
-    from SAGIRIBOT.high_performances.porn_identification import porn_identification
-    from SAGIRIBOT.basics.tools import save_img
+# if configs["highPerformance"]:
+#     from SAGIRIBOT.high_performances.porn_identification import porn_identification
+#     from SAGIRIBOT.basics.tools import save_img
 
 app = GraiaMiraiApplication(
     broadcast=bcc,
@@ -75,11 +76,6 @@ lock = threading.Lock()
 frequency_limit_dict = {}
 frequency_limit_instance = None
 exception_resender_instance = None
-
-# async def group_message_sender(message_info: GroupMe.ssage, message: list, group: Group,
-#                                app: GraiaMiraiApplication) -> None:
-#     message_send = await group_message_process(message, message_info, app)
-#     await group_assist_process(message, message_info, message_send, group)
 
 
 async def group_assist_process(received_message: MessageChain, message_info: GroupMessage, message: list,
@@ -791,6 +787,19 @@ async def anti_revoke(app: GraiaMiraiApplication, event: GroupRecallEvent):
             )
         except (AccountMuted, UnknownTarget):
             pass
+
+
+def management_boot():
+    from WebManager.web_manager import run_api
+    run_api()
+
+
+if configs["webManagerApi"]:
+    api_thread = threading.Thread(target=management_boot, args=())
+    api_thread.start()
+    if configs["webManagerAutoBoot"]:
+        import webbrowser
+        webbrowser.open(f"{os.path.dirname(os.path.abspath(__file__))}/WebManager/index.html")
 
 
 app.launch_blocking()
