@@ -460,6 +460,7 @@ CREATE TABLE `setting` (
   `music` varchar(10) NOT NULL DEFAULT 'wyy',
   `switch` char(10) NOT NULL DEFAULT 'on',
   `forbiddenCount` int NOT NULL DEFAULT '0',
+  `active` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`groupId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -590,4 +591,4 @@ CREATE TABLE `yellowpredictready` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-18 15:05:14
+-- Dump completed on 2021-03-22 19:36:35
