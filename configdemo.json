@@ -29,5 +29,6 @@
     "saucenaoCookie": "",
     "sketchPath": "",
     "highPerformance": false,
+    "webManagerApi": true,
     "webManagerAutoBoot": true
 }

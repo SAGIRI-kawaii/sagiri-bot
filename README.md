@@ -126,6 +126,9 @@ Bot init end
 | shadiaoAppName | shadiaoApp 应用名（自行申请） |
 | saucenaoCookie | saucenao cookie（自行登录获取） |
 | sketchPath | 线稿图片存储路径（绝对路径） |
+| highPerformance | 高性能选项 |
+| webManagerApi | api是否启动（用于管理页面） |
+| webManagerAutoBoot | 是否自动打开管理页面（webManagerApi为True时才起作用） |
 
 #### response_set.json
 用于存储各种功能触发的关键词，需要在机器人启动前进行更改，机器人运行时更改无效（将在下次启动时生效）
@@ -158,6 +161,7 @@ Bot init end
 - [x] 添加词云自定义蒙版（词云形状）
 - [x] 删除群语录功能，QQ已有群精华消息功能作为替代品
 - [x] 添加启动提示功能
+- [x] 添加前端管理页面
 - [ ] 提供高性能选项，内置涩图检测网络，物品识别网络等
 - [ ] 支持发送语音
 - [ ] 修复错误重发队列可能会丢失任务的bug
