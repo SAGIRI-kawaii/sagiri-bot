@@ -28,5 +28,6 @@
     "newVersion": "",
     "saucenaoCookie": "",
     "sketchPath": "",
-    "highPerformance": false
+    "highPerformance": false,
+    "webManagerAutoBoot": true
 }
