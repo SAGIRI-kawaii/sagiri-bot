@@ -58,3 +58,51 @@ async def get_rank(group_id: int, app: GraiaMiraiApplication) -> list:
             "None",
             msg if await get_setting(group_id, "longTextType") == "text" else await messagechain_to_img(msg)
         ]
+
+
+async def get_total_rank(group_id: int, app: GraiaMiraiApplication) -> list:
+    sql = f"select sender, count(*) from imgcalled where groupId={group_id} group by sender order by count(*) desc"
+    lsp_rank = await execute_sql(sql)
+    # print(lsp_rank)
+    msg = []
+    text = "啊嘞嘞，这个群里怎么没有记录欸？怪哉怪哉！"
+    if lsp_rank == ():
+        return [
+            "None",
+            MessageChain.create([
+                Plain(text=text)
+            ])
+        ]
+    else:
+        text = "本群lsp总排行榜："
+        msg.append(Plain(text=text))
+        text = ""
+        index = 0
+        add_bool = False
+        add = 0
+        last = -1
+        count = 0
+        for i in lsp_rank:
+            if count >= 100:
+                break
+            if i[1] == 0:
+                break
+            if i[1] == last:
+                add += 1
+                add_bool = True
+            else:
+                if add_bool:
+                    index += add
+                index += 1
+                add = 0
+                add_bool = False
+                last = i[1]
+            member = await app.getMember(group_id, i[0])
+            text += "\n%i.%-20s %3d" % (index, member.name if member else "Member not found!", i[1])
+            count += 1
+        msg.append(Plain(text=text))
+        msg = MessageChain.create(msg)
+        return [
+            "None",
+            msg if await get_setting(group_id, "longTextType") == "text" else await messagechain_to_img(msg)
+        ]
