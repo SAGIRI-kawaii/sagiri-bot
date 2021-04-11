@@ -1,188 +1,172 @@
-
-
-# SAGIRI-BOT(重构中)
-
-```diff
-- 项目正在进行重构
-- 重构目标为优化代码结构、使用ORM框架、更改数据库为Sqlite使得无需配置数据库、友好的管理页面以及详细的日志记录系统
-- 注：重构后可能会有部分功能被删除，请在重构完成后查看新的文档
-```
-
+# SAGIRI-BOT
 基于 Mirai 和 Graia 的船新版本，~~是兄弟就来砍我~~
 
 New version of sagiri-bot based on Mirai and Graia
 
 ## 目录
-- [SAGIRI-BOT](#sagiri-bot)
   * [目录](#目录)
   * [使用文档](#使用文档)
-    + [新版文档](#新版文档)
   * [开始使用](#开始使用)
     + [使用前准备](#使用前准备)
     + [如何启动](#如何启动)
     + [参数说明](#参数说明)
-      - [config.json](#configjson)
-      - [response_set.json](#response-setjson)
+      - [config.yaml](#configyaml)
   * [注意](#注意)
-  * [TODO](#TODO)
+  * [TODO](#todo)
+  * [鸣谢](#鸣谢)
 
 ## 使用文档
 
-文档缓慢更新中（老鸽子了）
-
-~~文档地址: http://doc.sagiri-web.com/web/#/p/c79d523043f6ec05c1ac1416885477c7~~
-
-文档将在近期重新编写，老版文档已经有多处不再适用，但你也可以适当参考
-
-
-### 新版文档
-- [群组内功能](docs/functions.md)
-- [群组管理](docs/manage.md)
+因项目重构，原文档失效，正在编写新文档🕊🕊🕊
 
 ## 开始使用
 
 ### 使用前准备
 
-- 使用 `pip install -r requirements.txt` 命令安装所需库，注意：若不需要图像预测功能（尚未写完）请将requirements.txt中的Keras删除再执行安装命令
-- 执行 `dbInit.sql` 文件，这将帮助你建立一个适合 SAGIRI-BOT 的数据库
+不同于老版的SAGIRI-BOT，新版的SAGIRI-BOT使用了ORM框架，这意味着可以很方便的将项目适配各种不同的数据库
+
+- 配置数据库链接
+    - mysql: mysql+pymysql://username:password@localhost:3306/dbname
+    - sqlite: sqlite:///filename.db
+    - oracle: oracle://username:password@192.168.1.6:1521/dbname
 - 下载 [mirai-console](https://github.com/mamoe/mirai-console) 并配置 [mirai-api-http](https://github.com/project-mirai/mirai-api-http) ，这些都可以在 [mirai](https://github.com/mamoe/mirai) 项目中找到
 - 若上一条不会配置，请考虑使用 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader) 加载器进行配置
-- 打开 `configdemo.json`，配置好个人信息，并将文件更名为 `config.json`，配置说明见[config文件参数说明](#configjson)
-- ~~最重要的当然是准备好各种图片~~
+- 打开 `configdemo.yaml`，配置好个人信息，并将文件更名为 `config.yaml`，配置说明见[config文件参数说明](#configyaml)
 
 ### 如何启动
 
 首先，启动 mirai-console，确保其正常运行且插件正常安装
-在文件夹下执行 `python sagiri_bot.py` 即可
+在文件夹下执行 `python main.py` 即可
 你应当见到类似如下格式的信息：
-```angular2
-[2020-12-01 11:42:02,059][INFO]: initializing app...
-[2020-12-01 11:42:02,069][INFO]: detecting remote's version...
-[2020-12-01 11:42:02,073][INFO]: detected remote's version: 1.7.3
-[2020-12-01 11:42:02,075][INFO]: using pure websocket to receive event
-[2020-12-01 11:42:02,075][INFO]: found websocket disabled, so it has been enabled.
-Bot init start
-[2020-12-01 11:42:02,077][INFO]: event receive method checked.
-[2020-12-01 11:42:02,077][INFO]: this application's initialization has been completed.
-[2020-12-01 11:42:02,077][INFO]: --- setting start ---
-[2020-12-01 11:42:02,077][INFO]: broadcast using: <graia.broadcast.Broadcast object at 0x00000233C18D8688>
-[2020-12-01 11:42:02,078][INFO]: enable log of chat: yes
-[2020-12-01 11:42:02,078][INFO]: debug: no
-[2020-12-01 11:42:02,078][INFO]: version(remote): 1.7.3
-[2020-12-01 11:42:02,078][INFO]: --- setting end ---
-[2020-12-01 11:42:02,078][INFO]: application has been initialized, used 0.019s
-[2020-12-01 11:42:02,079][DEBUG]: caching sha2: succeeded by fast path.
-[2020-12-01 11:42:02,082][DEBUG]: caching sha2: succeeded by fast path.
-[2020-12-01 11:42:02,083][DEBUG]: caching sha2: succeeded by fast path.
-[2020-12-01 11:42:02,085][DEBUG]: caching sha2: succeeded by fast path.
-[2020-12-01 11:42:02,086][DEBUG]: caching sha2: succeeded by fast path.
-[2020-12-01 11:42:02,087][DEBUG]: caching sha2: succeeded by fast path.
-[2020-12-01 11:42:02,089][DEBUG]: caching sha2: succeeded by fast path.
-[2020-12-01 11:42:02,090][DEBUG]: caching sha2: succeeded by fast path.
-[123564623, 12343143214, 45346146, 6135464, 13461463143, 123413241234, 652466542, 8679675867, 45142316431, 123442341]
-123564623 : xxxxxxxx
-12343143214 : xxxxxxxx
-45346146 : xxxxxxxx
-6135464 : xxxxxxxx
-13461463143 : xxxxxxxx
-123413241234 : xxxxxxxx
-652466542 : xxxxxxxx
-8679675867 : xxxxxxxx
-45142316431 : xxxxxxxx
-123442341 : xxxxxxxx
-{123564623, 12343143214, 45346146, 6135464, 13461463143, 123413241234, 652466542, 8679675867, 45142316431, 123442341}
-Bot init end
-[2020-12-01 11:42:02,092][DEBUG]: caching sha2: succeeded by fast path.
-[2020-12-01 11:42:02,093][DEBUG]: caching sha2: succeeded by fast path.
-[2020-12-01 11:42:02,094][DEBUG]: caching sha2: succeeded by fast path.
+```text
+2021-04-11 20:21:53.776 | INFO     | SAGIRIBOT.Core.AppCore:__init__:39 - Initializing
+2021-04-11 20:21:53.818 | INFO     | SAGIRIBOT.Core.AppCore:__init__:58 - Initialize end
+2021-04-11 20:21:53.819 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> ChatRecordHandler
+2021-04-11 20:21:55.765 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> BotManagementHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> StatusPresenterHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> ImageSenderHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> TrendingHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> StylePictureGeneraterHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> AvatarFunPicHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> AbbreviatedPredictionHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> LeetcodeInfoHanlder
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> QrCodeGeneratorHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> ImageSearchHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> BiliBiliBangumiScheduleHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> TodayInHistoryHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> BilibiliAppParserHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> PhantomTankHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> SteamGameInfoSearchHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> MarketingContentGeneratorHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> NetworkCompilerHandler
+2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> BangumiInfoSearchHandler
+2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> LatexGeneratorHandler
+2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> JLUCSWNoticeHandler
+2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> GroupWordCloudGeneratorHandler
+2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> KeywordReplyHandler
+2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> ChatReplyHandler
+2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> RepeaterHandler
+2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> HeadHandler
+2021-04-11 20:21:55.770 | SUCCESS  | SAGIRIBOT.Handler.MessageHandler:__init__:50 - 
+----------------------------------------------
+职责链加载成功，目前链序：
+ChatRecordHandler                       一个记录聊天记录的Handler
+BotManagementHandler                    bot管理Handler
+StatusPresenterHandler                  一个bot状态显示Handler
+ImageSenderHandler                      一个可以发送图片的Handler
+TrendingHandler                         一个获取热搜的Handler
+StylePictureGeneraterHandler            一个可以生成风格图片的Handler
+AvatarFunPicHandler                     一个可以生成头像相关趣味图的Handler
+AbbreviatedPredictionHandler            一个获取英文缩写意思的Handler
+LeetcodeInfoHanlder                     一个可以获取Leetcode信息的Handler
+QrCodeGeneratorHandler                  一个生成二维码的Handler
+ImageSearchHandler                      一个可以搜索Pixiv图片的Handler
+BiliBiliBangumiScheduleHandler          一个可以获取BiliBili7日内新番时间表的Handler
+TodayInHistoryHandler                   一个获取历史上的今天的Handler
+BilibiliAppParserHandler                一个可以解析BiliBili小程序的Handler
+PhantomTankHandler                      一个幻影坦克生成器Handler
+SteamGameInfoSearchHandler              一个可以搜索steam游戏信息的Handler
+MarketingContentGeneratorHandler        一个营销号生成器Handler
+NetworkCompilerHandler                  一个网络编译器Handler
+BangumiInfoSearchHandler                一个可以搜索番剧信息的Handler
+LatexGeneratorHandler                   一个latex公式转图片的Handler
+JLUCSWNoticeHandler                     一个可以获取吉林大学软件学院教务通知的Handler
+GroupWordCloudGeneratorHandler          群词云生成器
+KeywordReplyHandler                     一个关键字回复Handler
+ChatReplyHandler                        一个可以自定义/。智能回复的Handler
+RepeaterHandler                         一个复读Handler
+----------------------------------------------
+[2021-04-11 20:21:55,770][INFO]: initializing app...
+[2021-04-11 20:21:55,778][INFO]: detecting remote's version...
+[2021-04-11 20:21:55,786][INFO]: detected remote's version: 1.9.8
+[2021-04-11 20:21:55,789][INFO]: using pure websocket to receive event
+[2021-04-11 20:21:55,789][INFO]: found websocket disabled, so it has been enabled.
+2021-04-11 20:21:55.898 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:121 - 本次启动活动群组如下：
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
+[2021-04-11 20:21:55,923][INFO]: event receive method checked.
+[2021-04-11 20:21:55,923][INFO]: this application's initialization has been completed.
+[2021-04-11 20:21:55,923][INFO]: --- setting start ---
+[2021-04-11 20:21:55,923][INFO]: broadcast using: <graia.broadcast.Broadcast object at 0x0000022E748E7790>
+[2021-04-11 20:21:55,923][INFO]: enable log of chat: no
+[2021-04-11 20:21:55,923][INFO]: debug: no
+[2021-04-11 20:21:55,923][INFO]: version(remote): 1.9.8
+[2021-04-11 20:21:55,923][INFO]: --- setting end ---
+[2021-04-11 20:21:55,923][INFO]: application has been initialized, used 0.153s
+[2021-04-11 20:21:55,924][INFO]: websocket daemon: websocket connection starting...
+[2021-04-11 20:21:55,925][INFO]: websocket: connected
+[2021-04-11 20:21:55,925][INFO]: websocket: ping task created
 ```
-其中各种数字为此账号所加入的所有群组的群号，冒号后面xxxxxxxx的为群号对应群名
 现在，来试一试你的机器人吧！
 
 ### 参数说明
 
-#### config.json
+#### config.yaml
 用于存储机器人的各种配置，可随时进行更改
 注意：所有路径的结尾都应该有斜杠，如："/bot/setuPath/" 或 "\bot\setuPath\" 等
 
 |  参数名   | 说明  |
 |  ----  | ----  |
 | BotQQ  | 机器人的QQ号 |
-| HostQQ  | 主人的QQ号，也可理解为超级管理员的QQ号 |
-| authKey | mirai-api-http 的 authKey |
+| HostQQ  | 主人的QQ号，默认权限等级4 |
+| authKey | mirai-api-http 的 authKey，格式为 `!!str authKey` |
 | miraiHost | 主机ip + mirai-api-http 的 port，一般在本地不用更改 |
-| dbHost | 数据库地址 |
-| dbName | 数据库名 |
-| dbUser | 数据库账号用户名 |
-| dbPass | 数据库账号密码 |
+| DBLink | 数据库链接，可参看 [使用前准备](#使用前准备) |
 | setuPath | 正常二次元图片存储路径（绝对路径） |
 | setu18Path | 不对劲二次元图片存储路径（绝对路径） |
 | realPath | 三次元图片存储路径（绝对路径） |
 | realHighqPath | 高质量三次元图片存储路径（绝对路径） |
-| searchPath | 搜图功能的图片缓存路径（绝对路径） |
-| yellowJudgePath | 鉴黄功能的图片缓存路径（绝对路径） |
-| ~~clockWallpaperPreviewPath~~ | ~~钟表功能表盘预览图片存储路径（绝对路径）~~ |
-| ~~clockWallpaperSavedPath~~ | ~~钟表功能表盘图片存储路径（有时间的）（绝对路径）~~ |
-| tributePath | 上贡图片存储路径（暂未从旧版本迁移过来）（绝对路径） |
 | wallpaperPath | 壁纸图片存储路径（绝对路径） |
-| imgSavePath | 番剧查询功能图片缓存地址（绝对路径） |
-| listenImagePath | 图片监听，私发存图存储路径（绝对路径） |
-| txAppId | 腾讯AI开放平台AppId（自行申请） |
+| sketchPath | 线稿图片存储路径（绝对路径） |
+| txAppId | 腾讯AI开放平台AppId（自行申请），格式为 `!!str txAppId` |
 | txAppKey | 腾讯AI开放平台AppKey（自行申请） |
 | shadiaoAppName | shadiaoApp 应用名（自行申请） |
 | saucenaoCookie | saucenao cookie（自行登录获取） |
-| sketchPath | 线稿图片存储路径（绝对路径） |
-| highPerformance | 高性能选项 |
 | webManagerApi | api是否启动（用于管理页面） |
 | webManagerAutoBoot | 是否自动打开管理页面（webManagerApi为True时才起作用） |
 
-#### response_set.json
-用于存储各种功能触发的关键词，需要在机器人启动前进行更改，机器人运行时更改无效（将在下次启动时生效）
-
-|  参数名   | 说明  |
-|  ----  | ----  |
-| setu  | 二次元图片功能触发关键词（可添加图片，按照\[mirai:image:{ImageMD5}.mirai\]的格式添加即可，可使用 `message.asSerializationString()` 函数查看） |
-| real | 三次元图片功能触发关键词（可添加图片，按照\[mirai:image:{ImageMD5}.mirai\]的格式添加即可，可使用 `message.asSerializationString()` 函数查看） |
-| bizhi | 壁纸图片功能触发关键词（可添加图片，按照\[mirai:image:{ImageMD5}.mirai\]的格式添加即可，可使用 `message.asSerializationString()` 函数查看） |
-| realHighq | 高质量三次元图片功能触发关键词（可添加图片，按照\[mirai:image:{ImageMD5}.mirai\]的格式添加即可，可使用 `message.asSerializationString()` 函数查看） |
-
-
 ## 注意
 目前机器人尚未完善，仍有许多bug存在，若您在使用中发现了bug或有更好的建议，请提ISSUE
-目前已知bug：
-- ~~短时间内同时发送大量图片会导致发送失败（降低单张图片大小也许可以解决）~~
-- 发送多张图片的指令如 `setu*`, `real*`, `bizhi*`在交叉使用是会打断前面的任务（如`setu*5`，`real*5`，`real*5` 发送以后 `setu*5` 的任务就会被打断）
-（↑如果知道解决办法也可向我提ISSUE）
-
 ```diff
-- 特别注意：机器人中有许多功能使用的是我自己的API，可能会随时修改或关闭，请及时寻找替代用API，因API改动造成的程序错误概不负责
-- 特别注意：机器人中有许多功能使用的是我自己的API，可能会随时修改或关闭，请及时寻找替代用API，因API改动造成的程序错误概不负责
-- 特别注意：机器人中有许多功能使用的是我自己的API，可能会随时修改或关闭，请及时寻找替代用API，因API改动造成的程序错误概不负责
+- 特别注意：机器人中有许多功能使用的是我的私用API，可能会随时修改或关闭，请及时寻找替代用API，因API改动造成的程序错误概不负责
 ```
 
 ## TODO
-- [x] 修改复读代码使其不用修改源码（只是懒
-- [x] 添加XML大图功能
-- [x] 移除图片报时功能
-- [x] 添加词云自定义蒙版（词云形状）
-- [x] 删除群语录功能，QQ已有群精华消息功能作为替代品
-- [x] 添加启动提示功能
-- [x] 添加前端管理页面
-- [ ] 提供高性能选项，内置涩图检测网络，物品识别网络等
-- [ ] 支持发送语音
-- [ ] 修复错误重发队列可能会丢失任务的bug
-- [ ] 将种子搜索功能更换一个更可靠的网站
-- [ ] 修改优化代码结构（估计得等下个世纪了/或者会把所有功能改为插件移植到 [SagiriGraiaPlatform](https://github.com/SAGIRI-kawaii/SagiriGraiaPlatform) 上）
-- [ ] 添加GAL搜索功能
-- [ ] 将数据库迁移到sqlite
-- [ ] 添加pixiv标签搜图功能
-- [ ] 将一些自带数据整合为sql文件并上传
-- [ ] 广告识别功能（自动禁言、撤回、移除）
-- [ ] 敏感词检测功能（自动警告、禁言、撤回、移除）
-- [ ] 添加 悲报/喜报 图片生成功能
-- [ ] 添加错误日志记录功能
-- [ ] 成就系统
+- [ ] 可视化管理页面
+- [ ] 添加并完善日志记录功能
 - [ ] 完善文档
+- [ ] 支持Saya加载插件
+- [ ] 点歌功能
+- [ ] 支持发送语音
+- [ ] 广告识别功能（自动禁言、撤回、移除）
 
 ## 鸣谢
 - [mirai](https://github.com/mamoe/mirai) ，高效率 QQ 机器人框架 / High-performance bot framework for Tencent QQ
