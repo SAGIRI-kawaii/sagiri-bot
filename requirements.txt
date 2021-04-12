@@ -13,3 +13,4 @@ python_dateutil==2.8.1
 PyYAML==5.4.1
 graia-application-mirai==0.18.4
 graia-broadcast==0.8.10
+wordcloud==1.8.1

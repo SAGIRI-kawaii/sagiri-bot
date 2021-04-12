@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import yaml
 from loguru import logger
 
 from graia.application.event.messages import Group, Member
@@ -13,9 +14,8 @@ from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.Handler.Handlers import *
 from SAGIRIBOT.Core.AppCore import AppCore
 
-
-with open('config.json', 'r', encoding='utf-8') as f:  # 从json读配置
-    configs = json.loads(f.read())
+with open('config.yaml', 'r', encoding='utf-8') as f:
+    configs = yaml.load(f.read())
 
 core = AppCore(configs)
 
@@ -38,6 +38,7 @@ g_handler: GroupMessageHandler = GroupMessageHandler([
     StylePictureGeneraterHandler(),
     AvatarFunPicHandler(),
     AbbreviatedPredictionHandler(),
+    PDFSearchHandler(),
     LeetcodeInfoHanlder(),
     QrCodeGeneratorHandler(),
     ImageSearchHandler(),

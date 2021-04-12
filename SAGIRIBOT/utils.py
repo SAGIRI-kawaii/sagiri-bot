@@ -165,7 +165,7 @@ def get_config(config: str):
             dbPass: str
             setuPath: str
     """
-    with open('config.yaml', 'r', encoding='utf-8') as f:  # 从json读配置
+    with open('config.yaml', 'r', encoding='utf-8') as f:
         configs = yaml.load(f.read())
     if config in configs.keys():
         return configs[config]
