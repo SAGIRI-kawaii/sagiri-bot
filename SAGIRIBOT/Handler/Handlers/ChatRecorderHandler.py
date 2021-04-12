@@ -41,7 +41,6 @@ class ChatRecordHandler(AbstractHandler):
                 return None
             new_id = list(orm.fetchone(select(ChatRecord.id).order_by(desc(ChatRecord.id)), 1))
             new_id = new_id[0][0] + 1 if new_id else 1
-            print(new_id)
             try:
                 orm.add(
                     ChatRecord,
