@@ -75,8 +75,6 @@ class ChatReplyHandler(AbstractHandler):
         if temp_list:
             text = text.replace(f"@{temp_list[0]} ", "")
         text = text.strip()
-        # print("question:", text)
-        # print(text, temp_list)
         app_id = get_config("txAppId")
         t = time.time()
         time_stamp = str(int(t))

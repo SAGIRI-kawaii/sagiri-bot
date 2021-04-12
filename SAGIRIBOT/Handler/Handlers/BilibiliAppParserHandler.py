@@ -86,7 +86,7 @@ class BilibiliAppParserHandler(AbstractHandler):
                 img_content = await resp.read()
 
         chain_list.append(Image.fromUnsafeBytes(img_content))
-        chain_list.append(Plain(text=f"【分区】{bilibili_partition_dict[str(data['tid'])]['name']}->{data['tname']}\n"))
+        chain_list.append(Plain(text=f"\n【分区】{bilibili_partition_dict[str(data['tid'])]['name']}->{data['tname']}\n"))
         chain_list.append(Plain(text=f"【视频类型】{'原创' if data['copyright'] == 1 else '转载'}\n"))
         chain_list.append(Plain(text=f"【投稿时间】{time.strftime('%Y-%m-%d', time.localtime(int(data['pubdate'])))}\n"))
         chain_list.append(Plain(text=f"【视频长度】{sec_format(data['duration'])}\n"))
