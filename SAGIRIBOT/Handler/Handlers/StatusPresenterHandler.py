@@ -36,7 +36,7 @@ class StatusPresenterHandler(AbstractHandler):
                 MessageChain.create([Plain(text=content)]),
                 QuoteSource(GroupStrategy())
             )
-        elif re.match(r"/help [0-9]*", message_text):
+        elif re.match(r"/help [0-9]+", message_text):
             chains = AppCore.get_core_instance().get_group_chain()
             length = len(chains)
             index = int(message_text[6:])

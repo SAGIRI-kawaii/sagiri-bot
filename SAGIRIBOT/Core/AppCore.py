@@ -1,3 +1,4 @@
+import os
 import asyncio
 import traceback
 import threading
@@ -107,6 +108,7 @@ class AppCore:
         return self.__exception_resender
 
     async def bot_launch_init(self):
+        self.config_check()
         orm.session.query(Setting).update({"active": False})
         group_list = await self.__app.groupList()
         frequency_limit_dict = {}
@@ -134,3 +136,18 @@ class AppCore:
             args=(self.__app, exception_resender_instance, self.__loop)
         )
         listener.start()
+
+    def config_check(self):
+        logger.info("checking config")
+        pic_paths = ["setuPath", "setu18Path", "realPath", "realHighqPath", "wallpaperPath", "sketchPath"]
+        if self.__config["HostQQ"] == 123:
+            logger.warning(f"HostQQ无效，请检查配置！")
+        for path in pic_paths:
+            if not os.path.exists(self.__config[path]):
+                logger.warning(f"{path}无效，请检查配置！")
+        if self.__config["saucenaoCookie"] == "balabala":
+            logger.warning("saucenaoCookie无效，请检查配置！")
+        if self.__config["txAppId"] == "1234567890":
+            logger.warning("txAppId无效，请检查配置！")
+        if self.__config["txAppKey"] == "ABCDEFGHIJKLMN":
+            logger.warning("txAppKey无效，请检查配置！")

@@ -1,3 +1,4 @@
+import traceback
 from loguru import logger
 from pydantic import BaseModel
 from abc import ABC, abstractmethod
@@ -46,13 +47,14 @@ class GroupMessageSender(MessageSender):
             member: Member
     ):
         try:
-            message = message.plusWith(MessageChain.create([Plain(text="\n\nThis message is sent by the reconstructed SAGIRI-BOT")]))
+            # message = message.plusWith(MessageChain.create([Plain(text="\n\nThis message is sent by the reconstructed SAGIRI-BOT")]))
             await self.__strategy.send(app, message, origin_message, group, member)
             if not isinstance(self.__strategy, DoNoting):
                 logger.success(f"成功向群 <{group.name}> 发送消息 - {message.asDisplay()}")
         except AccountMuted:
             logger.error(f"Bot 在群 <{group.name}> 被禁言，无法发送！")
         except ClientResponseError:
+            logger.error(traceback.format_exc())
             ExceptionReSender().addTask([
                 MessageItem(message, self.__strategy),
                 origin_message,

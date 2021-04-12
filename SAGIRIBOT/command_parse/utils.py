@@ -43,7 +43,7 @@ async def execute_setting_update(group: Group, member: Member, command: str) -> 
                 continue
             func, value = command.split("=")
             func = camel_to_underscore(func)
-            value = bool(value) if value in ["True", "False"] else value
+            value = (True if value == "True" else False) if value in ["True", "False"] else value
             if func in command_index.keys():
                 if command_index[func].is_valid(value):
                     """ update """

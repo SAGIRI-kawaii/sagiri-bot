@@ -102,7 +102,7 @@ class ImageSenderHandler(AbstractHandler):
             return await super().handle(app, message, group, member)
 
     @staticmethod
-    async def random_pic(base_path: str) -> str:
+    def random_pic(base_path: str) -> str:
         path_dir = os.listdir(base_path)
         path = random.sample(path_dir, 1)[0]
         return base_path + path
@@ -112,33 +112,27 @@ class ImageSenderHandler(AbstractHandler):
 
         async def color() -> str:
             base_path = get_config("setuPath")
-            pic_path = await ImageSenderHandler.random_pic(base_path)
-            return pic_path
+            return f"{os.getcwd()}/statics/error/path_not_exists.png" if not os.path.exists(base_path) else ImageSenderHandler.random_pic(base_path)
 
         async def color18() -> str:
             base_path = get_config("setu18Path")
-            pic_path = await ImageSenderHandler.random_pic(base_path)
-            return pic_path
+            return f"{os.getcwd()}/statics/error/path_not_exists.png" if not os.path.exists(base_path) else ImageSenderHandler.random_pic(base_path)
 
         async def real() -> str:
             base_path = get_config("realPath")
-            pic_path = await ImageSenderHandler.random_pic(base_path)
-            return pic_path
+            return f"{os.getcwd()}/statics/error/path_not_exists.png" if not os.path.exists(base_path) else ImageSenderHandler.random_pic(base_path)
 
         async def real_highq() -> str:
             base_path = get_config("realHighqPath")
-            pic_path = await ImageSenderHandler.random_pic(base_path)
-            return pic_path
+            return f"{os.getcwd()}/statics/error/path_not_exists.png" if not os.path.exists(base_path) else ImageSenderHandler.random_pic(base_path)
 
         async def wallpaper() -> str:
             base_path = get_config("wallpaperPath")
-            pic_path = await ImageSenderHandler.random_pic(base_path)
-            return pic_path
+            return f"{os.getcwd()}/statics/error/path_not_exists.png" if not os.path.exists(base_path) else ImageSenderHandler.random_pic(base_path)
 
         async def sketch() -> str:
             base_path = get_config("sketchPath")
-            pic_path = await ImageSenderHandler.random_pic(base_path)
-            return pic_path
+            return f"{os.getcwd()}/statics/error/path_not_exists.png" if not os.path.exists(base_path) else ImageSenderHandler.random_pic(base_path)
 
         switch = {
             "setu": color,

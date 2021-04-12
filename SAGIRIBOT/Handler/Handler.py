@@ -4,6 +4,9 @@ from graia.application import GraiaMiraiApplication
 from graia.application.event.messages import Group, Member
 from graia.application.message.chain import MessageChain
 
+from SAGIRIBOT.ORM.Tables import Setting
+from SAGIRIBOT.utils import get_setting, get_admins
+
 
 class Handler(ABC):
     """
@@ -56,7 +59,9 @@ class HeadHandler(AbstractHandler):
         return handler
 
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-        if self._next_hander:
+        if not await get_setting(group.id, Setting.switch) and member.id not in await get_admins(group):
+            return None
+        elif self._next_hander:
             return await self._next_hander.handle(app, message, group, member)
         return None
 

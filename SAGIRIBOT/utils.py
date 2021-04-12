@@ -215,3 +215,16 @@ async def update_user_call_count_plus1(group: Group, member: Member, table_colum
         logger.error(traceback.format_exc())
         orm.session.rollback()
         return False
+
+
+async def get_admins(group: Group) -> list:
+    admins_res = list(orm.fetchall(
+        select(
+            UserPermission.member_id
+        ).where(
+            UserPermission.group_id == group.id,
+            UserPermission.level > 1
+        )
+    ))
+    admins = [item[0] for item in admins_res]
+    return admins
