@@ -7,7 +7,7 @@ from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
 
-from .Handler import HeadHandler
+from .Handlers.HeadHandler import HeadHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
 from SAGIRIBOT.MessageSender.Strategy import QuoteSource
