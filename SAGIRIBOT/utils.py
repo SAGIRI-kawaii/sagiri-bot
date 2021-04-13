@@ -1,14 +1,17 @@
 import os
+import io
 import math
 import yaml
+import base64
 import traceback
 from io import BytesIO
 from typing import Union
 from loguru import logger
-from PIL import ImageFont, ImageDraw
+from PIL import ImageFont, ImageDraw, ImageFile
 from PIL import Image as IMG
 from sqlalchemy import select, Column
 
+from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain, Image, Image_LocalFile, Image_UnsafeBytes
@@ -228,3 +231,43 @@ async def get_admins(group: Group) -> list:
     ))
     admins = [item[0] for item in admins_res]
     return admins
+
+
+async def online_notice(app: GraiaMiraiApplication):
+    group_list = await app.groupList()
+    for group in group_list:
+        if await get_setting(group.id, Setting.online_notice):
+            await app.sendGroupMessage(group, MessageChain.create([Plain(text="纱雾酱打卡上班啦！")]))
+
+
+async def compress_image_bs4(b64, mb=100, k=0.9):
+    """不改变图片尺寸压缩到指定大小
+    :param outfile: 压缩文件保存地址
+    :param mb: 压缩目标，KB
+    :param step: 每次调整的压缩比率
+    :param quality: 初始压缩比率
+    :return: 压缩文件地址，压缩文件大小
+    """
+    f = base64.b64decode(b64)
+    with io.BytesIO(f) as im:
+        o_size = len(im.getvalue()) // 1024
+        if o_size <= mb:
+            return b64
+        im_out = im
+        while o_size > mb:
+            img = IMG.open(im_out)
+            x, y = img.size
+            out = img.resize((int(x*k), int(y*k)), IMG.ANTIALIAS)
+            im_out.close()
+            im_out = io.BytesIO()
+            out.save(im_out, 'jpeg')
+            o_size = len(im_out.getvalue()) // 1024
+        b64 = base64.b64encode(im_out.getvalue())
+        im_out.close()
+        return str(b64, encoding='utf8')
+
+
+def sec_to_str(seconds: int) -> str:
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return "%02d:%02d:%02d" % (h, m, s)

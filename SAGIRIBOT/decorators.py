@@ -9,7 +9,8 @@ from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
 
 from SAGIRIBOT.ORM.ORM import orm
-from SAGIRIBOT.ORM.Tables import UserPermission
+from SAGIRIBOT.utils import get_setting
+from SAGIRIBOT.ORM.Tables import UserPermission, Setting
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, DoNoting
 from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict
@@ -59,7 +60,7 @@ def frequency_limit_require_weight_free(weight: int):
                     member_id = i.id
                 if isinstance(i, Group):
                     group_id = i.id
-            if member_id == -1 or group_id == -1:
+            if member_id == -1 or group_id == -1 or await get_setting(group_id, Setting.frequency_limit):
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)

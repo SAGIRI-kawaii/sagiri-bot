@@ -9,10 +9,11 @@ from graia.application.message.elements.internal import *
 from graia.application import GraiaMiraiApplication
 from graia.application.event.lifecycle import ApplicationLaunched
 
+from SAGIRIBOT.Handler.Handlers import *
+from SAGIRIBOT.utils import online_notice
+from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.Handler.MessageHandler import GroupMessageHandler
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.Handler.Handlers import *
-from SAGIRIBOT.Core.AppCore import AppCore
 
 with open('config.yaml', 'r', encoding='utf-8') as f:
     configs = yaml.load(f.read())
@@ -45,6 +46,7 @@ g_handler: GroupMessageHandler = GroupMessageHandler([
     BiliBiliBangumiScheduleHandler(),
     TodayInHistoryHandler(),
     BilibiliAppParserHandler(),
+    BangumiSearchHandler(),
     PhantomTankHandler(),
     SteamGameInfoSearchHandler(),
     MarketingContentGeneratorHandler(),
@@ -72,7 +74,8 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
 @logger.catch
 @bcc.receiver(ApplicationLaunched)
 async def init():
-    await AppCore.get_core_instance().bot_launch_init()
+    await core.bot_launch_init()
+    await online_notice(app)
 
 
 core.launch()

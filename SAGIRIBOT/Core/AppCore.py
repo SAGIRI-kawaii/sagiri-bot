@@ -151,3 +151,4 @@ class AppCore:
             logger.warning("txAppId无效，请检查配置！")
         if self.__config["txAppKey"] == "ABCDEFGHIJKLMN":
             logger.warning("txAppKey无效，请检查配置！")
+        logger.info("check done")

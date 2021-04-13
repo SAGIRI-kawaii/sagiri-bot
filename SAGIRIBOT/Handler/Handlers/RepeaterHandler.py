@@ -4,10 +4,11 @@ from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
 
+from SAGIRIBOT.utils import get_setting
+from SAGIRIBOT.ORM.Tables import Setting
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
-from SAGIRIBOT.MessageSender.Strategy import Normal
+from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
 
 
 class RepeaterHandler(AbstractHandler):
@@ -27,16 +28,17 @@ class RepeaterHandler(AbstractHandler):
             "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message_serialization, re.S)[0] + "]",
             ""
         )
-        if group_id in self.__group_repeat.keys():
-            self.__group_repeat[group.id]["lastMsg"] = self.__group_repeat[group.id]["thisMsg"]
-            self.__group_repeat[group.id]["thisMsg"] = message_serialization
-            if self.__group_repeat[group.id]["lastMsg"] != self.__group_repeat[group.id]["thisMsg"]:
-                self.__group_repeat[group.id]["stopMsg"] = ""
+        if await get_setting(group_id, Setting.repeat):
+            if group_id in self.__group_repeat.keys():
+                self.__group_repeat[group.id]["lastMsg"] = self.__group_repeat[group.id]["thisMsg"]
+                self.__group_repeat[group.id]["thisMsg"] = message_serialization
+                if self.__group_repeat[group.id]["lastMsg"] != self.__group_repeat[group.id]["thisMsg"]:
+                    self.__group_repeat[group.id]["stopMsg"] = ""
+                else:
+                    if self.__group_repeat[group.id]["thisMsg"] != self.__group_repeat[group.id]["stopMsg"]:
+                        self.__group_repeat[group.id]["stopMsg"] = self.__group_repeat[group.id]["thisMsg"]
+                        return MessageItem(message.asSendable(), Normal(GroupStrategy()))
             else:
-                if self.__group_repeat[group.id]["thisMsg"] != self.__group_repeat[group.id]["stopMsg"]:
-                    self.__group_repeat[group.id]["stopMsg"] = self.__group_repeat[group.id]["thisMsg"]
-                    return MessageItem(message.asSendable(), Normal(GroupStrategy()))
-        else:
-            self.__group_repeat[group_id] = {"lastMsg": "", "thisMsg": message_serialization, "stopMsg": ""}
+                self.__group_repeat[group_id] = {"lastMsg": "", "thisMsg": message_serialization, "stopMsg": ""}
 
         return await super().handle(app, message, group, member)
