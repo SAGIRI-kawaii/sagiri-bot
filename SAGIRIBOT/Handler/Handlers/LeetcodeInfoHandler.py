@@ -24,12 +24,10 @@ class LeetcodeInfoHanlder(AbstractHandler):
         if re.match(r"leetcode \S+", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.leetcode_user_info_crawer(message))
-            # return await self.leetcode_user_info_crawer(message)
         elif re.match(r"(leetcode|力扣)每日一题", message_text):
             pass
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def leetcode_user_info_crawer(message: MessageChain) -> MessageItem:

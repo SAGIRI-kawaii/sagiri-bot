@@ -23,7 +23,5 @@ class MarketingContentGeneratorHandler(AbstractHandler):
             _, somebody, something, other_word = message.asDisplay().split("#")
             content = f"""{somebody}{something}是怎么回事呢？{somebody}相信大家都很熟悉，但是{somebody}{something}是怎么回事呢，下面就让小编带大家一起了解下吧。\n{somebody}{something}，其实就是{somebody}{other_word}，大家可能会很惊讶{somebody}怎么会{something}呢？但事实就是这样，小编也感到非常惊讶。\n这就是关于{somebody}{something}的事情了，大家有什么想法呢，欢迎在评论区告诉小编一起讨论哦！"""
             set_result(message, MessageItem(MessageChain.create([Plain(text=content)]), QuoteSource(GroupStrategy())))
-            # return MessageItem(MessageChain.create([Plain(text=content)]), QuoteSource(GroupStrategy()))
         else:
             return None
-            # return await super().handle(app, message, group, member)

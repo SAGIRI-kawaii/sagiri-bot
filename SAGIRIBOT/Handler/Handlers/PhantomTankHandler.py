@@ -30,10 +30,6 @@ class PhantomTankHandler(AbstractHandler):
                     MessageChain.create([Plain(text="非预期图片数！请按照 `显示图 隐藏图` 顺序发送，一共两张图片")]),
                     QuoteSource(GroupStrategy())
                 ))
-                # return MessageItem(
-                #     MessageChain.create([Plain(text="非预期图片数！请按照 `显示图 隐藏图` 顺序发送，一共两张图片")]),
-                #     QuoteSource(GroupStrategy())
-                # )
             else:
                 display_img = message[Image][0]
                 async with aiohttp.ClientSession() as session:
@@ -46,10 +42,8 @@ class PhantomTankHandler(AbstractHandler):
                         hide_img = IMG.open(BytesIO(await resp.read()))
 
                 set_result(message, await self.get_message(group, member, display_img, hide_img))
-                # return await self.get_message(group, member, display_img, hide_img)
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(2)

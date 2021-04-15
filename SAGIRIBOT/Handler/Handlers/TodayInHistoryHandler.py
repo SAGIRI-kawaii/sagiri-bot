@@ -23,10 +23,8 @@ class TodayInHistoryHandler(AbstractHandler):
         if message.asDisplay() == "历史上的今天":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.get_today_in_history(group, member))
-            # return await self.get_today_in_history(group, member)
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(1)

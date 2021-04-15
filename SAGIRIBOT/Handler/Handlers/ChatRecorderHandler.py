@@ -1,6 +1,5 @@
 import re
 import jieba
-# import pkuseg
 import traceback
 import datetime
 from loguru import logger
@@ -28,7 +27,6 @@ class ChatRecordHandler(AbstractHandler):
 
     def __init__(self):
         super().__init__()
-        # self.__seg = pkuseg.pkuseg()
 
     async def record(self, message: MessageChain, group: Group, member: Member):
         await update_user_call_count_plus1(group, member, UserCalledCount.chat_count, "chat_count")
@@ -60,4 +58,3 @@ class ChatRecordHandler(AbstractHandler):
 
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         await self.record(message, group, member)
-        # return await super().handle(app, message, group, member)

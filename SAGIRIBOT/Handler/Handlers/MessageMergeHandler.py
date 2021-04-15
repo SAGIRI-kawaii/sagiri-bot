@@ -6,6 +6,7 @@ from graia.application.message.elements.internal import Plain, Image
 from SAGIRIBOT.utils import MessageChainUtils
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 
@@ -21,6 +22,6 @@ class MessageMergeHandler(AbstractHandler):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             elements = [element for element in message.__root__ if (isinstance(element, Image) or isinstance(element, Plain))]
             elements[0].text = elements[0].text[7:]
-            return MessageItem(await MessageChainUtils.messagechain_to_img(MessageChain.create(elements)), QuoteSource(GroupStrategy()))
+            set_result(message, MessageItem(await MessageChainUtils.messagechain_to_img(MessageChain.create(elements)), QuoteSource(GroupStrategy())))
         else:
-            return await super().handle(app, message, group, member)
+            return None

@@ -37,21 +37,17 @@ class KeywordReplyHandler(AbstractHandler):
         if re.match(r"添加回复关键词#[\s\S]*#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
                 set_result(message, await self.update_keyword(message, message_serialization))
-                # return await self.update_keyword(message, message_serialization)
             else:
                 return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
         elif re.match(r"删除回复关键词#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
                 set_result(message, await self.delete_keyword(app, message_serialization, group, member))
-                # return await self.delete_keyword(app, message_serialization, group, member)
             else:
                 set_result(message, MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy())))
-                # return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
         elif result := await self.keyword_detect(message_serialization):
             set_result(message, result)
-            # return result
-        return None
-        # return await super().handle(app, message, group, member)
+        else:
+            return None
 
     @staticmethod
     async def keyword_detect(keyword: str):

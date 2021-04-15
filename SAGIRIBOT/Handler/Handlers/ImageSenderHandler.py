@@ -83,37 +83,28 @@ class ImageSenderHandler(AbstractHandler):
                     break
             if not tfunc:
                 return None
-                # return await super().handle(app, message, group, member)
             else:
                 await update_user_call_count_plus1(group, member, user_called_column_index[tfunc], user_called_name_index[tfunc])
                 if tfunc == "setu":
                     if await get_setting(group.id, Setting.setu):
                         if await get_setting(group.id, Setting.r18):
                             set_result(message, await self.get_image_message(group, member, "setu18"))
-                            # return await self.get_image_message(group, member, tfunc)
                         else:
                             set_result(message, await self.get_image_message(group, member, tfunc))
-                            # return await self.get_image_message(group, member, tfunc)
                     else:
                         set_result(message, MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy())))
-                        # return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy()))
                 elif tfunc == "realHighq":
                     if await get_setting(group.id, Setting.real) and await get_setting(group.id, Setting.real_high_quality):
                         set_result(message, await self.get_image_message(group, member, tfunc))
-                        # return await self.get_image_message(group, member, tfunc)
                     else:
                         set_result(message, MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy())))
-                        # return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy()))
                 else:
                     if await get_setting(group.id, setting_column_index[tfunc]):
                         set_result(message, await self.get_image_message(group, member, tfunc))
-                        # return await self.get_image_message(group, member, tfunc)
                     else:
                         set_result(message, MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy())))
-                        # return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy()))
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     def random_pic(base_path: str) -> str:

@@ -27,7 +27,5 @@ class QrCodeGeneratorHandler(AbstractHandler):
             bytes_io = BytesIO()
             qrcode_img.save(bytes_io)
             set_result(message, MessageItem(MessageChain.create([Image.fromUnsafeBytes(bytes_io.getvalue())]), QuoteSource(GroupStrategy())))
-            # return MessageItem(MessageChain.create([Image.fromUnsafeBytes(bytes_io.getvalue())]), QuoteSource(GroupStrategy()))
         else:
             return None
-            # return await super().handle(app, message, group, member)

@@ -26,25 +26,18 @@ class NetworkCompilerHandler(AbstractHandler):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             if not await get_setting(group.id, "compile"):
                 set_result(message, MessageItem(MessageChain.create([Plain(text="网络编译器功能关闭了呐~去联系管理员开启吧~")]), Normal(GroupStrategy())))
-                # return MessageItem(MessageChain.create([Plain(text="网络编译器功能关闭了呐~去联系管理员开启吧~")]), Normal(GroupStrategy()))
             language = re.findall(r"super (.*?):", message_text, re.S)[0]
             code = message_text[8 + len(language):]
             result = await self.network_compiler(group, member, language, code)
             if isinstance(result, str):
                 set_result(message, MessageItem(MessageChain.create([Plain(text=result)]), QuoteSource(GroupStrategy())))
-                # return MessageItem(MessageChain.create([Plain(text=result)]), QuoteSource(GroupStrategy()))
             else:
                 set_result(message, MessageItem(
                     MessageChain.create([Plain(text=result["output"] if result["output"] else result["errors"])]),
                     QuoteSource(GroupStrategy())
                 ))
-                # return MessageItem(
-                #     MessageChain.create([Plain(text=result["output"] if result["output"] else result["errors"])]),
-                #     QuoteSource(GroupStrategy())
-                # )
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(2)

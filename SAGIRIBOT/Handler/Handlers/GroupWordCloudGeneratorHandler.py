@@ -32,22 +32,17 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
         if message_text == "我的月内总结":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.get_review(group, member, "month", "member"))
-            return await self.get_review(group, member, "month", "member")
         elif message_text == "我的年内总结":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.get_review(group, member, "year", "member"))
-            # return await self.get_review(group, member, "year", "member")
         elif message_text == "本群月内总结":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.get_review(group, member, "month", "group"))
-            # return await self.get_review(group, member, "month", "group")
         elif message_text == "本群年内总结":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.get_review(group, member, "year", "group"))
-            # return await self.get_review(group, member, "year", "group")
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def count_words(sp, n):

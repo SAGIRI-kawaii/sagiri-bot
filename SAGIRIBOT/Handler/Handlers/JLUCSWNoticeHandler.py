@@ -23,10 +23,8 @@ class JLUCSWNoticeHandler(AbstractHandler):
         if message.asDisplay() == "教务通知":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.format_output_notices())
-            # return await self.format_output_notices()
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def get_jlu_csw_notice(top: int = 100000):

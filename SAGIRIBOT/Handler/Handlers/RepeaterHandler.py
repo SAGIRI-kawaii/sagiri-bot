@@ -39,9 +39,7 @@ class RepeaterHandler(AbstractHandler):
                     if self.__group_repeat[group.id]["thisMsg"] != self.__group_repeat[group.id]["stopMsg"]:
                         self.__group_repeat[group.id]["stopMsg"] = self.__group_repeat[group.id]["thisMsg"]
                         set_result(message, MessageItem(message.asSendable(), Normal(GroupStrategy())))
-                        # return MessageItem(message.asSendable(), Normal(GroupStrategy()))
             else:
                 self.__group_repeat[group_id] = {"lastMsg": "", "thisMsg": message_serialization, "stopMsg": ""}
 
         return None
-        # return await super().handle(app, message, group, member)

@@ -39,14 +39,11 @@ class BilibiliAppParserHandler(AbstractHandler):
                         result = (await resp.read()).decode('utf-8')
                 result = json.loads(result)
                 set_result(message, MessageItem(await self.generate_messagechain(result), Normal(GroupStrategy())))
-                # return MessageItem(await self.generate_messagechain(result), Normal(GroupStrategy()))
 
             else:
                 return None
-                # return await super().handle(app, message, group, member)
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     def bv_to_av(bv: str) -> int:

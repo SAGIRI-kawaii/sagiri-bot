@@ -25,10 +25,6 @@ class StatusPresenterHandler(AbstractHandler):
                 MessageChain.create([Plain(text="目前链序：\n    " + "\n    ".join([handler.__name__ for handler in app_core.get_group_chain()]))]),
                 Normal(GroupStrategy())
             ))
-            # return MessageItem(
-            #     MessageChain.create([Plain(text="目前链序：\n    " + "\n    ".join([handler.__name__ for handler in app_core.get_group_chain()]))]),
-            #     Normal(GroupStrategy())
-            # )
         elif message_text == "/help":
             app_core = AppCore.get_core_instance()
             content = "目前已加载Handler：\n"
@@ -41,17 +37,12 @@ class StatusPresenterHandler(AbstractHandler):
                 MessageChain.create([Plain(text=content)]),
                 QuoteSource(GroupStrategy())
             ))
-            # return MessageItem(
-            #     MessageChain.create([Plain(text=content)]),
-            #     QuoteSource(GroupStrategy())
-            # )
         elif re.match(r"/help [0-9]+", message_text):
             chains = AppCore.get_core_instance().get_group_chain()
             length = len(chains)
             index = int(message_text[6:])
             if index > length:
                 set_result(message, MessageItem(MessageChain.create([Plain(text="非法编号！请检查发送的信息！")]), QuoteSource(GroupStrategy())))
-                # return MessageItem(MessageChain.create([Plain(text="非法编号！请检查发送的信息！")]), QuoteSource(GroupStrategy()))
             else:
                 content = "Handler详情：\n"
                 handler = chains[index - 1]
@@ -59,7 +50,5 @@ class StatusPresenterHandler(AbstractHandler):
                 content += f"描述：{handler.__description__}\n"
                 content += f"使用方法：{handler.__usage__}"
                 set_result(message, MessageItem(MessageChain.create([Plain(text=content)]), QuoteSource(GroupStrategy())))
-            # return MessageItem(MessageChain.create([Plain(text=content)]), QuoteSource(GroupStrategy()))
         else:
             return None
-            # return await super().handle(app, message, group, member)

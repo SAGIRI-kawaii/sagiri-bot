@@ -34,10 +34,8 @@ class ChatReplyHandler(AbstractHandler):
             await update_user_call_count_plus1(group, member, UserCalledCount.at, "at")
             content = "".join(plain.text for plain in message.get(Plain)).strip().replace(" ", "，")
             set_result(message, await self.get_reply(member.id, group.id, content))
-            # return await self.get_reply(member.id, group.id, content)
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def get_reply(member_id: int, group_id: int, content: str):

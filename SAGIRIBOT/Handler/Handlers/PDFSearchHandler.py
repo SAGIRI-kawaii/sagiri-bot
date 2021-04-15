@@ -25,10 +25,8 @@ class PDFSearchHandler(AbstractHandler):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             keyword = message.asDisplay()[4:]
             set_result(message, await self.search_pdf(group, member, keyword))
-            # return await self.search_pdf(group, member, keyword)
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(4)

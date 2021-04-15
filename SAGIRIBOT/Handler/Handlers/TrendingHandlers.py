@@ -29,17 +29,14 @@ class TrendingHandler(AbstractHandler):
         if message_text == "微博热搜":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.get_weibo_trending(group, member))
-            # return await self.get_weibo_trending(group, member)
         elif message_text == "知乎热搜":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.get_zhihu_trending(group, member))
-            # return await self.get_zhihu_trending(group, member)
         elif message_text == "github热搜":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             set_result(message, await self.get_github_trending(group, member))
-            # return await self.get_github_trending(group, member)
         else:
-            return await super().handle(app, message, group, member)
+            return None
 
     @staticmethod
     @frequency_limit_require_weight_free(1)

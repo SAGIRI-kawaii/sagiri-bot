@@ -27,10 +27,8 @@ class BiliBiliBangumiScheduleHandler(AbstractHandler):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             days = int(message.asDisplay()[0])
             set_result(message, await self.formatted_output_bangumi(days))
-            # return await self.formatted_output_bangumi(days)
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def get_new_bangumi_json() -> dict:

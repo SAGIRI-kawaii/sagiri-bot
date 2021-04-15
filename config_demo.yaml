@@ -15,4 +15,3 @@ shadiaoAppName: shadiao
 saucenaoCookie: balabala
 webManagerApi: true
 webManagerAutoBoot: true
-maxThreads: 8

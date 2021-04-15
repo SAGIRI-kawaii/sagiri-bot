@@ -26,10 +26,8 @@ class AbbreviatedPredictionHandler(AbstractHandler):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             abbreviation = message_text[1:].strip()
             set_result(message, await self.get_abbreviation_explain(group, member, abbreviation))
-            # return await self.get_abbreviation_explain(group, member, abbreviation)
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(1)

@@ -24,10 +24,8 @@ class BangumiInfoSearchHandler(AbstractHandler):
         if message.asDisplay().startswith("番剧 "):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             set_result(message, await self.get_bangumi_info(group, member, message.asDisplay()[3:]))
-            # return await self.get_bangumi_info(group, member, message.asDisplay()[3:])
         else:
             return None
-            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(3)
