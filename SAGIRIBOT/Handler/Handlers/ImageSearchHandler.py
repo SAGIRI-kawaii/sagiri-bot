@@ -16,6 +16,8 @@ from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.ORM.Tables import Setting, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
 
 saucenao_cookie = get_config("saucenaoCookie")
@@ -31,7 +33,8 @@ class ImageSearchHandler(AbstractHandler):
         if message.asDisplay() == "搜图":
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             if not await get_setting(group.id, Setting.img_search):
-                return MessageItem(MessageChain.create([Plain(text="搜图功能未开启呐~请联系管理员哦~")]), Normal(GroupStrategy()))
+                set_result(message, MessageItem(MessageChain.create([Plain(text="搜图功能未开启呐~请联系管理员哦~")]), Normal(GroupStrategy())))
+                # return MessageItem(MessageChain.create([Plain(text="搜图功能未开启呐~请联系管理员哦~")]), Normal(GroupStrategy()))
             try:
                 await app.sendGroupMessage(group, MessageChain.create([
                     At(member.id), Plain("请在30秒内发送要搜索的图片呐~(仅支持pixiv图片搜索呐！)")
@@ -75,13 +78,15 @@ class ImageSearchHandler(AbstractHandler):
                         await self.search_image(message_received[Image][0]),
                         quote=message_received[Source][0]
                     )
+                    raise AsyncioTasksGetResult
                 except AccountMuted:
                     logger.error(f"Bot 在群 <{group.name}> 被禁言，无法发送！")
                     pass
 
             return None
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def search_image(img: Image) -> MessageChain:

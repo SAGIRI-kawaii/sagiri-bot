@@ -12,6 +12,7 @@ from SAGIRIBOT.MessageSender.Strategy import Normal
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 
@@ -25,9 +26,11 @@ class BiliBiliBangumiScheduleHandler(AbstractHandler):
         if re.match(r"[1-7]日内新番", message.asDisplay()):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             days = int(message.asDisplay()[0])
-            return await self.formatted_output_bangumi(days)
+            set_result(message, await self.formatted_output_bangumi(days))
+            # return await self.formatted_output_bangumi(days)
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def get_new_bangumi_json() -> dict:

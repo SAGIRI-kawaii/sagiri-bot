@@ -8,6 +8,7 @@ from graia.application.message.elements.internal import Plain, Image
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
@@ -21,9 +22,11 @@ class SteamGameInfoSearchHandler(AbstractHandler):
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("steam "):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
-            return await self.get_steam_game_search(group, member, message.asDisplay()[6:])
+            set_result(message, await self.get_steam_game_search(group, member, message.asDisplay()[6:]))
+            # return await self.get_steam_game_search(group, member, message.asDisplay()[6:])
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def get_steam_game_description(game_id: int) -> str:

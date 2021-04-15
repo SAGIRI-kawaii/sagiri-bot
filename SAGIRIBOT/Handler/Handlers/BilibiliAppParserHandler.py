@@ -7,11 +7,12 @@ from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import App, Plain, Image
 
-from SAGIRIBOT.Handler.Handler import AbstractHandler
-from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
-from SAGIRIBOT.static_datas import bilibili_partition_dict
 from SAGIRIBOT.utils import sec_format
+from SAGIRIBOT.Handler.Handler import AbstractHandler
+from SAGIRIBOT.static_datas import bilibili_partition_dict
+from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
 
 
 class BilibiliAppParserHandler(AbstractHandler):
@@ -29,7 +30,7 @@ class BilibiliAppParserHandler(AbstractHandler):
                     async with session.get(url=short_url, allow_redirects=False) as resp:
                         result = (await resp.read()).decode("utf-8")
                 bv_url = result.split("\"")[1].split("?")[0].split("/")[-1].strip()
-                print(bv_url)
+                # print(bv_url)
 
                 bilibili_video_api_url = f"http://api.bilibili.com/x/web-interface/view?aid={self.bv_to_av(bv_url)}"
 
@@ -37,12 +38,15 @@ class BilibiliAppParserHandler(AbstractHandler):
                     async with session.get(url=bilibili_video_api_url) as resp:
                         result = (await resp.read()).decode('utf-8')
                 result = json.loads(result)
-                return MessageItem(await self.generate_messagechain(result), Normal(GroupStrategy()))
+                set_result(message, MessageItem(await self.generate_messagechain(result), Normal(GroupStrategy())))
+                # return MessageItem(await self.generate_messagechain(result), Normal(GroupStrategy()))
 
             else:
-                return await super().handle(app, message, group, member)
+                return None
+                # return await super().handle(app, message, group, member)
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     def bv_to_av(bv: str) -> int:

@@ -8,11 +8,13 @@ from graia.application import GraiaMiraiApplication
 from graia.application.exceptions import AccountMuted
 from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
-from graia.application.message.elements.internal import Plain
+from graia.application.message.elements.internal import Source
 
 from .MessageItem import MessageItem
 from .Strategy import Strategy, DoNoting
+from SAGIRIBOT.MessageSender.globals import res
 from SAGIRIBOT.exception_resender import ExceptionReSender
+from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
 
 
 class MessageSender(ABC):
@@ -47,7 +49,6 @@ class GroupMessageSender(MessageSender):
             member: Member
     ):
         try:
-            # message = message.plusWith(MessageChain.create([Plain(text="\n\nThis message is sent by the reconstructed SAGIRI-BOT")]))
             await self.__strategy.send(app, message, origin_message, group, member)
             if not isinstance(self.__strategy, DoNoting):
                 logger.success(f"成功向群 <{group.name}> 发送消息 - {message.asDisplay()}")
@@ -64,3 +65,9 @@ class GroupMessageSender(MessageSender):
             ])
         except TypeError:
             pass
+
+
+def set_result(origin_message: MessageChain, item: MessageItem):
+    res[origin_message[Source][0].id] = item
+    # print(res)
+    raise AsyncioTasksGetResult

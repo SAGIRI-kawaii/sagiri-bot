@@ -3,14 +3,15 @@ import aiohttp
 from bs4 import BeautifulSoup
 
 from graia.application import GraiaMiraiApplication
-from graia.application.message.elements.internal import Plain
 from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
+from graia.application.message.elements.internal import Plain
 
 from SAGIRIBOT.MessageSender.Strategy import Normal
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 
@@ -27,13 +28,16 @@ class TrendingHandler(AbstractHandler):
         message_text = message.asDisplay()
         if message_text == "微博热搜":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.get_weibo_trending(group, member)
+            set_result(message, await self.get_weibo_trending(group, member))
+            # return await self.get_weibo_trending(group, member)
         elif message_text == "知乎热搜":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.get_zhihu_trending(group, member)
+            set_result(message, await self.get_zhihu_trending(group, member))
+            # return await self.get_zhihu_trending(group, member)
         elif message_text == "github热搜":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.get_github_trending(group, member)
+            set_result(message, await self.get_github_trending(group, member))
+            # return await self.get_github_trending(group, member)
         else:
             return await super().handle(app, message, group, member)
 

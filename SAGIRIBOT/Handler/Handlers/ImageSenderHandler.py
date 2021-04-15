@@ -9,14 +9,15 @@ from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.broadcast.interrupt import InterruptControl
 from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
+from graia.application.message.elements.internal import Plain, Image, Source
 
 from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.ORM.Tables import TriggerKeyword, Setting, UserCalledCount
 from SAGIRIBOT.utils import get_config, get_setting, user_permission_require
@@ -59,15 +60,19 @@ class ImageSenderHandler(AbstractHandler):
 
         if re.match(r"添加功能关键词#[\s\S]*#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
-                return await self.update_keyword(message_serialization)
+                set_result(message, await self.update_keyword(message_serialization))
+                # return await self.update_keyword(message_serialization)
             else:
-                return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
+                set_result(message, MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy())))
+                # return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
 
         elif re.match(r"删除功能关键词#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
-                return await self.delete_keyword(app, group, member, message_serialization)
+                set_result(message, await self.delete_keyword(app, group, member, message_serialization))
+                # return await self.delete_keyword(app, group, member, message_serialization)
             else:
-                return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
+                set_result(message, MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy())))
+                # return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
 
         elif resp_functions := list(orm.fetchall(select(TriggerKeyword.function).where(TriggerKeyword.keyword == message_serialization))):
             resp_functions = resp_functions[0]
@@ -77,29 +82,38 @@ class ImageSenderHandler(AbstractHandler):
                     tfunc = function
                     break
             if not tfunc:
-                return await super().handle(app, message, group, member)
+                return None
+                # return await super().handle(app, message, group, member)
             else:
                 await update_user_call_count_plus1(group, member, user_called_column_index[tfunc], user_called_name_index[tfunc])
                 if tfunc == "setu":
                     if await get_setting(group.id, Setting.setu):
                         if await get_setting(group.id, Setting.r18):
-                            return await self.get_image_message(group, member, tfunc)
+                            set_result(message, await self.get_image_message(group, member, "setu18"))
+                            # return await self.get_image_message(group, member, tfunc)
                         else:
-                            return await self.get_image_message(group, member, tfunc)
+                            set_result(message, await self.get_image_message(group, member, tfunc))
+                            # return await self.get_image_message(group, member, tfunc)
                     else:
-                        return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy()))
+                        set_result(message, MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy())))
+                        # return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy()))
                 elif tfunc == "realHighq":
                     if await get_setting(group.id, Setting.real) and await get_setting(group.id, Setting.real_high_quality):
-                        return await self.get_image_message(group, member, tfunc)
+                        set_result(message, await self.get_image_message(group, member, tfunc))
+                        # return await self.get_image_message(group, member, tfunc)
                     else:
-                        return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy()))
+                        set_result(message, MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy())))
+                        # return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy()))
                 else:
                     if await get_setting(group.id, setting_column_index[tfunc]):
-                        return await self.get_image_message(group, member, tfunc)
+                        set_result(message, await self.get_image_message(group, member, tfunc))
+                        # return await self.get_image_message(group, member, tfunc)
                     else:
-                        return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy()))
+                        set_result(message, MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy())))
+                        # return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal(GroupStrategy()))
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     def random_pic(base_path: str) -> str:

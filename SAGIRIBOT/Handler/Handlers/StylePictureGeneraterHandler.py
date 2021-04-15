@@ -3,8 +3,8 @@ import os
 import numpy as np
 from io import BytesIO
 from math import radians, tan, cos, sin
-from PIL import Image as IMG, ImageDraw, ImageFont
 from decimal import Decimal, ROUND_HALF_UP
+from PIL import Image as IMG, ImageDraw, ImageFont
 
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
@@ -13,6 +13,7 @@ from graia.application.message.elements.internal import Plain, Image
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 from SAGIRIBOT.MessageSender.Strategy import Normal, GroupStrategy, QuoteSource
@@ -43,12 +44,15 @@ class StylePictureGeneraterHandler(AbstractHandler):
         message_text = message.asDisplay()
         if re.match("5000兆 .* .*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.gosencho_en_hoshi_style_image_generator(group, member, message)
+            set_result(message, await self.gosencho_en_hoshi_style_image_generator(group, member, message))
+            # return await self.gosencho_en_hoshi_style_image_generator(group, member, message)
         elif re.match("ph .* .*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.pornhub_style_image_generator(group, member, message)
+            set_result(message, await self.pornhub_style_image_generator(group, member, message))
+            # return await self.pornhub_style_image_generator(group, member, message)
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(1)

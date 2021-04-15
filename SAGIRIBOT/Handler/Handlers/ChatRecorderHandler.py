@@ -1,5 +1,6 @@
 import re
-import pkuseg
+import jieba
+# import pkuseg
 import traceback
 import datetime
 from loguru import logger
@@ -27,7 +28,7 @@ class ChatRecordHandler(AbstractHandler):
 
     def __init__(self):
         super().__init__()
-        self.__seg = pkuseg.pkuseg()
+        # self.__seg = pkuseg.pkuseg()
 
     async def record(self, message: MessageChain, group: Group, member: Member):
         await update_user_call_count_plus1(group, member, UserCalledCount.chat_count, "chat_count")
@@ -36,7 +37,7 @@ class ChatRecordHandler(AbstractHandler):
         for i in filter_words:
             content = content.replace(f"[mirai:{i}]", "")
         if content:
-            seg_result = self.__seg.cut(content)
+            seg_result = jieba.lcut(content)
             if not seg_result:
                 return None
             new_id = list(orm.fetchone(select(ChatRecord.id).order_by(desc(ChatRecord.id)), 1))
@@ -59,4 +60,4 @@ class ChatRecordHandler(AbstractHandler):
 
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         await self.record(message, group, member)
-        return await super().handle(app, message, group, member)
+        # return await super().handle(app, message, group, member)

@@ -1,19 +1,24 @@
 # -*- coding: utf-8 -*-
-import json
+import os
 import yaml
+import time
+import asyncio
 from loguru import logger
 
-from graia.application.event.messages import Group, Member
-from graia.application.event.messages import GroupMessage
-from graia.application.message.elements.internal import *
 from graia.application import GraiaMiraiApplication
+from graia.application.message.elements.internal import *
 from graia.application.event.lifecycle import ApplicationLaunched
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.Handler.Handlers import *
 from SAGIRIBOT.utils import online_notice
 from SAGIRIBOT.Core.AppCore import AppCore
+from SAGIRIBOT.MessageSender.globals import res
 from SAGIRIBOT.Handler.MessageHandler import GroupMessageHandler
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
+
+logger.add(f"{os.getcwd()}/log/common.log", level="INFO", retention="7 days", encoding="utf-8")
+logger.add(f"{os.getcwd()}/log/error.log", level="ERROR", retention="14 days", encoding="utf-8")
 
 with open('config.yaml', 'r', encoding='utf-8') as f:
     configs = yaml.load(f.read())
@@ -22,6 +27,7 @@ core = AppCore(configs)
 
 app = core.get_app()
 bcc = core.get_bcc()
+
 
 """
 职责链模式，可自行调整Handler顺序，顺序执行
@@ -52,7 +58,6 @@ g_handler: GroupMessageHandler = GroupMessageHandler([
     MarketingContentGeneratorHandler(),
     NetworkCompilerHandler(),
     BangumiInfoSearchHandler(),
-    LatexGeneratorHandler(),
     JLUCSWNoticeHandler(),
     GroupWordCloudGeneratorHandler(),
     KeywordReplyHandler(),
@@ -60,15 +65,19 @@ g_handler: GroupMessageHandler = GroupMessageHandler([
     RepeaterHandler()
 ])
 
+core.load_saya_modules()
+
 
 @bcc.receiver(GroupMessage)
-@logger.catch
 async def group_message_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    # print("s:", time.time())
     message_text_log = message.asDisplay().replace("\n", "\\n")
     logger.info(f"收到来自群 <{group.name}> 中成员 <{member.name}> 的消息：{message_text_log}")
-    if result := await g_handler.handle(app, message, group, member):
+    if await g_handler.handle(app, message, group, member):
+        result = res[message[Source][0].id]
         g_sender: GroupMessageSender = GroupMessageSender(result.strategy)
         await g_sender.send(app, result.message, message, group, member)
+    # print("e:", time.time())
 
 
 @logger.catch

@@ -8,6 +8,7 @@ from SAGIRIBOT.utils import get_setting
 from SAGIRIBOT.ORM.Tables import Setting
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
 
 
@@ -37,8 +38,10 @@ class RepeaterHandler(AbstractHandler):
                 else:
                     if self.__group_repeat[group.id]["thisMsg"] != self.__group_repeat[group.id]["stopMsg"]:
                         self.__group_repeat[group.id]["stopMsg"] = self.__group_repeat[group.id]["thisMsg"]
-                        return MessageItem(message.asSendable(), Normal(GroupStrategy()))
+                        set_result(message, MessageItem(message.asSendable(), Normal(GroupStrategy())))
+                        # return MessageItem(message.asSendable(), Normal(GroupStrategy()))
             else:
                 self.__group_repeat[group_id] = {"lastMsg": "", "thisMsg": message_serialization, "stopMsg": ""}
 
-        return await super().handle(app, message, group, member)
+        return None
+        # return await super().handle(app, message, group, member)

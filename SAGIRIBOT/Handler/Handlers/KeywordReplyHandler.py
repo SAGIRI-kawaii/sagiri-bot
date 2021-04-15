@@ -22,6 +22,7 @@ from SAGIRIBOT.ORM.Tables import KeywordReply
 from SAGIRIBOT.utils import user_permission_require
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal, QuoteSource
 
 
@@ -35,17 +36,22 @@ class KeywordReplyHandler(AbstractHandler):
             "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message.asSerializationString(), re.S)[0] + "]", "")
         if re.match(r"添加回复关键词#[\s\S]*#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
-                return await self.update_keyword(message, message_serialization)
+                set_result(message, await self.update_keyword(message, message_serialization))
+                # return await self.update_keyword(message, message_serialization)
             else:
                 return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
         elif re.match(r"删除回复关键词#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
-                return await self.delete_keyword(app, message_serialization, group, member)
+                set_result(message, await self.delete_keyword(app, message_serialization, group, member))
+                # return await self.delete_keyword(app, message_serialization, group, member)
             else:
-                return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
+                set_result(message, MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy())))
+                # return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
         elif result := await self.keyword_detect(message_serialization):
-            return result
-        return await super().handle(app, message, group, member)
+            set_result(message, result)
+            # return result
+        return None
+        # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def keyword_detect(keyword: str):
@@ -85,9 +91,11 @@ class KeywordReplyHandler(AbstractHandler):
                 async with session.get(url=image.url) as resp:
                     content = await resp.read()
             reply = base64.b64encode(content)
+        else:
+            reply = reply.encode("utf-8")
 
         m = hashlib.md5()
-        m.update(reply if reply_type == "img" else reply.encode("utf-8"))
+        m.update(reply)
         reply_md5 = m.hexdigest()
 
         try:

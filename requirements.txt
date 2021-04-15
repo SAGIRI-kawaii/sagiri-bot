@@ -8,9 +8,11 @@ loguru==0.5.3
 moviepy==1.0.3
 qrcode==6.1
 beautifulsoup4==4.9.3
-Pillow==8.2.0
+Pillow~=8.1.2
 python_dateutil==2.8.1
 PyYAML==5.4.1
 graia-application-mirai==0.18.4
 graia-broadcast==0.8.10
 wordcloud==1.8.1
+python-dateutil~=2.8.1
+fastapi~=0.63.0

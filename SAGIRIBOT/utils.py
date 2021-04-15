@@ -3,21 +3,23 @@ import io
 import math
 import yaml
 import base64
+import asyncio
 import traceback
 from io import BytesIO
 from typing import Union
 from loguru import logger
-from PIL import ImageFont, ImageDraw, ImageFile
+from PIL import ImageFont, ImageDraw
 from PIL import Image as IMG
-from sqlalchemy import select, Column
+from sqlalchemy import select
 
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain, Image, Image_LocalFile, Image_UnsafeBytes
 
-from .ORM.ORM import orm
-from .ORM.Tables import Setting, UserPermission, UserCalledCount
+from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.Core.AppCore import AppCore
+from SAGIRIBOT.ORM.Tables import Setting, UserPermission, UserCalledCount
 
 yaml.warnings({'YAMLLoadWarning': False})
 
@@ -271,3 +273,7 @@ def sec_to_str(seconds: int) -> str:
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
     return "%02d:%02d:%02d" % (h, m, s)
+
+
+def single_task(handle_func, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    asyncio.run_coroutine_threadsafe(handle_func(app, message, group, member), AppCore.get_core_instance().get_loop())

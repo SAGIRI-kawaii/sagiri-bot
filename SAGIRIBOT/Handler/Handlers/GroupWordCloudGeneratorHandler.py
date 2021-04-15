@@ -16,6 +16,7 @@ from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.ORM.Tables import ChatRecord, UserCalledCount
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
@@ -30,18 +31,23 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
         message_text = message.asDisplay()
         if message_text == "我的月内总结":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+            set_result(message, await self.get_review(group, member, "month", "member"))
             return await self.get_review(group, member, "month", "member")
         elif message_text == "我的年内总结":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.get_review(group, member, "year", "member")
+            set_result(message, await self.get_review(group, member, "year", "member"))
+            # return await self.get_review(group, member, "year", "member")
         elif message_text == "本群月内总结":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.get_review(group, member, "month", "group")
+            set_result(message, await self.get_review(group, member, "month", "group"))
+            # return await self.get_review(group, member, "month", "group")
         elif message_text == "本群年内总结":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.get_review(group, member, "year", "group")
+            set_result(message, await self.get_review(group, member, "year", "group"))
+            # return await self.get_review(group, member, "year", "group")
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def count_words(sp, n):

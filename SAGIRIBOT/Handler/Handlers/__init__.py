@@ -12,7 +12,7 @@ from .JLUCSWNoticeHandler import JLUCSWNoticeHandler
 from .KeywordReplyHandler import KeywordReplyHandler
 from .BotManagementHandler import BotManagementHandler
 from .BangumiSearchHandler import BangumiSearchHandler
-from .LatexGeneratorHandler import LatexGeneratorHandler
+# from .LatexGeneratorHandler import LatexGeneratorHandler
 from .TodayInHistoryHandler import TodayInHistoryHandler
 from .QrCodeGeneratorHandler import QrCodeGeneratorHandler
 from .StatusPresenterHandler import StatusPresenterHandler

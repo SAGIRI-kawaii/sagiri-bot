@@ -10,6 +10,7 @@ from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.Strategy import QuoteSource
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 
@@ -24,9 +25,11 @@ class AbbreviatedPredictionHandler(AbstractHandler):
         if re.match(r'缩\s?[A-Za-z0-9]+', message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             abbreviation = message_text[1:].strip()
-            return await self.get_abbreviation_explain(group, member, abbreviation)
+            set_result(message, await self.get_abbreviation_explain(group, member, abbreviation))
+            # return await self.get_abbreviation_explain(group, member, abbreviation)
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(1)

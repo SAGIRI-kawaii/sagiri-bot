@@ -5,10 +5,12 @@ import threading
 from loguru import logger
 from asyncio.events import AbstractEventLoop
 
+from graia.saya import Saya
 from sqlalchemy import select
 from graia.application import Session
 from graia.broadcast import Broadcast
 from graia.application import GraiaMiraiApplication
+from graia.saya.builtins.broadcast import BroadcastBehaviour
 
 from .Exceptions import *
 from SAGIRIBOT.ORM.ORM import orm
@@ -23,6 +25,8 @@ class AppCore:
     __app: GraiaMiraiApplication = None
     __loop: AbstractEventLoop = None
     __bcc = None
+    __saya = None
+    __thread_pool = None
     __config: dict = None
     __launched: bool = False
     __group_handler_chain = []
@@ -40,7 +44,6 @@ class AppCore:
             logger.info("Initializing")
             if any(parameter not in config for parameter in self.necessary_parameters):
                 raise ValueError(f"Missing necessary parameters! (miraiHost, authKey, BotQQ)")
-            # logger.info("AppCore config:\n" + json.dumps(config, indent=4))
             self.__loop = asyncio.get_event_loop()
             self.__bcc = Broadcast(loop=self.__loop)
             self.__app = GraiaMiraiApplication(
@@ -53,6 +56,8 @@ class AppCore:
                 ),
                 enable_chat_log=False
             )
+            self.__saya = Saya(self.__bcc)
+            self.__saya.install_behaviours(BroadcastBehaviour(self.__bcc))
             self.__app.debug = False
             self.__config = config
             AppCore.__first_init = True
@@ -152,3 +157,17 @@ class AppCore:
         if self.__config["txAppKey"] == "ABCDEFGHIJKLMN":
             logger.warning("txAppKey无效，请检查配置！")
         logger.info("check done")
+
+    def load_saya_modules(self):
+        ignore = ["__init__.py", "__pycache__"]
+        with self.__saya.module_context():
+            for module in os.listdir(f"modules"):
+                if module in ignore:
+                    continue
+                try:
+                    if os.path.isdir(module):
+                        self.__saya.require(f"modules.{module}")
+                    else:
+                        self.__saya.require(f"modules.{module.split('.')[0]}")
+                except ModuleNotFoundError as e:
+                    logger.error(f"saya模块：{module} - {e}")

@@ -37,8 +37,6 @@ class AbstractHandler(Handler):
         return handler
 
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-        self.group = group
-        self.member = member
         if self._next_hander:
             return await self._next_hander.handle(app, message, group, member)
         return None

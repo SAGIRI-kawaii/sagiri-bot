@@ -1,15 +1,296 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>SAGIRI-BOT Manager</title>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
 <body>
-    <div id="app">
+<div id="app">
+    <el-container style="border: 1px solid #eee">
+        <el-header style="text-align: right; font-size: 12px">
+            <span>SAGIRI-BOT Manager</span>
+            <el-dropdown>
+                <i class="el-icon-setting" style="margin-right: 15px"></i>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>查看</el-dropdown-item>
+                    <el-dropdown-item>项目地址</el-dropdown-item>
+                    <el-dropdown-item>退出</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+        </el-header>
 
-    </div>
+        <el-container>
+            <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+                <el-menu>
+                    <el-menu-item index="1" @click="pageChange(1)">
+                        <template slot="title"><i class="el-icon-s-help"></i>状态概览</template>
+                    </el-menu-item>
+                    <el-menu-item index="2" @click="pageChange(2)">
+                        <template slot="title"><i class="el-icon-s-management"></i>功能管理</template>
+                    </el-menu-item>
+                    <el-menu-item index="3" @click="pageChange(3)">
+                        <template slot="title"><i class="el-icon-s-data"></i>数据查询</template>
+                    </el-menu-item>
+                    <el-menu-item index="4" @click="pageChange(4)">
+                        <template slot="title"><i class="el-icon-error"></i>错误日志</template>
+                    </el-menu-item>
+                    <el-menu-item index="5" @click="pageChange(5)">
+                        <template slot="title"><i class="el-icon-info"></i>关于</template>
+                    </el-menu-item>
+                </el-menu>
+            </el-aside>
+
+            <el-container>
+
+                <el-main>
+
+                    <div v-show="pageIndex==1">
+                        <el-row :gutter="20">
+                            <el-col :span="6">
+                                <el-card class="box-card grid-content bg-purple">
+                                    <div class="container">
+                                        <span><i class="el-icon-user-solid"></i>&nbsp;本次启动激活群组</span>
+                                        <span><strong>123</strong></span>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="6">
+                                <el-card class="box-card grid-content bg-purple">
+                                    <div class="container">
+                                        <span><i class="el-icon-odometer"></i>&nbsp;今日功能调用次数</span>
+                                        <span><strong>12312</strong></span>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="6">
+                                <el-card class="box-card grid-content bg-purple">
+                                    <div class="container">
+                                        <span><i class="el-icon-suitcase"></i>&nbsp;目前加载Handler数量</span>
+                                        <span><strong>24</strong></span>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                            <el-col :span="6">
+                                <el-card class="box-card grid-content bg-purple">
+                                    <div class="container">
+                                        <span><i class="el-icon-collection"></i>&nbsp;目前加载插件数量(Saya)</span>
+                                        <span><strong>7</strong></span>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                        </el-row>
+                        <el-divider></el-divider>
+                        <el-card class="box-card">
+
+                        </el-card>
+                    </div>
+
+                    <el-card class="box-card" v-show="pageIndex==2">
+                        <div slot="header" class="clearfix container" style="">
+                            <span>{{ groupValue }}</span>
+                            <span>
+                                <el-select v-model="groupValue" placeholder="请选择" size="medium"
+                                           @change="updateOptionsValue">
+                                    <el-option
+                                            v-for="item in groups"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </span>
+                        </div>
+                        <div>
+                            <div v-for="option in optionsBool" class="container"
+                                 style="margin-top: 10px; margin-bottom: 10px">
+                                <div style="width: 100%">
+                                    <div class="container">
+                                        <span>{{ option.label }}</span>
+                                        <el-switch
+                                                v-model="option.value"
+                                                active-color="#13ce66"
+                                                inactive-color="#ff4949"
+                                                @change="switchChange(groupValue, option.label, option.value)">
+                                        </el-switch>
+                                    </div>
+                                    <div>
+<!--                                        <hr color="#EFACB9">-->
+                                        <hr color="#69c0ff">
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-for="option in optionsStr" class="container"
+                                 style="margin-top: 10px; margin-bottom: 10px">
+                                <div style="width: 100%">
+                                    <div class="container">
+                                        <span>{{ option.label }}</span>
+                                        <el-select v-model="strOptionValue[option.label]" @change="switchChange(groupValue, option.label, strOptionValue[option.label])">
+                                            <el-option
+                                                    v-for="item in option.validValue"
+                                                    :key="item"
+                                                    :label="item"
+                                                    :value="item">
+                                            </el-option>
+                                        </el-select>
+                                    </div>
+                                    <div>
+<!--                                        <hr color="#EFACB9">-->
+                                        <hr color="#69c0ff">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </el-card>
+                </el-main>
+            </el-container>
+        </el-container>
+        <el-footer>
+            <div>SAGIRI-BOT Manager</div>
+        </el-footer>
+    </el-container>
+</div>
 </body>
+
+<style>
+    .el-aside {
+        color: #EFACB9;
+    }
+
+    .el-header, .el-footer {
+        /*background-color: #EFACB9;*/
+        background-color: #69c0ff;
+        color: #333;
+        text-align: center;
+        line-height: 60px;
+    }
+
+    .el-container {
+        height: 100%;
+    }
+
+    body, html, #app {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+</style>
+
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="web_manager.pyhttps://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                isCollapse: true,
+                groups: [{
+                    value: '1234567',
+                    label: 'abcdefg'
+                }],
+                optionsBool: [{
+                    label: "None",
+                    value: false
+                }],
+                optionsStr: [{
+                    label: "None",
+                    value: "None",
+                    validValue: [
+                        "None"
+                    ]
+                }
+                ],
+                value: '',
+                strOptionValue: {
+                    "None": "None"
+                },
+                groupHasBeenChosen: false,
+                groupValue: '请选择群组',
+                groupId: '请选择群组',
+                pageIndex: "1"
+            };
+        },
+        created: function () {
+            this.getGroups();//需要触发的函数
+            this.timer = window.setInterval(() => {
+                setTimeout(() => {
+                    if (this.groupHasBeenChosen) this.updateOptionsValue(this.groupValue)
+                }, 0)
+            }, 1000)
+        },
+        destroyed: function () {
+            window.clearInterval(this.timer)
+        },
+        methods: {
+            handleOpen(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            getGroups() {
+                const url = "http://localhost:8000/getGroups";
+                axios.get(url).then(res => {
+                    // console.log(res.data)
+                    this.groups = res.data
+                })
+            },
+            updateOptionsValue(groupId) {
+                this.groupHasBeenChosen = true
+                const url = "http://localhost:8000/getGroupSetting?groupId=" + groupId;
+                axios.get(url).then(res => {
+                    // console.log(res.data)
+                    this.optionsBool = res.data[0]
+                    this.optionsStr = res.data[1]
+                    var strOptionValue = {}
+                    for (var i = 0; i < res.data[1].length; i++) {
+                        strOptionValue[res.data[1][i].label] = res.data[1][i].value
+                    }
+                    this.strOptionValue = strOptionValue
+                })
+            },
+            switchChange(groupId, settingName, newValue) {
+                if (!this.groupHasBeenChosen) {
+                    this.$message({
+                        showClose: true,
+                        message: "请先选择一个群组！",
+                        type: 'warning'
+                    });
+                    return;
+                }
+                const url = "http://localhost:8000/modifyGroupSetting?groupId=" + groupId + "&settingName=" + settingName + "&newValue=" + newValue;
+                axios.get(url).then(res => {
+                    // console.log(res.data)
+                    if (res.data) {
+                        this.$message({
+                            showClose: true,
+                            message: "成功将群 " + groupId + " " + settingName + " 项设置为 " + newValue + '!',
+                            type: 'success'
+                        });
+                    } else {
+                        this.$message({
+                            showClose: true,
+                            message: "群 " + groupId + " " + settingName + "项修改失败！",
+                            type: 'false'
+                        });
+                    }
+                })
+            },
+            pageChange(index) {
+                this.pageIndex = index
+            },
+            getStatus() {
+                const url = "http://localhost:8000/getStatus";
+            }
+        }
+    })
 </script>
 </html>

@@ -11,3 +11,8 @@ class AppCoreAlreadyInitialized(Exception):
 class GraiaMiraiApplicationAlreadyLaunched(Exception):
     """GraiaMiraiApplication重复启动"""
     pass
+
+
+class AsyncioTasksGetResult(Exception):
+    """task得到结果提前结束"""
+    pass

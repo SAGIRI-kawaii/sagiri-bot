@@ -19,6 +19,7 @@ from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, AtSender
 from SAGIRIBOT.ORM.Tables import Setting, ChatSession, UserCalledCount
 
@@ -32,9 +33,11 @@ class ChatReplyHandler(AbstractHandler):
         if message.has(At) and message.get(At)[0].target == get_config("BotQQ"):
             await update_user_call_count_plus1(group, member, UserCalledCount.at, "at")
             content = "".join(plain.text for plain in message.get(Plain)).strip().replace(" ", "，")
-            return await self.get_reply(member.id, group.id, content)
+            set_result(message, await self.get_reply(member.id, group.id, content))
+            # return await self.get_reply(member.id, group.id, content)
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def get_reply(member_id: int, group_id: int, content: str):

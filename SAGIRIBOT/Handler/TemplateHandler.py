@@ -19,4 +19,4 @@ class TemplateHandler(AbstractHandler):
         if expression:
             pass
         else:
-            return await super().handle(app, message, group, member)
+            return None

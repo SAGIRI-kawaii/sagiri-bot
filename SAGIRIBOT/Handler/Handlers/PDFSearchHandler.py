@@ -5,10 +5,11 @@ from bs4 import BeautifulSoup
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
-from graia.application.message.elements.internal import Plain, Image
+from graia.application.message.elements.internal import Plain
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
@@ -23,9 +24,11 @@ class PDFSearchHandler(AbstractHandler):
         if message.asDisplay().startswith("pdf "):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             keyword = message.asDisplay()[4:]
-            return await self.search_pdf(group, member, keyword)
+            set_result(message, await self.search_pdf(group, member, keyword))
+            # return await self.search_pdf(group, member, keyword)
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(4)

@@ -9,6 +9,7 @@ from graia.application.message.elements.internal import Plain
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 
@@ -19,16 +20,16 @@ class LeetcodeInfoHanlder(AbstractHandler):
     __usage__ = "在群中发送 `leetcode userslug` 即可（userslug为个人主页地址最后的唯一识别代码）"
 
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-        self.group = group
-        self.member = member
         message_text = message.asDisplay()
         if re.match(r"leetcode \S+", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.leetcode_user_info_crawer(message)
+            set_result(message, await self.leetcode_user_info_crawer(message))
+            # return await self.leetcode_user_info_crawer(message)
         elif re.match(r"(leetcode|力扣)每日一题", message_text):
             pass
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     async def leetcode_user_info_crawer(message: MessageChain) -> MessageItem:

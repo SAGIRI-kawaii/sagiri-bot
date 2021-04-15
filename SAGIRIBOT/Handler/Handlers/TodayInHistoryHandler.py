@@ -7,6 +7,7 @@ from graia.application.message.elements.internal import Plain
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import Normal, GroupStrategy
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
@@ -21,9 +22,11 @@ class TodayInHistoryHandler(AbstractHandler):
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() == "历史上的今天":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await self.get_today_in_history(group, member)
+            set_result(message, await self.get_today_in_history(group, member))
+            # return await self.get_today_in_history(group, member)
         else:
-            return await super().handle(app, message, group, member)
+            return None
+            # return await super().handle(app, message, group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(1)
