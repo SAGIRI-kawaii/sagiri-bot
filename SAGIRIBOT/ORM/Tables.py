@@ -1,24 +1,10 @@
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, BLOB
-from sqlalchemy import create_engine
 
 from .ORM import orm
 
-# DB_LINK = 'oracle://test:123456@localhost:1521/xe'
-
-# engine = create_engine(
-#             DB_LINK,
-#             max_overflow=0,
-#             pool_size=5,
-#             pool_timeout=30,
-#             pool_recycle=-1
-#         )
-
-# session = sessionmaker(engine)
 session = sessionmaker(orm.engine)
 
-# Base = declarative_base(engine)
 Base = orm.Base
 
 

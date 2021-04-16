@@ -62,7 +62,6 @@ class GroupMessageHandler(AbstractMessageHandler):
                 tasks.append(handler.handle(app, message, group, member))
             else:
                 repeat_handler = handler
-        # tasks = [handler.handle(app, message, group, member) for handler in self.__chain if not isinstance(handler, RepeaterHandler)]
         g = asyncio.gather(*tasks)
         try:
             await g
@@ -75,16 +74,6 @@ class GroupMessageHandler(AbstractMessageHandler):
             except AsyncioTasksGetResult:
                 return True
         return False
-        # try:
-        #     if result := await self.__head_handler.handle(app, message, group, member):
-        #         return result
-        #     else:
-        #         return None
-        # except Exception as e:
-        #     logger.error(traceback.format_exc())
-        #     # return MessageItem(MessageChain.create([Plain(text="Error")]), QuoteSource(GroupStrategy()))
-        #     # return MessageItem(MessageChain.create([Plain(text=traceback.format_exc())]), QuoteSource(GroupStrategy()))
-        #     pass
 
 
 class FriendMessageHandler(AbstractMessageHandler):

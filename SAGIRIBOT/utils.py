@@ -4,13 +4,14 @@ import math
 import yaml
 import base64
 import asyncio
+import datetime
 import traceback
 from io import BytesIO
 from typing import Union
 from loguru import logger
-from PIL import ImageFont, ImageDraw
 from PIL import Image as IMG
-from sqlalchemy import select
+from sqlalchemy import select, desc
+from PIL import ImageFont, ImageDraw
 
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
@@ -19,7 +20,7 @@ from graia.application.message.elements.internal import Plain, Image, Image_Loca
 
 from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
-from SAGIRIBOT.ORM.Tables import Setting, UserPermission, UserCalledCount
+from SAGIRIBOT.ORM.Tables import Setting, UserPermission, UserCalledCount, FunctionCalledRecord
 
 yaml.warnings({'YAMLLoadWarning': False})
 
@@ -215,11 +216,27 @@ async def update_user_call_count_plus1(group: Group, member: Member, table_colum
             {"group_id": group.id, "member_id": member.id},
             {"group_id": group.id, "member_id": member.id, column_name: new_value}
         )
-        return True
     except Exception:
         logger.error(traceback.format_exc())
         orm.session.rollback()
         return False
+    try:
+        new_id = list(orm.fetchone(select(FunctionCalledRecord.id).order_by(desc(FunctionCalledRecord.id)), 1))
+        new_id = new_id[0][0] + 1 if new_id else 1
+        orm.add(
+            FunctionCalledRecord,
+            {
+                "id": new_id,
+                "time": datetime.datetime.now(),
+                "group_id": group.id,
+                "member_id": member.id,
+                "function": column_name
+            }
+        )
+    except Exception:
+        logger.error(traceback.format_exc())
+        orm.session.rollback()
+    return True
 
 
 async def get_admins(group: Group) -> list:

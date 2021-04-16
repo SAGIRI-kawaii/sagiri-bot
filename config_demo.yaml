@@ -15,3 +15,5 @@ shadiaoAppName: shadiao
 saucenaoCookie: balabala
 webManagerApi: true
 webManagerAutoBoot: true
+errorRetention: 14
+commonRetention: 7
