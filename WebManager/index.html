@@ -44,13 +44,13 @@
 
                 <el-main>
 
-                    <div v-show="pageIndex==1">
+                    <div v-show="pageIndex==1" style="height: 100%;">
                         <el-row :gutter="20">
                             <el-col :span="6">
                                 <el-card class="box-card grid-content bg-purple">
                                     <div class="container">
                                         <span><i class="el-icon-user-solid"></i>&nbsp;本次启动激活群组</span>
-                                        <span><strong>123</strong></span>
+                                        <span><strong>{{ groupCount }}</strong></span>
                                     </div>
                                 </el-card>
                             </el-col>
@@ -58,7 +58,7 @@
                                 <el-card class="box-card grid-content bg-purple">
                                     <div class="container">
                                         <span><i class="el-icon-odometer"></i>&nbsp;今日功能调用次数</span>
-                                        <span><strong>12312</strong></span>
+                                        <span><strong>{{ functionCalled }}</strong></span>
                                     </div>
                                 </el-card>
                             </el-col>
@@ -66,7 +66,7 @@
                                 <el-card class="box-card grid-content bg-purple">
                                     <div class="container">
                                         <span><i class="el-icon-suitcase"></i>&nbsp;目前加载Handler数量</span>
-                                        <span><strong>24</strong></span>
+                                        <span><strong>{{ handlerCount }}</strong></span>
                                     </div>
                                 </el-card>
                             </el-col>
@@ -74,14 +74,22 @@
                                 <el-card class="box-card grid-content bg-purple">
                                     <div class="container">
                                         <span><i class="el-icon-collection"></i>&nbsp;目前加载插件数量(Saya)</span>
-                                        <span><strong>7</strong></span>
+                                        <span><strong>{{ sayaCount }}</strong></span>
                                     </div>
                                 </el-card>
                             </el-col>
                         </el-row>
                         <el-divider></el-divider>
-                        <el-card class="box-card">
-
+                        <el-card class="box-card" style="height:auto">
+                            <template>
+                                <el-input
+                                    id="log_textarea"
+                                    type="textarea"
+                                    :readonly="true"
+                                    v-model="log"
+                                    :autosize = "{ minRows: 47, maxRows: 47 }">
+                                </el-input>
+                            </template>
                         </el-card>
                     </div>
 
@@ -184,8 +192,10 @@
 </style>
 
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
-<script src="web_manager.pyhttps://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.1.0/dist/echarts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-echarts@4.0.2"></script>
 <script>
     new Vue({
         el: '#app',
@@ -212,21 +222,35 @@
                 strOptionValue: {
                     "None": "None"
                 },
+                websock: null,
                 groupHasBeenChosen: false,
                 groupValue: '请选择群组',
                 groupId: '请选择群组',
-                pageIndex: "1"
+                pageIndex: "1",
+                groupCount: 0,
+                functionCalled: 0,
+                handlerCount: 0,
+                sayaCount: 0,
+                logs: [],
+                log: ""
             };
+        },
+        mounted() {
+            this.chartFn()
         },
         created: function () {
             this.getGroups();//需要触发的函数
+            this.getStatus();
+            this.initWebSocket();
             this.timer = window.setInterval(() => {
                 setTimeout(() => {
+                    this.getStatus()
                     if (this.groupHasBeenChosen) this.updateOptionsValue(this.groupValue)
                 }, 0)
-            }, 1000)
+            }, 2000)
         },
         destroyed: function () {
+            this.websock.close();
             window.clearInterval(this.timer)
         },
         methods: {
@@ -239,8 +263,8 @@
             getGroups() {
                 const url = "http://localhost:8000/getGroups";
                 axios.get(url).then(res => {
-                    // console.log(res.data)
                     this.groups = res.data
+                    this.groupCount = res.data.length
                 })
             },
             updateOptionsValue(groupId) {
@@ -289,6 +313,38 @@
             },
             getStatus() {
                 const url = "http://localhost:8000/getStatus";
+                axios.get(url).then(res => {
+                    this.functionCalled = res.data.functionCalled
+                    this.handlerCount = res.data.handlerCount
+                    this.sayaCount = res.data.sayaCount
+                })
+            },
+            initWebSocket(){ //初始化weosocket
+                const wsuri = "ws://127.0.0.1:8001";
+                this.websock = new WebSocket(wsuri);
+                this.websock.onmessage = this.websocketonmessage;
+                this.websock.onopen = this.websocketonopen;
+                this.websock.onerror = this.websocketonerror;
+                this.websock.onclose = this.websocketclose;
+            },
+            websocketonopen(){ //连接建立之后执行send方法发送数据
+                console.log('WebSocket连接成功')
+            },
+            websocketonerror(){//连接建立失败重连
+                this.initWebSocket();
+            },
+            websocketonmessage(e){ //数据接收
+                // this.logs.push({"log": e.data})
+                this.log = this.log + e.data.replace(/\\n/g, '\n') + '\n'
+                console.log('数据接收' + e.data)
+                const textarea = document.getElementById('log_textarea');
+                textarea.scrollTop = textarea.scrollHeight;
+            },
+            websocketsend(Data){//数据发送
+                this.websock.send(Data);
+            },
+            websocketclose(e){  //关闭
+                console.log('断开连接', e);
             }
         }
     })

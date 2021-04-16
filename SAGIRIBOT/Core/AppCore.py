@@ -171,3 +171,6 @@ class AppCore:
                         self.__saya.require(f"modules.{module.split('.')[0]}")
                 except ModuleNotFoundError as e:
                     logger.error(f"saya模块：{module} - {e}")
+
+    def get_saya_channels(self):
+        return self.__saya.channels

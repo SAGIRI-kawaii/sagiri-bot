@@ -1,11 +1,14 @@
+import uvicorn
+import datetime
 from loguru import logger
 from fastapi import FastAPI
+from sqlalchemy import select
 from fastapi.middleware.cors import CORSMiddleware
 
 from SAGIRIBOT.ORM.ORM import orm
-from SAGIRIBOT.ORM.Tables import Setting
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.command_parse.Commands import *
+from SAGIRIBOT.ORM.Tables import Setting, FunctionCalledRecord
 
 app = FastAPI(docs_url=None, redoc_url=None)
 
@@ -22,30 +25,46 @@ app.add_middleware(
 
 @app.get('/getGroups')
 async def getGroups():
-    group_list = await AppCore.get_core_instance().get_app().groupList()
-    return [{"value": group.id, "label": group.name} for group in group_list]
+    groups = orm.fetchall(select(Setting.group_id, Setting.group_name).where(Setting.active == True))
+    return [{"value": group[0], "label": group[1]} for group in groups]
 
 
 @app.get('/getGroupSetting')
 async def getGroupSetting(groupId: int):
-    options_bool = ["repeat", "countLimit", "setu", "bizhi", "real", "r18", "search", "yellowPredict", "searchBangumi",
-               "debug", "compile", "antiRevoke", "achievement", "onlineNotice"]
-    options_str = ["longTextType", "r18Process", "speakMode", "music", "switch"]
+    options_bool = ["repeat", "frequency_limit", "setu", "real", "bizhi", "r18", "img_search", "bangumi_search",
+               "debug", "compile", "anti_revoke", "online_notice", "switch"]
+    options_str = ["long_text_type", "r18_process", "speak_mode", "music"]
     valid_str_option_value = {
-        "longTextType": ["text", "img"],
-        "r18Process": ["revoke", "flashImage"],
-        "speakMode": ["normal", "zuanLow", "zuanHigh", "rainbow", "chat"],
-        "music": ["off", "wyy"],
-        "switch": ["online", "offline"]
+        "long_text_type": LongTextType.valid_values,
+        "r18_process": R18Process.valid_values,
+        "speak_mode": SpeakMode.valid_values,
+        "music": Music.valid_values
     }
-    sql = f"SELECT `repeat`,countLimit,setu,bizhi,`real`,r18,search,yellowPredict,searchBangumi,debug,compile," \
-          f"antiRevoke,achievement,onlineNotice FROM setting WHERE groupId={groupId} "
-    bool_result = await execute_sql(sql)
-    sql = f"SELECT longTextType,r18Process,speakMode,music,switch FROM setting WHERE groupId={groupId} "
-    str_result = await execute_sql(sql)
+    bool_result = list(orm.fetchone(select(
+        Setting.repeat,
+        Setting.frequency_limit,
+        Setting.setu, Setting.real, Setting.bizhi, Setting.r18,
+        Setting.img_search,
+        Setting.bangumi_search,
+        Setting.debug,
+        Setting.compile,
+        Setting.anti_revoke,
+        Setting.online_notice,
+        Setting.switch
+    ).where(
+        Setting.group_id == groupId
+    )))[0]
+    str_result = list(orm.fetchone(select(
+        Setting.long_text_type,
+        Setting.r18_process,
+        Setting.speak_mode,
+        Setting.music
+    ).where(
+        Setting.group_id == groupId
+    )))[0]
     return [
-        [{"label": options_bool[i], "value": True if bool_result[0][i] == 1 else False} for i in range(len(bool_result[0] if bool_result else 0))],
-        [{"label": options_str[i], "value": str_result[0][i], "validValue": valid_str_option_value[options_str[i]]} for i in range(len(str_result[0] if str_result else 0))]
+        [{"label": options_bool[i], "value": bool_result[i]} for i in range(len(bool_result))],
+        [{"label": options_str[i], "value": str_result[i], "validValue": valid_str_option_value[options_str[i]]} for i in range(len(str_result))]
     ]
 
 
@@ -66,6 +85,16 @@ async def modifyGroupSetting(groupId: int, settingName: str, newValue):
     return True
 
 
+@app.get("/getStatus")
+async def getStatus():
+    return {
+        "functionCalled": len(orm.fetchall(
+            select(FunctionCalledRecord).where(FunctionCalledRecord.time > datetime.date.today())
+        )),
+        "handlerCount": len(AppCore.get_core_instance().get_group_chain()),
+        "sayaCount": len(AppCore.get_core_instance().get_saya_channels())
+    }
+
+
 def run_api():
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="error")
