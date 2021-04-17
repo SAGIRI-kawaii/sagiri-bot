@@ -1,3 +1,4 @@
+from .PeroDogHandler import PeroDogHandler
 from .RepeaterHandler import RepeaterHandler
 from .TrendingHandlers import TrendingHandler
 from .PDFSearchHandler import PDFSearchHandler
@@ -20,8 +21,10 @@ from .NetworkCompilerHandler import NetworkCompilerHandler
 from .BilibiliAppParserHandler import BilibiliAppParserHandler
 from .BangumiInfoSearchHandler import BangumiInfoSearchHandler
 from .SteamGameInfoSearchHandler import SteamGameInfoSearchHandler
+from .PoisonousChickenSoupHandler import PoisonousChickenSoupHandler
 from .StylePictureGeneraterHandler import StylePictureGeneraterHandler
 from .AbbreviatedPredictionHandler import AbbreviatedPredictionHandler
 from .BiliBiliBangumiScheduleHandler import BiliBiliBangumiScheduleHandler
 from .GroupWordCloudGeneratorHandler import GroupWordCloudGeneratorHandler
+from .AbstractMessageTransformHandler import AbstractMessageTransformHandler
 from .MarketingContentGeneratorHandler import MarketingContentGeneratorHandler
