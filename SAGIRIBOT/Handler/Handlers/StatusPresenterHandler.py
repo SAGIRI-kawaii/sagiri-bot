@@ -26,6 +26,11 @@ class StatusPresenterHandler(AbstractHandler):
                 Normal(GroupStrategy())
             ))
         elif message_text == "/help":
+            set_result(message, MessageItem(
+                MessageChain.create([Plain(text="SAGIRI-BOT文档地址：http://doc.sagiri-web.com/web/#/51?page_id=284")]),
+                QuoteSource(GroupStrategy())
+            ))
+        elif message_text == "!help":
             app_core = AppCore.get_core_instance()
             content = "目前已加载Handler：\n"
             index = 0
@@ -37,7 +42,7 @@ class StatusPresenterHandler(AbstractHandler):
                 MessageChain.create([Plain(text=content)]),
                 QuoteSource(GroupStrategy())
             ))
-        elif re.match(r"/help [0-9]+", message_text):
+        elif re.match(r"!help [0-9]+", message_text):
             chains = AppCore.get_core_instance().get_group_chain()
             length = len(chains)
             index = int(message_text[6:])
