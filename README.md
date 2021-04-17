@@ -5,19 +5,15 @@ New version of sagiri-bot based on Mirai and Graia
 
 ## 目录
   * [目录](#目录)
-  * [使用文档](#使用文档)
   * [开始使用](#开始使用)
     + [使用前准备](#使用前准备)
     + [如何启动](#如何启动)
     + [参数说明](#参数说明)
       - [config.yaml](#configyaml)
+  * [使用文档](#使用文档)
   * [注意](#注意)
   * [TODO](#todo)
   * [鸣谢](#鸣谢)
-
-## 使用文档
-
-因项目重构，原文档失效，正在编写新文档🕊🕊🕊
 
 ## 开始使用
 
@@ -152,6 +148,13 @@ RepeaterHandler                         一个复读Handler
 | saucenaoCookie | saucenao cookie（自行登录获取） |
 | webManagerApi | api是否启动（用于管理页面） |
 | webManagerAutoBoot | 是否自动打开管理页面（webManagerApi为True时才起作用） |
+
+## 使用文档
+
+- [功能列表](docs/functions.md)
+- [管理](docs/manage.md)
+
+因项目重构，原文档失效，新文档还在完善中🕊🕊🕊
 
 ## 注意
 目前机器人尚未完善，仍有许多bug存在，若您在使用中发现了bug或有更好的建议，请提ISSUE
