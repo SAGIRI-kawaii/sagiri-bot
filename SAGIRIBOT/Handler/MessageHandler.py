@@ -15,6 +15,7 @@ from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.Handler.Handlers.RepeaterHandler import RepeaterHandler
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
+from SAGIRIBOT.Handler.Handlers.ChatReplyHandler import ChatReplyHandler
 
 
 class MessageHandler(ABC):
@@ -56,12 +57,17 @@ class GroupMessageHandler(AbstractMessageHandler):
 
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member) -> bool:
         repeat_handler = None
+        chat_record_handler = None
         tasks = []
         for handler in self.__chain:
             if not isinstance(handler, RepeaterHandler):
                 tasks.append(handler.handle(app, message, group, member))
+            elif not isinstance(handler, ChatReplyHandler):
+                chat_record_handler = handler
             else:
                 repeat_handler = handler
+        if chat_record_handler:
+            await chat_record_handler.handle(app, message, group, member)
         g = asyncio.gather(*tasks)
         try:
             await g

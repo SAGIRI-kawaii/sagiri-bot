@@ -221,18 +221,19 @@ async def update_user_call_count_plus1(group: Group, member: Member, table_colum
         orm.session.rollback()
         return False
     try:
-        new_id = list(orm.fetchone(select(FunctionCalledRecord.id).order_by(desc(FunctionCalledRecord.id)), 1))
-        new_id = new_id[0][0] + 1 if new_id else 1
-        orm.add(
-            FunctionCalledRecord,
-            {
-                "id": new_id,
-                "time": datetime.datetime.now(),
-                "group_id": group.id,
-                "member_id": member.id,
-                "function": column_name
-            }
-        )
+        if not column_name == "chat_count":
+            new_id = list(orm.fetchone(select(FunctionCalledRecord.id).order_by(desc(FunctionCalledRecord.id)), 1))
+            new_id = new_id[0][0] + 1 if new_id else 1
+            orm.add(
+                FunctionCalledRecord,
+                {
+                    "id": new_id,
+                    "time": datetime.datetime.now(),
+                    "group_id": group.id,
+                    "member_id": member.id,
+                    "function": column_name
+                }
+            )
     except Exception:
         logger.error(traceback.format_exc())
         orm.session.rollback()
