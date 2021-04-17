@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import yaml
-import asyncio
 import threading
 from loguru import logger
 
@@ -13,9 +11,9 @@ from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.Handler.Handlers import *
 from WebManager.websocket import set_log
-from SAGIRIBOT.utils import online_notice
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.MessageSender.globals import res
+from SAGIRIBOT.utils import online_notice, get_config
 from SAGIRIBOT.Handler.MessageHandler import GroupMessageHandler
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 
@@ -88,7 +86,11 @@ def management_boot():
     run_api()
 
 
-threading.Thread(target=management_boot, args=()).start()
+if get_config("webManagerApi"):
+    threading.Thread(target=management_boot, args=()).start()
+    if get_config("webManagerAutoBoot"):
+        import webbrowser
+        webbrowser.open(f"{os.getcwd()}/WebManager/index.html")
 
 
 core.launch()
