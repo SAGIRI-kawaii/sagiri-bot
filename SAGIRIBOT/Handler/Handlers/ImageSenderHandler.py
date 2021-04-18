@@ -61,20 +61,19 @@ class ImageSenderHandler(AbstractHandler):
         if re.match(r"添加功能关键词#[\s\S]*#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
                 set_result(message, await self.update_keyword(message_serialization))
-                # return await self.update_keyword(message_serialization)
             else:
                 set_result(message, MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy())))
-                # return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
 
         elif re.match(r"删除功能关键词#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
                 set_result(message, await self.delete_keyword(app, group, member, message_serialization))
-                # return await self.delete_keyword(app, group, member, message_serialization)
             else:
                 set_result(message, MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy())))
-                # return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
 
-        elif resp_functions := list(orm.fetchall(select(TriggerKeyword.function).where(TriggerKeyword.keyword == message_serialization))):
+        if re.match(r"\[mirai:image:{.*}\..*]", message_serialization):
+            message_serialization = re.findall(r"\[mirai:image:{(.*?)}\..*]", message_serialization, re.S)[0]
+
+        if resp_functions := list(orm.fetchall(select(TriggerKeyword.function).where(TriggerKeyword.keyword == message_serialization))):
             resp_functions = resp_functions[0]
             tfunc = None
             for function in resp_functions:

@@ -29,12 +29,6 @@
                         <template slot="title"><i class="el-icon-s-management"></i>功能管理</template>
                     </el-menu-item>
                     <el-menu-item index="3" @click="pageChange(3)">
-                        <template slot="title"><i class="el-icon-s-data"></i>数据查询</template>
-                    </el-menu-item>
-                    <el-menu-item index="4" @click="pageChange(4)">
-                        <template slot="title"><i class="el-icon-error"></i>错误日志</template>
-                    </el-menu-item>
-                    <el-menu-item index="5" @click="pageChange(5)">
                         <template slot="title"><i class="el-icon-info"></i>关于</template>
                     </el-menu-item>
                 </el-menu>
@@ -44,7 +38,7 @@
 
                 <el-main>
 
-                    <div v-show="pageIndex==1" style="height: 100%;">
+                    <div class="flex_containter" v-show="pageIndex==1" style="height: 100%;">
                         <el-row :gutter="20">
                             <el-col :span="6">
                                 <el-card class="box-card grid-content bg-purple">
@@ -80,14 +74,15 @@
                             </el-col>
                         </el-row>
                         <el-divider></el-divider>
-                        <el-card class="box-card" style="height:auto">
+                        <el-card class="box-card" style="-moz-box-flex: 1;-webkit-flex:1;-ms-flex:1;">
                             <template>
                                 <el-input
-                                    id="log_textarea"
-                                    type="textarea"
-                                    :readonly="true"
-                                    v-model="log"
-                                    :autosize = "{ minRows: 47, maxRows: 47 }">
+                                        id="log_textarea"
+                                        type="textarea"
+                                        :readonly="true"
+                                        v-model="log"
+                                        :autosize="{ minRows: 20 }"
+                                >
                                 </el-input>
                             </template>
                         </el-card>
@@ -122,7 +117,7 @@
                                         </el-switch>
                                     </div>
                                     <div>
-<!--                                        <hr color="#EFACB9">-->
+                                        <!--                                        <hr color="#EFACB9">-->
                                         <hr color="#69c0ff">
                                     </div>
                                 </div>
@@ -132,7 +127,8 @@
                                 <div style="width: 100%">
                                     <div class="container">
                                         <span>{{ option.label }}</span>
-                                        <el-select v-model="strOptionValue[option.label]" @change="switchChange(groupValue, option.label, strOptionValue[option.label])">
+                                        <el-select v-model="strOptionValue[option.label]"
+                                                   @change="switchChange(groupValue, option.label, strOptionValue[option.label])">
                                             <el-option
                                                     v-for="item in option.validValue"
                                                     :key="item"
@@ -142,21 +138,40 @@
                                         </el-select>
                                     </div>
                                     <div>
-<!--                                        <hr color="#EFACB9">-->
+                                        <!--                                        <hr color="#EFACB9">-->
                                         <hr color="#69c0ff">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </el-card>
-                    <el-card class="box-card" v-show="pageIndex==3">
-
-                    </el-card>
-                    <el-card class="box-card" v-show="pageIndex==4">
-
-                    </el-card>
-                    <el-card class="box-card" v-show="pageIndex==5">
-
+                    <el-card class="box-card" v-show="pageIndex==3" style="height:100%;text-align: center">
+                        <h2>SAGIRI-BOT</h2>
+                        <h3>一个基于 Mirai 和 Graia 的QQ机器人</h3>
+                        <el-link type="primary" href="https://github.com/SAGIRI-kawaii/sagiri-bot" target="_blank">项目地址</el-link>
+                        &nbsp;|&nbsp;
+                        <el-link type="primary" href="http://doc.sagiri-web.com/web/#/51?page_id=284" target="_blank">文档地址</el-link>
+                        <br><br>
+                        <div>SAGIRI之名取自动漫《埃罗芒阿老师》中的角色 <el-link type="info" href="https://sagiri.sagiri-web.com/">和泉纱雾(Izumi Sagiri)</el-link></div>
+                        <br>
+                        <div>本项目自 2020-06-29
+                            <el-link type="primary" href="https://github.com/SAGIRI-kawaii/QQBot">QQBot(Archived)</el-link>
+                            开始，到目前的
+                            <el-link type="primary" href="https://github.com/SAGIRI-kawaii/sagiri-bot">SAGIRI-BOT</el-link>
+                            ，期间有许多给予我许多帮助的人，在此再次表示感谢
+                        </div>
+                        <br>
+                        <div>
+                            感谢 <el-link type="primary" href="https://github.com/mamoe/mirai" target="_blank">Mirai</el-link>、<el-link type="primary" href="https://github.com/project-mirai/mirai-api-http" target="_blank">mirai-api-http</el-link>、<el-link type="primary" href="https://github.com/GraiaProject/Application" target="_blank">Graia Appliation</el-link> 为我们带来的精彩项目
+                        </div>
+                        <br>
+                        <div>希望您能有一个愉快的使用体验</div>
+                        <br>
+                        <div>若您在使用过程中发现了bug或有一些建议，欢迎提出ISSUE或PR</div>
+                        <br>
+                        <div><s>来个star吧，球球惹！</s></div>
+                        <br>
+                        <div>© 2021 • SAGIRI BOT • <el-link type="primary" href="https://github.com/SAGIRI-kawaii" target="_blank">SAGIRI-kawaii</el-link></div>
                     </el-card>
 
                 </el-main>
@@ -199,6 +214,14 @@
         align-items: center;
     }
 
+    .flex_containter {
+        display: -moz-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        -moz-box-orient: vertical;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+    }
 </style>
 
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
@@ -246,7 +269,6 @@
             };
         },
         mounted() {
-            this.chartFn()
         },
         created: function () {
             this.getGroups();//需要触发的函数
@@ -329,7 +351,7 @@
                     this.sayaCount = res.data.sayaCount
                 })
             },
-            initWebSocket(){ //初始化weosocket
+            initWebSocket() { //初始化weosocket
                 const wsuri = "ws://127.0.0.1:8001";
                 this.websock = new WebSocket(wsuri);
                 this.websock.onmessage = this.websocketonmessage;
@@ -337,23 +359,23 @@
                 this.websock.onerror = this.websocketonerror;
                 this.websock.onclose = this.websocketclose;
             },
-            websocketonopen(){ //连接建立之后执行send方法发送数据
+            websocketonopen() { //连接建立之后执行send方法发送数据
                 console.log('WebSocket连接成功')
             },
-            websocketonerror(){//连接建立失败重连
+            websocketonerror() {//连接建立失败重连
                 this.initWebSocket();
             },
-            websocketonmessage(e){ //数据接收
+            websocketonmessage(e) { //数据接收
                 // this.logs.push({"log": e.data})
                 this.log = this.log + e.data.replace(/\\n/g, '\n') + '\n'
                 console.log('数据接收' + e.data)
                 const textarea = document.getElementById('log_textarea');
                 textarea.scrollTop = textarea.scrollHeight;
             },
-            websocketsend(Data){//数据发送
+            websocketsend(Data) {//数据发送
                 this.websock.send(Data);
             },
-            websocketclose(e){  //关闭
+            websocketclose(e) {  //关闭
                 console.log('断开连接', e);
             },
             readTestFile() {
