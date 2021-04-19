@@ -60,12 +60,12 @@ class GroupMessageHandler(AbstractMessageHandler):
         chat_record_handler = None
         tasks = []
         for handler in self.__chain:
-            if not isinstance(handler, RepeaterHandler):
-                tasks.append(handler.handle(app, message, group, member))
-            elif not isinstance(handler, ChatReplyHandler):
+            if isinstance(handler, ChatReplyHandler):
                 chat_record_handler = handler
-            else:
+            if isinstance(handler, RepeaterHandler):
                 repeat_handler = handler
+            else:
+                tasks.append(handler.handle(app, message, group, member))
         if chat_record_handler:
             await chat_record_handler.handle(app, message, group, member)
         g = asyncio.gather(*tasks)

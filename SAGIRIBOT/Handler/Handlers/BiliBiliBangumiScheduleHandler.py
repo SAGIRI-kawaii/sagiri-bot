@@ -26,7 +26,7 @@ class BiliBiliBangumiScheduleHandler(AbstractHandler):
         if re.match(r"[1-7]日内新番", message.asDisplay()):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             days = int(message.asDisplay()[0])
-            set_result(message, await self.formatted_output_bangumi(days))
+            set_result(message, await self.formatted_output_bangumi(group, member, days))
         else:
             return None
 
