@@ -16,6 +16,7 @@
 | github热搜（trend） | 在群中发送 `github热搜` 即可 | 所有人 | 否 |  |
 | B站新番时间表 | 在群中发送 `%num%日内新番` 即可 | 所有人 | 否 | `%num%` 为天数，仅支持1-7日内新番查询 |
 | leetcode用户信息查询 | 在群中发送 `leetcode %userSlug%` 即可 | 所有人 | 否 | `%userSlug%` 为用户的唯一标识，而不是用户名，个人主页地址格式为 https://leetcode-cn.com/u/userSlug/ |
+| leetcode每日一题 | 在群中发送 `(leetcode|力扣)每日一题` 即可 | 所有人 | 否 |  |
 | steam游戏查询 | 在群中发送 `steam %gameName%` 即可 | 所有人 | 否 | `%gameName%` 为游戏名，若中文搜索不到请使用英文全名 |
 | 教务通知 | 在群中发送 `教务通知` 即可 | 所有人 | 否 | JLUCSW 教务通知 |
 | pornhub风格图片生成 | 在群中发送 `ph %word1% %word2%` 即可 | 所有人 | 否 | `%word1%` 为左半边词语，`%word2%` 为右半边词语 |
