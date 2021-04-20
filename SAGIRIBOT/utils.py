@@ -34,7 +34,7 @@ class MessageChainUtils:
         spacing: int = 15,
         padding_x: int = 20,
         padding_y: int = 15,
-        img_fixed: bool = False,
+        img_fixed: bool = True,
         font_path: str = f"{os.getcwd()}/statics/fonts/STKAITI.TTF",
     ) -> MessageChain:
         """

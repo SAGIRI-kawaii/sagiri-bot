@@ -12,10 +12,13 @@ from SAGIRIBOT.Core.AppCore import AppCore
 from .Handlers.HeadHandler import HeadHandler
 from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceeded
+from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededDoNothing
 from SAGIRIBOT.Handler.Handlers.RepeaterHandler import RepeaterHandler
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 from SAGIRIBOT.Handler.Handlers.ChatReplyHandler import ChatReplyHandler
+from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededAddBlackList
+from SAGIRIBOT.MessageSender.MessageSender import set_result, set_result_without_raise
 
 
 class MessageHandler(ABC):
@@ -73,6 +76,29 @@ class GroupMessageHandler(AbstractMessageHandler):
             await g
         except AsyncioTasksGetResult:
             g.cancel()
+            return True
+        except FrequencyLimitExceededDoNothing:
+            g.cancel()
+            return False
+        except FrequencyLimitExceeded:
+            g.cancel()
+            set_result_without_raise(
+                message,
+                MessageItem(
+                    MessageChain.create([Plain(text="Frequency limit exceeded every 10 seconds!")]),
+                    QuoteSource(GroupStrategy())
+                )
+            )
+            return True
+        except FrequencyLimitExceededAddBlackList:
+            g.cancel()
+            set_result_without_raise(
+                message,
+                MessageItem(
+                    MessageChain.create([Plain(text="检测到大量请求，警告一次，加入黑名单一小时!")]),
+                    QuoteSource(GroupStrategy())
+                )
+            )
             return True
         if repeat_handler:
             try:

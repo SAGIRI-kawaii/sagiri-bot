@@ -71,3 +71,7 @@ def set_result(origin_message: MessageChain, item: MessageItem):
     res[origin_message[Source][0].id] = item
     # print(res)
     raise AsyncioTasksGetResult
+
+
+def set_result_without_raise(origin_message: MessageChain, item: MessageItem):
+    res[origin_message[Source][0].id] = item

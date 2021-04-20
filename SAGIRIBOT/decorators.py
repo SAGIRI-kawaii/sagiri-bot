@@ -12,8 +12,11 @@ from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.utils import get_setting
 from SAGIRIBOT.ORM.Tables import UserPermission, Setting
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, DoNoting
+from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceeded
+from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededDoNothing
 from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict
+from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededAddBlackList
+from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, DoNoting
 
 
 def require_permission_level(group: Group, member: Member, level: int):
@@ -60,7 +63,7 @@ def frequency_limit_require_weight_free(weight: int):
                     member_id = i.id
                 if isinstance(i, Group):
                     group_id = i.id
-            if member_id == -1 or group_id == -1 or await get_setting(group_id, Setting.frequency_limit):
+            if member_id == -1 or group_id == -1 or not await get_setting(group_id, Setting.frequency_limit):
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)
@@ -69,17 +72,11 @@ def frequency_limit_require_weight_free(weight: int):
             if frequency_limit_instance.blacklist_judge(group_id, member_id):
                 if not frequency_limit_instance.announce_judge(group_id, member_id):
                     frequency_limit_instance.blacklist_announced(group_id, member_id)
-                    return MessageItem(
-                        MessageChain.create([Plain(text="检测到大量请求，警告一次，加入黑名单一小时!")]),
-                        QuoteSource(GroupStrategy())
-                    )
+                    raise FrequencyLimitExceededAddBlackList
                 else:
-                    return MessageItem(MessageChain.create([]), DoNoting(GroupStrategy()))
+                    raise FrequencyLimitExceededDoNothing
             if frequency_limit_instance.get(group_id) + weight >= 10:
-                return MessageItem(
-                    MessageChain.create([Plain(text="Frequency limit exceeded every 10 seconds!")]),
-                    QuoteSource(GroupStrategy())
-                )
+                raise FrequencyLimitExceeded
             else:
                 frequency_limit_instance.update(group_id, weight)
                 if asyncio.iscoroutinefunction(func):
