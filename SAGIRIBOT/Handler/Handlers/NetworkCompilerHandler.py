@@ -7,6 +7,7 @@ from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
 
 from SAGIRIBOT.utils import get_setting
+from SAGIRIBOT.ORM.Tables import Setting
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import set_result
@@ -24,7 +25,7 @@ class NetworkCompilerHandler(AbstractHandler):
         message_text = message.asDisplay()
         if re.match(r"super .*:[\n\r]+[\s\S]*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            if not await get_setting(group.id, "compile"):
+            if not await get_setting(group.id, Setting.compile):
                 set_result(message, MessageItem(MessageChain.create([Plain(text="网络编译器功能关闭了呐~去联系管理员开启吧~")]), Normal(GroupStrategy())))
             language = re.findall(r"super (.*?):", message_text, re.S)[0]
             code = message_text[8 + len(language):]

@@ -46,7 +46,7 @@ class BiliBiliBangumiScheduleHandler(AbstractHandler):
         url = "https://bangumi.bilibili.com/web_api/timeline_global"
         headers = {
             "accept": "application/json, text/plain, */*",
-            "accept-encoding": "gzip, deflate, br",
+            "accept-encoding": "gzip, deflate",
             "accept-language": "zh-CN,zh;q=0.9",
             "origin": "https://www.bilibili.com",
             "referer": "https://www.bilibili.com/",
