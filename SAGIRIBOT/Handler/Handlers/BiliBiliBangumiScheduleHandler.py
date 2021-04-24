@@ -89,7 +89,7 @@ class BiliBiliBangumiScheduleHandler(AbstractHandler):
                 temp_bangumi_data_dict = dict()
                 temp_bangumi_data_dict["title"] = data["title"]
                 temp_bangumi_data_dict["cover"] = data["cover"]
-                temp_bangumi_data_dict["pub_index"] = data["pub_index"]
+                temp_bangumi_data_dict["pub_index"] = data["delay_index"] + " (本周停更)" if data["delay"] else data["pub_index"]
                 temp_bangumi_data_dict["pub_time"] = data["pub_time"]
                 temp_bangumi_data_dict["url"] = data["url"]
                 temp_bangumi_data_list.append(temp_bangumi_data_dict)
