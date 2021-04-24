@@ -1,4 +1,7 @@
 # SAGIRI-BOT
+
+![](https://img.shields.io/badge/python-3.8+-blue.svg)
+
 基于 Mirai 和 Graia 的船新版本，~~是兄弟就来砍我~~
 
 New version of sagiri-bot based on Mirai and Graia
