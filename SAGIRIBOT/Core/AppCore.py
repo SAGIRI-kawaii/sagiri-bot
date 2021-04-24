@@ -15,7 +15,7 @@ from graia.saya.builtins.broadcast import BroadcastBehaviour
 from .Exceptions import *
 from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.ORM.Tables import Setting, UserPermission
-from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict
+from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict, frequency_limit
 from SAGIRIBOT.exception_resender import ExceptionReSender, exception_resender_listener
 
 
@@ -135,6 +135,7 @@ class AppCore:
                 {"member_id": self.__config["HostQQ"], "group_id": result[0], "level": 4}
             )
         self.__frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
+        threading.Thread(target=frequency_limit, args=(self.__frequency_limit_instance,)).start()
         exception_resender_instance = ExceptionReSender(self.__app)
         listener = threading.Thread(
             target=exception_resender_listener,

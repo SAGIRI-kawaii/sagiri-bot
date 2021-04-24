@@ -16,7 +16,7 @@ from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceeded
 from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededDoNothing
 from SAGIRIBOT.Handler.Handlers.RepeaterHandler import RepeaterHandler
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
-from SAGIRIBOT.Handler.Handlers.ChatReplyHandler import ChatReplyHandler
+from SAGIRIBOT.Handler.Handlers.ChatRecorderHandler import ChatRecordHandler
 from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededAddBlackList
 from SAGIRIBOT.MessageSender.MessageSender import set_result, set_result_without_raise
 
@@ -63,7 +63,7 @@ class GroupMessageHandler(AbstractMessageHandler):
         chat_record_handler = None
         tasks = []
         for handler in self.__chain:
-            if isinstance(handler, ChatReplyHandler):
+            if isinstance(handler, ChatRecordHandler):
                 chat_record_handler = handler
             if isinstance(handler, RepeaterHandler):
                 repeat_handler = handler
