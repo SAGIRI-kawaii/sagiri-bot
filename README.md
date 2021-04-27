@@ -1,4 +1,7 @@
 # SAGIRI-BOT
+
+![](https://img.shields.io/badge/python-3.8+-blue.svg)
+
 基于 Mirai 和 Graia 的船新版本，~~是兄弟就来砍我~~
 
 New version of sagiri-bot based on Mirai and Graia
@@ -148,6 +151,8 @@ RepeaterHandler                         一个复读Handler
 | saucenaoCookie | saucenao cookie（自行登录获取） |
 | webManagerApi | api是否启动（用于管理页面） |
 | webManagerAutoBoot | 是否自动打开管理页面（webManagerApi为True时才起作用） |
+| errorRetention | 错误日志记录周期 |
+| commonRetention | 普通日志清空周期 |
 
 ## 使用文档
 

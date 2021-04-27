@@ -26,7 +26,7 @@ class BiliBiliBangumiScheduleHandler(AbstractHandler):
         if re.match(r"[1-7]日内新番", message.asDisplay()):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             days = int(message.asDisplay()[0])
-            set_result(message, await self.formatted_output_bangumi(days))
+            set_result(message, await self.formatted_output_bangumi(group, member, days))
         else:
             return None
 
@@ -46,7 +46,7 @@ class BiliBiliBangumiScheduleHandler(AbstractHandler):
         url = "https://bangumi.bilibili.com/web_api/timeline_global"
         headers = {
             "accept": "application/json, text/plain, */*",
-            "accept-encoding": "gzip, deflate, br",
+            "accept-encoding": "gzip, deflate",
             "accept-language": "zh-CN,zh;q=0.9",
             "origin": "https://www.bilibili.com",
             "referer": "https://www.bilibili.com/",
@@ -89,7 +89,7 @@ class BiliBiliBangumiScheduleHandler(AbstractHandler):
                 temp_bangumi_data_dict = dict()
                 temp_bangumi_data_dict["title"] = data["title"]
                 temp_bangumi_data_dict["cover"] = data["cover"]
-                temp_bangumi_data_dict["pub_index"] = data["pub_index"]
+                temp_bangumi_data_dict["pub_index"] = data["delay_index"] + " (本周停更)" if data["delay"] else data["pub_index"]
                 temp_bangumi_data_dict["pub_time"] = data["pub_time"]
                 temp_bangumi_data_dict["url"] = data["url"]
                 temp_bangumi_data_list.append(temp_bangumi_data_dict)

@@ -1,6 +1,5 @@
 matplotlib
 numpy
-pkuseg
 pydantic
 aiohttp
 SQLAlchemy
