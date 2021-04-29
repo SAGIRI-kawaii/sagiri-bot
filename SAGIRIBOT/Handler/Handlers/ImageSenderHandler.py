@@ -52,7 +52,7 @@ class ImageSenderHandler(AbstractHandler):
     __name__ = "ImageSenderHandler"
     __description__ = "一个可以发送图片的Handler"
     __usage__ = "在群中发送设置好的关键词即可"
-    functions = ["setu", "real", "realHighq", "bizhi", "sketch"]
+    functions = ("setu", "real", "realHighq", "bizhi", "sketch")
 
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_serialization = message.asSerializationString().replace(

@@ -3,6 +3,7 @@ from .RepeaterHandler import RepeaterHandler
 from .TrendingHandlers import TrendingHandler
 from .PDFSearchHandler import PDFSearchHandler
 from .ChatReplyHandler import ChatReplyHandler
+from .ImageAdderHandler import ImageAdderHandler
 from .ChatRecorderHandler import ChatRecordHandler
 from .ImageSearchHandler import ImageSearchHandler
 from .PhantomTankHandler import PhantomTankHandler
@@ -13,7 +14,6 @@ from .JLUCSWNoticeHandler import JLUCSWNoticeHandler
 from .KeywordReplyHandler import KeywordReplyHandler
 from .BotManagementHandler import BotManagementHandler
 from .BangumiSearchHandler import BangumiSearchHandler
-# from .LatexGeneratorHandler import LatexGeneratorHandler
 from .TodayInHistoryHandler import TodayInHistoryHandler
 from .QrCodeGeneratorHandler import QrCodeGeneratorHandler
 from .StatusPresenterHandler import StatusPresenterHandler
@@ -21,6 +21,7 @@ from .NetworkCompilerHandler import NetworkCompilerHandler
 from .BilibiliAppParserHandler import BilibiliAppParserHandler
 from .BangumiInfoSearchHandler import BangumiInfoSearchHandler
 from .SteamGameInfoSearchHandler import SteamGameInfoSearchHandler
+from .LoliconKeywordSearchHandler import LoliconKeywordSearchHandler
 from .PoisonousChickenSoupHandler import PoisonousChickenSoupHandler
 from .StylePictureGeneraterHandler import StylePictureGeneraterHandler
 from .AbbreviatedPredictionHandler import AbbreviatedPredictionHandler

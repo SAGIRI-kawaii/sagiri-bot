@@ -2,8 +2,8 @@ import os
 import io
 import math
 import yaml
+import json
 import base64
-import asyncio
 import datetime
 import traceback
 from io import BytesIO
@@ -177,6 +177,7 @@ def get_config(config: str):
         return configs[config]
     else:
         logger.error(f"getConfig Error: {config}")
+        return None
 
 
 async def get_setting(group_id: int, setting) -> Union[bool, str]:
@@ -293,5 +294,10 @@ def sec_to_str(seconds: int) -> str:
     return "%02d:%02d:%02d" % (h, m, s)
 
 
-def single_task(handle_func, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-    asyncio.run_coroutine_threadsafe(handle_func(app, message, group, member), AppCore.get_core_instance().get_loop())
+def get_image_save_number() -> int:
+    with open(f"{os.getcwd()}/statics/static_data.json", 'r') as r:
+        data = json.loads(r.read())
+    data["imageSaveNumber"] += 1
+    with open(f"{os.getcwd()}/statics/static_data.json", 'w') as w:
+        w.write(json.dumps(data, indent=4))
+    return data["imageSaveNumber"]
