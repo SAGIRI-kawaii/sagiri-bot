@@ -68,17 +68,17 @@ def frequency_limit_require_weight_free(weight: int):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)
             frequency_limit_instance = GlobalFrequencyLimitDict()
-            frequency_limit_instance.add_record(group_id, member_id, weight)
+            await frequency_limit_instance.add_record(group_id, member_id, weight)
             if frequency_limit_instance.blacklist_judge(group_id, member_id):
                 if not frequency_limit_instance.announce_judge(group_id, member_id):
-                    frequency_limit_instance.blacklist_announced(group_id, member_id)
+                    await frequency_limit_instance.blacklist_announced(group_id, member_id)
                     raise FrequencyLimitExceededAddBlackList
                 else:
                     raise FrequencyLimitExceededDoNothing
             if frequency_limit_instance.get(group_id) + weight >= 10:
                 raise FrequencyLimitExceeded
             else:
-                frequency_limit_instance.update(group_id, weight)
+                await frequency_limit_instance.update(group_id, weight)
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)

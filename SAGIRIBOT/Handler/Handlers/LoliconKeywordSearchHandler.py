@@ -4,18 +4,29 @@ import aiohttp
 from io import BytesIO
 from PIL import Image as IMG
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.ORM.Tables import Setting, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import get_config, get_setting, update_user_call_count_plus1
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await LoliconKeywordSearchHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class LoliconKeywordSearchHandler(AbstractHandler):
@@ -23,12 +34,13 @@ class LoliconKeywordSearchHandler(AbstractHandler):
     __description__ = "一个接入loliconapi的Handler"
     __usage__ = "在群中发送 `来点xx[色涩瑟]图`"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if re.match(r"来点.+[色涩瑟]图", message.asDisplay()):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             await update_user_call_count_plus1(group, member, UserCalledCount.setu, "setu")
             keyword = re.findall(r"来点(.*?)[色涩瑟]图", message.asDisplay(), re.S)[0]
-            set_result(message, await self.get_image(group, member, keyword))
+            return await LoliconKeywordSearchHandler.get_image(group, member, keyword)
         else:
             return None
 

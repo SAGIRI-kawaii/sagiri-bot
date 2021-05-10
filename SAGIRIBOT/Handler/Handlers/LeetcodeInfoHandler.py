@@ -3,16 +3,27 @@ import json
 import aiohttp
 from html import unescape
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount, MessageChainUtils
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await LeetcodeInfoHanlder.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class LeetcodeInfoHanlder(AbstractHandler):
@@ -20,14 +31,15 @@ class LeetcodeInfoHanlder(AbstractHandler):
     __description__ = "一个可以获取Leetcode信息的Handler"
     __usage__ = "在群中发送 `leetcode userslug` 即可（userslug为个人主页地址最后的唯一识别代码）"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if re.match(r"leetcode \S+", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            set_result(message, await self.leetcode_user_info_crawer(message))
+            return await LeetcodeInfoHanlder.leetcode_user_info_crawer(message)
         elif re.match(r"(leetcode|力扣)每日一题", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            set_result(message, await self.get_leetcode_daily_question())
+            return await LeetcodeInfoHanlder.get_leetcode_daily_question()
         else:
             return None
 

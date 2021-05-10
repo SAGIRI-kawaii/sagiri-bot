@@ -18,6 +18,8 @@ from SAGIRIBOT.ORM.Tables import Setting, UserPermission
 from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict, frequency_limit
 from SAGIRIBOT.exception_resender import ExceptionReSender, exception_resender_listener
 
+from SAGIRIBOT.ORM.TortoiseORM import init
+
 
 class AppCore:
     __instance = None
@@ -29,7 +31,7 @@ class AppCore:
     __thread_pool = None
     __config: dict = None
     __launched: bool = False
-    __group_handler_chain = []
+    __group_handler_chain = {}
     __exception_resender: ExceptionReSender = None
     __frequency_limit_instance: GlobalFrequencyLimitDict = None
     necessary_parameters = ["miraiHost", "authKey", "BotQQ"]
@@ -100,11 +102,15 @@ class AppCore:
         else:
             raise GraiaMiraiApplicationAlreadyLaunched()
 
-    def set_group_chain(self, chain: list):
-        self.__group_handler_chain = chain
+    def set_group_chain(self, chains: list):
+        for chain in chains:
+            self.__group_handler_chain[chain.__name__] = chain
 
-    def get_group_chain(self):
+    def get_group_chains(self):
         return self.__group_handler_chain
+
+    def get_group_chain(self, chain_name: str):
+        return self.__group_handler_chain[chain_name] if chain_name in self.__group_handler_chain else None
 
     def get_frequency_limit_instance(self):
         return self.__frequency_limit_instance
@@ -114,13 +120,15 @@ class AppCore:
 
     async def bot_launch_init(self):
         self.config_check()
+        await init()
         orm.session.query(Setting).update({"active": False})
         group_list = await self.__app.groupList()
         frequency_limit_dict = {}
         for group in group_list:
             frequency_limit_dict[group.id] = 0
             try:
-                orm.update(Setting, {"group_id": group.id}, {"group_id": group.id, "group_name": group.name, "active": True})
+                orm.update(Setting, {"group_id": group.id},
+                           {"group_id": group.id, "group_name": group.name, "active": True})
             except Exception:
                 logger.error(traceback.format_exc())
                 orm.session.rollback()
@@ -175,3 +183,6 @@ class AppCore:
 
     def get_saya_channels(self):
         return self.__saya.channels
+
+    def get_saya(self):
+        return self.__saya

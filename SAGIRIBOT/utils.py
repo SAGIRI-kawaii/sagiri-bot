@@ -242,7 +242,7 @@ async def update_user_call_count_plus1(group: Group, member: Member, table_colum
 
 
 async def get_admins(group: Group) -> list:
-    admins_res = list(orm.fetchall(
+    admins_res = list(await orm.fetchall(
         select(
             UserPermission.member_id
         ).where(

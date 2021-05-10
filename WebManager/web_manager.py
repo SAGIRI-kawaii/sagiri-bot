@@ -91,7 +91,7 @@ async def getStatus():
         "functionCalled": len(orm.fetchall(
             select(FunctionCalledRecord).where(FunctionCalledRecord.time > datetime.date.today())
         )),
-        "handlerCount": len(AppCore.get_core_instance().get_group_chain()),
+        "handlerCount": len(AppCore.get_core_instance().get_group_chains()),
         "sayaCount": len(AppCore.get_core_instance().get_saya_channels())
     }
 

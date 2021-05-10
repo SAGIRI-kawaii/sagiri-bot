@@ -7,11 +7,13 @@ import traceback
 from loguru import logger
 from sqlalchemy import select
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.application.exceptions import AccountMuted
 from graia.broadcast.interrupt import InterruptControl
 from graia.application.message.chain import MessageChain
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
@@ -22,8 +24,17 @@ from SAGIRIBOT.ORM.Tables import KeywordReply
 from SAGIRIBOT.utils import user_permission_require
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal, QuoteSource
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await KeywordReplyHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class KeywordReplyHandler(AbstractHandler):
@@ -31,21 +42,22 @@ class KeywordReplyHandler(AbstractHandler):
     __description__ = "一个关键字回复Handler"
     __usage__ = ""
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_serialization = message.asSerializationString().replace(
             "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message.asSerializationString(), re.S)[0] + "]", "")
         if re.match(r"添加回复关键词#[\s\S]*#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
-                set_result(message, await self.update_keyword(message, message_serialization))
+                return await KeywordReplyHandler.update_keyword(message, message_serialization)
             else:
                 return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
         elif re.match(r"删除回复关键词#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
-                set_result(message, await self.delete_keyword(app, message_serialization, group, member))
+                return await KeywordReplyHandler.delete_keyword(app, message_serialization, group, member)
             else:
-                set_result(message, MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy())))
-        elif result := await self.keyword_detect(message_serialization):
-            set_result(message, result)
+                return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
+        elif result := await KeywordReplyHandler.keyword_detect(message_serialization):
+            return result
         else:
             return None
 

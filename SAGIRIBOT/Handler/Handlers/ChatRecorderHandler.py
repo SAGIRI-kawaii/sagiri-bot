@@ -4,23 +4,32 @@ import traceback
 import datetime
 from loguru import logger
 
+from graia.saya import Saya, Channel
 from sqlalchemy.sql import select, desc
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
-from SAGIRIBOT.ORM.Tables import ChatRecord, UserCalledCount
+from SAGIRIBOT.ORM.Tables import UserCalledCount, ChatRecord
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    await ChatRecordHandler.handle(app, message, group, member)
 
 
 class ChatRecordHandler(AbstractHandler):
     """
     聊天记录Handler
     """
-    __seg = None
     __name__ = "ChatRecordHandler"
     __description__ = "一个记录聊天记录的Handler"
     __usage__ = "自动触发"
@@ -28,7 +37,8 @@ class ChatRecordHandler(AbstractHandler):
     def __init__(self):
         super().__init__()
 
-    async def record(self, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def record(message: MessageChain, group: Group, member: Member):
         await update_user_call_count_plus1(group, member, UserCalledCount.chat_count, "chat_count")
         content = "".join([plain.text for plain in message.get(Plain)])
         filter_words = re.findall(r"\[mirai:(.*?)\]", content, re.S)
@@ -52,9 +62,13 @@ class ChatRecordHandler(AbstractHandler):
                         "seg": "|".join(seg_result)
                     }
                 )
-            except Exception as e:
+            except Exception:
                 logger.error(traceback.format_exc())
                 orm.session.rollback()
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-        await self.record(message, group, member)
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+        await ChatRecordHandler.record(message, group, member)
+
+
+chat_recoder = ChatRecordHandler()

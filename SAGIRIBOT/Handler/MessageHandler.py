@@ -44,33 +44,40 @@ class GroupMessageHandler(AbstractMessageHandler):
     __chain = []
     __handlers = []
     __chain_names = []
+    __repeat_handler = None
+    __chat_record_handler = None
     __head_handler = None
+    __other_handlers = []
 
     def __init__(self, chain: list):
         self.__chain = chain
         head = HeadHandler()
         self.__head_handler = head
-        # node = head
         for handler in chain:
-            # node = node.set_next(handler)
             self.__handlers.append(handler.handle)
             self.__chain_names.append(handler.__name__)
+            if isinstance(handler, ChatRecordHandler):
+                self.__chat_record_handler = handler
+            if isinstance(handler, RepeaterHandler):
+                self.__repeat_handler = handler
+            else:
+                self.__other_handlers.append(handler.handle)
+
         AppCore.get_core_instance().set_group_chain(self.__handlers)
         logger.success("\n----------------------------------------------\n加载成功，目前加载Handler：\n" + "\n".join([f"{handler.__name__.ljust(40) + handler.__description__}" for handler in self.__chain]) + "\n----------------------------------------------")
 
     async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member) -> bool:
-        repeat_handler = None
-        chat_record_handler = None
-        tasks = []
-        for handler in self.__chain:
-            if isinstance(handler, ChatRecordHandler):
-                chat_record_handler = handler
-            if isinstance(handler, RepeaterHandler):
-                repeat_handler = handler
-            else:
-                tasks.append(handler.handle(app, message, group, member))
-        if chat_record_handler:
-            await chat_record_handler.handle(app, message, group, member)
+        tasks = [func(app, message, group, member) for func in self.__other_handlers]
+        # for handler in self.__chain:
+        #     if isinstance(handler, ChatRecordHandler):
+        #         self.__chat_record_handler = handler
+        #     if isinstance(handler, RepeaterHandler):
+        #         repeat_handler = handler
+        #     else:
+        #         tasks.append(handler.handle(app, message, group, member))
+        if self.__chat_record_handler:
+            await self.__chat_record_handler.handle(app, message, group, member)
+        print(1)
         g = asyncio.gather(*tasks)
         try:
             await g
@@ -100,9 +107,9 @@ class GroupMessageHandler(AbstractMessageHandler):
                 )
             )
             return True
-        if repeat_handler:
+        if self.__repeat_handler:
             try:
-                await repeat_handler.handle(app, message, group, member)
+                await self.__repeat_handler.handle(app, message, group, member)
             except AsyncioTasksGetResult:
                 return True
         return False

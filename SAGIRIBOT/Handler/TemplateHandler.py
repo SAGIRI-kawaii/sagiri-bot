@@ -21,3 +21,19 @@ class TemplateHandler(AbstractHandler):
             set_result(origin_message=message, item=MessageItem(MessageChain.create([Plain(text="模板")]), Normal(GroupStrategy())))
         else:
             return None
+
+
+
+
+from graia.saya import Saya, Channel
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.application.event.messages import Group, Member, GroupMessage
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await BiliBiliBangumiScheduleHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)

@@ -4,17 +4,27 @@ from io import BytesIO
 from PIL import Image as IMG
 from PIL import ImageEnhance
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await PhantomTankHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class PhantomTankHandler(AbstractHandler):
@@ -22,15 +32,16 @@ class PhantomTankHandler(AbstractHandler):
     __description__ = "一个幻影坦克生成器Handler"
     __usage__ = "在群中发送 `幻影 [显示图] [隐藏图]` 即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = "".join([plain.text for plain in message.get(Plain)]).strip()
         if message_text == "幻影" or message_text == "彩色幻影":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             if len(message.get(Image)) != 2:
-                set_result(message, MessageItem(
+                return MessageItem(
                     MessageChain.create([Plain(text="非预期图片数！请按照 `显示图 隐藏图` 顺序发送，一共两张图片")]),
                     QuoteSource(GroupStrategy())
-                ))
+                )
             else:
                 display_img = message[Image][0]
                 async with aiohttp.ClientSession() as session:
@@ -42,11 +53,7 @@ class PhantomTankHandler(AbstractHandler):
                     async with session.get(url=hide_img.url) as resp:
                         hide_img = IMG.open(BytesIO(await resp.read()))
 
-                set_result(
-                    message,
-                    await self.get_phantom_message(group, member, display_img, hide_img) if message_text == "幻影"
-                    else await self.get_colorful_phantom_message(group, member, display_img, hide_img)
-                )
+                return await PhantomTankHandler.get_phantom_message(group, member, display_img, hide_img) if message_text == "幻影" else await PhantomTankHandler.get_colorful_phantom_message(group, member, display_img, hide_img)
         else:
             return None
 

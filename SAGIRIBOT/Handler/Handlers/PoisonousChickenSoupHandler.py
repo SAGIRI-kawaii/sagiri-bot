@@ -1,15 +1,26 @@
 import aiohttp
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import get_config
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await PoisonousChickenSoupHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class PoisonousChickenSoupHandler(AbstractHandler):
@@ -17,9 +28,10 @@ class PoisonousChickenSoupHandler(AbstractHandler):
     __description__ = "一个获取毒鸡汤的Hanlder"
     __usage__ = "在群中发送 `鸡汤/毒鸡汤/来碗鸡汤` 即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() in ["来碗鸡汤", "鸡汤", "毒鸡汤"]:
-            set_result(message, await self.get_soup())
+            return await PoisonousChickenSoupHandler.get_soup()
         else:
             return None
 

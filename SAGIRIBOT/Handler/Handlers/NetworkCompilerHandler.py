@@ -1,19 +1,30 @@
 import re
 import aiohttp
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import get_setting
 from SAGIRIBOT.ORM.Tables import Setting
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, Normal
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await NetworkCompilerHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class NetworkCompilerHandler(AbstractHandler):
@@ -21,22 +32,23 @@ class NetworkCompilerHandler(AbstractHandler):
     __description__ = "一个网络编译器Handler"
     __usage__ = "在群中发送 `super language:code`即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if re.match(r"super .*:[\n\r]+[\s\S]*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             if not await get_setting(group.id, Setting.compile):
-                set_result(message, MessageItem(MessageChain.create([Plain(text="网络编译器功能关闭了呐~去联系管理员开启吧~")]), Normal(GroupStrategy())))
+                return MessageItem(MessageChain.create([Plain(text="网络编译器功能关闭了呐~去联系管理员开启吧~")]), Normal(GroupStrategy()))
             language = re.findall(r"super (.*?):", message_text, re.S)[0]
             code = message_text[8 + len(language):]
-            result = await self.network_compiler(group, member, language, code)
+            result = await NetworkCompilerHandler.network_compiler(group, member, language, code)
             if isinstance(result, str):
-                set_result(message, MessageItem(MessageChain.create([Plain(text=result)]), QuoteSource(GroupStrategy())))
+                return MessageItem(MessageChain.create([Plain(text=result)]), QuoteSource(GroupStrategy()))
             else:
-                set_result(message, MessageItem(
+                return MessageItem(
                     MessageChain.create([Plain(text=result["output"] if result["output"] else result["errors"])]),
                     QuoteSource(GroupStrategy())
-                ))
+                )
         else:
             return None
 

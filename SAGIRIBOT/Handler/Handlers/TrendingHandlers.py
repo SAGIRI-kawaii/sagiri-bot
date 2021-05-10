@@ -2,18 +2,28 @@ import random
 import aiohttp
 from bs4 import BeautifulSoup
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.MessageSender.Strategy import Normal
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await TrendingHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class TrendingHandler(AbstractHandler):
@@ -24,17 +34,18 @@ class TrendingHandler(AbstractHandler):
     __description__ = "一个获取热搜的Handler"
     __usage__ = "在群中发送 `微博热搜` 即可查看微博热搜\n在群中发送 `知乎热搜` 即可查看知乎热搜\n在群中发送 `github热搜` 即可查看github热搜"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if message_text == "微博热搜":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            set_result(message, await self.get_weibo_trending(group, member))
+            return await TrendingHandler.get_weibo_trending(group, member)
         elif message_text == "知乎热搜":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            set_result(message, await self.get_zhihu_trending(group, member))
+            return await TrendingHandler.get_zhihu_trending(group, member)
         elif message_text == "github热搜":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            set_result(message, await self.get_github_trending(group, member))
+            return await TrendingHandler.get_github_trending(group, member)
         else:
             return None
 

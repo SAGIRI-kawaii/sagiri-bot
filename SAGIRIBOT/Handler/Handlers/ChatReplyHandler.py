@@ -8,20 +8,32 @@ import traceback
 from urllib import parse
 from loguru import logger
 
+from graia.saya import Saya, Channel
 from sqlalchemy import select, desc
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, At
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.utils import get_config
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, AtSender
 from SAGIRIBOT.ORM.Tables import Setting, ChatSession, UserCalledCount
+
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await ChatReplyHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class ChatReplyHandler(AbstractHandler):
@@ -29,11 +41,12 @@ class ChatReplyHandler(AbstractHandler):
     __description__ = "一个可以自定义/。智能回复的Handler"
     __usage__ = "在群中发送 `@bot + 想说的话` 即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.has(At) and message.get(At)[0].target == get_config("BotQQ"):
             await update_user_call_count_plus1(group, member, UserCalledCount.at, "at")
             content = "".join(plain.text for plain in message.get(Plain)).strip().replace(" ", "，")
-            set_result(message, await self.get_reply(member.id, group.id, content))
+            return await ChatReplyHandler.get_reply(member.id, group.id, content)
         else:
             return None
 
