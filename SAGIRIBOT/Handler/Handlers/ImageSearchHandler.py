@@ -16,7 +16,7 @@ from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.utils import get_setting, get_config
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
-from SAGIRIBOT.ORM.Tables import Setting, UserCalledCount
+from SAGIRIBOT.ORM.AsyncORM import Setting, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal

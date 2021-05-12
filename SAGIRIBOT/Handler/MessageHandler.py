@@ -46,13 +46,13 @@ class GroupMessageHandler(AbstractMessageHandler):
     __chain_names = []
     __repeat_handler = None
     __chat_record_handler = None
-    __head_handler = None
+    # __head_handler = None
     __other_handlers = []
 
     def __init__(self, chain: list):
         self.__chain = chain
-        head = HeadHandler()
-        self.__head_handler = head
+        # head = HeadHandler()
+        # self.__head_handler = head
         for handler in chain:
             self.__handlers.append(handler.handle)
             self.__chain_names.append(handler.__name__)

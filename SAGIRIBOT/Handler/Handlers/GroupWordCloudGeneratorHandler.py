@@ -136,7 +136,12 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
             return MessageItem(MessageChain.create([Plain(text="Error: review_type invalid!")]), QuoteSource(GroupStrategy()))
 
         sql = select(
-            ChatRecord
+            ChatRecord.id,
+            ChatRecord.time,
+            ChatRecord.group_id,
+            ChatRecord.member_id,
+            ChatRecord.content,
+            ChatRecord.seg
         ).where(
             ChatRecord.group_id == group_id,
             ChatRecord.member_id == member_id if target == "member" else True,
@@ -165,7 +170,7 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
         if not (res := list(await orm.fetchone(sql))):
             return MessageItem(MessageChain.create([Plain(text="没有你的发言记录呐~")]), QuoteSource(GroupStrategy()))
 
-        times = res[0][0]
+        times = res[0]
         return MessageItem(
             MessageChain.create([
                 Plain(text="记录时间：\n"),

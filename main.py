@@ -30,8 +30,13 @@ app = core.get_app()
 bcc = core.get_bcc()
 saya = core.get_saya()
 
+
+ignore = ["__init__", "__pycache__"]
 with saya.module_context():
     for module in os.listdir("SAGIRIBOT/Handler/Handlers"):
+        print(module)
+        if module in ignore:
+            continue
         try:
             if os.path.isdir(module):
                 saya.require(f"SAGIRIBOT.Handler.Handlers.{module}")
