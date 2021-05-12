@@ -91,7 +91,6 @@ class BangumiSearchHandler(AbstractHandler):
                         await BangumiSearchHandler.search_bangumi(message_received[Image][0]),
                         quote=message_received[Source][0]
                     )
-                    raise AsyncioTasksGetResult
                 except AccountMuted:
                     logger.error(f"Bot 在群 <{group.name}> 被禁言，无法发送！")
                     pass
