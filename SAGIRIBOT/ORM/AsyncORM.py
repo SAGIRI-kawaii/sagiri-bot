@@ -28,7 +28,7 @@ def get_config(config: str):
 
 
 # DB_LINK = get_config("DBLink")
-DB_LINK = "sqlite+aiosqlite:///tdata.db"
+DB_LINK = "sqlite+aiosqlite:///data.db"
 
 
 class AsyncEngine:
@@ -40,7 +40,9 @@ class AsyncEngine:
 
     async def execute(self, sql, **kwargs):
         async with AsyncSession(self.engine) as session:
-            return await session.execute(sql, **kwargs)
+            result = await session.execute(sql, **kwargs)
+            await session.commit()
+            return result
 
     async def fetchall(self, sql):
         return (await self.execute(sql)).fetchall()
@@ -117,10 +119,14 @@ class AsyncORM(AsyncEngine):
             logger.error(traceback.format_exc())
 
     async def insert_or_update(self, table, condition, dt):
-        if (await self.execute(select(table).where(*condition))).all():
-            return await self.execute(update(table).where(*condition).values(**dt))
-        else:
-            return await self.execute(insert(table).values(**dt))
+        try:
+            if (await self.execute(select(table).where(*condition))).all():
+                return await self.execute(update(table).where(*condition).values(**dt))
+            else:
+                return await self.execute(insert(table).values(**dt))
+        except:
+            logger.error(traceback.format_exc())
+            return None
 
     async def delete(self, table, condition):
         q = self.session.query(table).filter_by(**condition)
