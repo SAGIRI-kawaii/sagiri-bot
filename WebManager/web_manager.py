@@ -5,10 +5,10 @@ from fastapi import FastAPI
 from sqlalchemy import select
 from fastapi.middleware.cors import CORSMiddleware
 
-from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.command_parse.Commands import *
-from SAGIRIBOT.ORM.Tables import Setting, FunctionCalledRecord
+from SAGIRIBOT.ORM.AsyncORM import Setting, FunctionCalledRecord
 
 app = FastAPI(docs_url=None, redoc_url=None)
 
@@ -25,7 +25,7 @@ app.add_middleware(
 
 @app.get('/getGroups')
 async def getGroups():
-    groups = orm.fetchall(select(Setting.group_id, Setting.group_name).where(Setting.active == True))
+    groups = await orm.fetchall(select(Setting.group_id, Setting.group_name).where(Setting.active == True))
     return [{"value": group[0], "label": group[1]} for group in groups]
 
 
@@ -40,7 +40,7 @@ async def getGroupSetting(groupId: int):
         "speak_mode": SpeakMode.valid_values,
         "music": Music.valid_values
     }
-    bool_result = list(orm.fetchone(select(
+    bool_result = await orm.fetchone(select(
         Setting.repeat,
         Setting.frequency_limit,
         Setting.setu, Setting.real, Setting.bizhi, Setting.r18,
@@ -53,15 +53,15 @@ async def getGroupSetting(groupId: int):
         Setting.switch
     ).where(
         Setting.group_id == groupId
-    )))[0]
-    str_result = list(orm.fetchone(select(
+    ))
+    str_result = await orm.fetchone(select(
         Setting.long_text_type,
         Setting.r18_process,
         Setting.speak_mode,
         Setting.music
     ).where(
         Setting.group_id == groupId
-    )))[0]
+    ))
     return [
         [{"label": options_bool[i], "value": bool_result[i]} for i in range(len(bool_result))],
         [{"label": options_str[i], "value": str_result[i], "validValue": valid_str_option_value[options_str[i]]} for i in range(len(str_result))]
@@ -73,14 +73,13 @@ async def modifyGroupSetting(groupId: int, settingName: str, newValue):
     if newValue in ["true", "false"]:
         newValue = True if newValue == "true" else False
     try:
-        orm.update(
+        await orm.update(
             Setting,
-            {"group_id": groupId},
+            [Setting.group_id == groupId],
             {"group_id": groupId, settingName: newValue}
         )
     except Exception as e:
         logger.error(f"api error: {e}")
-        orm.rollback()
         return False
     return True
 
@@ -88,7 +87,7 @@ async def modifyGroupSetting(groupId: int, settingName: str, newValue):
 @app.get("/getStatus")
 async def getStatus():
     return {
-        "functionCalled": len(orm.fetchall(
+        "functionCalled": len(await orm.fetchall(
             select(FunctionCalledRecord).where(FunctionCalledRecord.time > datetime.date.today())
         )),
         "handlerCount": len(AppCore.get_core_instance().get_group_chains()),

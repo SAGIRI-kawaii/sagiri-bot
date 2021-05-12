@@ -30,11 +30,9 @@ app = core.get_app()
 bcc = core.get_bcc()
 saya = core.get_saya()
 
-
 ignore = ["__init__", "__pycache__"]
 with saya.module_context():
     for module in os.listdir("SAGIRIBOT/Handler/Handlers"):
-        print(module)
         if module in ignore:
             continue
         try:
@@ -45,40 +43,6 @@ with saya.module_context():
         except ModuleNotFoundError:
             pass
 
-# g_handler: GroupMessageHandler = GroupMessageHandler([
-#     ChatRecordHandler(),
-#     BotManagementHandler(),
-#     StatusPresenterHandler(),
-#     ImageSenderHandler(),
-#     TrendingHandler(),
-#     PeroDogHandler(),
-#     StylePictureGeneraterHandler(),
-#     AvatarFunPicHandler(),
-#     # AbbreviatedPredictionHandler(),
-#     PDFSearchHandler(),
-#     LeetcodeInfoHanlder(),
-#     QrCodeGeneratorHandler(),
-#     ImageSearchHandler(),
-#     BiliBiliBangumiScheduleHandler(),
-#     TodayInHistoryHandler(),
-#     BilibiliAppParserHandler(),
-#     BangumiSearchHandler(),
-#     PoisonousChickenSoupHandler(),
-#     PhantomTankHandler(),
-#     SteamGameInfoSearchHandler(),
-#     MarketingContentGeneratorHandler(),
-#     ImageAdderHandler(),
-#     NetworkCompilerHandler(),
-#     BangumiInfoSearchHandler(),
-#     JLUCSWNoticeHandler(),
-#     AbstractMessageTransformHandler(),
-#     LoliconKeywordSearchHandler(),
-#     GroupWordCloudGeneratorHandler(),
-#     KeywordReplyHandler(),
-#     ChatReplyHandler(),
-#     RepeaterHandler()
-# ])
-
 core.load_saya_modules()
 
 
@@ -86,10 +50,6 @@ core.load_saya_modules()
 async def group_message_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     message_text_log = message.asDisplay().replace("\n", "\\n")
     logger.info(f"收到来自群 <{group.name}> 中成员 <{member.name}> 的消息：{message_text_log}")
-#     if await g_handler.handle(app, message, group, member):
-#         if result := res[message[Source][0].id]:
-#             g_sender: GroupMessageSender = GroupMessageSender(result.strategy)
-#             await g_sender.send(app, result.message, message, group, member)
 
 
 @logger.catch
