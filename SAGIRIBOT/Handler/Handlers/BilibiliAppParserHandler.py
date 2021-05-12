@@ -2,17 +2,28 @@ import json
 import time
 import aiohttp
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.application.event.messages import Group, Member, GroupMessage
 from graia.application.message.elements.internal import App, Plain, Image
 
 from SAGIRIBOT.utils import sec_format
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.static_datas import bilibili_partition_dict
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await BilibiliAppParserHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class BilibiliAppParserHandler(AbstractHandler):
@@ -20,7 +31,8 @@ class BilibiliAppParserHandler(AbstractHandler):
     __description__ = "一个可以解析BiliBili小程序的Handler"
     __usage__ = "当群中有人分享时自动触发"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if apps := message.get(App):
             app_json = json.loads(apps[0].content)
             if app_json["prompt"] == "[QQ小程序]哔哩哔哩" or "meta" in app_json and "detail_1" in app_json["meta"] and app_json["meta"]["detail_1"]["title"] == "哔哩哔哩":
@@ -32,13 +44,13 @@ class BilibiliAppParserHandler(AbstractHandler):
                 bv_url = result.split("\"")[1].split("?")[0].split("/")[-1].strip()
                 # print(bv_url)
 
-                bilibili_video_api_url = f"http://api.bilibili.com/x/web-interface/view?aid={self.bv_to_av(bv_url)}"
+                bilibili_video_api_url = f"http://api.bilibili.com/x/web-interface/view?aid={BilibiliAppParserHandler.bv_to_av(bv_url)}"
 
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url=bilibili_video_api_url) as resp:
                         result = (await resp.read()).decode('utf-8')
                 result = json.loads(result)
-                set_result(message, MessageItem(await self.generate_messagechain(result), Normal(GroupStrategy())))
+                return MessageItem(await BilibiliAppParserHandler.generate_messagechain(result), Normal(GroupStrategy()))
 
             else:
                 return None

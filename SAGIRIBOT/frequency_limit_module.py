@@ -49,7 +49,7 @@ class GlobalFrequencyLimitDict:
             for member in self.__frequency_counter[group]:
                 self.__frequency_counter[group][member] = 0
 
-    def update(self, group_id: int, weight: int):
+    async def update(self, group_id: int, weight: int):
         if group_id in self.frequency_limit_dict:
             self.frequency_limit_dict[group_id] += weight
         else:
@@ -79,7 +79,7 @@ class GlobalFrequencyLimitDict:
         else:
             return False
 
-    def add_record(self, group_id: int, member_id: int, weight: int):
+    async def add_record(self, group_id: int, member_id: int, weight: int):
         if group_id in self.__frequency_counter:
             if member_id in self.__frequency_counter[group_id]:
                 self.__frequency_counter[group_id][member_id] += weight
@@ -104,7 +104,7 @@ class GlobalFrequencyLimitDict:
             self.__blacklist_announced[group_id][member_id] = False
             return False
 
-    def blacklist_announced(self, group_id: int, member_id: int):
+    async def blacklist_announced(self, group_id: int, member_id: int):
         self.__blacklist_announced[group_id][member_id] = True
 
 

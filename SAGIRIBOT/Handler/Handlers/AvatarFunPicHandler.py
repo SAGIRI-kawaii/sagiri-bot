@@ -6,17 +6,18 @@ from PIL import ImageOps
 from PIL import Image as IMG
 from moviepy.editor import ImageSequenceClip
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
-from graia.application.message.elements.internal import At
-from graia.application.message.elements.internal import Image
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.application.message.elements.internal import At, Image
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.MessageSender.Strategy import Normal
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 
 
@@ -41,16 +42,27 @@ squish_translation_factor = [0, 20, 34, 21, 0]
 frames = tuple([f'{os.getcwd()}/statics/PetPetFrames/frame{i}.png' for i in range(5)])
 
 
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await AvatarFunPicHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
+
+
 class AvatarFunPicHandler(AbstractHandler):
     __name__ = "AvatarFunPicHandler"
     __description__ = "一个可以生成头像相关趣味图的Handler"
     __usage__ = "在群中发送 `摸 @目标` 即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if message.has(At) and message_text.startswith("摸"):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            set_result(message, await self.petpet(message.get(At)[0].target))
+            return await AvatarFunPicHandler.petpet(message.get(At)[0].target)
         else:
             return None
 

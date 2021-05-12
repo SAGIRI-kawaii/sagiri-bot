@@ -7,9 +7,9 @@ from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
 
 from .Commands import *
-from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.utils import user_permission_require
-from SAGIRIBOT.ORM.Tables import Setting, UserPermission
+from SAGIRIBOT.ORM.AsyncORM import Setting, UserPermission
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal, QuoteSource
 
@@ -49,7 +49,7 @@ async def execute_setting_update(group: Group, member: Member, command: str) -> 
                     """ update """
                     if await user_permission_require(group, member, command_index[func].level):
                         try:
-                            orm.update(Setting, {"group_id": group.id}, {func: value})
+                            await orm.insert_or_update(Setting, [Setting.group_id == group.id], {func: value})
                             success_commands.append(f"{func} -> {value}")
                         except Exception as e:
                             error_commands.append((command, str(e)))
@@ -85,8 +85,8 @@ async def execute_grant_permission(group: Group, member: Member, message_text: s
         if level.isdigit():
             level = int(level)
             if 1 <= level <= 2:
-                if result := list(orm.fetchone(select(UserPermission.level).where(UserPermission.group_id == group.id, UserPermission.member_id == target))):
-                    if result[0][0] == 3:
+                if result := await orm.fetchone(select(UserPermission.level).where(UserPermission.group_id == group.id, UserPermission.member_id == target)):
+                    if result[0] == 3:
                         if await user_permission_require(group, member, 4):
                             return await grant_permission_process(group.id, target, level)
                         else:
@@ -117,13 +117,12 @@ async def grant_permission_process(group_id: int, member_id: int, new_level: int
 
 async def grant_permission(group_id: int, member_id: int, new_level: int) -> bool:
     try:
-        orm.update(
+        await orm.insert_or_update(
             UserPermission,
-            {"group_id": group_id, "member_id": member_id},
+            [UserPermission.group_id == group_id, UserPermission.member_id == member_id],
             {"group_id": group_id, "member_id": member_id, "level": new_level}
         )
         return True
     except Exception:
         logger.error(traceback.format_exc())
-        orm.session.rollback()
         return False

@@ -7,23 +7,34 @@ import traceback
 from loguru import logger
 from sqlalchemy import select
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.application.exceptions import AccountMuted
 from graia.broadcast.interrupt import InterruptControl
 from graia.application.message.chain import MessageChain
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
 
-from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
-from SAGIRIBOT.ORM.Tables import KeywordReply
+from SAGIRIBOT.ORM.AsyncORM import KeywordReply
 from SAGIRIBOT.utils import user_permission_require
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal, QuoteSource
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await KeywordReplyHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class KeywordReplyHandler(AbstractHandler):
@@ -31,21 +42,22 @@ class KeywordReplyHandler(AbstractHandler):
     __description__ = "一个关键字回复Handler"
     __usage__ = ""
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_serialization = message.asSerializationString().replace(
             "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message.asSerializationString(), re.S)[0] + "]", "")
         if re.match(r"添加回复关键词#[\s\S]*#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
-                set_result(message, await self.update_keyword(message, message_serialization))
+                return await KeywordReplyHandler.update_keyword(message, message_serialization)
             else:
                 return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
         elif re.match(r"删除回复关键词#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
-                set_result(message, await self.delete_keyword(app, message_serialization, group, member))
+                return await KeywordReplyHandler.delete_keyword(app, message_serialization, group, member)
             else:
-                set_result(message, MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy())))
-        elif result := await self.keyword_detect(message_serialization):
-            set_result(message, result)
+                return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource(GroupStrategy()))
+        elif result := await KeywordReplyHandler.keyword_detect(message_serialization):
+            return result
         else:
             return None
 
@@ -53,7 +65,7 @@ class KeywordReplyHandler(AbstractHandler):
     async def keyword_detect(keyword: str):
         if re.match(r"\[mirai:image:{.*}\..*]", keyword):
             keyword = re.findall(r"\[mirai:image:{(.*?)}\..*]", keyword, re.S)[0]
-        if result := list(orm.fetchall(
+        if result := list(await orm.fetchall(
                 select(
                     KeywordReply.reply, KeywordReply.reply_type
                 ).where(
@@ -95,18 +107,17 @@ class KeywordReplyHandler(AbstractHandler):
         reply_md5 = m.hexdigest()
 
         try:
-            if result := list(orm.fetchone(select(KeywordReply).where(KeywordReply.keyword == keyword, KeywordReply.reply_type == reply_type, KeywordReply.reply_md5 == reply_md5))):
+            if result := await orm.fetchone(select(KeywordReply).where(KeywordReply.keyword == keyword, KeywordReply.reply_type == reply_type, KeywordReply.reply_md5 == reply_md5)):
                 print(result)
                 return MessageItem(MessageChain.create([Plain(text=f"重复添加关键词！进程退出")]), Normal(GroupStrategy()))
             else:
-                orm.add(
+                await orm.add(
                     KeywordReply,
                     {"keyword": keyword, "reply": reply, "reply_type": reply_type, "reply_md5": reply_md5}
                 )
                 return MessageItem(MessageChain.create([Plain(text=f"关键词添加成功！")]), Normal(GroupStrategy()))
         except Exception:
             logger.error(traceback.format_exc())
-            orm.session.rollback()
             return MessageItem(MessageChain.create([Plain(text="发生错误！请查看日志！")]), Normal(GroupStrategy()))
 
     @staticmethod
@@ -125,7 +136,7 @@ class KeywordReplyHandler(AbstractHandler):
         if re.match(r"\[mirai:image:{.*}\..*]", keyword):
             keyword = re.findall(r"\[mirai:image:{(.*?)}\..*]", keyword, re.S)[0]
 
-        if results := orm.fetchall(select(KeywordReply).where(KeywordReply.keyword == keyword)):
+        if results := await orm.fetchall(select(KeywordReply).where(KeywordReply.keyword == keyword)):
             replies = list()
             for result in results:
                 content_type = result[1]
@@ -193,11 +204,10 @@ class KeywordReplyHandler(AbstractHandler):
                 return MessageItem(MessageChain.create([Plain(text="非预期回复，进程退出")]), Normal(GroupStrategy()))
             elif result == "是":
                 try:
-                    orm.delete(KeywordReply, {"keyword": keyword, "reply_md5": replies[number - 1][2], "reply_type": replies[number - 1][0]})
+                    await orm.delete(KeywordReply, {"keyword": keyword, "reply_md5": replies[number - 1][2], "reply_type": replies[number - 1][0]})
                     return MessageItem(MessageChain.create([Plain(text=f"删除成功")]), Normal(GroupStrategy()))
                 except Exception as e:
                     logger.error(traceback.format_exc())
-                    orm.session.rollback()
                     return MessageItem(MessageChain.create([Plain(text=str(e))]), Normal(GroupStrategy()))
             else:
                 return MessageItem(MessageChain.create([Plain(text="进程退出")]), Normal(GroupStrategy()))

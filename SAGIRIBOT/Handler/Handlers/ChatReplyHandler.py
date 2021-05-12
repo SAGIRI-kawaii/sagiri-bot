@@ -8,20 +8,32 @@ import traceback
 from urllib import parse
 from loguru import logger
 
+from graia.saya import Saya, Channel
 from sqlalchemy import select, desc
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, At
+from graia.application.event.messages import Group, Member, GroupMessage
 
-from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.utils import get_config
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, AtSender
-from SAGIRIBOT.ORM.Tables import Setting, ChatSession, UserCalledCount
+from SAGIRIBOT.ORM.AsyncORM import Setting, ChatSession, UserCalledCount
+
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await ChatReplyHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class ChatReplyHandler(AbstractHandler):
@@ -29,18 +41,19 @@ class ChatReplyHandler(AbstractHandler):
     __description__ = "一个可以自定义/。智能回复的Handler"
     __usage__ = "在群中发送 `@bot + 想说的话` 即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.has(At) and message.get(At)[0].target == get_config("BotQQ"):
             await update_user_call_count_plus1(group, member, UserCalledCount.at, "at")
             content = "".join(plain.text for plain in message.get(Plain)).strip().replace(" ", "，")
-            set_result(message, await self.get_reply(member.id, group.id, content))
+            return await ChatReplyHandler.get_reply(member.id, group.id, content)
         else:
             return None
 
     @staticmethod
     async def get_reply(member_id: int, group_id: int, content: str):
-        if mode_now := list(orm.fetchone(select(Setting.speak_mode).where(Setting.group_id == group_id))):
-            mode_now = mode_now[0][0]
+        if mode_now := await orm.fetchone(select(Setting.speak_mode).where(Setting.group_id == group_id)):
+            mode_now = mode_now[0]
             if mode_now == "normal":
                 return None
             elif mode_now == "zuanLow":
@@ -103,34 +116,28 @@ class ChatReplyHandler(AbstractHandler):
 
     @staticmethod
     async def get_chat_session(group_id: int, member_id: int) -> str:
-        if result := list(
-            orm.fetchone(
-                select(
-                    ChatSession.member_session
-                ).where(
-                    ChatSession.group_id == group_id,
-                    ChatSession.member_id == member_id
-                )
+        if result := await orm.fetchone(
+            select(
+                ChatSession.member_session
+            ).where(
+                ChatSession.group_id == group_id,
+                ChatSession.member_id == member_id
             )
         ):
-            return str(result[0][0])
+            return str(result[0])
         else:
-            new_session = list(orm.fetchall(select(ChatSession.member_session).order_by(desc(ChatSession.member_session))))
+            new_session = list(await orm.fetchall(select(ChatSession.member_session).order_by(desc(ChatSession.member_session))))
             new_session = new_session[0][0] + 1 if new_session else 1
             logger.info(f"new_session for {group_id} -> {member_id}: {new_session}")
-            try:
-                orm.add(
-                    ChatSession,
-                    {
-                        "group_id": group_id,
-                        "member_id": member_id,
-                        "member_session": new_session
-                    }
-                )
-                return str(new_session)
-            except Exception as e:
-                logger.error(traceback.format_exc())
-                orm.session.rollback()
+            await orm.add(
+                ChatSession,
+                {
+                    "group_id": group_id,
+                    "member_id": member_id,
+                    "member_session": new_session
+                }
+            )
+            return str(new_session)
 
     @staticmethod
     async def get_tx_sign(params: dict) -> str:

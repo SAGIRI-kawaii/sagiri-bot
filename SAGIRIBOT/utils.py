@@ -2,8 +2,8 @@ import os
 import io
 import math
 import yaml
+import json
 import base64
-import asyncio
 import datetime
 import traceback
 from io import BytesIO
@@ -18,9 +18,9 @@ from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain, Image, Image_LocalFile, Image_UnsafeBytes
 
-from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
-from SAGIRIBOT.ORM.Tables import Setting, UserPermission, UserCalledCount, FunctionCalledRecord
+from SAGIRIBOT.ORM.AsyncORM import Setting, UserPermission, UserCalledCount, FunctionCalledRecord
 
 yaml.warnings({'YAMLLoadWarning': False})
 
@@ -177,71 +177,58 @@ def get_config(config: str):
         return configs[config]
     else:
         logger.error(f"getConfig Error: {config}")
+        return None
 
 
 async def get_setting(group_id: int, setting) -> Union[bool, str]:
-    if result := list(orm.fetchone(select(setting).where(Setting.group_id == group_id))):
-        return result[0][0]
+    if result := await orm.fetchone(select(setting).where(Setting.group_id == group_id)):
+        return result[0]
     else:
         raise ValueError(f"未找到 {group_id} -> {str(setting)} 结果！请检查数据库！")
 
 
 async def user_permission_require(group: Group, member: Member, level: int) -> bool:
-    if result := list(orm.fetchone(
+    if result := await orm.fetchone(
         select(
             UserPermission.level
         ).where(
             UserPermission.group_id == group.id,
             UserPermission.member_id == member.id
         )
-    )):
-        return True if result[0][0] >= level else False
+    ):
+        return True if result[0] >= level else False
     else:
-        try:
-            orm.add(UserPermission, {"group_id": group.id, "member_id": member.id, "level": 1})
-        except Exception:
-            logger.error(traceback.format_exc())
-            orm.session.rollback()
+        await orm.add(UserPermission, {"group_id": group.id, "member_id": member.id, "level": 1})
         return True if level <= 1 else False
 
 
 async def update_user_call_count_plus1(group: Group, member: Member, table_column, column_name: str) -> bool:
-    new_value = list(orm.fetchone(
-        select(table_column).where(UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id))
+    new_value = await orm.fetchone(
+        select(table_column).where(UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id)
     )
-    new_value = new_value[0][0] + 1 if new_value else 1
-    try:
-        orm.update(
-            UserCalledCount,
-            {"group_id": group.id, "member_id": member.id},
-            {"group_id": group.id, "member_id": member.id, column_name: new_value}
-        )
-    except Exception:
-        logger.error(traceback.format_exc())
-        orm.session.rollback()
+    new_value = new_value[0] + 1 if new_value else 1
+    res = await orm.update(
+        UserCalledCount,
+        [UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id],
+        {"group_id": group.id, "member_id": member.id, column_name: new_value}
+    )
+    if not res:
         return False
-    try:
-        if not column_name == "chat_count":
-            new_id = list(orm.fetchone(select(FunctionCalledRecord.id).order_by(desc(FunctionCalledRecord.id)), 1))
-            new_id = new_id[0][0] + 1 if new_id else 1
-            orm.add(
-                FunctionCalledRecord,
-                {
-                    "id": new_id,
-                    "time": datetime.datetime.now(),
-                    "group_id": group.id,
-                    "member_id": member.id,
-                    "function": column_name
-                }
-            )
-    except Exception:
-        logger.error(traceback.format_exc())
-        orm.session.rollback()
+    if not column_name == "chat_count":
+        await orm.add(
+            FunctionCalledRecord,
+            {
+                "time": datetime.datetime.now(),
+                "group_id": group.id,
+                "member_id": member.id,
+                "function": column_name
+            }
+        )
     return True
 
 
 async def get_admins(group: Group) -> list:
-    admins_res = list(orm.fetchall(
+    admins_res = list(await orm.fetchall(
         select(
             UserPermission.member_id
         ).where(
@@ -293,5 +280,10 @@ def sec_to_str(seconds: int) -> str:
     return "%02d:%02d:%02d" % (h, m, s)
 
 
-def single_task(handle_func, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-    asyncio.run_coroutine_threadsafe(handle_func(app, message, group, member), AppCore.get_core_instance().get_loop())
+def get_image_save_number() -> int:
+    with open(f"{os.getcwd()}/statics/static_data.json", 'r') as r:
+        data = json.loads(r.read())
+    data["imageSaveNumber"] += 1
+    with open(f"{os.getcwd()}/statics/static_data.json", 'w') as w:
+        w.write(json.dumps(data, indent=4))
+    return data["imageSaveNumber"]

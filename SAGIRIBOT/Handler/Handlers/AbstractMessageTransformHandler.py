@@ -1,12 +1,14 @@
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.static_datas import pinyin, emoji
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 
 
@@ -17,14 +19,25 @@ def get_pinyin(char: str):
         return "None"
 
 
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await AbstractMessageTransformHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
+
+
 class AbstractMessageTransformHandler(AbstractHandler):
     __name__ = "AbstractMessageTransformHandler"
     __description__ = "一个普通话转抽象话的Handler"
     __usage__ = "在群中发送 `/抽象 文字` 即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("/抽象 "):
-            set_result(message, await self.transform_abstract_message(message.asDisplay()[4:]))
+            return await AbstractMessageTransformHandler.transform_abstract_message(message.asDisplay()[4:])
         else:
             return None
 

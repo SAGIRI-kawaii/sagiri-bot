@@ -8,9 +8,9 @@ from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
 
-from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.utils import get_setting
-from SAGIRIBOT.ORM.Tables import UserPermission, Setting
+from SAGIRIBOT.ORM.AsyncORM import UserPermission, Setting
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceeded
 from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededDoNothing
@@ -22,32 +22,27 @@ from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, DoNotin
 def require_permission_level(group: Group, member: Member, level: int):
     def decorate(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        async def wrapper(*args, **kwargs):
             print(group.name, member.name)
-            if result := orm.fetchone(
+            if result := await orm.fetchone(
                 select(
                     UserPermission.level
                 ).where(
                     UserPermission.group_id == group.id and UserPermission.member_id == member.id
                 )
             ):
-                if result[0][0] >= level:
-                    return func(*args, **kwargs)
+                if result[0] >= level:
+                    return await func(*args, **kwargs)
                 else:
                     print("等级不够呢~")
                     return None
             else:
-                try:
-                    orm.add(UserPermission, {"group_id": group.id, "member_id": member.id, "level": 1})
-                except Exception:
-                    logger.error(traceback.format_exc())
-                    orm.session.rollback()
-
+                await orm.add(UserPermission, {"group_id": group.id, "member_id": member.id, "level": 1})
                 if level > 1:
                     print("等级不够呢~")
                     return None
                 else:
-                    return func(*args, **kwargs)
+                    return await func(*args, **kwargs)
         return wrapper
     return decorate
 
@@ -68,17 +63,17 @@ def frequency_limit_require_weight_free(weight: int):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)
             frequency_limit_instance = GlobalFrequencyLimitDict()
-            frequency_limit_instance.add_record(group_id, member_id, weight)
+            await frequency_limit_instance.add_record(group_id, member_id, weight)
             if frequency_limit_instance.blacklist_judge(group_id, member_id):
                 if not frequency_limit_instance.announce_judge(group_id, member_id):
-                    frequency_limit_instance.blacklist_announced(group_id, member_id)
+                    await frequency_limit_instance.blacklist_announced(group_id, member_id)
                     raise FrequencyLimitExceededAddBlackList
                 else:
                     raise FrequencyLimitExceededDoNothing
             if frequency_limit_instance.get(group_id) + weight >= 10:
                 raise FrequencyLimitExceeded
             else:
-                frequency_limit_instance.update(group_id, weight)
+                await frequency_limit_instance.update(group_id, weight)
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)

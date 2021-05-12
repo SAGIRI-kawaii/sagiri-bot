@@ -1,9 +1,6 @@
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, BLOB
 
 from .ORM import orm
-
-session = sessionmaker(orm.engine)
 
 Base = orm.Base
 
