@@ -153,6 +153,8 @@ RepeaterHandler                         一个复读Handler
 | webManagerAutoBoot | 是否自动打开管理页面（webManagerApi为True时才起作用） |
 | errorRetention | 错误日志记录周期 |
 | commonRetention | 普通日志清空周期 |
+| loliconApiKey | loliconapiKey，用于关键词涩图搜索功能 |
+| loliconImageCache | 是否缓存loliconapi所获取到的图片 |
 
 ## 使用文档
 
