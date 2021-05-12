@@ -9,7 +9,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import get_setting
-from SAGIRIBOT.ORM.Tables import Setting
+from SAGIRIBOT.ORM.AsyncORM import Setting
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender

@@ -175,7 +175,7 @@ class ImageSenderHandler(AbstractHandler):
         if function not in ImageSenderHandler.functions:
             return MessageItem(MessageChain.create([Plain(text="非法方法名！")]), QuoteSource(GroupStrategy()))
         try:
-            await orm.update(
+            await orm.insert_or_ignore(
                 TriggerKeyword,
                 [TriggerKeyword.keyword == keyword, TriggerKeyword.function == function],
                 {"keyword": keyword, "function": function}
@@ -184,7 +184,6 @@ class ImageSenderHandler(AbstractHandler):
                                QuoteSource(GroupStrategy()))
         except Exception:
             logger.error(traceback.format_exc())
-            await orm.session.rollback()
             return MessageItem(MessageChain.create([Plain(text="发生错误！请查看日志！")]), QuoteSource(GroupStrategy()))
 
     @staticmethod
@@ -196,7 +195,7 @@ class ImageSenderHandler(AbstractHandler):
             await app.sendGroupMessage(
                 group,
                 MessageChain.create([
-                    Plain(text=f"查找到以下信息：\n{keyword} -> {record[0][0]}\n是否删除？（是/否）")
+                    Plain(text=f"查找到以下信息：\n{keyword} -> {record[0]}\n是否删除？（是/否）")
                 ])
             )
             inc = InterruptControl(AppCore.get_core_instance().get_bcc())
@@ -217,7 +216,11 @@ class ImageSenderHandler(AbstractHandler):
             if not result:
                 return MessageItem(MessageChain.create([Plain(text="非预期回复，进程退出")]), Normal(GroupStrategy()))
             elif result == "是":
-                await orm.delete(TriggerKeyword, {"keyword": keyword})
+                try:
+                    await orm.delete(TriggerKeyword, [TriggerKeyword.keyword == keyword])
+                except:
+                    logger.error(traceback.format_exc())
+                    return MessageItem(MessageChain.create([Plain(text="发生错误！请查看日志！")]), QuoteSource(GroupStrategy()))
                 return MessageItem(MessageChain.create([Plain(text=f"关键词 {keyword} 删除成功")]), Normal(GroupStrategy()))
             else:
                 return MessageItem(MessageChain.create([Plain(text="进程退出")]), Normal(GroupStrategy()))

@@ -13,12 +13,10 @@ from graia.application import GraiaMiraiApplication
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 
 from .Exceptions import *
-from SAGIRIBOT.ORM.ORM import orm
-from SAGIRIBOT.ORM.Tables import Setting, UserPermission
+from SAGIRIBOT.ORM.AsyncORM import orm
+from SAGIRIBOT.ORM.AsyncORM import Setting, UserPermission
 from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict, frequency_limit
 from SAGIRIBOT.exception_resender import ExceptionReSender, exception_resender_listener
-
-from SAGIRIBOT.ORM.TortoiseORM import init
 
 
 class AppCore:
@@ -120,36 +118,38 @@ class AppCore:
 
     async def bot_launch_init(self):
         self.config_check()
-        # await init()
-        orm.session.query(Setting).update({"active": False})
-        group_list = await self.__app.groupList()
-        frequency_limit_dict = {}
-        for group in group_list:
-            frequency_limit_dict[group.id] = 0
-            try:
-                orm.update(Setting, {"group_id": group.id},
-                           {"group_id": group.id, "group_name": group.name, "active": True})
-            except Exception:
-                logger.error(traceback.format_exc())
-                orm.session.rollback()
-        results = orm.fetchall(select(Setting).where(Setting.active == True))
-        logger.info("本次启动活动群组如下：")
-        for result in results:
-            logger.info(f"群ID: {str(result[0]).ljust(14)}群名: {result[1]}")
-        for result in results:
-            orm.update(
-                UserPermission,
-                {"member_id": self.__config["HostQQ"], "group_id": result[0]},
-                {"member_id": self.__config["HostQQ"], "group_id": result[0], "level": 4}
+        try:
+            await orm.update(Setting, [], {"active": False})
+            group_list = await self.__app.groupList()
+            frequency_limit_dict = {}
+            for group in group_list:
+                frequency_limit_dict[group.id] = 0
+                await orm.insert_or_update(
+                    Setting,
+                    [Setting.group_id == group.id],
+                    {"group_id": group.id, "group_name": group.name, "active": True}
+                )
+            results = await orm.fetchall(select(Setting.group_id, Setting.group_name).where(Setting.active == True))
+            logger.info("本次启动活动群组如下：")
+            for result in results:
+                logger.info(f"群ID: {str(result.group_id).ljust(14)}群名: {result.group_name}")
+            for result in results:
+                await orm.insert_or_update(
+                    UserPermission,
+                    [UserPermission.member_id == self.__config["HostQQ"], UserPermission.group_id == result[0]],
+                    {"member_id": self.__config["HostQQ"], "group_id": result[0], "level": 4}
+                )
+            self.__frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
+            threading.Thread(target=frequency_limit, args=(self.__frequency_limit_instance,)).start()
+            exception_resender_instance = ExceptionReSender(self.__app)
+            listener = threading.Thread(
+                target=exception_resender_listener,
+                args=(self.__app, exception_resender_instance, self.__loop)
             )
-        self.__frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
-        threading.Thread(target=frequency_limit, args=(self.__frequency_limit_instance,)).start()
-        exception_resender_instance = ExceptionReSender(self.__app)
-        listener = threading.Thread(
-            target=exception_resender_listener,
-            args=(self.__app, exception_resender_instance, self.__loop)
-        )
-        listener.start()
+            listener.start()
+        except:
+            logger.error(traceback.format_exc())
+            exit()
 
     def config_check(self):
         logger.info("checking config")

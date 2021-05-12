@@ -16,14 +16,14 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, At
 from graia.application.event.messages import Group, Member, GroupMessage
 
-from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.utils import get_config
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, AtSender
-from SAGIRIBOT.ORM.Tables import Setting, ChatSession, UserCalledCount
+from SAGIRIBOT.ORM.AsyncORM import Setting, ChatSession, UserCalledCount
 
 
 saya = Saya.current()
@@ -52,8 +52,8 @@ class ChatReplyHandler(AbstractHandler):
 
     @staticmethod
     async def get_reply(member_id: int, group_id: int, content: str):
-        if mode_now := list(orm.fetchone(select(Setting.speak_mode).where(Setting.group_id == group_id))):
-            mode_now = mode_now[0][0]
+        if mode_now := await orm.fetchone(select(Setting.speak_mode).where(Setting.group_id == group_id)):
+            mode_now = mode_now[0]
             if mode_now == "normal":
                 return None
             elif mode_now == "zuanLow":
@@ -116,34 +116,28 @@ class ChatReplyHandler(AbstractHandler):
 
     @staticmethod
     async def get_chat_session(group_id: int, member_id: int) -> str:
-        if result := list(
-            orm.fetchone(
-                select(
-                    ChatSession.member_session
-                ).where(
-                    ChatSession.group_id == group_id,
-                    ChatSession.member_id == member_id
-                )
+        if result := await orm.fetchone(
+            select(
+                ChatSession.member_session
+            ).where(
+                ChatSession.group_id == group_id,
+                ChatSession.member_id == member_id
             )
         ):
-            return str(result[0][0])
+            return str(result[0])
         else:
-            new_session = list(orm.fetchall(select(ChatSession.member_session).order_by(desc(ChatSession.member_session))))
+            new_session = list(await orm.fetchall(select(ChatSession.member_session).order_by(desc(ChatSession.member_session))))
             new_session = new_session[0][0] + 1 if new_session else 1
             logger.info(f"new_session for {group_id} -> {member_id}: {new_session}")
-            try:
-                orm.add(
-                    ChatSession,
-                    {
-                        "group_id": group_id,
-                        "member_id": member_id,
-                        "member_session": new_session
-                    }
-                )
-                return str(new_session)
-            except Exception as e:
-                logger.error(traceback.format_exc())
-                orm.session.rollback()
+            await orm.add(
+                ChatSession,
+                {
+                    "group_id": group_id,
+                    "member_id": member_id,
+                    "member_session": new_session
+                }
+            )
+            return str(new_session)
 
     @staticmethod
     async def get_tx_sign(params: dict) -> str:

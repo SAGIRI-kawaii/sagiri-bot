@@ -2,12 +2,11 @@ import yaml
 import traceback
 from os import environ
 from loguru import logger
-from sqlalchemy import select, update, insert
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, BLOB
+from sqlalchemy import select, update, insert, delete
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncResult
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, BLOB, BIGINT
 
 yaml.warnings({'YAMLLoadWarning': False})
 environ['NLS_LANG'] = 'AMERICAN_AMERICA.AL32UTF8'
@@ -28,7 +27,7 @@ def get_config(config: str):
 
 
 # DB_LINK = get_config("DBLink")
-DB_LINK = "sqlite+aiosqlite:///data.db"
+DB_LINK = "sqlite+aiosqlite:///tdata.db"
 
 
 class AsyncEngine:
@@ -40,9 +39,13 @@ class AsyncEngine:
 
     async def execute(self, sql, **kwargs):
         async with AsyncSession(self.engine) as session:
-            result = await session.execute(sql, **kwargs)
-            await session.commit()
-            return result
+            try:
+                result = await session.execute(sql, **kwargs)
+                await session.commit()
+                return result
+            except Exception as e:
+                await session.rollback()
+                raise e
 
     async def fetchall(self, sql):
         return (await self.execute(sql)).fetchall()
@@ -51,7 +54,6 @@ class AsyncEngine:
         # self.warning(sql)
         result = await self.execute(sql)
         one = result.fetchone()
-        print(one)
         if one:
             return one
         else:
@@ -103,36 +105,24 @@ class AsyncORM(AsyncEngine):
         """插入"""
         async with self.async_session() as session:
             async with session.begin():
-                try:
-                    session.add(table(**dt), _warn=False)
-                except:
-                    logger.error(traceback.format_exc())
-                    session.rollback()
-                    return
+                session.add(table(**dt), _warn=False)
             await session.commit()
 
     async def update(self, table, condition, dt):
-        # print(update(table).where(*condition).values(**dt))
-        try:
-            await self.execute(update(table).where(*condition).values(**dt))
-        except:
-            logger.error(traceback.format_exc())
+        await self.execute(update(table).where(*condition).values(**dt))
 
     async def insert_or_update(self, table, condition, dt):
-        try:
-            if (await self.execute(select(table).where(*condition))).all():
-                return await self.execute(update(table).where(*condition).values(**dt))
-            else:
-                return await self.execute(insert(table).values(**dt))
-        except:
-            logger.error(traceback.format_exc())
-            return None
+        if (await self.execute(select(table).where(*condition))).all():
+            return await self.execute(update(table).where(*condition).values(**dt))
+        else:
+            return await self.execute(insert(table).values(**dt))
+
+    async def insert_or_ignore(self, table, condition, dt):
+        if not (await self.execute(select(table).where(*condition))).all():
+            return await self.execute(insert(table).values(**dt))
 
     async def delete(self, table, condition):
-        q = self.session.query(table).filter_by(**condition)
-        if q.all():
-            q.delete()
-            await self.session.commit()
+        return self.execute(delete(table).where(*condition))
 
 
 orm = AsyncORM(DB_LINK)
@@ -146,8 +136,8 @@ class ChatRecord(Base):
 
     id = Column(Integer, primary_key=True)
     time = Column(DateTime, nullable=False)
-    group_id = Column(Integer, nullable=False)
-    member_id = Column(Integer, nullable=False)
+    group_id = Column(BIGINT, nullable=False)
+    member_id = Column(BIGINT, nullable=False)
     content = Column(String(length=4000), nullable=False)
     seg = Column(String(length=4000), nullable=False)
 
@@ -156,15 +146,15 @@ class BlackList(Base):
     """ 黑名单表 """
     __tablename__ = "black_list"
 
-    member_id = Column(Integer, primary_key=True)
+    member_id = Column(BIGINT, primary_key=True)
 
 
 class UserPermission(Base):
     """ 用户等级表（管理权限） """
     __tablename__ = "user_permission"
 
-    group_id = Column(Integer, primary_key=True)
-    member_id = Column(Integer, primary_key=True)
+    group_id = Column(BIGINT, primary_key=True)
+    member_id = Column(BIGINT, primary_key=True)
     level = Column(Integer, default=1)
 
 
@@ -172,8 +162,8 @@ class ChatSession(Base):
     """ 用于分配腾讯AI开放平台智能聊天功能session """
     __tablename__ = "chat_session"
 
-    group_id = Column(Integer, primary_key=True)
-    member_id = Column(Integer, primary_key=True)
+    group_id = Column(BIGINT, primary_key=True)
+    member_id = Column(BIGINT, primary_key=True)
     member_session = Column(Integer, nullable=False)
 
 
@@ -181,7 +171,7 @@ class Setting(Base):
     """ 群组设置 """
     __tablename__ = "setting"
 
-    group_id = Column(Integer, primary_key=True)
+    group_id = Column(BIGINT, primary_key=True)
     group_name = Column(String(length=60), nullable=False)
     repeat = Column(Boolean, default=True)
     frequency_limit = Column(Boolean, default=True)
@@ -208,8 +198,8 @@ class UserCalledCount(Base):
     """ 群员调用记录 """
     __tablename__ = "user_called_count"
 
-    group_id = Column(Integer, primary_key=True)
-    member_id = Column(Integer, primary_key=True)
+    group_id = Column(BIGINT, primary_key=True)
+    member_id = Column(BIGINT, primary_key=True)
     setu = Column(Integer, default=0)
     real = Column(Integer, default=0)
     bizhi = Column(Integer, default=0)
@@ -244,10 +234,7 @@ class FunctionCalledRecord(Base):
 
     id = Column(Integer, primary_key=True)
     time = Column(DateTime, nullable=False)
-    group_id = Column(Integer, nullable=False)
-    member_id = Column(Integer, nullable=False)
+    group_id = Column(BIGINT, nullable=False)
+    member_id = Column(BIGINT, nullable=False)
     function = Column(String(length=40), nullable=False)
     result = Column(Boolean, default=True)
-
-# asyncio.run(orm1.create_all())
-# orm1.create_all()

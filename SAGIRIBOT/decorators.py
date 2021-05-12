@@ -8,9 +8,9 @@ from graia.application.message.chain import MessageChain
 from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
 
-from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.utils import get_setting
-from SAGIRIBOT.ORM.Tables import UserPermission, Setting
+from SAGIRIBOT.ORM.AsyncORM import UserPermission, Setting
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceeded
 from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededDoNothing
@@ -22,32 +22,27 @@ from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, DoNotin
 def require_permission_level(group: Group, member: Member, level: int):
     def decorate(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        async def wrapper(*args, **kwargs):
             print(group.name, member.name)
-            if result := orm.fetchone(
+            if result := await orm.fetchone(
                 select(
                     UserPermission.level
                 ).where(
                     UserPermission.group_id == group.id and UserPermission.member_id == member.id
                 )
             ):
-                if result[0][0] >= level:
-                    return func(*args, **kwargs)
+                if result[0] >= level:
+                    return await func(*args, **kwargs)
                 else:
                     print("等级不够呢~")
                     return None
             else:
-                try:
-                    orm.add(UserPermission, {"group_id": group.id, "member_id": member.id, "level": 1})
-                except Exception:
-                    logger.error(traceback.format_exc())
-                    orm.session.rollback()
-
+                await orm.add(UserPermission, {"group_id": group.id, "member_id": member.id, "level": 1})
                 if level > 1:
                     print("等级不够呢~")
                     return None
                 else:
-                    return func(*args, **kwargs)
+                    return await func(*args, **kwargs)
         return wrapper
     return decorate
 

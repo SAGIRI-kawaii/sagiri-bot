@@ -16,7 +16,7 @@ from graia.application.event.messages import Group, Member, GroupMessage
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
-from SAGIRIBOT.ORM.Tables import UserCalledCount, ChatRecord
+from SAGIRIBOT.ORM.AsyncORM import UserCalledCount, ChatRecord
 
 saya = Saya.current()
 channel = Channel.current()

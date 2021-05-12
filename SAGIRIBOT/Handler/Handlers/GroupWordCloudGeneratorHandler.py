@@ -14,11 +14,11 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
-from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.ORM.Tables import ChatRecord, UserCalledCount
+from SAGIRIBOT.ORM.AsyncORM import ChatRecord, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
@@ -144,7 +144,7 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
             ChatRecord.time > timep
         )
 
-        if not (res := list(orm.fetchall(sql))):
+        if not (res := list(await orm.fetchall(sql))):
             return MessageItem(MessageChain.create([Plain(text="没有你的发言记录呐~")]), QuoteSource(GroupStrategy()))
         texts = []
         for i in res:
@@ -162,7 +162,7 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
             ChatRecord.time < time,
             ChatRecord.time > timep
         )
-        if not (res := list(orm.fetchone(sql))):
+        if not (res := list(await orm.fetchone(sql))):
             return MessageItem(MessageChain.create([Plain(text="没有你的发言记录呐~")]), QuoteSource(GroupStrategy()))
 
         times = res[0][0]
