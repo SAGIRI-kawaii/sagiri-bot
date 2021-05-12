@@ -35,7 +35,7 @@ class NetworkCompilerHandler(AbstractHandler):
     @staticmethod
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
-        if re.match(r"super .*:[\n\r]+[\s\S]*", message_text):
+        if re.match(r"super .*[\n\r]+[\s\S]*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             if not await get_setting(group.id, Setting.compile):
                 return MessageItem(MessageChain.create([Plain(text="网络编译器功能关闭了呐~去联系管理员开启吧~")]), Normal(GroupStrategy()))

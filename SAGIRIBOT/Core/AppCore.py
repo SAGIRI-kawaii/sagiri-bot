@@ -119,6 +119,7 @@ class AppCore:
     async def bot_launch_init(self):
         self.config_check()
         try:
+            await orm.create_all()
             await orm.update(Setting, [], {"active": False})
             group_list = await self.__app.groupList()
             frequency_limit_dict = {}
