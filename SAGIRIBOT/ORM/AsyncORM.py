@@ -26,8 +26,8 @@ def get_config(config: str):
         logger.error(f"getConfig Error: {config}")
 
 
-# DB_LINK = get_config("DBLink")
-DB_LINK = "sqlite+aiosqlite:///tdata.db"
+DB_LINK = get_config("DBLink")
+# DB_LINK = "sqlite+aiosqlite:///tdata.db"
 
 
 class AsyncEngine:

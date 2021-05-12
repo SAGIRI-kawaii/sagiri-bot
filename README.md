@@ -25,9 +25,9 @@ New version of sagiri-bot based on Mirai and Graia
 不同于老版的SAGIRI-BOT，新版的SAGIRI-BOT使用了ORM框架，这意味着可以很方便的将项目适配各种不同的数据库
 
 - 配置数据库链接
-    - mysql: mysql+pymysql://username:password@localhost:3306/dbname
-    - sqlite: sqlite:///filename.db
-    - oracle: oracle://username:password@192.168.1.6:1521/dbname
+    - mysql: mysql+aiomysql://username:password@localhost:3306/dbname
+    - sqlite: sqlite+aiosqlite:///filename.db
+    - 注意：请自行安装对应的异步库，如aiomysql、aiosqlite等
 - 下载 [mirai-console](https://github.com/mamoe/mirai-console) 并配置 [mirai-api-http](https://github.com/project-mirai/mirai-api-http) ，这些都可以在 [mirai](https://github.com/mamoe/mirai) 项目中找到
 - 若上一条不会配置，请考虑使用 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader) 加载器进行配置
 - 打开 `configdemo.yaml`，配置好个人信息，并将文件更名为 `config.yaml`，配置说明见[config文件参数说明](#configyaml)
