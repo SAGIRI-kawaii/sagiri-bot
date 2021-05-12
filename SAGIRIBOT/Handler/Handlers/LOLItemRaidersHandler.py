@@ -136,5 +136,5 @@ class LOLItemRaidersHandler(AbstractHandler):
         )
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(LOLItemRaidersHandler.get_hero_statics("neeko", "mid"))
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(LOLItemRaidersHandler.get_hero_statics("neeko", "mid"))

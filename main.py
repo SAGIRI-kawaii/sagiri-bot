@@ -77,10 +77,10 @@ with saya.module_context():
 core.load_saya_modules()
 
 
-# @bcc.receiver(GroupMessage)
-# async def group_message_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-#     message_text_log = message.asDisplay().replace("\n", "\\n")
-#     logger.info(f"收到来自群 <{group.name}> 中成员 <{member.name}> 的消息：{message_text_log}")
+@bcc.receiver(GroupMessage)
+async def group_message_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    message_text_log = message.asDisplay().replace("\n", "\\n")
+    logger.info(f"收到来自群 <{group.name}> 中成员 <{member.name}> 的消息：{message_text_log}")
 #     if await g_handler.handle(app, message, group, member):
 #         if result := res[message[Source][0].id]:
 #             g_sender: GroupMessageSender = GroupMessageSender(result.strategy)

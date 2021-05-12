@@ -14,14 +14,15 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 from graia.application.message.elements.internal import Plain, Image, Source
 
-from SAGIRIBOT.ORM.ORM import orm
+# from SAGIRIBOT.ORM.ORM import orm
+from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.ORM.Tables import TriggerKeyword, Setting, UserCalledCount
+from SAGIRIBOT.ORM.AsyncORM import TriggerKeyword, Setting, UserCalledCount
 from SAGIRIBOT.utils import get_config, get_setting, user_permission_require
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, Normal
 
@@ -84,7 +85,7 @@ class ImageSenderHandler(AbstractHandler):
         if re.match(r"\[mirai:image:{.*}\..*]", message_serialization):
             message_serialization = re.findall(r"\[mirai:image:{(.*?)}\..*]", message_serialization, re.S)[0]
 
-        if resp_functions := list(orm.fetchall(select(TriggerKeyword.function).where(TriggerKeyword.keyword == message_serialization))):
+        if resp_functions := list(await orm.fetchall(select(TriggerKeyword.function).where(TriggerKeyword.keyword == message_serialization))):
             resp_functions = resp_functions[0]
             tfunc = None
             for function in resp_functions:
@@ -174,16 +175,16 @@ class ImageSenderHandler(AbstractHandler):
         if function not in ImageSenderHandler.functions:
             return MessageItem(MessageChain.create([Plain(text="非法方法名！")]), QuoteSource(GroupStrategy()))
         try:
-            orm.update(
+            await orm.update(
                 TriggerKeyword,
-                {"keyword": keyword, "function": function},
+                [TriggerKeyword.keyword == keyword, TriggerKeyword.function == function],
                 {"keyword": keyword, "function": function}
             )
             return MessageItem(MessageChain.create([Plain(text=f"关键词添加成功！\n{keyword} -> {function}")]),
                                QuoteSource(GroupStrategy()))
         except Exception:
             logger.error(traceback.format_exc())
-            orm.session.rollback()
+            await orm.session.rollback()
             return MessageItem(MessageChain.create([Plain(text="发生错误！请查看日志！")]), QuoteSource(GroupStrategy()))
 
     @staticmethod
@@ -191,7 +192,7 @@ class ImageSenderHandler(AbstractHandler):
         _, keyword = message_serialization.split("#")
         if re.match(r"\[mirai:image:{.*}\..*]", keyword):
             keyword = re.findall(r"\[mirai:image:{(.*?)}\..*]", keyword, re.S)[0]
-        if record := list(orm.fetchone(select(TriggerKeyword.function).where(TriggerKeyword.keyword == keyword))):
+        if record := list(await orm.fetchone(select(TriggerKeyword.function).where(TriggerKeyword.keyword == keyword))):
             await app.sendGroupMessage(
                 group,
                 MessageChain.create([
@@ -216,7 +217,7 @@ class ImageSenderHandler(AbstractHandler):
             if not result:
                 return MessageItem(MessageChain.create([Plain(text="非预期回复，进程退出")]), Normal(GroupStrategy()))
             elif result == "是":
-                orm.delete(TriggerKeyword, {"keyword": keyword})
+                await orm.delete(TriggerKeyword, {"keyword": keyword})
                 return MessageItem(MessageChain.create([Plain(text=f"关键词 {keyword} 删除成功")]), Normal(GroupStrategy()))
             else:
                 return MessageItem(MessageChain.create([Plain(text="进程退出")]), Normal(GroupStrategy()))
