@@ -13,8 +13,8 @@ from graia.application import GraiaMiraiApplication
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 
 from .Exceptions import *
-from SAGIRIBOT.ORM.ORM import orm
-from SAGIRIBOT.ORM.Tables import Setting, UserPermission
+from SAGIRIBOT.ORM.AsyncORM import orm
+from SAGIRIBOT.ORM.AsyncORM import Setting, UserPermission
 from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict, frequency_limit
 from SAGIRIBOT.exception_resender import ExceptionReSender, exception_resender_listener
 
@@ -29,7 +29,7 @@ class AppCore:
     __thread_pool = None
     __config: dict = None
     __launched: bool = False
-    __group_handler_chain = []
+    __group_handler_chain = {}
     __exception_resender: ExceptionReSender = None
     __frequency_limit_instance: GlobalFrequencyLimitDict = None
     necessary_parameters = ["miraiHost", "authKey", "BotQQ"]
@@ -100,11 +100,15 @@ class AppCore:
         else:
             raise GraiaMiraiApplicationAlreadyLaunched()
 
-    def set_group_chain(self, chain: list):
-        self.__group_handler_chain = chain
+    def set_group_chain(self, chains: list):
+        for chain in chains:
+            self.__group_handler_chain[chain.__name__] = chain
 
-    def get_group_chain(self):
+    def get_group_chains(self):
         return self.__group_handler_chain
+
+    def get_group_chain(self, chain_name: str):
+        return self.__group_handler_chain[chain_name] if chain_name in self.__group_handler_chain else None
 
     def get_frequency_limit_instance(self):
         return self.__frequency_limit_instance
@@ -114,34 +118,39 @@ class AppCore:
 
     async def bot_launch_init(self):
         self.config_check()
-        orm.session.query(Setting).update({"active": False})
-        group_list = await self.__app.groupList()
-        frequency_limit_dict = {}
-        for group in group_list:
-            frequency_limit_dict[group.id] = 0
-            try:
-                orm.update(Setting, {"group_id": group.id}, {"group_id": group.id, "group_name": group.name, "active": True})
-            except Exception:
-                logger.error(traceback.format_exc())
-                orm.session.rollback()
-        results = orm.fetchall(select(Setting).where(Setting.active == True))
-        logger.info("本次启动活动群组如下：")
-        for result in results:
-            logger.info(f"群ID: {str(result[0]).ljust(14)}群名: {result[1]}")
-        for result in results:
-            orm.update(
-                UserPermission,
-                {"member_id": self.__config["HostQQ"], "group_id": result[0]},
-                {"member_id": self.__config["HostQQ"], "group_id": result[0], "level": 4}
+        try:
+            await orm.create_all()
+            await orm.update(Setting, [], {"active": False})
+            group_list = await self.__app.groupList()
+            frequency_limit_dict = {}
+            for group in group_list:
+                frequency_limit_dict[group.id] = 0
+                await orm.insert_or_update(
+                    Setting,
+                    [Setting.group_id == group.id],
+                    {"group_id": group.id, "group_name": group.name, "active": True}
+                )
+            results = await orm.fetchall(select(Setting.group_id, Setting.group_name).where(Setting.active == True))
+            logger.info("本次启动活动群组如下：")
+            for result in results:
+                logger.info(f"群ID: {str(result.group_id).ljust(14)}群名: {result.group_name}")
+            for result in results:
+                await orm.insert_or_update(
+                    UserPermission,
+                    [UserPermission.member_id == self.__config["HostQQ"], UserPermission.group_id == result[0]],
+                    {"member_id": self.__config["HostQQ"], "group_id": result[0], "level": 4}
+                )
+            self.__frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
+            threading.Thread(target=frequency_limit, args=(self.__frequency_limit_instance,)).start()
+            exception_resender_instance = ExceptionReSender(self.__app)
+            listener = threading.Thread(
+                target=exception_resender_listener,
+                args=(self.__app, exception_resender_instance, self.__loop)
             )
-        self.__frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
-        threading.Thread(target=frequency_limit, args=(self.__frequency_limit_instance,)).start()
-        exception_resender_instance = ExceptionReSender(self.__app)
-        listener = threading.Thread(
-            target=exception_resender_listener,
-            args=(self.__app, exception_resender_instance, self.__loop)
-        )
-        listener.start()
+            listener.start()
+        except:
+            logger.error(traceback.format_exc())
+            exit()
 
     def config_check(self):
         logger.info("checking config")
@@ -157,6 +166,8 @@ class AppCore:
             logger.warning("txAppId无效，请检查配置！")
         if self.__config["txAppKey"] == "ABCDEFGHIJKLMN":
             logger.warning("txAppKey无效，请检查配置！")
+        if self.__config["loliconApiKey"] == "loliconApiKey":
+            logger.warning("loliconApiKey无效，请检查配置！")
         logger.info("check done")
 
     def load_saya_modules(self):
@@ -175,3 +186,6 @@ class AppCore:
 
     def get_saya_channels(self):
         return self.__saya.channels
+
+    def get_saya(self):
+        return self.__saya

@@ -17,3 +17,6 @@ webManagerApi: true
 webManagerAutoBoot: true
 errorRetention: 14
 commonRetention: 7
+loliconApiKey: loliconApiKey
+loliconImageCache: true
+wolframAlphaKey: wolframAlphaKey

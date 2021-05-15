@@ -19,3 +19,4 @@ fastapi
 jieba
 websockets
 uvicorn
+aiosqlite

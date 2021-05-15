@@ -6,14 +6,16 @@ from math import radians, tan, cos, sin
 from decimal import Decimal, ROUND_HALF_UP
 from PIL import Image as IMG, ImageDraw, ImageFont
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 from SAGIRIBOT.MessageSender.Strategy import Normal, GroupStrategy, QuoteSource
@@ -31,6 +33,15 @@ LEFT_TEXT_COLOR = '#FFFFFF'
 RIGHT_TEXT_COLOR = '#000000'
 FONT_SIZE = 50
 
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await StylePictureGeneraterHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
+
 
 class StylePictureGeneraterHandler(AbstractHandler):
     """
@@ -40,14 +51,15 @@ class StylePictureGeneraterHandler(AbstractHandler):
     __description__ = "一个可以生成风格图片的Handler"
     __usage__ = "在群中发送 `5000兆 文字1 文字2` 即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if re.match("5000兆 .* .*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            set_result(message, await self.gosencho_en_hoshi_style_image_generator(group, member, message))
+            return await StylePictureGeneraterHandler.gosencho_en_hoshi_style_image_generator(group, member, message)
         elif re.match("ph .* .*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            set_result(message, await self.pornhub_style_image_generator(group, member, message))
+            return await StylePictureGeneraterHandler.pornhub_style_image_generator(group, member, message)
         else:
             return None
 

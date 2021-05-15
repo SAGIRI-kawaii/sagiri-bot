@@ -14,7 +14,8 @@ class Handler(ABC):
     def set_next(self, handler):
         pass
 
-    async def handle(self, app, message, group, member):
+    @staticmethod
+    async def handle(app, message, group, member):
         pass
 
 
@@ -36,9 +37,5 @@ class AbstractHandler(Handler):
         self._next_hander = handler
         return handler
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-        if self._next_hander:
-            return await self._next_hander.handle(app, message, group, member)
-        return None
-
-
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member): ...

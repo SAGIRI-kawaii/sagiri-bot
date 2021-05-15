@@ -11,7 +11,7 @@ environ['NLS_LANG'] = 'AMERICAN_AMERICA.AL32UTF8'
 
 # DB_LINK = 'oracle://test:123456@localhost:1521/xe'
 # DB_LINK = "mysql+aiomysql://root:pass@localhost:3306/test"
-# DB_LINK = "sqlite:///data.db"
+# DB_LINK = "sqlite:///tdata.db"
 
 
 def get_config(config: str):
@@ -32,8 +32,8 @@ class Engine:
             db_link,
             encoding='utf8',
             # max_overflow=0,
-            # pool_size=5,
-            # pool_timeout=30,
+            # pool_size=10,
+            # pool_timeout=10,
             # pool_recycle=-1
         )
 

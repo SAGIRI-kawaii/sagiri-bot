@@ -2,18 +2,29 @@ import aiohttp
 import numpy as np
 from io import BytesIO
 from PIL import Image as IMG
+from PIL import ImageEnhance
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await PhantomTankHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class PhantomTankHandler(AbstractHandler):
@@ -21,15 +32,16 @@ class PhantomTankHandler(AbstractHandler):
     __description__ = "一个幻影坦克生成器Handler"
     __usage__ = "在群中发送 `幻影 [显示图] [隐藏图]` 即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = "".join([plain.text for plain in message.get(Plain)]).strip()
         if message_text == "幻影" or message_text == "彩色幻影":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             if len(message.get(Image)) != 2:
-                set_result(message, MessageItem(
+                return MessageItem(
                     MessageChain.create([Plain(text="非预期图片数！请按照 `显示图 隐藏图` 顺序发送，一共两张图片")]),
                     QuoteSource(GroupStrategy())
-                ))
+                )
             else:
                 display_img = message[Image][0]
                 async with aiohttp.ClientSession() as session:
@@ -41,15 +53,23 @@ class PhantomTankHandler(AbstractHandler):
                     async with session.get(url=hide_img.url) as resp:
                         hide_img = IMG.open(BytesIO(await resp.read()))
 
-                set_result(message, await self.get_message(group, member, display_img, hide_img))
+                return await PhantomTankHandler.get_phantom_message(group, member, display_img, hide_img) if message_text == "幻影" else await PhantomTankHandler.get_colorful_phantom_message(group, member, display_img, hide_img)
         else:
             return None
 
     @staticmethod
     @frequency_limit_require_weight_free(2)
-    async def get_message(group: Group, member: Member, display_img: IMG, hide_img: IMG):
+    async def get_phantom_message(group: Group, member: Member, display_img: IMG, hide_img: IMG):
         return MessageItem(
             MessageChain.create([Image.fromUnsafeBytes(await PhantomTankHandler.make_tank(display_img, hide_img))]),
+            QuoteSource(GroupStrategy())
+        )
+
+    @staticmethod
+    @frequency_limit_require_weight_free(2)
+    async def get_colorful_phantom_message(group: Group, member: Member, display_img: IMG, hide_img: IMG):
+        return MessageItem(
+            MessageChain.create([Image.fromUnsafeBytes(await PhantomTankHandler.colorful_tank(display_img, hide_img))]),
             QuoteSource(GroupStrategy())
         )
 
@@ -77,4 +97,66 @@ class PhantomTankHandler(AbstractHandler):
             arr_new = (np.transpose(arr_new, (1, 2, 0)) + 1) / 2.0 * 255.0
         bytesIO = BytesIO()
         IMG.fromarray(arr_new).save(bytesIO, format='PNG')
+        return bytesIO.getvalue()
+
+    @staticmethod
+    async def colorful_tank(
+            wimg: IMG.Image,
+            bimg: IMG.Image,
+            wlight: float = 1.0,
+            blight: float = 0.18,
+            wcolor: float = 0.5,
+            bcolor: float = 0.7,
+            chess: bool = False
+    ):
+        wimg = ImageEnhance.Brightness(wimg).enhance(wlight).convert("RGB")
+        bimg = ImageEnhance.Brightness(bimg).enhance(blight).convert("RGB")
+
+        async def get_max_size(a, b):
+            return a if a[0] * a[1] >= b[0] * b[1] else b
+
+        max_size = await get_max_size(wimg.size, bimg.size)
+        if max_size == wimg.size:
+            bimg = bimg.resize(max_size)
+        else:
+            wimg = wimg.resize(max_size)
+
+        wpix = np.array(wimg).astype("float64")
+        bpix = np.array(bimg).astype("float64")
+
+        if chess:
+            wpix[::2, ::2] = [255., 255., 255.]
+            bpix[1::2, 1::2] = [0., 0., 0.]
+
+        wpix /= 255.
+        bpix /= 255.
+
+        wgray = wpix[:, :, 0] * 0.334 + wpix[:, :, 1] * 0.333 + wpix[:, :, 2] * 0.333
+        wpix *= wcolor
+        wpix[:, :, 0] += wgray * (1. - wcolor)
+        wpix[:, :, 1] += wgray * (1. - wcolor)
+        wpix[:, :, 2] += wgray * (1. - wcolor)
+
+        bgray = bpix[:, :, 0] * 0.334 + bpix[:, :, 1] * 0.333 + bpix[:, :, 2] * 0.333
+        bpix *= bcolor
+        bpix[:, :, 0] += bgray * (1. - bcolor)
+        bpix[:, :, 1] += bgray * (1. - bcolor)
+        bpix[:, :, 2] += bgray * (1. - bcolor)
+
+        d = 1. - wpix + bpix
+
+        d[:, :, 0] = d[:, :, 1] = d[:, :, 2] = d[:, :, 0] * 0.222 + d[:, :, 1] * 0.707 + d[:, :, 2] * 0.071
+
+        p = np.where(d != 0, bpix / d * 255., 255.)
+        a = d[:, :, 0] * 255.
+
+        colors = np.zeros((p.shape[0], p.shape[1], 4))
+        colors[:, :, :3] = p
+        colors[:, :, -1] = a
+
+        colors[colors > 255] = 255
+
+        bytesIO = BytesIO()
+        IMG.fromarray(colors.astype("uint8")).convert("RGBA").save(bytesIO, format='PNG')
+
         return bytesIO.getvalue()

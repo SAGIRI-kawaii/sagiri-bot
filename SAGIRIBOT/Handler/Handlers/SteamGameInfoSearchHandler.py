@@ -1,17 +1,28 @@
 import re
 import aiohttp
 
+from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
+from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
+from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
+from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
+
+saya = Saya.current()
+channel = Channel.current()
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await SteamGameInfoSearchHandler.handle(app, message, group, member):
+        await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
 class SteamGameInfoSearchHandler(AbstractHandler):
@@ -19,10 +30,11 @@ class SteamGameInfoSearchHandler(AbstractHandler):
     __description__ = "一个可以搜索steam游戏信息的Handler"
     __usage__ = "在群中发送 `steam 游戏名` 即可"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    @staticmethod
+    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("steam "):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
-            set_result(message, await self.get_steam_game_search(group, member, message.asDisplay()[6:]))
+            return await SteamGameInfoSearchHandler.get_steam_game_search(group, member, message.asDisplay()[6:])
         else:
             return None
 
