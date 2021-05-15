@@ -67,11 +67,11 @@ def frequency_limit_require_weight_free(weight: int):
             if frequency_limit_instance.blacklist_judge(group_id, member_id):
                 if not frequency_limit_instance.announce_judge(group_id, member_id):
                     await frequency_limit_instance.blacklist_announced(group_id, member_id)
-                    raise FrequencyLimitExceededAddBlackList
+                    return MessageItem(MessageChain.create([Plain(text="检测到大量请求，加入黑名单一小时！")]), QuoteSource(GroupStrategy()))
                 else:
-                    raise FrequencyLimitExceededDoNothing
+                    return MessageItem(MessageChain.create([Plain("")]), DoNoting(GroupStrategy()))
             if frequency_limit_instance.get(group_id) + weight >= 10:
-                raise FrequencyLimitExceeded
+                return MessageItem(MessageChain.create([Plain(text="超过频率调用限制！")]), QuoteSource(GroupStrategy()))
             else:
                 await frequency_limit_instance.update(group_id, weight)
                 if asyncio.iscoroutinefunction(func):

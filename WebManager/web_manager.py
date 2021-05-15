@@ -88,7 +88,7 @@ async def modifyGroupSetting(groupId: int, settingName: str, newValue):
 async def getStatus():
     return {
         "functionCalled": len(await orm.fetchall(
-            select(FunctionCalledRecord).where(FunctionCalledRecord.time > datetime.date.today())
+            select(FunctionCalledRecord).where(FunctionCalledRecord.time >= datetime.date.today())
         )),
         "handlerCount": len(AppCore.get_core_instance().get_group_chains()),
         "sayaCount": len(AppCore.get_core_instance().get_saya_channels())

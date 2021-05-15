@@ -207,7 +207,7 @@ async def update_user_call_count_plus1(group: Group, member: Member, table_colum
         select(table_column).where(UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id)
     )
     new_value = new_value[0] + 1 if new_value else 1
-    res = await orm.update(
+    res = await orm.insert_or_update(
         UserCalledCount,
         [UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id],
         {"group_id": group.id, "member_id": member.id, column_name: new_value}
