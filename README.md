@@ -38,91 +38,120 @@ New version of sagiri-bot based on Mirai and Graia
 在文件夹下执行 `python main.py` 即可
 你应当见到类似如下格式的信息：
 ```text
-2021-04-11 20:21:53.776 | INFO     | SAGIRIBOT.Core.AppCore:__init__:39 - Initializing
-2021-04-11 20:21:53.818 | INFO     | SAGIRIBOT.Core.AppCore:__init__:58 - Initialize end
-2021-04-11 20:21:53.819 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> ChatRecordHandler
-2021-04-11 20:21:55.765 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> BotManagementHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> StatusPresenterHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> ImageSenderHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> TrendingHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> StylePictureGeneraterHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> AvatarFunPicHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> AbbreviatedPredictionHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> LeetcodeInfoHanlder
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> QrCodeGeneratorHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> ImageSearchHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> BiliBiliBangumiScheduleHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> TodayInHistoryHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> BilibiliAppParserHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> PhantomTankHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> SteamGameInfoSearchHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> MarketingContentGeneratorHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> NetworkCompilerHandler
-2021-04-11 20:21:55.766 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> BangumiInfoSearchHandler
-2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> LatexGeneratorHandler
-2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> JLUCSWNoticeHandler
-2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> GroupWordCloudGeneratorHandler
-2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> KeywordReplyHandler
-2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> ChatReplyHandler
-2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> RepeaterHandler
-2021-04-11 20:21:55.767 | INFO     | SAGIRIBOT.Handler.Handler:__init__:33 - Create handler -> HeadHandler
-2021-04-11 20:21:55.770 | SUCCESS  | SAGIRIBOT.Handler.MessageHandler:__init__:50 - 
-----------------------------------------------
-职责链加载成功，目前链序：
-ChatRecordHandler                       一个记录聊天记录的Handler
-BotManagementHandler                    bot管理Handler
-StatusPresenterHandler                  一个bot状态显示Handler
-ImageSenderHandler                      一个可以发送图片的Handler
-TrendingHandler                         一个获取热搜的Handler
-StylePictureGeneraterHandler            一个可以生成风格图片的Handler
-AvatarFunPicHandler                     一个可以生成头像相关趣味图的Handler
-AbbreviatedPredictionHandler            一个获取英文缩写意思的Handler
-LeetcodeInfoHanlder                     一个可以获取Leetcode信息的Handler
-QrCodeGeneratorHandler                  一个生成二维码的Handler
-ImageSearchHandler                      一个可以搜索Pixiv图片的Handler
-BiliBiliBangumiScheduleHandler          一个可以获取BiliBili7日内新番时间表的Handler
-TodayInHistoryHandler                   一个获取历史上的今天的Handler
-BilibiliAppParserHandler                一个可以解析BiliBili小程序的Handler
-PhantomTankHandler                      一个幻影坦克生成器Handler
-SteamGameInfoSearchHandler              一个可以搜索steam游戏信息的Handler
-MarketingContentGeneratorHandler        一个营销号生成器Handler
-NetworkCompilerHandler                  一个网络编译器Handler
-BangumiInfoSearchHandler                一个可以搜索番剧信息的Handler
-LatexGeneratorHandler                   一个latex公式转图片的Handler
-JLUCSWNoticeHandler                     一个可以获取吉林大学软件学院教务通知的Handler
-GroupWordCloudGeneratorHandler          群词云生成器
-KeywordReplyHandler                     一个关键字回复Handler
-ChatReplyHandler                        一个可以自定义/。智能回复的Handler
-RepeaterHandler                         一个复读Handler
-----------------------------------------------
-[2021-04-11 20:21:55,770][INFO]: initializing app...
-[2021-04-11 20:21:55,778][INFO]: detecting remote's version...
-[2021-04-11 20:21:55,786][INFO]: detected remote's version: 1.9.8
-[2021-04-11 20:21:55,789][INFO]: using pure websocket to receive event
-[2021-04-11 20:21:55,789][INFO]: found websocket disabled, so it has been enabled.
-2021-04-11 20:21:55.898 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:121 - 本次启动活动群组如下：
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-2021-04-11 20:21:55.899 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:123 - 群ID: 123456789     群名: XXXXXX
-[2021-04-11 20:21:55,923][INFO]: event receive method checked.
-[2021-04-11 20:21:55,923][INFO]: this application's initialization has been completed.
-[2021-04-11 20:21:55,923][INFO]: --- setting start ---
-[2021-04-11 20:21:55,923][INFO]: broadcast using: <graia.broadcast.Broadcast object at 0x0000022E748E7790>
-[2021-04-11 20:21:55,923][INFO]: enable log of chat: no
-[2021-04-11 20:21:55,923][INFO]: debug: no
-[2021-04-11 20:21:55,923][INFO]: version(remote): 1.9.8
-[2021-04-11 20:21:55,923][INFO]: --- setting end ---
-[2021-04-11 20:21:55,923][INFO]: application has been initialized, used 0.153s
-[2021-04-11 20:21:55,924][INFO]: websocket daemon: websocket connection starting...
-[2021-04-11 20:21:55,925][INFO]: websocket: connected
-[2021-04-11 20:21:55,925][INFO]: websocket: ping task created
+2021-05-15 10:51:39.006 | INFO     | SAGIRIBOT.Core.AppCore:__init__:44 - Initializing
+2021-05-15 10:51:39.058 | INFO     | SAGIRIBOT.Core.AppCore:__init__:64 - Initialize end
+2021-05-15 10:51:39.059 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.AbbreviatedPredictionHandler
+2021-05-15 10:51:39.232 | INFO     | SAGIRIBOT.Handler.Handler:__init__:34 - Create handler -> ChatRecordHandler
+2021-05-15 10:51:39.555 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.AbbreviatedPredictionHandler
+2021-05-15 10:51:39.556 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.AbstractMessageTransformHandler
+2021-05-15 10:51:39.556 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.AbstractMessageTransformHandler
+2021-05-15 10:51:39.556 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.AvatarFunPicHandler
+2021-05-15 10:51:39.556 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.AvatarFunPicHandler
+2021-05-15 10:51:39.556 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.BangumiInfoSearchHandler
+2021-05-15 10:51:39.556 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.BangumiInfoSearchHandler
+2021-05-15 10:51:39.557 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.BangumiSearchHandler
+2021-05-15 10:51:39.557 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.BangumiSearchHandler
+2021-05-15 10:51:39.557 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.BilibiliAppParserHandler
+2021-05-15 10:51:39.557 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.BilibiliAppParserHandler
+2021-05-15 10:51:39.557 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.BiliBiliBangumiScheduleHandler
+2021-05-15 10:51:39.558 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.BiliBiliBangumiScheduleHandler
+2021-05-15 10:51:39.558 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.BotManagementHandler
+2021-05-15 10:51:39.558 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.BotManagementHandler
+2021-05-15 10:51:39.558 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.ChatRecorderHandler
+2021-05-15 10:51:39.558 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.ChatRecorderHandler
+2021-05-15 10:51:39.559 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.ChatReplyHandler
+2021-05-15 10:51:39.559 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.ChatReplyHandler
+2021-05-15 10:51:39.559 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.ExpressionSolverHandler
+2021-05-15 10:51:39.560 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.ExpressionSolverHandler
+2021-05-15 10:51:39.560 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.GenshinGachaSimulatorHandler
+2021-05-15 10:51:39.560 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.GenshinGachaSimulatorHandler
+2021-05-15 10:51:39.560 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.GroupWordCloudGeneratorHandler
+2021-05-15 10:51:39.561 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.GroupWordCloudGeneratorHandler
+2021-05-15 10:51:39.561 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.HeadHandler
+2021-05-15 10:51:39.561 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.HeadHandler
+2021-05-15 10:51:39.561 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.HotWordsExplainerHandler
+2021-05-15 10:51:39.562 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.HotWordsExplainerHandler
+2021-05-15 10:51:39.562 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.ImageAdderHandler
+2021-05-15 10:51:39.562 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.ImageAdderHandler
+2021-05-15 10:51:39.563 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.ImageSearchHandler
+2021-05-15 10:51:39.563 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.ImageSearchHandler
+2021-05-15 10:51:39.563 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.ImageSenderHandler
+2021-05-15 10:51:39.563 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.ImageSenderHandler
+2021-05-15 10:51:39.563 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.JLUCSWNoticeHandler
+2021-05-15 10:51:39.563 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.JLUCSWNoticeHandler
+2021-05-15 10:51:39.563 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.KeywordReplyHandler
+2021-05-15 10:51:39.564 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.KeywordReplyHandler
+2021-05-15 10:51:39.564 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.LatexGeneratorHandler
+2021-05-15 10:51:39.664 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.LatexGeneratorHandler
+2021-05-15 10:51:39.664 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.LeetcodeInfoHandler
+2021-05-15 10:51:39.664 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.LeetcodeInfoHandler
+2021-05-15 10:51:39.664 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.LoliconKeywordSearchHandler
+2021-05-15 10:51:39.664 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.LoliconKeywordSearchHandler
+2021-05-15 10:51:39.665 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.LOLItemRaidersHandler
+2021-05-15 10:51:39.665 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.LOLItemRaidersHandler
+2021-05-15 10:51:39.665 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.MarketingContentGeneratorHandler
+2021-05-15 10:51:39.666 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.MarketingContentGeneratorHandler
+2021-05-15 10:51:39.666 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.MessageMergeHandler
+2021-05-15 10:51:39.667 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.MessageMergeHandler
+2021-05-15 10:51:39.667 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.NetworkCompilerHandler
+2021-05-15 10:51:39.667 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.NetworkCompilerHandler
+2021-05-15 10:51:39.667 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.PDFSearchHandler
+2021-05-15 10:51:39.667 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.PDFSearchHandler
+2021-05-15 10:51:39.667 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.PeroDogHandler
+2021-05-15 10:51:39.667 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.PeroDogHandler
+2021-05-15 10:51:39.668 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.PhantomTankHandler
+2021-05-15 10:51:39.668 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.PhantomTankHandler
+2021-05-15 10:51:39.668 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.PoisonousChickenSoupHandler
+2021-05-15 10:51:39.668 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.PoisonousChickenSoupHandler
+2021-05-15 10:51:39.668 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.QrCodeGeneratorHandler
+2021-05-15 10:51:39.668 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.QrCodeGeneratorHandler
+2021-05-15 10:51:39.669 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.RepeaterHandler
+2021-05-15 10:51:39.669 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.RepeaterHandler
+2021-05-15 10:51:39.669 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.StatusPresenterHandler
+2021-05-15 10:51:39.669 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.StatusPresenterHandler
+2021-05-15 10:51:39.669 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.SteamGameInfoSearchHandler
+2021-05-15 10:51:39.669 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.SteamGameInfoSearchHandler
+2021-05-15 10:51:39.670 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.StylePictureGeneraterHandler
+2021-05-15 10:51:39.670 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.StylePictureGeneraterHandler
+2021-05-15 10:51:39.670 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.TodayInHistoryHandler
+2021-05-15 10:51:39.670 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.TodayInHistoryHandler
+2021-05-15 10:51:39.670 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.TrendingHandlers
+2021-05-15 10:51:39.670 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.TrendingHandlers
+2021-05-15 10:51:39.671 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.WhatToEatHandler
+2021-05-15 10:51:39.676 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.WhatToEatHandler
+2021-05-15 10:51:39.676 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.WolframAlphaHandler
+2021-05-15 10:51:39.677 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.WolframAlphaHandler
+2021-05-15 10:51:39.677 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.__init__
+2021-05-15 10:51:39.678 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.__init__
+[2021-05-15 10:51:39,901][INFO]: initializing app...
+[2021-05-15 10:51:39,910][INFO]: detecting remote's version...
+2021-05-15 10:51:39.912 | INFO     | SAGIRIBOT.Core.AppCore:config_check:156 - checking config
+2021-05-15 10:51:39.912 | INFO     | SAGIRIBOT.Core.AppCore:config_check:171 - check done
+[2021-05-15 10:51:39,914][INFO]: detected remote's version: 1.9.8
+[2021-05-15 10:51:39,916][INFO]: using pure websocket to receive event
+[2021-05-15 10:51:39,916][INFO]: found websocket disabled, so it has been enabled.
+[2021-05-15 10:51:39,918][INFO]: event receive method checked.
+[2021-05-15 10:51:39,918][INFO]: this application's initialization has been completed.
+[2021-05-15 10:51:39,918][INFO]: --- setting start ---
+[2021-05-15 10:51:39,918][INFO]: broadcast using: <graia.broadcast.Broadcast object at 0x000002D410C5A730>
+[2021-05-15 10:51:39,918][INFO]: enable log of chat: no
+[2021-05-15 10:51:39,918][INFO]: debug: no
+[2021-05-15 10:51:39,918][INFO]: version(remote): 1.9.8
+[2021-05-15 10:51:39,918][INFO]: --- setting end ---
+[2021-05-15 10:51:39,918][INFO]: application has been initialized, used 0.017s
+[2021-05-15 10:51:39,919][INFO]: websocket daemon: websocket connection starting...
+[2021-05-15 10:51:39,921][INFO]: websocket: connected
+[2021-05-15 10:51:39,921][INFO]: websocket: ping task created
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:134 - 本次启动活动群组如下：
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:136 - 群ID: 123456789     群名: xxxxxxx
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:136 - 群ID: 123456789     群名: xxxxxxx
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:136 - 群ID: 123456789     群名: xxxxxxx
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:136 - 群ID: 123456789     群名: xxxxxxx
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:136 - 群ID: 123456789     群名: xxxxxxx
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:136 - 群ID: 123456789     群名: xxxxxxx
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:136 - 群ID: 123456789     群名: xxxxxxx
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:136 - 群ID: 123456789     群名: xxxxxxx
+2021-05-15 10:51:41.860 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:136 - 群ID: 123456789     群名: xxxxxxx
 ```
 现在，来试一试你的机器人吧！
 
@@ -160,6 +189,7 @@ RepeaterHandler                         一个复读Handler
 
 - [功能列表](docs/functions.md)
 - [管理](docs/manage.md)
+- [功能扩展](docs/function_extension.md)
 
 因项目重构，原文档失效，新文档还在完善中🕊🕊🕊
 
@@ -176,7 +206,7 @@ RepeaterHandler                         一个复读Handler
 ## TODO
 - [x] 添加并完善日志记录功能
 - [x] 支持Saya加载插件
-- [ ] 可视化管理页面
+- [x] 可视化管理页面
 - [ ] 完善文档
 - [ ] 点歌功能
 - [ ] 支持发送语音
