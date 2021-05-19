@@ -9,7 +9,7 @@
     <img src="https://img.shields.io/badge/python-3.8+-blue.svg"/>
     <img src="https://img.shields.io/badge/sqlalchemy-1.4.11+-orange.svg"/>
     <h3>一个基于 Mirai 和 Graia 的QQ机器人</h3>
-    <div>SAGIRI之名取自动漫《埃罗芒阿老师》中的角色 <a type="info" href="https://zh.moegirl.org.cn/%E5%92%8C%E6%B3%89%E7%BA%B1%E9%9B%BE">和泉纱雾(Izumi Sagiri)</a></div>
+    <div>SAGIRI之名取自动漫《埃罗芒阿老师》中的角色 <a href="https://zh.moegirl.org.cn/%E5%92%8C%E6%B3%89%E7%BA%B1%E9%9B%BE">和泉纱雾(Izumi Sagiri)</a></div>
     <br>
     <div>若您在使用过程中发现了bug或有一些建议，欢迎提出ISSUE或PR</div>
     <br>
