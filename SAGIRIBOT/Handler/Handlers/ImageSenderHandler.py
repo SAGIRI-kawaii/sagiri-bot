@@ -163,7 +163,7 @@ class ImageSenderHandler(AbstractHandler):
         return Image.fromLocalFile(target_pic_path)
 
     @staticmethod
-    @frequency_limit_require_weight_free(3)
+    @frequency_limit_require_weight_free(1)
     async def get_image_message(group: Group, member: Member, func: str) -> MessageItem:
         return MessageItem(MessageChain.create([await ImageSenderHandler.get_pic(func)]), Normal(GroupStrategy()))
 

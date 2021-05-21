@@ -2,7 +2,7 @@ BotQQ: 123
 HostQQ: 123
 miraiHost: http://localhost:8080
 authKey: !!str 1234567890
-DBLink: sqlite:///data.db
+DBLink: sqlite+aiosqlite:///data.db
 setuPath: M:\Pixiv\pxer_new\
 setu18Path: M:\Pixiv\pxer18_new\
 realPath: M:\Pixiv\reality\
