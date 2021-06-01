@@ -12,7 +12,7 @@ sketchPath: M:\线稿\
 txAppId: !!str 1234567890
 txAppKey: ABCDEFGHIJKLMN
 shadiaoAppName: shadiao
-saucenaoCookie: balabala
+saucenaoApiKey: balabala
 webManagerApi: true
 webManagerAutoBoot: true
 errorRetention: 14

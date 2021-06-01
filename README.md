@@ -199,7 +199,7 @@
 | txAppId | 腾讯AI开放平台AppId（自行申请），格式为 `!!str txAppId` |
 | txAppKey | 腾讯AI开放平台AppKey（自行申请） |
 | shadiaoAppName | shadiaoApp 应用名（自行申请） |
-| saucenaoCookie | saucenao cookie（自行登录获取） |
+| saucenaoApiKey | saucenao api key（自行获取） |
 | webManagerApi | api是否启动（用于管理页面） |
 | webManagerAutoBoot | 是否自动打开管理页面（webManagerApi为True时才起作用） |
 | errorRetention | 错误日志记录周期 |
