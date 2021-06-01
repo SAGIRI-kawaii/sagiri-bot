@@ -168,6 +168,8 @@ class AppCore:
             logger.warning("txAppKey无效，请检查配置！")
         if self.__config["loliconApiKey"] == "loliconApiKey":
             logger.warning("loliconApiKey无效，请检查配置！")
+        if self.__config["wolframAlphaKey"] == "wolframAlphaKey":
+            logger.warning("wolframAlphaKey无效，请检查配置！")
         logger.info("check done")
 
     def load_saya_modules(self):
