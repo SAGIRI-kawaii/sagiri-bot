@@ -136,12 +136,18 @@ class KeywordReplyHandler(AbstractHandler):
         if re.match(r"\[mirai:image:{.*}\..*]", keyword):
             keyword = re.findall(r"\[mirai:image:{(.*?)}\..*]", keyword, re.S)[0]
 
-        if results := await orm.fetchall(select(KeywordReply).where(KeywordReply.keyword == keyword)):
+        if results := await orm.fetchall(
+            select(
+                KeywordReply.reply_type, KeywordReply.reply, KeywordReply.reply_md5
+            ).where(
+                KeywordReply.keyword == keyword
+            )
+        ):
             replies = list()
             for result in results:
-                content_type = result[1]
-                content = result[2]
-                content_md5 = result[3]
+                content_type = result[0]
+                content = result[1]
+                content_md5 = result[2]
                 replies.append([content_type, content, content_md5])
 
             msg = [Plain(text=f"关键词{keyword}目前有以下数据：\n")]
@@ -204,7 +210,14 @@ class KeywordReplyHandler(AbstractHandler):
                 return MessageItem(MessageChain.create([Plain(text="非预期回复，进程退出")]), Normal(GroupStrategy()))
             elif result == "是":
                 try:
-                    await orm.delete(KeywordReply, {"keyword": keyword, "reply_md5": replies[number - 1][2], "reply_type": replies[number - 1][0]})
+                    await orm.delete(
+                        KeywordReply,
+                        [
+                            KeywordReply.keyword == keyword,
+                            KeywordReply.reply_md5 == replies[number - 1][2],
+                            KeywordReply.reply_type == replies[number - 1][0]
+                        ]
+                    )
                     return MessageItem(MessageChain.create([Plain(text=f"删除成功")]), Normal(GroupStrategy()))
                 except Exception as e:
                     logger.error(traceback.format_exc())
