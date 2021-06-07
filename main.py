@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 import os
 import yaml
+import traceback
 import threading
 from loguru import logger
 
 from graia.application import GraiaMiraiApplication
+from graia.application.exceptions import AccountMuted
 from graia.application.message.elements.internal import *
+from graia.application.event.mirai import BotJoinGroupEvent
 from graia.application.event.lifecycle import ApplicationLaunched
 from graia.application.event.messages import Group, Member, GroupMessage
 
-# from SAGIRIBOT.Handler.Handlers import *
 from WebManager.websocket import set_log
 from SAGIRIBOT.Core.AppCore import AppCore
-# from SAGIRIBOT.MessageSender.globals import res
 from SAGIRIBOT.utils import online_notice, get_config
-# from SAGIRIBOT.Handler.MessageHandler import GroupMessageHandler
-# from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
+from SAGIRIBOT.ORM.AsyncORM import orm, UserPermission, Setting
+from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict
 
 with open('config.yaml', 'r', encoding='utf-8') as f:
     configs = yaml.load(f.read())
@@ -50,6 +51,32 @@ core.load_saya_modules()
 async def group_message_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     message_text_log = message.asDisplay().replace("\n", "\\n")
     logger.info(f"收到来自群 <{group.name}> 中成员 <{member.name}> 的消息：{message_text_log}")
+
+
+@bcc.receiver(BotJoinGroupEvent)
+async def bot_join_group(app: GraiaMiraiApplication, group: Group):
+    logger.info(f"机器人加入群组 <{group.name}>")
+    try:
+        await orm.insert_or_update(
+            Setting,
+            [Setting.group_id == group.id],
+            {"group_id": group.id, "group_name": group.name, "active": True}
+        )
+        await orm.insert_or_update(
+            UserPermission,
+            [UserPermission.member_id == core.get_config()["HostQQ"], UserPermission.group_id == group.id],
+            {"member_id": core.get_config()["HostQQ"], "group_id": group.id, "level": 4}
+        )
+        GlobalFrequencyLimitDict().add_group(group.id)
+        await app.sendGroupMessage(
+            group, MessageChain.create([
+                Plain(text="欸嘿嘿~我来啦！宇宙无敌小可爱纱雾酱华丽登场！")
+            ])
+        )
+    except AccountMuted:
+        pass
+    except:
+        logger.error(traceback.format_exc())
 
 
 @logger.catch

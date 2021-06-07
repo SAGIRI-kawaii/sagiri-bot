@@ -160,14 +160,16 @@ class AppCore:
         for path in pic_paths:
             if not os.path.exists(self.__config[path]):
                 logger.warning(f"{path}无效，请检查配置！")
-        if self.__config["saucenaoCookie"] == "balabala":
-            logger.warning("saucenaoCookie无效，请检查配置！")
+        if self.__config["saucenaoApiKey"] == "balabala":
+            logger.warning("saucenaoApiKey无效，请检查配置！")
         if self.__config["txAppId"] == "1234567890":
             logger.warning("txAppId无效，请检查配置！")
         if self.__config["txAppKey"] == "ABCDEFGHIJKLMN":
             logger.warning("txAppKey无效，请检查配置！")
         if self.__config["loliconApiKey"] == "loliconApiKey":
             logger.warning("loliconApiKey无效，请检查配置！")
+        if self.__config["wolframAlphaKey"] == "wolframAlphaKey":
+            logger.warning("wolframAlphaKey无效，请检查配置！")
         logger.info("check done")
 
     def load_saya_modules(self):

@@ -1,13 +1,26 @@
-# SAGIRI-BOT
+<div align="center">
+    <img width="160" src="docs/sagiri.jpg" alt="logo"></br>
+    <h1>SAGIRI-BOT</h1>
+</div>
+    
+----
 
-![](https://img.shields.io/badge/python-3.8+-blue.svg)
+<div align="center">
+    <img src="https://img.shields.io/badge/python-3.8+-blue.svg"/>
+    <img src="https://img.shields.io/badge/sqlalchemy-1.4.11+-orange.svg"/>
+    <h3>一个基于 Mirai 和 Graia 的QQ机器人</h3>
+    <div>SAGIRI之名取自动漫《埃罗芒阿老师》中的角色 <a href="https://zh.moegirl.org.cn/%E5%92%8C%E6%B3%89%E7%BA%B1%E9%9B%BE">和泉纱雾(Izumi Sagiri)</a></div>
+    <br>
+    <div>若您在使用过程中发现了bug或有一些建议，欢迎提出ISSUE或PR</div>
+    <br>
+    <div><s>来个star吧，球球惹！</s></div>
+</div>
 
-基于 Mirai 和 Graia 的船新版本，~~是兄弟就来砍我~~
 
-New version of sagiri-bot based on Mirai and Graia
 
 ## 目录
   * [目录](#目录)
+  * [项目特色](#项目特色)
   * [开始使用](#开始使用)
     + [使用前准备](#使用前准备)
     + [如何启动](#如何启动)
@@ -17,6 +30,15 @@ New version of sagiri-bot based on Mirai and Graia
   * [注意](#注意)
   * [TODO](#todo)
   * [鸣谢](#鸣谢)
+
+## 项目特色
+- 基于Sqlalchemy的异步ORM
+- 权限管理系统
+- 频率限制模块
+- 错误重发模块
+- [丰富的功能](docs/functions.md)
+- 可视化管理模块
+- 基于loguru的日志系统
 
 ## 开始使用
 
@@ -177,7 +199,7 @@ New version of sagiri-bot based on Mirai and Graia
 | txAppId | 腾讯AI开放平台AppId（自行申请），格式为 `!!str txAppId` |
 | txAppKey | 腾讯AI开放平台AppKey（自行申请） |
 | shadiaoAppName | shadiaoApp 应用名（自行申请） |
-| saucenaoCookie | saucenao cookie（自行登录获取） |
+| saucenaoApiKey | saucenao api key（自行获取） |
 | webManagerApi | api是否启动（用于管理页面） |
 | webManagerAutoBoot | 是否自动打开管理页面（webManagerApi为True时才起作用） |
 | errorRetention | 错误日志记录周期 |
@@ -192,10 +214,6 @@ New version of sagiri-bot based on Mirai and Graia
 - [功能扩展](docs/function_extension.md)
 
 因项目重构，原文档失效，新文档还在完善中🕊🕊🕊
-
-## 项目特性
-
-- 使用简单的前端管理器
 
 ## 注意
 目前机器人尚未完善，仍有许多bug存在，若您在使用中发现了bug或有更好的建议，请提ISSUE

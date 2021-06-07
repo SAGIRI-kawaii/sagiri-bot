@@ -105,8 +105,10 @@ class ImageSearchHandler(AbstractHandler):
         pic_url = img.url
 
         # json requesting url
-        url2 = f"https://saucenao.com/search.php?db=999&output_type=2&testmode=1&numres=1&url={pic_url}"
+        url2 = f"https://saucenao.com/search.php?db=999&output_type=2&testmode=1&numres=10&url={pic_url}"
 
+        url3 = f"https://saucenao.com/search.php?api_key={get_config('saucenaoApiKey')}&db=999&output_type=2&testmode=1&numres=10&url={pic_url}"
+        print(url3)
         # data for posting.
         payload = {
             "url": pic_url,
@@ -114,6 +116,7 @@ class ImageSearchHandler(AbstractHandler):
             "testmode": 1,
             "db": 999,
             "output_type": 2,
+            "api_key": get_config("saucenaoApiKey")
         }
 
         # header to fool the website.
@@ -126,11 +129,11 @@ class ImageSearchHandler(AbstractHandler):
             "Referer": url,
             "Origin": "https://saucenao.com",
             "Host": "saucenao.com",
-            "cookie": saucenao_cookie
+            # "cookie": saucenao_cookie
         }
-
+        # , headers=headers, data=payload
         async with aiohttp.ClientSession() as session:
-            async with session.post(url=url, headers=headers, data=payload) as resp:
+            async with session.get(url=url3) as resp:
                 json_data = await resp.json()
 
         if json_data["header"]["status"] == -1:

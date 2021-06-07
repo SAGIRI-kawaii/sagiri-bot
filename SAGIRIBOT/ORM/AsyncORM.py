@@ -122,7 +122,7 @@ class AsyncORM(AsyncEngine):
             return await self.execute(insert(table).values(**dt))
 
     async def delete(self, table, condition):
-        return self.execute(delete(table).where(*condition))
+        return await self.execute(delete(table).where(*condition))
 
 
 orm = AsyncORM(DB_LINK)

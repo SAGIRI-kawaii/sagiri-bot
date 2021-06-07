@@ -163,7 +163,7 @@ class ImageSenderHandler(AbstractHandler):
         return Image.fromLocalFile(target_pic_path)
 
     @staticmethod
-    @frequency_limit_require_weight_free(3)
+    @frequency_limit_require_weight_free(1)
     async def get_image_message(group: Group, member: Member, func: str) -> MessageItem:
         return MessageItem(MessageChain.create([await ImageSenderHandler.get_pic(func)]), Normal(GroupStrategy()))
 
@@ -191,7 +191,7 @@ class ImageSenderHandler(AbstractHandler):
         _, keyword = message_serialization.split("#")
         if re.match(r"\[mirai:image:{.*}\..*]", keyword):
             keyword = re.findall(r"\[mirai:image:{(.*?)}\..*]", keyword, re.S)[0]
-        if record := list(await orm.fetchone(select(TriggerKeyword.function).where(TriggerKeyword.keyword == keyword))):
+        if record := await orm.fetchone(select(TriggerKeyword.function).where(TriggerKeyword.keyword == keyword)):
             await app.sendGroupMessage(
                 group,
                 MessageChain.create([

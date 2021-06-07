@@ -70,7 +70,7 @@ def frequency_limit_require_weight_free(weight: int):
                     return MessageItem(MessageChain.create([Plain(text="检测到大量请求，加入黑名单一小时！")]), QuoteSource(GroupStrategy()))
                 else:
                     return MessageItem(MessageChain.create([Plain("")]), DoNoting(GroupStrategy()))
-            if frequency_limit_instance.get(group_id) + weight >= 10:
+            if frequency_limit_instance.get(group_id, member_id, func.__name__) + weight >= 10:
                 return MessageItem(MessageChain.create([Plain(text="超过频率调用限制！")]), QuoteSource(GroupStrategy()))
             else:
                 await frequency_limit_instance.update(group_id, weight)

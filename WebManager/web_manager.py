@@ -31,8 +31,8 @@ async def getGroups():
 
 @app.get('/getGroupSetting')
 async def getGroupSetting(groupId: int):
-    options_bool = ["repeat", "frequency_limit", "setu", "real", "bizhi", "r18", "img_search", "bangumi_search",
-               "debug", "compile", "anti_revoke", "online_notice", "switch"]
+    options_bool = ["repeat", "frequency_limit", "setu", "real", "real_high_quality", "bizhi", "r18", "img_search",
+                    "bangumi_search", "debug", "compile", "anti_revoke", "online_notice", "switch"]
     options_str = ["long_text_type", "r18_process", "speak_mode", "music"]
     valid_str_option_value = {
         "long_text_type": LongTextType.valid_values,
@@ -43,7 +43,7 @@ async def getGroupSetting(groupId: int):
     bool_result = await orm.fetchone(select(
         Setting.repeat,
         Setting.frequency_limit,
-        Setting.setu, Setting.real, Setting.bizhi, Setting.r18,
+        Setting.setu, Setting.real, Setting.real_high_quality, Setting.bizhi, Setting.r18,
         Setting.img_search,
         Setting.bangumi_search,
         Setting.debug,

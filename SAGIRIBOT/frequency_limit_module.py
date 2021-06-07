@@ -34,9 +34,10 @@ class GlobalFrequencyLimitDict:
             self.frequency_limit_dict = frequency_limit_dict
             GlobalFrequencyLimitDict.__first_init = True
 
-    def get(self, group_id: int):
+    def get(self, group_id: int, member_id: int, func_name: str):
         if group_id in self.frequency_limit_dict:
-            logger.info(f"group {group_id} frequency: {self.frequency_limit_dict[group_id]}")
+            logger.info(f"called by {func_name} from member {member_id}, group: {group_id} frequency: {self.frequency_limit_dict[group_id]}")
+            # logger.info(f"group {group_id} frequency: {self.frequency_limit_dict[group_id]}")
             return self.frequency_limit_dict[group_id]
         else:
             self.frequency_limit_dict[group_id] = 0

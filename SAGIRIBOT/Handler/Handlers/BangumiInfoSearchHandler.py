@@ -11,7 +11,6 @@ from graia.application.event.messages import Group, Member, GroupMessage
 from SAGIRIBOT.utils import MessageChainUtils
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.MessageSender.MessageSender import set_result
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
@@ -37,7 +36,7 @@ class BangumiInfoSearchHandler(AbstractHandler):
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("番剧 "):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
-            set_result(message, await BangumiInfoSearchHandler.get_bangumi_info(group, member, message.asDisplay()[3:]))
+            return await BangumiInfoSearchHandler.get_bangumi_info(group, member, message.asDisplay()[3:])
         else:
             return None
 
@@ -83,7 +82,7 @@ class BangumiInfoSearchHandler(AbstractHandler):
             Plain(text=f"bangumi评分:{score}(参与评分{rating_total}人)"),
             Plain(text=f"\n\nbangumi排名:{rank}" if rank else "")
         ])
-        print(message)
+        # print(message)
         return MessageItem(
             await MessageChainUtils.messagechain_to_img(message=message, max_width=1080, img_fixed=True),
             QuoteSource(GroupStrategy())
