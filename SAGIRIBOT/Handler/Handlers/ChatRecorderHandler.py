@@ -44,6 +44,13 @@ class ChatRecordHandler(AbstractHandler):
             content = content.replace(f"[mirai:{i}]", "")
         if content:
             seg_result = jieba.lcut(content)
+            # dictionary = corpora.Dictionary([seg_result])
+            # new_corpus = [dictionary.doc2bow(seg_result)]
+            # # if not os.path.exists(f"./statics/model/tf_idf_model.tfidf"):
+            # #     os.mknod("./model/statics/tf_idf_model.tfidf")
+            # tfidf = models.TfidfModel(models.TfidfModel.load("./statics/model/tf_idf_model.tfidf") + new_corpus)
+            # with open(f"./statics/model/tf_idf_model.tfidf", "w") as w:
+            #     tfidf.save(w)
             if not seg_result:
                 return None
             await orm.add(

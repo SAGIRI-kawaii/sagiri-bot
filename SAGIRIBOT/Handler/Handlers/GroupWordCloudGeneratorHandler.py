@@ -1,9 +1,11 @@
 import numpy as np
+import jieba.analyse
+
 from io import BytesIO
 from PIL import Image as IMG
 from datetime import datetime
-from sqlalchemy import select, func
 import matplotlib.pyplot as plt
+from sqlalchemy import select, func
 from dateutil.relativedelta import relativedelta
 from wordcloud import WordCloud, ImageColorGenerator
 
@@ -72,10 +74,15 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
     @staticmethod
     async def filter_label(label_list: list) -> list:
         not_filter = ["草"]
+        filter_list = ["jpg", "png", "img-", '{', '}', '<', '>', "url", "pid", "p0", "www", ":/", "qq"]
         image_filter = "mirai:"
         result = []
         for i in label_list:
             if image_filter in i:
+                continue
+            if i.isdigit():
+                continue
+            if any([word in i for word in filter_list]):
                 continue
             elif i in not_filter:
                 result.append(i)
@@ -154,11 +161,10 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
         texts = []
         for i in res:
             if i[5]:
-                texts += i[5].split("|")
+                texts += await GroupWordCloudGeneratorHandler.filter_label(i[5].split("|"))
             else:
-                texts.append(i[3])
-        top_n = await GroupWordCloudGeneratorHandler.count_words(texts, 20000)
-
+                texts.append(i[4])
+        # top_n = await GroupWordCloudGeneratorHandler.count_words(texts, 20000)
         sql = select([func.count()]).select_from(
             ChatRecord
         ).where(
@@ -179,7 +185,53 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
                 Plain(text=f"{time_right}"),
                 Plain(
                     text=f"\n自有记录以来，{'你' if target == 'member' else '本群'}一共发了{times}条消息\n下面是{'你的' if target == 'member' else '本群的'}{tag}词云:\n"),
-                Image.fromUnsafeBytes(await GroupWordCloudGeneratorHandler.draw_word_cloud(top_n))
+                Image.fromUnsafeBytes(await GroupWordCloudGeneratorHandler.draw_word_cloud(jieba.analyse.extract_tags(" ".join(texts), topK=1000, withWeight=True, allowPOS=())))
             ]),
             QuoteSource(GroupStrategy())
         )
+
+
+class TfIdf:
+    def __init__(self):
+        self.weighted = False
+        self.documents = []
+        self.corpus_dict = {}
+
+    def add_document(self, doc_name, list_of_words):
+        doc_dict = {}
+        for w in list_of_words:
+            doc_dict[w] = doc_dict.get(w, 0.) + 1.0
+            self.corpus_dict[w] = self.corpus_dict.get(w, 0.0) + 1.0
+
+        length = float(len(list_of_words))
+        for k in doc_dict:
+            doc_dict[k] = doc_dict[k] / length
+
+        self.documents.append([doc_name, doc_dict])
+
+    def similarities(self, list_of_words):
+        query_dict = {}
+        for w in list_of_words:
+            query_dict[w] = query_dict.get(w, 0.0) + 1.0
+
+        length = float(len(list_of_words))
+        for k in query_dict:
+            query_dict[k] = query_dict[k] / length
+
+        sims = []
+        for doc in self.documents:
+            score = 0.0
+            doc_dict = doc[1]
+            for k in query_dict:
+                if k in doc_dict:
+                    score += (query_dict[k] / self.corpus_dict[k]) + (
+                      doc_dict[k] / self.corpus_dict[k])
+            sims.append([doc[0], score])
+
+        return sims
+
+    def save(self):
+        pass
+
+    def load(self):
+        pass
