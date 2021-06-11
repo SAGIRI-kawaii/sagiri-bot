@@ -18,7 +18,7 @@
 | github热搜（trend） | 在群中发送 `github热搜` 即可 | 所有人 | 否 |  |
 | B站新番时间表 | 在群中发送 `%num%日内新番` 即可 | 所有人 | 否 | `%num%` 为天数，仅支持1-7日内新番查询 |
 | leetcode用户信息查询 | 在群中发送 `leetcode %userSlug%` 即可 | 所有人 | 否 | `%userSlug%` 为用户的唯一标识，而不是用户名，个人主页地址格式为 https://leetcode-cn.com/u/userSlug/ |
-| leetcode每日一题 | 在群中发送 `(leetcode|力扣)每日一题` 即可 | 所有人 | 否 |  |
+| leetcode每日一题 | 在群中发送 (leetcode&#124;力扣)每日一题 即可 | 所有人 | 否 |  |
 | steam游戏查询 | 在群中发送 `steam %gameName%` 即可 | 所有人 | 否 | `%gameName%` 为游戏名，若中文搜索不到请使用英文全名 |
 | 教务通知 | 在群中发送 `教务通知` 即可 | 所有人 | 否 | JLUCSW 教务通知 |
 | pornhub风格图片生成 | 在群中发送 `ph %word1% %word2%` 即可 | 所有人 | 否 | `%word1%` 为左半边词语，`%word2%` 为右半边词语 |
@@ -26,7 +26,12 @@
 | PDF搜索 | 在群中发送 `pdf %keyword%` 即可 | 所有人 | 否 | `%keyword%` 为要搜索的关键词 |
 | 缩写预测 | 在群中发送 `缩 %content%` 即可 | 所有人 | 否 | `%content%` 为要预测的内容如 xmsl 等 |
 | 生成petpet摸头gif | 在群中发送 `摸 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At） |
-| 生成kisskiss亲亲gif | 在群中发送 `亲 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序来源： [SuperWaterGod](https://github.com/SuperWaterGod) ） |
+| 生成kisskiss亲亲gif | 在群中发送 `亲 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [SuperWaterGod](https://github.com/SuperWaterGod) ） |
+| 生成rub贴贴gif | 在群中发送 `贴 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 生成精神支柱表情包 | 在群中发送 `精神支柱 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 生成撕开头像表情包 | 在群中发送 `撕 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 生成爬表情包 | 在群中发送 `爬 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 生成丢表情包 | 在群中发送 `丢 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
 | 获取个人年内词云 | 在群中发送 `我的年内总结` 即可 | 所有人 | 否 | 自消息发出时向前一年内的所有被记录的消息 |
 | 获取个人月内词云 | 在群中发送 `我的月内总结` 即可 | 所有人 | 否 | 自消息发出时向前一月内的所有被记录的消息 |
 | 获取群年内词云 | 在群中发送 `我的年内总结` 即可 | 2+ | 否 | 自消息发出时向前一年内的所有被记录的消息 |
