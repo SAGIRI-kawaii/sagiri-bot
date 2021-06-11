@@ -332,10 +332,10 @@ class AvatarFunPicHandler(AbstractHandler):
         for i in range(6):
             frame = IMG.open(f'{os.getcwd()}/statics/RubFrames/frame{i}.png').convert('RGBA')
             x, y, w, h, angle = user_locs[i]
-            user_img_new = await AvatarFunPicHandler.resize_img(user_img, w, h, angle)
+            user_img_new = (await AvatarFunPicHandler.resize_img(user_img, w, h, angle)).convert("RGBA")
             frame.paste(user_img_new, (x, y), mask=user_img_new)
             x, y, w, h, angle = self_locs[i]
-            self_img_new = await AvatarFunPicHandler.resize_img(self_img, w, h, angle)
+            self_img_new = (await AvatarFunPicHandler.resize_img(self_img, w, h, angle)).convert("RGBA")
             frame.paste(self_img_new, (x, y), mask=self_img_new)
             frames.append(frame)
         output = BytesIO()
