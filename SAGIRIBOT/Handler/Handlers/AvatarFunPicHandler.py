@@ -93,7 +93,7 @@ class AvatarFunPicHandler(AbstractHandler):
             async with session.get(url=url) as resp:
                 img_content = await resp.read()
 
-        return IMG.open(BytesIO(img_content))
+        return IMG.open(BytesIO(img_content)).convert("RGBA")
 
     @staticmethod
     async def save_gif(gif_frames, dest, fps=10):
