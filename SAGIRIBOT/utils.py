@@ -4,11 +4,13 @@ import math
 import yaml
 import json
 import base64
+import hashlib
 import datetime
 import traceback
 from io import BytesIO
 from typing import Union
 from loguru import logger
+from urllib import parse
 from PIL import Image as IMG
 from sqlalchemy import select, desc
 from PIL import ImageFont, ImageDraw
@@ -287,3 +289,33 @@ def get_image_save_number() -> int:
     with open(f"{os.getcwd()}/statics/static_data.json", 'w') as w:
         w.write(json.dumps(data, indent=4))
     return data["imageSaveNumber"]
+
+
+async def get_tx_sign(params: dict) -> str:
+    """
+    Get sign of Tencent Ai Platform
+
+    Args:
+        params: Dict to send
+
+    Examples:
+        sign = await get_sign(params)
+
+    Return:
+        str
+    """
+    app_key = get_config("txAppKey")
+    params_keys = sorted(params.keys())
+    sign = ""
+    for i in params_keys:
+        if params[i] != '':
+            sign += "%s=%s&" % (i, parse.quote(params[i], safe=''))
+    sign += "app_key=%s" % parse.quote(app_key)
+
+    def curl_md5(src: str) -> str:
+        m = hashlib.md5(src.encode('UTF-8'))
+        return m.hexdigest().upper()
+
+    sign = curl_md5(sign)
+    # print("signMD5:", sign)
+    return sign

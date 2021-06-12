@@ -56,3 +56,4 @@
 | WolframAlpha | 在群中发送 `/solve problem` 即可 | 所有人 | 否 | 问题只支持英文 |
 | 热梗解释 | 在群中发送 `%keyword%是什么梗` 即可 | 所有人 | 否 | `%keyword%` 为要搜索的梗 |
 | 随机塔罗牌 | 在群中发送 `塔罗牌` 即可 | 所有人 | 否 | （程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 文字转语音 | 在群中发送 `说 %content%` 即可 | 所有人 | 否 | `%content%` 为要说的话 |
