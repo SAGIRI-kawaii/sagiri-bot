@@ -206,6 +206,7 @@
 | commonRetention | 普通日志清空周期 |
 | loliconApiKey | loliconapiKey，用于关键词涩图搜索功能 |
 | loliconImageCache | 是否缓存loliconapi所获取到的图片 |
+| wolframAlphaKey | wolframAlphaKey，用于科学计算api调用 |
 
 ## 使用文档
 
