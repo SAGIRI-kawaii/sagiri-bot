@@ -191,12 +191,14 @@ class AvatarFunPicHandler(AbstractHandler):
 
     @staticmethod
     async def kiss_make_frame(operator, target, i):
+        target = target.convert('RGBA')
+        operator = operator.convert('RGBA')
         operator_x = [92, 135, 84, 80, 155, 60, 50, 98, 35, 38, 70, 84, 75]
         operator_y = [64, 40, 105, 110, 82, 96, 80, 55, 65, 100, 80, 65, 65]
         target_x = [58, 62, 42, 50, 56, 18, 28, 54, 46, 60, 35, 20, 40]
         target_y = [90, 95, 100, 100, 100, 120, 110, 100, 100, 100, 115, 120, 96]
         bg = IMG.open(f"{os.getcwd()}/statics/KissKissFrames/{i}.png")
-        gif_frame = IMG.new('RGB', (200, 200), (255, 255, 255))
+        gif_frame = IMG.new('RGBA', (200, 200), (255, 255, 255))
         gif_frame.paste(bg, (0, 0))
         gif_frame.paste(target, (target_x[i - 1], target_y[i - 1]), target)
         gif_frame.paste(operator, (operator_x[i - 1], operator_y[i - 1]), operator)
