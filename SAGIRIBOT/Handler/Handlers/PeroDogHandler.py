@@ -12,6 +12,7 @@ from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
+from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 
 saya = Saya.current()
 channel = Channel.current()
@@ -31,6 +32,7 @@ class PeroDogHandler(AbstractHandler):
     @staticmethod
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() == "舔":
+            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             return MessageItem(
                 MessageChain.create([Plain(text=random.choice(pero_dog_contents).replace('*', ''))]),
                 Normal(GroupStrategy())
