@@ -1,9 +1,12 @@
 import os
+import re
 import numpy
 import random
 import aiohttp
 import imageio
+import hashlib
 from io import BytesIO
+from typing import Union
 from PIL import Image as IMG
 from moviepy.editor import ImageSequenceClip
 from PIL import ImageDraw, ImageFilter, ImageOps
@@ -60,35 +63,114 @@ class AvatarFunPicHandler(AbstractHandler):
     __usage__ = "在群中发送 `摸 @目标` 即可"
 
     @staticmethod
+    def get_match_element(message: MessageChain) -> list:
+        return [element for element in message.__root__ if isinstance(element, Image) or isinstance(element, At)]
+
+    @staticmethod
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
-        if message.has(At) and message_text.startswith("摸"):
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await AvatarFunPicHandler.petpet(message.get(At)[0].target)
-        elif message.has(At) and message_text.startswith("亲"):
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await AvatarFunPicHandler.kiss(member.id, message.get(At)[0].target)
-        elif message.has(At) and message_text.startswith("撕"):
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await AvatarFunPicHandler.ripped(message.get(At)[0].target)
-        elif message.has(At) and message_text.startswith("丢"):
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await AvatarFunPicHandler.throw(message.get(At)[0].target)
-        elif message.has(At) and message_text.startswith("爬"):
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await AvatarFunPicHandler.crawl(message.get(At)[0].target)
-        elif message.has(At) and message_text.startswith("贴"):
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await AvatarFunPicHandler.rub(member.id, message.get(At)[0].target)
-        elif message.has(At) and message_text.startswith("精神支柱"):
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await AvatarFunPicHandler.support(message.get(At)[0].target)
+        if message_text.startswith("摸"):
+            match_elements = AvatarFunPicHandler.get_match_element(message)
+            if len(match_elements) >= 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element = match_elements[0]
+                return await AvatarFunPicHandler.petpet(element.target if isinstance(element, At) else element.url)
+            elif re.match(r"摸 [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await AvatarFunPicHandler.petpet(int(message_text[2:]))
+
+        elif message_text.startswith("亲"):
+            match_elements = AvatarFunPicHandler.get_match_element(message)
+            if len(match_elements) == 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element = match_elements[0]
+                return await AvatarFunPicHandler.kiss(member.id, element.target if isinstance(element, At) else element.url)
+            elif len(match_elements) > 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element1 = match_elements[0]
+                element2 = match_elements[1]
+                return await AvatarFunPicHandler.kiss(
+                    element1.target if isinstance(element1, At) else element1.url,
+                    element2.target if isinstance(element2, At) else element2.url
+                )
+            elif re.match(r"亲 [0-9]+ [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                operator, target = message_text[2:].split(" ")
+                return await AvatarFunPicHandler.kiss(int(operator), int(target))
+            elif re.match(r"亲 [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await AvatarFunPicHandler.kiss(member.id, int(message_text[2:]))
+
+        elif message_text.startswith("贴"):
+            match_elements = AvatarFunPicHandler.get_match_element(message)
+            if len(match_elements) == 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element = match_elements[0]
+                return await AvatarFunPicHandler.rub(member.id, element.target if isinstance(element, At) else element.url)
+            elif len(match_elements) > 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element1 = match_elements[0]
+                element2 = match_elements[1]
+                return await AvatarFunPicHandler.rub(
+                    element1.target if isinstance(element1, At) else element1.url,
+                    element2.target if isinstance(element2, At) else element2.url
+                )
+            elif re.match(r"贴 [0-9]+ [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                operator, target = message_text[2:].split(" ")
+                return await AvatarFunPicHandler.rub(int(operator), int(target))
+            elif re.match(r"贴 [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await AvatarFunPicHandler.rub(member.id, int(message_text[2:]))
+
+        elif message_text.startswith("撕"):
+            match_elements = AvatarFunPicHandler.get_match_element(message)
+            if len(match_elements) >= 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element = match_elements[0]
+                return await AvatarFunPicHandler.ripped(element.target if isinstance(element, At) else element.url)
+            elif re.match(r"撕 [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await AvatarFunPicHandler.ripped(int(message_text[2:]))
+
+        elif message_text.startswith("丢"):
+            match_elements = AvatarFunPicHandler.get_match_element(message)
+            if len(match_elements) >= 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element = match_elements[0]
+                return await AvatarFunPicHandler.throw(element.target if isinstance(element, At) else element.url)
+            elif re.match(r"丢 [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await AvatarFunPicHandler.throw(int(message_text[2:]))
+
+        elif message_text.startswith("爬"):
+            match_elements = AvatarFunPicHandler.get_match_element(message)
+            if len(match_elements) >= 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element = match_elements[0]
+                return await AvatarFunPicHandler.crawl(element.target if isinstance(element, At) else element.url)
+            elif re.match(r"爬 [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await AvatarFunPicHandler.crawl(int(message_text[2:]))
+
+        elif message_text.startswith("精神支柱"):
+            match_elements = AvatarFunPicHandler.get_match_element(message)
+            if len(match_elements) >= 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element = match_elements[0]
+                return await AvatarFunPicHandler.support(element.target if isinstance(element, At) else element.url)
+            elif re.match(r"精神支柱 [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await AvatarFunPicHandler.support(int(message_text[5:]))
         else:
             return None
 
     @staticmethod
-    async def get_pil_avatar(member_id: int):
-        url = f'http://q1.qlogo.cn/g?b=qq&nk={str(member_id)}&s=640'
+    async def get_pil_avatar(image: Union[int, str]):
+        if isinstance(image, int):
+            url = f'http://q1.qlogo.cn/g?b=qq&nk={str(image)}&s=640'
+        else:
+            url = image
         async with aiohttp.ClientSession() as session:
             async with session.get(url=url) as resp:
                 img_content = await resp.read()
@@ -152,7 +234,7 @@ class AvatarFunPicHandler(AbstractHandler):
         return numpy.array(gif_frame)
 
     @staticmethod
-    async def petpet(member_id: int, flip=False, squish=0, fps=20) -> MessageItem:
+    async def petpet(image: Union[int, str], flip=False, squish=0, fps=20) -> MessageItem:
         """生成PetPet
         将输入的头像生成为所需的 PetPet 并输出
         参数
@@ -171,7 +253,7 @@ class AvatarFunPicHandler(AbstractHandler):
 
         gif_frames = []
 
-        avatar = await AvatarFunPicHandler.get_pil_avatar(member_id)
+        avatar = await AvatarFunPicHandler.get_pil_avatar(image)
 
         # 生成每一帧
         for i in range(5):
@@ -179,13 +261,13 @@ class AvatarFunPicHandler(AbstractHandler):
 
         if not os.path.exists(f"{os.getcwd()}/statics/temp/"):
             os.mkdir(f"{os.getcwd()}/statics/temp/")
+        md5 = hashlib.md5(str(image).encode("utf-8")).hexdigest()
+        await AvatarFunPicHandler.save_gif(gif_frames, f"{os.getcwd()}/statics/temp/tempPetPet-{md5}.gif", fps=fps)
 
-        await AvatarFunPicHandler.save_gif(gif_frames, f"{os.getcwd()}/statics/temp/tempPetPet-{member_id}.gif", fps=fps)
-
-        with open(f"{os.getcwd()}/statics/temp/tempPetPet-{member_id}.gif", "rb") as r:
+        with open(f"{os.getcwd()}/statics/temp/tempPetPet-{md5}.gif", "rb") as r:
             image_bytes = r.read()
 
-        os.remove(f"{os.getcwd()}/statics/temp/tempPetPet-{member_id}.gif")
+        os.remove(f"{os.getcwd()}/statics/temp/tempPetPet-{md5}.gif")
 
         return MessageItem(MessageChain.create([Image.fromUnsafeBytes(image_bytes)]), Normal(GroupStrategy()))
 
@@ -205,28 +287,13 @@ class AvatarFunPicHandler(AbstractHandler):
         return numpy.array(gif_frame)
 
     @staticmethod
-    async def kiss(operator_id: int, target_id: int) -> MessageItem:
+    async def kiss(operator_image: Union[int, str], target_image: Union[int, str]) -> MessageItem:
         """
         Author: https://github.com/SuperWaterGod
         """
-        operator_url = f'http://q1.qlogo.cn/g?b=qq&nk={str(operator_id)}&s=640'
-        target_url = f'http://q1.qlogo.cn/g?b=qq&nk={str(target_id)}&s=640'
         gif_frames = []
-        if str(operator_id) != "":  # admin自定义
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url=operator_url) as resp:
-                    operator_img = await resp.read()
-            operator = IMG.open(BytesIO(operator_img))
-        else:
-            return MessageItem(MessageChain.create([Plain(text="发送者头像获取失败")]), QuoteSource(GroupStrategy()))
-
-        if str(target_id) != "":  # admin自定义
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url=target_url) as resp:
-                    target_img = await resp.read()
-            target = IMG.open(BytesIO(target_img))
-        else:
-            return MessageItem(MessageChain.create([Plain(text="被贴者头像获取失败")]), QuoteSource(GroupStrategy()))
+        operator = await AvatarFunPicHandler.get_pil_avatar(operator_image)
+        target = await AvatarFunPicHandler.get_pil_avatar(target_image)
 
         operator = operator.resize((40, 40), IMG.ANTIALIAS)
         size = operator.size
@@ -248,19 +315,20 @@ class AvatarFunPicHandler(AbstractHandler):
         alpha.paste(circle, (0, 0))
         target.putalpha(alpha)
 
+        md5 = hashlib.md5(str(str(operator_image) + str(target_image)).encode("utf-8")).hexdigest()
         for i in range(1, 14):
             gif_frames.append(await AvatarFunPicHandler.kiss_make_frame(operator, target, i))
-        await AvatarFunPicHandler.save_gif(gif_frames, f"{os.getcwd()}/statics/temp/tempKiss-{operator_id}-{target_id}.gif", fps=25)
-        with open(f"{os.getcwd()}/statics/temp/tempKiss-{operator_id}-{target_id}.gif", 'rb') as r:
+        await AvatarFunPicHandler.save_gif(gif_frames, f"{os.getcwd()}/statics/temp/tempKiss-{md5}.gif", fps=25)
+        with open(f"{os.getcwd()}/statics/temp/tempKiss-{md5}.gif", 'rb') as r:
             img_content = r.read()
-        os.remove(f"{os.getcwd()}/statics/temp/tempKiss-{operator_id}-{target_id}.gif")
+        os.remove(f"{os.getcwd()}/statics/temp/tempKiss-{md5}.gif")
         return MessageItem(MessageChain.create([Image.fromUnsafeBytes(img_content)]), Normal(GroupStrategy()))
 
     @staticmethod
-    async def ripped(member_id: int) -> MessageItem:
+    async def ripped(image: Union[int, str]) -> MessageItem:
         ripped = IMG.open(f"{os.getcwd()}/statics/ripped.png")
         frame = IMG.new('RGBA', (1080, 804), (255, 255, 255, 0))
-        avatar = await AvatarFunPicHandler.get_pil_avatar(member_id)
+        avatar = await AvatarFunPicHandler.get_pil_avatar(image)
         left = avatar.resize((385, 385)).rotate(24, expand=True)
         right = avatar.resize((385, 385)).rotate(-11, expand=True)
         frame.paste(left, (-5, 355))
@@ -272,8 +340,8 @@ class AvatarFunPicHandler(AbstractHandler):
         return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
 
     @staticmethod
-    async def throw(member_id: int) -> MessageItem:
-        avatar = await AvatarFunPicHandler.get_pil_avatar(member_id)
+    async def throw(image: Union[int, str]) -> MessageItem:
+        avatar = await AvatarFunPicHandler.get_pil_avatar(image)
         mask = IMG.new('L', avatar.size, 0)
         draw = ImageDraw.Draw(mask)
         offset = 1
@@ -291,8 +359,8 @@ class AvatarFunPicHandler(AbstractHandler):
         return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
 
     @staticmethod
-    async def crawl(member_id: int) -> MessageItem:
-        avatar = await AvatarFunPicHandler.get_pil_avatar(member_id)
+    async def crawl(image: Union[int, str]) -> MessageItem:
+        avatar = await AvatarFunPicHandler.get_pil_avatar(image)
         mask = IMG.new('L', avatar.size, 0)
         draw = ImageDraw.Draw(mask)
         offset = 1
@@ -323,14 +391,14 @@ class AvatarFunPicHandler(AbstractHandler):
         return img
 
     @staticmethod
-    async def rub(operator_id: int, target_id: int) -> MessageItem:
+    async def rub(operator_image: Union[int, str], target_image: Union[int, str]) -> MessageItem:
         user_locs = [(39, 91, 75, 75, 0), (49, 101, 75, 75, 0), (67, 98, 75, 75, 0),
                      (55, 86, 75, 75, 0), (61, 109, 75, 75, 0), (65, 101, 75, 75, 0)]
         self_locs = [(102, 95, 70, 80, 0), (108, 60, 50, 100, 0), (97, 18, 65, 95, 0),
                      (65, 5, 75, 75, -20), (95, 57, 100, 55, -70), (109, 107, 65, 75, 0)]
         frames = []
-        self_img = await AvatarFunPicHandler.get_pil_avatar(operator_id)
-        user_img = await AvatarFunPicHandler.get_pil_avatar(target_id)
+        self_img = await AvatarFunPicHandler.get_pil_avatar(operator_image)
+        user_img = await AvatarFunPicHandler.get_pil_avatar(target_image)
         for i in range(6):
             frame = IMG.open(f'{os.getcwd()}/statics/RubFrames/frame{i}.png').convert('RGBA')
             x, y, w, h, angle = user_locs[i]
@@ -345,8 +413,8 @@ class AvatarFunPicHandler(AbstractHandler):
         return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
 
     @staticmethod
-    async def support(member_id: int) -> MessageItem:
-        avatar = await AvatarFunPicHandler.get_pil_avatar(member_id)
+    async def support(image: Union[int, str]) -> MessageItem:
+        avatar = await AvatarFunPicHandler.get_pil_avatar(image)
         support = IMG.open(f'{os.getcwd()}/statics/support.png')
         frame = IMG.new('RGBA', (1293, 1164), (255, 255, 255, 0))
         avatar = avatar.resize((815, 815), IMG.ANTIALIAS).rotate(23, expand=True)

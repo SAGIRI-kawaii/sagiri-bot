@@ -26,13 +26,13 @@
 | youtube风格图片生成 | 在群中发送 `yt %word1% %word2%` 即可 | 所有人 | 否 | `%word1%` 为左半边词语，`%word2%` 为右半边词语 |
 | PDF搜索 | 在群中发送 `pdf %keyword%` 即可 | 所有人 | 否 | `%keyword%` 为要搜索的关键词 |
 | 缩写预测 | 在群中发送 `缩 %content%` 即可 | 所有人 | 否 | `%content%` 为要预测的内容如 xmsl 等 |
-| 生成petpet摸头gif | 在群中发送 `摸 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At） |
-| 生成kisskiss亲亲gif | 在群中发送 `亲 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [SuperWaterGod](https://github.com/SuperWaterGod) ） |
-| 生成rub贴贴gif | 在群中发送 `贴 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
-| 生成精神支柱表情包 | 在群中发送 `精神支柱 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
-| 生成撕开头像表情包 | 在群中发送 `撕 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
-| 生成爬表情包 | 在群中发送 `爬 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
-| 生成丢表情包 | 在群中发送 `丢 @target` 即可 | 所有人 | 否 | `@target` 为要生成gif的目标（At）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 生成petpet摸头gif | 在群中发送 `摸 %target%` 即可 | 所有人 | 否 | `%target%` 为要生成gif的目标（At、QQId、Image） |
+| 生成kisskiss亲亲gif | 在群中发送 `亲 %target%` 即可 | 所有人 | 否 | `%target%` 为要生成gif的目标（At、QQId、Image）（程序修改来源： [SuperWaterGod](https://github.com/SuperWaterGod) ） |
+| 生成rub贴贴gif | 在群中发送 `贴 %target%` 即可 | 所有人 | 否 | `%target%` 为要生成gif的目标（At、QQId、Image）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 生成精神支柱表情包 | 在群中发送 `精神支柱 %target%` 即可 | 所有人 | 否 | `%target%` 为要生成gif的目标（At、QQId、Image）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 生成撕开头像表情包 | 在群中发送 `撕 %target%` 即可 | 所有人 | 否 | `%target%` 为要生成gif的目标（At、QQId、Image）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 生成爬表情包 | 在群中发送 `爬 %target%` 即可 | 所有人 | 否 | `%target%` 为要生成gif的目标（At、QQId、Image）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
+| 生成丢表情包 | 在群中发送 `丢 %target%` 即可 | 所有人 | 否 | `%target%` 为要生成gif的目标（At、QQId、Image）（程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
 | 获取个人年内词云 | 在群中发送 `我的年内总结` 即可 | 所有人 | 否 | 自消息发出时向前一年内的所有被记录的消息 |
 | 获取个人月内词云 | 在群中发送 `我的月内总结` 即可 | 所有人 | 否 | 自消息发出时向前一月内的所有被记录的消息 |
 | 获取群年内词云 | 在群中发送 `我的年内总结` 即可 | 2+ | 否 | 自消息发出时向前一年内的所有被记录的消息 |
@@ -57,3 +57,4 @@
 | 热梗解释 | 在群中发送 `%keyword%是什么梗` 即可 | 所有人 | 否 | `%keyword%` 为要搜索的梗 |
 | 随机塔罗牌 | 在群中发送 `塔罗牌` 即可 | 所有人 | 否 | （程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
 | 文字转语音 | 在群中发送 `说 %content%` 即可 | 所有人 | 否 | `%content%` 为要说的话 |
+| CP文生成器 | 在群中发送 `/cp %attack% %defence%` 即可 | 所有人 | 否 | `%attack%` 为攻，`%content%` 为受 |
