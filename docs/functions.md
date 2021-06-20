@@ -58,3 +58,4 @@
 | 随机塔罗牌 | 在群中发送 `塔罗牌` 即可 | 所有人 | 否 | （程序修改来源： [MeetWq](https://github.com/MeetWq/mybot/) ） |
 | 文字转语音 | 在群中发送 `说 %content%` 即可 | 所有人 | 否 | `%content%` 为要说的话 |
 | CP文生成器 | 在群中发送 `/cp %attack% %defence%` 即可 | 所有人 | 否 | `%attack%` 为攻，`%content%` 为受 |
+| 笑话生成 | 在群中发送 `来点%keyword%笑话` 即可 | 所有人 | 否 | `%keyword%` 为目标，内置有一些关键词（法国、美国、苏联） |
