@@ -92,7 +92,7 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
 
     @staticmethod
     async def draw_word_cloud(read_name) -> bytes:
-        mask = np.array(IMG.open(f'statics/wordCloud/back.jpg'))
+        mask = np.array(IMG.open(f'statics/wordcloud/back.jpg'))
         # print(mask.shape)
         wc = WordCloud(
             font_path=f'statics/fonts/STKAITI.TTF',
