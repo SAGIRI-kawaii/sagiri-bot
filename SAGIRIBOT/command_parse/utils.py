@@ -76,7 +76,10 @@ async def execute_setting_update(group: Group, member: Member, command: str) -> 
 
 async def execute_grant_permission(group: Group, member: Member, message_text: str) -> MessageItem:
     if await user_permission_require(group, member, 3):
-        message_text = message_text[13:]
+        if message_text[12] == "@":
+            message_text = message_text[13:]
+        else:
+            message_text = message_text[12:]
         try:
             target, level = message_text.split(" ")
         except ValueError:

@@ -22,7 +22,7 @@ from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 
-saucenao_cookie = get_config("saucenaoCookie")
+# saucenao_cookie = get_config("saucenaoCookie")
 saya = Saya.current()
 channel = Channel.current()
 
