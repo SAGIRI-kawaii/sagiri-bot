@@ -131,14 +131,14 @@ class BangumiSearchHandler(AbstractHandler):
             # end_date = f"{result['endDate']['year']}-{result['endDate']['month']}-{result['endDate']['day']}"
             # score = result["averageScore"]
             message = MessageChain.create([
-                    Plain(text="搜索到结果：\n"),
-                    Image.fromUnsafeBytes(thumbnail_content),
-                    Plain(text=f"name: {title_origin}\n"),
-                    Plain(text=f"Chinese name: {title_chinese}\n"),
-                    Plain(text=f"file name: {file_name}\n"),
-                    Plain(text=f"time: {sec_to_str(time_from)} ~ {sec_to_str(time_to)}\n"),
-                    # Plain(text=f"score: {score}\n"),
-                    # Plain(text=f"Broadcast date: {start_date} ~ {end_date}\n")
+                Plain(text="搜索到结果：\n"),
+                Image.fromUnsafeBytes(thumbnail_content),
+                Plain(text=f"name: {title_origin}\n"),
+                Plain(text=f"Chinese name: {title_chinese}\n"),
+                Plain(text=f"file name: {file_name}\n"),
+                Plain(text=f"time: {sec_to_str(time_from)} ~ {sec_to_str(time_to)}\n"),
+                # Plain(text=f"score: {score}\n"),
+                # Plain(text=f"Broadcast date: {start_date} ~ {end_date}\n")
             ])
             return message
         else:
