@@ -12,7 +12,7 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.application.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
-from graia.application.message.elements.internal import Plain, Image, Source
+from graia.application.message.elements.internal import Plain, Image, FlashImage
 
 # from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.ORM.AsyncORM import orm
@@ -24,7 +24,7 @@ from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.ORM.AsyncORM import TriggerKeyword, Setting, UserCalledCount
 from SAGIRIBOT.utils import get_config, get_setting, user_permission_require
-from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, Normal
+from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, Normal, Revoke
 
 setting_column_index = {
     "setu": Setting.setu,
@@ -165,6 +165,12 @@ class ImageSenderHandler(AbstractHandler):
     @staticmethod
     @frequency_limit_require_weight_free(1)
     async def get_image_message(group: Group, member: Member, func: str) -> MessageItem:
+        if func == "setu18":
+            r18_process = await get_setting(group.id, Setting.r18_process)
+            if r18_process == "revoke":
+                return MessageItem(MessageChain.create([await ImageSenderHandler.get_pic(func)]), Revoke(GroupStrategy()))
+            elif r18_process == "flashImage":
+                return MessageItem(MessageChain.create([(await ImageSenderHandler.get_pic(func)).asFlash()]), Normal(GroupStrategy()))
         return MessageItem(MessageChain.create([await ImageSenderHandler.get_pic(func)]), Normal(GroupStrategy()))
 
     @staticmethod
