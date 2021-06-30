@@ -84,6 +84,8 @@ async def execute_grant_permission(group: Group, member: Member, message_text: s
         target = int(target)
         if level.isdigit():
             level = int(level)
+            if member.id == target and level != 4 and await user_permission_require(group, member, 4):
+                return MessageItem(MessageChain.create([Plain(text="怎么有master想给自己改权限欸？纱雾很关心你呢~快去脑科看看吧！")]), QuoteSource(GroupStrategy()))
             if 1 <= level <= 2:
                 if result := await orm.fetchone(select(UserPermission.level).where(UserPermission.group_id == group.id, UserPermission.member_id == target)):
                     if result[0] == 3:
