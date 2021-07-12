@@ -88,11 +88,16 @@ async def execute_grant_permission(group: Group, member: Member, message_text: s
                 return MessageItem(MessageChain.create([Plain(text="怎么有master想给自己改权限欸？纱雾很关心你呢~快去脑科看看吧！")]), QuoteSource(GroupStrategy()))
             if 1 <= level <= 2:
                 if result := await orm.fetchone(select(UserPermission.level).where(UserPermission.group_id == group.id, UserPermission.member_id == target)):
+                    if result[0] == 4:
+                        if await user_permission_require(group, member, 4):
+                            return MessageItem(MessageChain.create([Plain(text="就算是master也不能修改master哦！（怎么会有两个master，怪耶）")]),QuoteSource(GroupStrategy()))
+                        else:
+                            return MessageItem(MessageChain.create([Plain(text="master level 不可更改！若想进行修改请直接修改数据库！")]), QuoteSource(GroupStrategy()))
                     if result[0] == 3:
                         if await user_permission_require(group, member, 4):
                             return await grant_permission_process(group.id, target, level)
                         else:
-                            return MessageItem(MessageChain.create([Plain(text="权限不足，你必须达到权限等级4(master level)才可对超级管理员权限进行修改！")]), Normal(GroupStrategy()))
+                            return MessageItem(MessageChain.create([Plain(text="权限不足，你必须达到权限等级4(master level)才可对超级管理员权限进行修改！")]), QuoteSource(GroupStrategy()))
                     else:
                         return await grant_permission_process(group.id, target, level)
                 else:
