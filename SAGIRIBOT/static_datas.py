@@ -393,6 +393,11 @@ bilibili_partition_dict = {
         "codename": "reptiles",
         "description": "鳞甲有灵"
     },
+    "228": {
+        "name": "人文历史",
+        "codename": "humanity_history",
+        "description": "看看古今人物，聊聊历史过往，品品文学典籍"
+    },
     "119": {
         "name": "鬼畜（主分区）",
         "codename": "kichiku",
