@@ -16,7 +16,7 @@ from SAGIRIBOT.ORM.AsyncORM import Setting, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
-from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
+from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, Revoke
 from SAGIRIBOT.utils import get_config, get_setting, update_user_call_count_plus1
 
 saya = Saya.current()
@@ -78,7 +78,7 @@ class LoliconKeywordSearchHandler(AbstractHandler):
                     Image.fromLocalFile(file_path),
                     Plain(text=f"\n{info}")
                 ]),
-                QuoteSource(GroupStrategy())
+                QuoteSource(GroupStrategy()) if not r18 else Revoke(GroupStrategy())
             )
         else:
             async with aiohttp.ClientSession() as session:
@@ -93,5 +93,5 @@ class LoliconKeywordSearchHandler(AbstractHandler):
                     Image.fromUnsafeBytes(img_content),
                     Plain(text=f"\n{info}")
                 ]),
-                QuoteSource(GroupStrategy())
+                QuoteSource(GroupStrategy()) if not r18 else Revoke(GroupStrategy())
             )

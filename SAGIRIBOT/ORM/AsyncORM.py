@@ -97,7 +97,7 @@ class AsyncORM(AsyncEngine):
             await conn.run_sync(self.Base.metadata.create_all)
 
     async def drop_all(self):
-        """创建所有表"""
+        """删除所有表"""
         async with self.engine.begin() as conn:
             await conn.run_sync(self.Base.metadata.drop_all)
 

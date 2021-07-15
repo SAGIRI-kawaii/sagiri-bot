@@ -18,12 +18,12 @@ from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Handler.Handler import AbstractHandler
-from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.ORM.AsyncORM import ChatRecord, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
+from SAGIRIBOT.utils import update_user_call_count_plus1, user_permission_require
 
 
 saya = Saya.current()
@@ -51,11 +51,17 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             return await GroupWordCloudGeneratorHandler.get_review(group, member, "year", "member")
         elif message_text == "本群月内总结":
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await GroupWordCloudGeneratorHandler.get_review(group, member, "month", "group")
+            if await user_permission_require(group, member, 2):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await GroupWordCloudGeneratorHandler.get_review(group, member, "month", "group")
+            else:
+                return MessageItem(MessageChain.create([Plain(text="权限不足呢~爪巴!")]), QuoteSource(GroupStrategy()))
         elif message_text == "本群年内总结":
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await GroupWordCloudGeneratorHandler.get_review(group, member, "year", "group")
+            if await user_permission_require(group, member, 2):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await GroupWordCloudGeneratorHandler.get_review(group, member, "year", "group")
+            else:
+                return MessageItem(MessageChain.create([Plain(text="权限不足呢~爪巴!")]), QuoteSource(GroupStrategy()))
         else:
             return None
 

@@ -19,4 +19,7 @@ errorRetention: 14
 commonRetention: 7
 loliconApiKey: loliconApiKey
 loliconImageCache: true
+networkDataCache: true
 wolframAlphaKey: wolframAlphaKey
+proxy: proxy_url
+automaticUpdate: false
