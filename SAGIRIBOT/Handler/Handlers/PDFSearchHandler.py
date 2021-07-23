@@ -14,7 +14,7 @@ from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
-from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
+from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount, get_config
 
 saya = Saya.current()
 channel = Channel.current()
@@ -43,8 +43,9 @@ class PDFSearchHandler(AbstractHandler):
     @staticmethod
     @frequency_limit_require_weight_free(4)
     async def search_pdf(group: Group, member: Member, keyword: str) -> MessageItem:
-        url = f"https://2lib.org/s/?q={keyword}"
-        base_url = "https://2lib.org"
+        base_url = "https://1lib.limited"
+        url = f"{base_url}/s/?q={keyword}"
+        proxy = get_config("proxy") if get_config("proxy") != "proxy_url" else ""
         async with aiohttp.ClientSession() as session:
             async with session.get(url=url) as resp:
                 html = await resp.read()
