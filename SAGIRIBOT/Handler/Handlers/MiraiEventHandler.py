@@ -245,14 +245,12 @@ async def anti_revoke(app: GraiaMiraiApplication, event: GroupRecallEvent):
         try:
             msg = await app.messageFromId(event.messageId)
             revoked_msg = msg.messageChain
-            print(event.authorId)
             author_member = await app.getMember(event.group.id, event.authorId)
             author_name = "自己" if event.operator.id == event.authorId else author_member.name
             resended_msg = MessageChain.join(
                 MessageChain.create([Plain(text=f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦：\n\n")]),
                 revoked_msg
             )
-            print(msg)
             await app.sendGroupMessage(
                 event.group,
                 resended_msg.asSendable()
