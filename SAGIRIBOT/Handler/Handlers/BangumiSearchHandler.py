@@ -21,10 +21,8 @@ from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.ORM.AsyncORM import Setting, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 
 
 saya = Saya.current()
