@@ -77,6 +77,10 @@ class AntiFlashImage(BooleanCommand):
     __name__ = "anti_flashimage"
 
 
+class Dice(BooleanCommand):
+    __name__ = "dice"
+
+
 class OnlineNotice(BooleanCommand):
     __name__ = "online_notice"
 
@@ -133,5 +137,6 @@ command_index = {
     "music": Music(),
     "r18_process": R18Process(),
     "speak_mode": SpeakMode(),
-    "long_text_type": LongTextType()
+    "long_text_type": LongTextType(),
+    "dice": Dice()
 }

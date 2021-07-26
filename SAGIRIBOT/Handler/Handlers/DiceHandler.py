@@ -4,10 +4,12 @@ import random
 from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
+from graia.application.message.elements.internal import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.utils import get_setting
+from SAGIRIBOT.ORM.AsyncORM import Setting
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
@@ -31,6 +33,8 @@ class DiceHandler(AbstractHandler):
     @staticmethod
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if re.match(r"[0-9]+d[0-9]+", message.asDisplay()):
+            if not await get_setting(group.id, Setting.dice):
+                return MessageItem(MessageChain.create([Plain(text="骰子功能尚未开启哟~")]), QuoteSource(GroupStrategy()))
             times, max_point = message.asDisplay().strip().split('d')
             times, max_point = int(times), int(max_point)
             if times > 100:
