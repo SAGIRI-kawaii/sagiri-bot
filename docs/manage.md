@@ -18,10 +18,12 @@
 | pixiv以图搜图 | 是否开放pixiv以图搜图功能 | img_search | True/False | 2+ |  |
 | 番剧以图搜番 | 是否开放以图搜番功能 | bangumi_search  | True/False | 2+ |  |
 | 网络编译器 | 菜鸟教程网络编译器开关 | compile | True/False | 2+ |  |
-| 反撤回功能开关 | 决定bot是否对本群消息进行相应 | anti_revoke | True/False | 2+ | 尚未实现 |
+| 反撤回功能开关 | 决定bot是否对本群消息进行相应 | anti_revoke | True/False | 2+ |  |
+| 闪照转换功能开关 | 决定bot是否对本群闪照进行转换 | anti_flashimage | True/False | 2+ |  |
 | 上线提醒 | 机器人上线自动发送上班消息 | online_notice | True/False | 2+ |  |
 | debug | 显示每个请求所执行的时间（从收到消息到发送） | debug | True/False | 3+ | 暂未实现 |
-| 群内开关 | 决定bot是否对本群消息进行相应 | switch | True/False | 3+ |  |
+| 骰子 | 是否开放骰子功能 | dice | True/False | 2+ |  |
+| 群内开关 | 决定bot是否对本群消息进行相应 | switch | True/False | 3+ | 暂未实现 |
 | 点歌平台 | 决定点歌功能的平台及开关 | music | off/wyy | 2+ | 目前只支持网易云平台 |
 | R-18处理方式 | 对发送的R-18图片做撤回/闪照处理 | r18_process | revoke/flashImage | 3+ | 仅在r18选项开启时起作用，后期可能会加入不作处理选项 |
 | 回复方式 | 决定bot被@时的反应 | speak_mode  | normal/rainbow/zuanLow/zuanHigh/chat | 3+ | 请慎用zuanLow 和 zuanHigh模式 |
