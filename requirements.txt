@@ -25,3 +25,4 @@ svglib
 reportlab
 imageio
 graiax-silkcoder
+alembic

@@ -120,6 +120,17 @@ class AppCore:
         self.config_check()
         try:
             await orm.create_all()
+            if not os.path.exists(f"{os.getcwd()}/alembic"):
+                logger.info("未检测到alembic目录，进行初始化")
+                os.system("alembic init alembic")
+                from SAGIRIBOT.static_datas import alembic_env_py_content
+                with open(f"{os.getcwd()}/alembic/env.py", "w") as w:
+                    w.write(alembic_env_py_content)
+                logger.warning(f"请前往更改 {os.getcwd()}/alembic.ini 文件，将其中的 sqlalchemy.url 替换为自己的数据库url（不需注明引擎）\n")
+                while input(f"完成请输入是：") != "是":
+                    pass
+            os.system("alembic revision --autogenerate -m 'update'")
+            os.system("alembic upgrade head")
             await orm.update(Setting, [], {"active": False})
             group_list = await self.__app.groupList()
             frequency_limit_dict = {}
