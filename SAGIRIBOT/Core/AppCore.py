@@ -129,6 +129,8 @@ class AppCore:
                 logger.warning(f"请前往更改 {os.getcwd()}/alembic.ini 文件，将其中的 sqlalchemy.url 替换为自己的数据库url（不需注明引擎）\n")
                 while input(f"完成请输入是：") != "是":
                     pass
+            if not os.path.exists(f"{os.getcwd()}/alembic/versions"):
+                os.mkdir(f"{os.getcwd()}/alembic/versions")
             os.system("alembic revision --autogenerate -m 'update'")
             os.system("alembic upgrade head")
             await orm.update(Setting, [], {"active": False})
