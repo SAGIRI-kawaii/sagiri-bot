@@ -73,6 +73,10 @@ class AntiRevoke(BooleanCommand):
     __name__ = "anti_revoke"
 
 
+class AntiFlashImage(BooleanCommand):
+    __name__ = "anti_flashimage"
+
+
 class OnlineNotice(BooleanCommand):
     __name__ = "online_notice"
 
@@ -122,6 +126,7 @@ command_index = {
     "bangumi_search": BangumiSearch(),
     "compile": Compile(),
     "anti_revoke": AntiRevoke(),
+    "anti_flashimage": AntiFlashImage(),
     "online_notice": OnlineNotice(),
     "debug": Debug(),
     "switch": Switch(),

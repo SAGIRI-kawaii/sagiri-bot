@@ -184,6 +184,7 @@ class Setting(Base):
     bangumi_search = Column(Boolean, default=False)
     compile = Column(Boolean, default=False)
     anti_revoke = Column(Boolean, default=False)
+    anti_flashimage = Column(Boolean, default=False)
     online_notice = Column(Boolean, default=False)
     debug = Column(Boolean, default=False)
     switch = Column(Boolean, default=True)
