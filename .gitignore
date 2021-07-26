@@ -1,0 +1,14 @@
+
+# User-specific config file
+config.yaml
+
+# Python binary files
+__pycache__/
+
+# macOS special files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+/alembic/versions
