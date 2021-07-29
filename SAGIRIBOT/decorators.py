@@ -23,7 +23,7 @@ def require_permission_level(group: Group, member: Member, level: int):
     def decorate(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            print(group.name, member.name)
+            # print(group.name, member.name)
             if result := await orm.fetchone(
                 select(
                     UserPermission.level
@@ -34,12 +34,12 @@ def require_permission_level(group: Group, member: Member, level: int):
                 if result[0] >= level:
                     return await func(*args, **kwargs)
                 else:
-                    print("等级不够呢~")
+                    # print("等级不够呢~")
                     return None
             else:
                 await orm.add(UserPermission, {"group_id": group.id, "member_id": member.id, "level": 1})
                 if level > 1:
-                    print("等级不够呢~")
+                    # print("等级不够呢~")
                     return None
                 else:
                     return await func(*args, **kwargs)

@@ -39,6 +39,7 @@
 - [丰富的功能](docs/functions.md)
 - 可视化管理模块
 - 基于loguru的日志系统
+- 基于alembic的数据库版本管理功能
 
 ## 开始使用
 
@@ -53,7 +54,7 @@
 - 下载 [mirai-console](https://github.com/mamoe/mirai-console) 并配置 [mirai-api-http](https://github.com/project-mirai/mirai-api-http) ，这些都可以在 [mirai](https://github.com/mamoe/mirai) 项目中找到
 - 若上一条不会配置，请考虑使用 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader) 加载器进行配置
 - 打开 `configdemo.yaml`，配置好个人信息，并将文件更名为 `config.yaml`，配置说明见[config文件参数说明](#configyaml)
-- 打开 `alembic.ini` ，将 `sqlalchemy.url` 更换为自己的连接（不要使用异步引擎否则会报错）
+- 打开 `alembic.ini` ，将 `sqlalchemy.url` 更换为自己的连接（不要使用异步引擎否则会报错）（如sqlite:///data.db）
 
 ### 如何启动
 

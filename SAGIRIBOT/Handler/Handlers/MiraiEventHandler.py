@@ -1,3 +1,6 @@
+import traceback
+from loguru import logger
+
 from graia.application.event.mirai import *
 from graia.application.event.messages import Group
 from graia.application import GraiaMiraiApplication
@@ -5,8 +8,9 @@ from graia.application.message.elements.internal import *
 from graia.application.exceptions import AccountMuted, UnknownTarget
 
 from SAGIRIBOT.Core.AppCore import AppCore
-from SAGIRIBOT.ORM.AsyncORM import Setting
 from SAGIRIBOT.utils import get_config, get_setting
+from SAGIRIBOT.ORM.AsyncORM import orm, UserPermission, Setting
+from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict
 
 core: AppCore = AppCore.get_core_instance()
 bcc = core.get_bcc()
@@ -257,3 +261,29 @@ async def anti_revoke(app: GraiaMiraiApplication, event: GroupRecallEvent):
             )
         except (AccountMuted, UnknownTarget):
             pass
+
+
+@bcc.receiver("BotJoinGroupEvent")
+async def bot_join_group(app: GraiaMiraiApplication, group: Group):
+    logger.info(f"机器人加入群组 <{group.name}>")
+    try:
+        await orm.insert_or_update(
+            Setting,
+            [Setting.group_id == group.id],
+            {"group_id": group.id, "group_name": group.name, "active": True}
+        )
+        await orm.insert_or_update(
+            UserPermission,
+            [UserPermission.member_id == core.get_config()["HostQQ"], UserPermission.group_id == group.id],
+            {"member_id": core.get_config()["HostQQ"], "group_id": group.id, "level": 4}
+        )
+        GlobalFrequencyLimitDict().add_group(group.id)
+        await app.sendGroupMessage(
+            group, MessageChain.create([
+                Plain(text="欸嘿嘿~我来啦！宇宙无敌小可爱纱雾酱华丽登场！")
+            ])
+        )
+    except AccountMuted:
+        pass
+    except:
+        logger.error(traceback.format_exc())

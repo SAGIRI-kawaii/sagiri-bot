@@ -1394,3 +1394,52 @@ french_jokes = [
     '《法军二战简史》\n法兰西：我马奇诺天下无敌\n德国：被我绕过去了\n法兰西：我陆军百万\n德国：出售二手法制军械\n法兰西：我有强大舰队\n英国：不是我要A队友，我是真怕你投降资敌\n法兰西：半个非洲都是我的\n隆美尔：excuse me？\n法兰西：我也算日不落帝国\n日本：越南人民站起来了！柬埔寨人民站起来了！\n法兰西：自由法国游击到45年，打了整整五年游击战\nTG:呵呵\n法兰西：都怪闪电战太厉害，我都来不及反应，战略落后的锅。\n斯大林：图哈切夫斯基的战略思想先进不先进？37年我就把他做了，45年照样柏林插红旗\n法兰西：敦刻尔克奇迹\n戈林：我的锅',
     '《法军战争简史》\n高卢战争（BC58-BC52） - 败北，高卢成为罗马行省\n第一次百年战争（1337-1453） - 胜利，英国丢掉在欧陆的领土\n意大利战争（1494-1559） -失败 法国停止在意大利扩张，西班牙继续统治，意大利继续分裂\n法国宗教战争（1568-1598） - 败北[注:此为法国内战]\n三十年战争（1618-1648） - 同盟胜利，敌方联盟大败\n遗产战争（1667-1668） - 扯平\n法荷战争（1672-1678）- 胜利，极大削弱了荷兰\n大同盟战争（1688-1697） - 法军战术胜利 结局扯平\n西班牙王位继承战争（1701-1714） - 法军战术胜利 结局扯平\n美国独立战争（1775-1783） - 介入胜利，但是把国库打空了\n法国大革命（1789-1799-1830） - 唯一的单独胜利（但对手也是法国人）\n拿破仑战争（1799-1815） - 七战五胜 沉重打击了欧洲封建势力 但结局战败\n普法战争（1870-1871） - 败北，割让土地\n清法战争（1883-1885） - 因大清内外交困而获得战略胜利，但战术上惨败 不胜而胜的开端\n第一次世界大战（1914-1918） - 同盟胜利，惨胜\n第二次世界大战（1939-1945） - 投降→同盟胜利\n第一次印支战争（1945-1954） - 败北\n反恐战争（2001-） - 火线跑路'
 ]
+
+alembic_env_py_content = """from logging.config import fileConfig
+
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
+
+from alembic import context
+
+config = context.config
+
+fileConfig(config.config_file_name)
+
+from SAGIRIBOT.ORM.AsyncORM import Base
+target_metadata = Base.metadata
+
+def run_migrations_offline():
+    url = config.get_main_option("sqlalchemy.url")
+    context.configure(
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def run_migrations_online():
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    with connectable.connect() as connection:
+        context.configure(
+            connection=connection, target_metadata=target_metadata
+        )
+
+        with context.begin_transaction():
+            context.run_migrations()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()
+"""
