@@ -172,6 +172,10 @@ class ImageSenderHandler(AbstractHandler):
                 return MessageItem(MessageChain.create([await ImageSenderHandler.get_pic(func)]), Revoke(GroupStrategy()))
             elif r18_process == "flashImage":
                 return MessageItem(MessageChain.create([(await ImageSenderHandler.get_pic(func)).asFlash()]), Normal(GroupStrategy()))
+            elif r18_process == "noProcess":
+                return MessageItem(MessageChain.create([await ImageSenderHandler.get_pic(func)]), Normal(GroupStrategy()))
+            else:
+                return MessageItem(MessageChain.create([Plain(text=f"Error: invalid r18_process: {r18_process}")]), QuoteSource(GroupStrategy()))
         return MessageItem(MessageChain.create([await ImageSenderHandler.get_pic(func)]), Normal(GroupStrategy()))
 
     @staticmethod
