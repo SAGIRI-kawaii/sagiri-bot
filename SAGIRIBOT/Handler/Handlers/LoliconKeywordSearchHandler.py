@@ -15,16 +15,16 @@ from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.ORM.AsyncORM import Setting, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, Revoke
 from SAGIRIBOT.utils import get_config, get_setting, update_user_call_count_plus1
+from SAGIRIBOT.decorators import frequency_limit_require_weight_free, switch, blacklist
 
 saya = Saya.current()
 channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def lolicon_keyword_search_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await LoliconKeywordSearchHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -35,6 +35,8 @@ class LoliconKeywordSearchHandler(AbstractHandler):
     __usage__ = "在群中发送 `来点xx[色涩瑟]图`"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if re.match(r"来点.+[色涩瑟]图", message.asDisplay()):
             # await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")

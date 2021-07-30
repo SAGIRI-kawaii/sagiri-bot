@@ -8,6 +8,7 @@ from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import get_config
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
@@ -18,7 +19,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def poisonous_chicken_soup_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await PoisonousChickenSoupHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -29,6 +30,8 @@ class PoisonousChickenSoupHandler(AbstractHandler):
     __usage__ = "在群中发送 `鸡汤/毒鸡汤/来碗鸡汤` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() in ["来碗鸡汤", "鸡汤", "毒鸡汤"]:
             return await PoisonousChickenSoupHandler.get_soup()

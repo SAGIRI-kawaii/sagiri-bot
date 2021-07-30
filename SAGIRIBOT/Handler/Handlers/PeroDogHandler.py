@@ -7,6 +7,7 @@ from graia.application.message.elements.internal import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.static_datas import pero_dog_contents
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
@@ -30,6 +31,8 @@ class PeroDogHandler(AbstractHandler):
     __usage__ = "在群中发送 `舔` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() == "舔":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")

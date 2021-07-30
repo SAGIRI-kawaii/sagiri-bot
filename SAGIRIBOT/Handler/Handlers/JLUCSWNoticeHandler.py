@@ -9,6 +9,7 @@ from graia.application.message.elements.internal import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
@@ -20,7 +21,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def jlu_csw_notice_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await JLUCSWNoticeHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -31,6 +32,8 @@ class JLUCSWNoticeHandler(AbstractHandler):
     __usage__ = "在群中发送 `教务通知` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() == "教务通知":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")

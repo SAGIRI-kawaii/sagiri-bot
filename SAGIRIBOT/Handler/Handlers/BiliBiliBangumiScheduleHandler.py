@@ -14,16 +14,16 @@ from SAGIRIBOT.MessageSender.Strategy import Normal
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
+from SAGIRIBOT.decorators import frequency_limit_require_weight_free, switch, blacklist
 
 saya = Saya.current()
 channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def bilibili_bangumi_schedule_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await BiliBiliBangumiScheduleHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -34,6 +34,8 @@ class BiliBiliBangumiScheduleHandler(AbstractHandler):
     __usage__ = "在群内发送 `[1-7]日内新番` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if re.match(r"[1-7]日内新番", message.asDisplay()):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")

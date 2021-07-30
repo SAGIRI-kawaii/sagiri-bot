@@ -14,6 +14,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.utils import get_config, get_tx_sign
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
@@ -24,7 +25,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def speak_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await SpeakHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -35,6 +36,8 @@ class SpeakHandler(AbstractHandler):
     __usage__ = "None"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("说 "):
             text = ''.join([plain.text for plain in message.get(Plain)])[2:].replace(" ", '，')

@@ -6,6 +6,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.static_datas import pinyin, emoji
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
@@ -24,7 +25,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def abstract_message_transform_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await AbstractMessageTransformHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -35,6 +36,8 @@ class AbstractMessageTransformHandler(AbstractHandler):
     __usage__ = "在群中发送 `/抽象 文字` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("/抽象 "):
             return await AbstractMessageTransformHandler.transform_abstract_message(message.asDisplay()[4:])

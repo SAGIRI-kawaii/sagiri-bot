@@ -9,6 +9,7 @@ from graia.application.message.elements.internal import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
@@ -31,6 +32,8 @@ class HotWordsExplainerHandler(AbstractHandler):
     __usage__ = "xxx是什么梗"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if re.match(r".+是什么梗", message.asDisplay()):
             if keyword := message.asDisplay()[:-4].strip():

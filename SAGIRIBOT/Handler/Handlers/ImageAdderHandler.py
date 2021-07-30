@@ -13,6 +13,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
@@ -24,7 +25,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def image_adder_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await ImageAdderHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -35,6 +36,8 @@ class ImageAdderHandler(AbstractHandler):
     __usage__ = "在群中发送 `添加(setu|setu18|real|realHighq|wallpaper|sketch)图片[图片]` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         legal_type = ("setu", "setu18", "real", "realHighq", "wallpaper", "sketch")
         if re.match(r"添加(setu|setu18|real|realHighq|wallpaper|sketch)图片(\[图片])+", message.asDisplay()):

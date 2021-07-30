@@ -13,8 +13,8 @@ from SAGIRIBOT.MessageSender.Strategy import QuoteSource
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
+from SAGIRIBOT.decorators import frequency_limit_require_weight_free, switch, blacklist
 
 saya = Saya.current()
 channel = Channel.current()
@@ -32,6 +32,8 @@ class AbbreviatedPredictionHandler(AbstractHandler):
     __usage__ = "在群中发送 `缩 内容` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if re.match(r'缩\s?[A-Za-z0-9]+', message_text):

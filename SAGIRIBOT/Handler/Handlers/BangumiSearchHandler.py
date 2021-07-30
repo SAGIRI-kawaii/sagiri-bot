@@ -16,6 +16,7 @@ from graia.application.event.messages import Group, Member, GroupMessage
 from graia.application.message.elements.internal import Plain, Image, At, Source
 
 from SAGIRIBOT.Core.AppCore import AppCore
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.utils import get_setting, sec_to_str
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
@@ -30,7 +31,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def bangumi_search_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await BangumiSearchHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -41,6 +42,8 @@ class BangumiSearchHandler(AbstractHandler):
     __usage__ = "在群中发送 `搜番` 后，等待回应在30s内发送图片即可（多张图片只会搜索第一张）"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() == "搜番":
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")

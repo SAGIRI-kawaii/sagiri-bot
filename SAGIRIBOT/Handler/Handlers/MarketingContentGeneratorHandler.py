@@ -7,6 +7,7 @@ from graia.application.message.elements.internal import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
@@ -17,7 +18,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def marketing_content_generator_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await MarketingContentGeneratorHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -28,6 +29,8 @@ class MarketingContentGeneratorHandler(AbstractHandler):
     __usage__ = "在群中发送 `营销号#事件主体#事件内容#事件另一种说法` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if re.match("营销号#.*#.*#.*", message.asDisplay()):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")

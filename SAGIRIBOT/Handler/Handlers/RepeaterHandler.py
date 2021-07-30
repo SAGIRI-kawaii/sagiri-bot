@@ -8,6 +8,7 @@ from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import get_setting
 from SAGIRIBOT.ORM.AsyncORM import Setting
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
@@ -18,7 +19,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def repeater_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await RepeaterHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -34,6 +35,8 @@ class RepeaterHandler(AbstractHandler):
     group_repeat = {}
     
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         group_id = group.id
         message_serialization = message.asSerializationString()

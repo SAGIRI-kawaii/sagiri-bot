@@ -13,12 +13,14 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 from SAGIRIBOT.MessageSender.Strategy import Normal, GroupStrategy, QuoteSource
+
 
 _round = lambda f, r=ROUND_HALF_UP: int(Decimal(str(f)).quantize(Decimal("0"), rounding=r))
 rgb = lambda r, g, b: (r, g, b)
@@ -38,16 +40,16 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-    if result := await StylePictureGeneraterHandler.handle(app, message, group, member):
+async def style_picture_generator_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    if result := await StylePictureGeneratorHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
-class StylePictureGeneraterHandler(AbstractHandler):
+class StylePictureGeneratorHandler(AbstractHandler):
     """
     风格图片生成Handler
     """
-    __name__ = "StylePictureGeneraterHandler"
+    __name__ = "StylePictureGeneratorHandler"
     __description__ = "一个可以生成风格图片的Handler"
     __usage__ = "在群中发送 `5000兆 文字1 文字2` 即可"
 

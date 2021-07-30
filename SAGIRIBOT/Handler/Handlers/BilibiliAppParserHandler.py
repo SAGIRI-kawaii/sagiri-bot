@@ -10,6 +10,7 @@ from graia.application.event.messages import Group, Member, GroupMessage
 from graia.application.message.elements.internal import App, Plain, Image
 
 from SAGIRIBOT.utils import sec_format
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.static_datas import bilibili_partition_dict
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
@@ -21,7 +22,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def bilibili_app_parser_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await BilibiliAppParserHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -32,6 +33,8 @@ class BilibiliAppParserHandler(AbstractHandler):
     __usage__ = "当群中有人分享时自动触发"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if apps := message.get(App):
             app_json = json.loads(apps[0].content)

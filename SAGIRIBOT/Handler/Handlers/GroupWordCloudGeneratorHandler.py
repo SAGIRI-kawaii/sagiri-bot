@@ -21,9 +21,9 @@ from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.ORM.AsyncORM import ChatRecord, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 from SAGIRIBOT.utils import update_user_call_count_plus1, user_permission_require
+from SAGIRIBOT.decorators import frequency_limit_require_weight_free, switch, blacklist
 
 
 saya = Saya.current()
@@ -31,7 +31,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def group_wordcloud_generator_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await GroupWordCloudGeneratorHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -42,6 +42,8 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
     __usage__ = "在群中发送 `我的月/年内总结` 即可查看个人月/年词云\n在群众发送 `本群月/年内总结` 即可查看群组月/年词云（需要权限等级2）"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if message_text == "我的月内总结":

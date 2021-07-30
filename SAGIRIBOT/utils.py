@@ -6,11 +6,10 @@ import json
 import base64
 import hashlib
 import datetime
-import traceback
 from io import BytesIO
 from typing import Union
-from loguru import logger
 from urllib import parse
+from loguru import logger
 from PIL import Image as IMG
 from sqlalchemy import select, desc
 from PIL import ImageFont, ImageDraw
@@ -189,18 +188,20 @@ async def get_setting(group_id: int, setting) -> Union[bool, str]:
         raise ValueError(f"未找到 {group_id} -> {str(setting)} 结果！请检查数据库！")
 
 
-async def user_permission_require(group: Group, member: Member, level: int) -> bool:
+async def user_permission_require(group: Union[int, Group], member: Union[int, Member], level: int) -> bool:
+    group = group.id if isinstance(group, Group) else group
+    member = member.id if isinstance(member, Member) else member
     if result := await orm.fetchone(
         select(
             UserPermission.level
         ).where(
-            UserPermission.group_id == group.id,
-            UserPermission.member_id == member.id
+            UserPermission.group_id == group,
+            UserPermission.member_id == member
         )
     ):
         return True if result[0] >= level else False
     else:
-        await orm.add(UserPermission, {"group_id": group.id, "member_id": member.id, "level": 1})
+        await orm.insert_or_ignore(UserPermission, {"group_id": group, "member_id": member, "level": 1})
         return True if level <= 1 else False
 
 

@@ -12,9 +12,9 @@ from SAGIRIBOT.utils import MessageChainUtils
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
+from SAGIRIBOT.decorators import frequency_limit_require_weight_free, switch, blacklist
 
 
 saya = Saya.current()
@@ -22,7 +22,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def banggumi_info_search_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await BangumiInfoSearchHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -33,6 +33,8 @@ class BangumiInfoSearchHandler(AbstractHandler):
     __usage__ = "在群中发送 `番剧 番剧名` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("番剧 "):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")

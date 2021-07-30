@@ -14,14 +14,10 @@ from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict
 
 core: AppCore = AppCore.get_core_instance()
 bcc = core.get_bcc()
-app = core.get_app()
 
 
 @bcc.receiver("MemberJoinEvent")
-async def member_join(
-        app: GraiaMiraiApplication,
-        event: MemberJoinEvent
-):
+async def member_join(app: GraiaMiraiApplication, event: MemberJoinEvent):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([

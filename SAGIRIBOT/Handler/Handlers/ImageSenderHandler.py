@@ -14,16 +14,15 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 from graia.application.message.elements.internal import Plain, Image, FlashImage
 
-# from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.ORM.AsyncORM import TriggerKeyword, Setting, UserCalledCount
 from SAGIRIBOT.utils import get_config, get_setting, user_permission_require
+from SAGIRIBOT.decorators import frequency_limit_require_weight_free, switch, blacklist
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, Normal, Revoke
 
 setting_column_index = {
@@ -54,7 +53,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def image_sender_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await ImageSenderHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -66,6 +65,8 @@ class ImageSenderHandler(AbstractHandler):
     functions = ("setu", "real", "realHighq", "bizhi", "sketch")
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_serialization = message.asSerializationString().replace(
             "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message.asSerializationString(), re.S)[0] + "]", "")

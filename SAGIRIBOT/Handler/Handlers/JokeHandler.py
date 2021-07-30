@@ -8,10 +8,10 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, Normal
 from SAGIRIBOT.static_datas import jokes, soviet_jokes, america_jokes, french_jokes
 
@@ -26,7 +26,7 @@ joke_non_replace = {
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def joke_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await JokeHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -37,6 +37,8 @@ class JokeHandler(AbstractHandler):
     __usage__ = "来点xx笑话"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if re.match(r"来点.+笑话", message.asDisplay()):
             keyword = message.asDisplay()[2:-2]

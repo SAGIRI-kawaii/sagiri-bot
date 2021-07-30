@@ -18,6 +18,7 @@ from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.utils import get_config
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
@@ -31,7 +32,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def chat_reply_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await ChatReplyHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -42,6 +43,8 @@ class ChatReplyHandler(AbstractHandler):
     __usage__ = "在群中发送 `@bot + 想说的话` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.has(At) and message.get(At)[0].target == get_config("BotQQ"):
             await update_user_call_count_plus1(group, member, UserCalledCount.at, "at")

@@ -13,16 +13,16 @@ from SAGIRIBOT.ORM.AsyncORM import Setting
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.decorators import frequency_limit_require_weight_free
 from SAGIRIBOT.utils import update_user_call_count_plus1, UserCalledCount
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, Normal
+from SAGIRIBOT.decorators import frequency_limit_require_weight_free, switch, blacklist
 
 saya = Saya.current()
 channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def network_compiler_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await NetworkCompilerHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -30,9 +30,11 @@ async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: Me
 class NetworkCompilerHandler(AbstractHandler):
     __name__ = "NetworkCompilerHandler"
     __description__ = "一个网络编译器Handler"
-    __usage__ = "在群中发送 `super language:code`即可"
+    __usage__ = "在群中发送 `super language\\ncode`即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if re.match(r"super .*[\n\r]+[\s\S]*", message_text):

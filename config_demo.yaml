@@ -1,25 +1,35 @@
+# 必要数据
 BotQQ: 123
 HostQQ: 123
 miraiHost: http://localhost:8080
 authKey: !!str 1234567890
 DBLink: sqlite+aiosqlite:///data.db
+
+# 路径相关
 setuPath: M:\Pixiv\pxer_new\
 setu18Path: M:\Pixiv\pxer18_new\
 realPath: M:\Pixiv\reality\
 realHighqPath: M:\Pixiv\reality\highq\
 wallpaperPath: M:\Pixiv\bizhi\highq\
 sketchPath: M:\线稿\
+
+# 功能相关
 txAppId: !!str 1234567890
 txAppKey: ABCDEFGHIJKLMN
 shadiaoAppName: shadiao
 saucenaoApiKey: balabala
 webManagerApi: true
 webManagerAutoBoot: true
-errorRetention: 14
-commonRetention: 7
 loliconApiKey: loliconApiKey
-loliconImageCache: true
-networkDataCache: true
 wolframAlphaKey: wolframAlphaKey
 proxy: proxy_url
+
+# 日志相关
+errorRetention: 14
+commonRetention: 7
+
+# 数据相关
+loliconImageCache: true
+networkDataCache: true
 automaticUpdate: false
+dataRetention: true

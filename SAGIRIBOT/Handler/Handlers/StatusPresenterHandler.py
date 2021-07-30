@@ -8,6 +8,7 @@ from graia.application.message.elements.internal import Plain, Source
 from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.Core.AppCore import AppCore
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
@@ -18,7 +19,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def status_presenter_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await StatusPresenterHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -26,9 +27,11 @@ async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: Me
 class StatusPresenterHandler(AbstractHandler):
     __name__ = "StatusPresenterHandler"
     __description__ = "一个bot状态显示Handler"
-    __usage__ = "在群中发送 `/chains` 即可查看当前职责链顺序\n在群中发送 `/help` 即可查看Handler编号\n在群中发送 `/help 编号` 即可查看当前Handler使用方法"
+    __usage__ = "在群中发送 `/help` 即可查看Handler编号\n在群中发送 `/help 编号` 即可查看当前Handler使用方法"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if message_text == "/chains":
@@ -67,5 +70,10 @@ class StatusPresenterHandler(AbstractHandler):
                 content += f"描述：{handler.__description__}\n"
                 content += f"使用方法：{handler.__usage__}"
                 return MessageItem(MessageChain.create([Plain(text=content)]), QuoteSource(GroupStrategy()))
+        elif message_text == "info":
+            return MessageItem(
+                MessageChain.create([Plain(text="当前版本：SAGIRI-BOT v2.1.5\n项目地址：https://github.com/SAGIRI-kawaii/sagiri-bot\n欢迎star！（球球）")]),
+                Normal(GroupStrategy())
+            )
         else:
             return None

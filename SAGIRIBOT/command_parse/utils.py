@@ -9,8 +9,8 @@ from graia.application.message.elements.internal import Plain
 from .Commands import *
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.utils import user_permission_require
-from SAGIRIBOT.ORM.AsyncORM import Setting, UserPermission
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
+from SAGIRIBOT.ORM.AsyncORM import Setting, UserPermission, BlackList
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal, QuoteSource
 
 
@@ -133,3 +133,32 @@ async def grant_permission(group_id: int, member_id: int, new_level: int) -> boo
     except Exception:
         logger.error(traceback.format_exc())
         return False
+
+
+async def execute_blacklist_append(member_id: int, group: Group, operator: Member) -> MessageItem:
+    try:
+        if not await user_permission_require(group, operator, 2):
+            return MessageItem(MessageChain.create([Plain(text="权限不足，爬！")]), QuoteSource(GroupStrategy()))
+        await orm.insert_or_ignore(
+            BlackList,
+            [BlackList.member_id == member_id, BlackList.group_id == group.id],
+            {"member_id": member_id, "group_id": group.id}
+        )
+        return MessageItem(MessageChain.create([Plain(text=f"{member_id} 添加黑名单成功")]), QuoteSource(GroupStrategy()))
+    except Exception:
+        logger.error(traceback.format_exc())
+        return MessageItem(MessageChain.create([Plain(text="出错啦")]), QuoteSource(GroupStrategy()))
+
+
+async def execute_blacklist_remove(member_id: int, group: Group, operator: Member) -> MessageItem:
+    try:
+        if not await user_permission_require(group, operator, 2):
+            return MessageItem(MessageChain.create([Plain(text="权限不足，爬！")]), QuoteSource(GroupStrategy()))
+        await orm.delete(
+            BlackList,
+            [BlackList.member_id == member_id, BlackList.group_id == group.id]
+        )
+        return MessageItem(MessageChain.create([Plain(text=f"{member_id} 移除黑名单成功")]), QuoteSource(GroupStrategy()))
+    except Exception:
+        logger.error(traceback.format_exc())
+        return MessageItem(MessageChain.create([Plain(text="出错啦")]), QuoteSource(GroupStrategy()))

@@ -23,7 +23,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def chat_record_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     await ChatRecordHandler.handle(app, message, group, member)
 
 

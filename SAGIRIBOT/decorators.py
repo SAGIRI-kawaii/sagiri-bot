@@ -1,6 +1,4 @@
 import asyncio
-import traceback
-from loguru import logger
 from functools import wraps
 from sqlalchemy import select
 
@@ -9,13 +7,10 @@ from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain
 
 from SAGIRIBOT.ORM.AsyncORM import orm
-from SAGIRIBOT.utils import get_setting
-from SAGIRIBOT.ORM.AsyncORM import UserPermission, Setting
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceeded
-from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededDoNothing
+from SAGIRIBOT.utils import get_setting, user_permission_require
+from SAGIRIBOT.ORM.AsyncORM import UserPermission, Setting, BlackList
 from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict
-from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceededAddBlackList
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, DoNoting
 
 
@@ -23,7 +18,6 @@ def require_permission_level(group: Group, member: Member, level: int):
     def decorate(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            # print(group.name, member.name)
             if result := await orm.fetchone(
                 select(
                     UserPermission.level
@@ -34,12 +28,10 @@ def require_permission_level(group: Group, member: Member, level: int):
                 if result[0] >= level:
                     return await func(*args, **kwargs)
                 else:
-                    # print("等级不够呢~")
                     return None
             else:
                 await orm.add(UserPermission, {"group_id": group.id, "member_id": member.id, "level": 1})
                 if level > 1:
-                    # print("等级不够呢~")
                     return None
                 else:
                     return await func(*args, **kwargs)
@@ -77,5 +69,50 @@ def frequency_limit_require_weight_free(weight: int):
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)
+        return wrapper
+    return decorate
+
+
+def switch():
+    def decorate(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            member_id = -1
+            group_id = -1
+            for i in args:
+                if isinstance(i, Member):
+                    member_id = i.id
+                if isinstance(i, Group):
+                    group_id = i.id
+            if group_id != -1 and not await get_setting(group_id, Setting.switch):
+                if not await user_permission_require(group_id, member_id, 2):
+                    return None
+            if asyncio.iscoroutinefunction(func):
+                return await func(*args, **kwargs)
+            return func(*args, **kwargs)
+        return wrapper
+    return decorate
+
+
+def blacklist():
+    def decorate(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            member_id = -1
+            for i in args:
+                if isinstance(i, Member):
+                    member_id = i.id
+            if member_id != -1:
+                if await orm.fetchone(
+                    select(
+                        BlackList.member_id
+                    ).where(
+                        BlackList.member_id == member_id
+                    )
+                ):
+                    return None
+            if asyncio.iscoroutinefunction(func):
+                return await func(*args, **kwargs)
+            return func(*args, **kwargs)
         return wrapper
     return decorate

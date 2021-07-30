@@ -21,6 +21,7 @@ from graia.application.event.messages import Group, Member, GroupMessage
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.ORM.AsyncORM import KeywordReply
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.utils import user_permission_require
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
@@ -32,7 +33,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def keyword_reply_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await KeywordReplyHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -43,6 +44,8 @@ class KeywordReplyHandler(AbstractHandler):
     __usage__ = ""
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_serialization = message.asSerializationString().replace(
             "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message.asSerializationString(), re.S)[0] + "]", "")

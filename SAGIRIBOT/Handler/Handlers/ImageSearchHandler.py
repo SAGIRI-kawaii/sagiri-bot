@@ -13,12 +13,12 @@ from graia.application.event.messages import Group, Member, GroupMessage
 from graia.application.message.elements.internal import Source, Plain, At, Image
 
 from SAGIRIBOT.Core.AppCore import AppCore
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.utils import get_setting, get_config
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.ORM.AsyncORM import Setting, UserCalledCount
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
-from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, Normal
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 
@@ -28,7 +28,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def image_search_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await ImageSearchHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -40,6 +40,8 @@ class ImageSearchHandler(AbstractHandler):
     __usage__ = "在群中发送 `搜图` 后，等待回应在30s内发送图片即可（多张图片只会搜索第一张）"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() == "搜图":
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")

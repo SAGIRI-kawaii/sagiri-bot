@@ -18,6 +18,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 from graia.application.message.elements.internal import At, Image, Plain
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.Strategy import GroupStrategy
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
@@ -52,7 +53,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def avatar_fun_pic_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await AvatarFunPicHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -67,6 +68,8 @@ class AvatarFunPicHandler(AbstractHandler):
         return [element for element in message.__root__ if isinstance(element, Image) or isinstance(element, At)]
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if message_text.startswith("摸"):

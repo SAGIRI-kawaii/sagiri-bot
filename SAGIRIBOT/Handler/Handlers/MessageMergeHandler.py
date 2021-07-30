@@ -6,6 +6,7 @@ from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import MessageChainUtils
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
@@ -28,6 +29,8 @@ class MessageMergeHandler(AbstractHandler):
     __usage__ = "在群中发送 `/merge 文字/图片`"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("/merge "):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
