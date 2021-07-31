@@ -201,11 +201,14 @@ async def user_permission_require(group: Union[int, Group], member: Union[int, M
     ):
         return True if result[0] >= level else False
     else:
-        await orm.insert_or_ignore(
-            UserPermission,
-            [UserPermission.group_id == group, UserPermission.member_id == member],
-            {"group_id": group, "member_id": member, "level": 1}
-        )
+        try:
+            await orm.insert_or_ignore(
+                UserPermission,
+                [UserPermission.group_id == group, UserPermission.member_id == member],
+                {"group_id": group, "member_id": member, "level": 1}
+            )
+        except:
+            pass
         return True if level <= 1 else False
 
 
