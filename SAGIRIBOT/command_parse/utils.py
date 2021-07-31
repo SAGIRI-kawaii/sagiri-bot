@@ -139,12 +139,21 @@ async def execute_blacklist_append(member_id: int, group: Group, operator: Membe
     try:
         if not await user_permission_require(group, operator, 2):
             return MessageItem(MessageChain.create([Plain(text="权限不足，爬！")]), QuoteSource(GroupStrategy()))
+        if await orm.fetchone(
+            select(
+                BlackList.member_id, BlackList.group_id
+            ).where(
+                BlackList.member_id == member_id,
+                BlackList.group_id == group.id
+            )
+        ):
+            return MessageItem(MessageChain.create([Plain(text=f"{member_id} 已经在本群黑名单中了！")]), QuoteSource(GroupStrategy()))
         await orm.insert_or_ignore(
             BlackList,
             [BlackList.member_id == member_id, BlackList.group_id == group.id],
             {"member_id": member_id, "group_id": group.id}
         )
-        return MessageItem(MessageChain.create([Plain(text=f"{member_id} 添加黑名单成功")]), QuoteSource(GroupStrategy()))
+        return MessageItem(MessageChain.create([Plain(text=f"{member_id} 添加本群黑名单成功")]), QuoteSource(GroupStrategy()))
     except Exception:
         logger.error(traceback.format_exc())
         return MessageItem(MessageChain.create([Plain(text="出错啦")]), QuoteSource(GroupStrategy()))
@@ -154,11 +163,20 @@ async def execute_blacklist_remove(member_id: int, group: Group, operator: Membe
     try:
         if not await user_permission_require(group, operator, 2):
             return MessageItem(MessageChain.create([Plain(text="权限不足，爬！")]), QuoteSource(GroupStrategy()))
+        if not await orm.fetchone(
+            select(
+                BlackList.member_id, BlackList.group_id
+            ).where(
+                BlackList.member_id == member_id,
+                BlackList.group_id == group.id
+            )
+        ):
+            return MessageItem(MessageChain.create([Plain(text=f"{member_id} 不在本群黑名单中！")]), QuoteSource(GroupStrategy()))
         await orm.delete(
             BlackList,
             [BlackList.member_id == member_id, BlackList.group_id == group.id]
         )
-        return MessageItem(MessageChain.create([Plain(text=f"{member_id} 移除黑名单成功")]), QuoteSource(GroupStrategy()))
+        return MessageItem(MessageChain.create([Plain(text=f"{member_id} 移除本群黑名单成功")]), QuoteSource(GroupStrategy()))
     except Exception:
         logger.error(traceback.format_exc())
         return MessageItem(MessageChain.create([Plain(text="出错啦")]), QuoteSource(GroupStrategy()))

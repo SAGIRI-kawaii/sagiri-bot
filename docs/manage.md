@@ -23,7 +23,7 @@
 | 上线提醒 | 机器人上线自动发送上班消息 | online_notice | True/False | 2+ |  |
 | debug | 显示每个请求所执行的时间（从收到消息到发送） | debug | True/False | 3+ | 暂未实现 |
 | 骰子 | 是否开放骰子功能 | dice | True/False | 2+ |  |
-| 群内开关 | 决定bot是否对本群消息进行相应 | switch | True/False | 3+ | 暂未实现 |
+| 群内开关 | 决定bot是否对本群消息进行相应 | switch | True/False | 3+ |  |
 | 点歌平台 | 决定点歌功能的平台及开关 | music | off/wyy | 2+ | 目前只支持网易云平台 |
 | R-18处理方式 | 对发送的R-18图片做撤回/闪照处理 | r18_process | revoke/flashImage | 3+ | 仅在r18选项开启时起作用，后期可能会加入不作处理选项 |
 | 回复方式 | 决定bot被@时的反应 | speak_mode  | normal/rainbow/zuanLow/zuanHigh/chat | 3+ | 请慎用zuanLow 和 zuanHigh模式 |
@@ -47,3 +47,8 @@
 被授权后的用户将可以使用文档内对应权限等级的管理命令
 
 注：等级4的账户将在机器人初始化时就存入数据库，对应成员id为 `config.yaml` 中所填入的 `BotQQ` 项
+
+## 黑名单相关
+- 加入黑名单：`blacklist -add @member`
+- 移除黑名单：`blacklist -remove @member`
+- 注：权限要求2+
