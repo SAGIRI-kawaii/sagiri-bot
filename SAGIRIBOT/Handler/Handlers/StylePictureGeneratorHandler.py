@@ -58,13 +58,13 @@ class StylePictureGeneratorHandler(AbstractHandler):
         message_text = message.asDisplay()
         if re.match("5000兆 .* .*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await StylePictureGeneraterHandler.gosencho_en_hoshi_style_image_generator(group, member, message)
+            return await StylePictureGeneratorHandler.gosencho_en_hoshi_style_image_generator(group, member, message)
         elif re.match("ph .* .*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await StylePictureGeneraterHandler.pornhub_style_image_generator(group, member, message)
+            return await StylePictureGeneratorHandler.pornhub_style_image_generator(group, member, message)
         elif re.match("yt .* .*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
-            return await StylePictureGeneraterHandler.youtube_style_image_generator(group, member, message)
+            return await StylePictureGeneratorHandler.youtube_style_image_generator(group, member, message)
         else:
             return None
 

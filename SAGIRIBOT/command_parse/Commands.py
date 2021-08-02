@@ -101,7 +101,7 @@ class Music(AbstractCommand):
 
 
 class R18Process(AbstractCommand):
-    valid_values = ["revoke", "flashImage"]
+    valid_values = ["revoke", "flashImage", "noProcess"]
     __name__ = "r18_process"
     level = 3
 
