@@ -54,6 +54,8 @@ class StylePictureGeneratorHandler(AbstractHandler):
     __usage__ = "在群中发送 `5000兆 文字1 文字2` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if re.match("5000兆 .* .*", message_text):
