@@ -1,11 +1,10 @@
 import asyncio
-from abc import ABC, abstractmethod
 from pydantic import BaseModel
+from abc import ABC, abstractmethod
 
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Source
-from graia.application.message.elements.internal import At
+from graia.application.message.elements.internal import Source, At
 
 
 class StrategyType(ABC):
@@ -118,7 +117,7 @@ class Revoke(Strategy):
         await app.revokeMessage(message)
 
 
-class DoNoting(Strategy):
+class DoNothing(Strategy):
     """ 什么也不做 """
 
     def __init__(self, strategy_type: StrategyType):

@@ -11,7 +11,7 @@ from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Source
 
 from .MessageItem import MessageItem
-from .Strategy import Strategy, DoNoting
+from .Strategy import Strategy, DoNothing
 from SAGIRIBOT.MessageSender.globals import res
 from SAGIRIBOT.exception_resender import ExceptionReSender
 from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
@@ -50,7 +50,7 @@ class GroupMessageSender(MessageSender):
     ):
         try:
             await self.__strategy.send(app, message, origin_message, group, member)
-            if not isinstance(self.__strategy, DoNoting):
+            if not isinstance(self.__strategy, DoNothing):
                 logger.success(f"成功向群 <{group.name}> 发送消息 - {message.asDisplay()}")
         except AccountMuted:
             logger.error(f"Bot 在群 <{group.name}> 被禁言，无法发送！")

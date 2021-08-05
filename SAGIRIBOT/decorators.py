@@ -11,7 +11,7 @@ from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.utils import get_setting, user_permission_require
 from SAGIRIBOT.ORM.AsyncORM import UserPermission, Setting, BlackList
 from SAGIRIBOT.frequency_limit_module import GlobalFrequencyLimitDict
-from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, DoNoting
+from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, QuoteSource, DoNothing
 
 
 def require_permission_level(group: Group, member: Member, level: int):
@@ -61,7 +61,7 @@ def frequency_limit_require_weight_free(weight: int):
                     await frequency_limit_instance.blacklist_announced(group_id, member_id)
                     return MessageItem(MessageChain.create([Plain(text="检测到大量请求，加入黑名单一小时！")]), QuoteSource(GroupStrategy()))
                 else:
-                    return MessageItem(MessageChain.create([Plain("")]), DoNoting(GroupStrategy()))
+                    return MessageItem(MessageChain.create([Plain("")]), DoNothing(GroupStrategy()))
             if frequency_limit_instance.get(group_id, member_id, func.__name__) + weight >= 10:
                 return MessageItem(MessageChain.create([Plain(text="超过频率调用限制！")]), QuoteSource(GroupStrategy()))
             else:
