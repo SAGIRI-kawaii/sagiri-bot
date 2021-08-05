@@ -3,7 +3,7 @@
 config.yaml
 
 # Python binary files
-__pycache__/
+*/__pycache__
 
 # macOS special files
 .DS_Store
