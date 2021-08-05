@@ -11,6 +11,12 @@ from graia.application import Session
 from graia.broadcast import Broadcast
 from graia.application import GraiaMiraiApplication
 from graia.saya.builtins.broadcast import BroadcastBehaviour
+try:
+    from graia.scheduler import GraiaScheduler
+    from graia.scheduler.saya import GraiaSchedulerBehaviour
+    _install_scheduler = True
+except (ModuleNotFoundError, ImportError):
+    _install_scheduler = False
 
 from .Exceptions import *
 from SAGIRIBOT.ORM.AsyncORM import orm
@@ -58,6 +64,9 @@ class AppCore:
             )
             self.__saya = Saya(self.__bcc)
             self.__saya.install_behaviours(BroadcastBehaviour(self.__bcc))
+            if _install_scheduler:
+                self.__sche = GraiaScheduler(loop=self.__loop, broadcast=self.__bcc)
+                self.__saya.install_behaviours(GraiaSchedulerBehaviour(self.__sche))
             self.__app.debug = False
             self.__config = config
             AppCore.__first_init = True
