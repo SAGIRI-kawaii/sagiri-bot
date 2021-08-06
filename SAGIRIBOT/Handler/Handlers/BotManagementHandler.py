@@ -17,7 +17,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def bot_manager_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
     if result := await BotManagementHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 

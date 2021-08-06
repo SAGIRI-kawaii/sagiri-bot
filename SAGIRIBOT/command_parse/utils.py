@@ -1,4 +1,5 @@
 import traceback
+from typing import Union
 from loguru import logger
 from sqlalchemy import select
 
@@ -139,6 +140,11 @@ async def execute_blacklist_append(member_id: int, group: Group, operator: Membe
     try:
         if not await user_permission_require(group, operator, 2):
             return MessageItem(MessageChain.create([Plain(text="权限不足，爬！")]), QuoteSource(GroupStrategy()))
+        if await check_admin(member_id, group):
+            return MessageItem(
+                MessageChain.create([Plain(text="用户权限等级>=2的用户无法被加入黑名单！若想将其加入黑名单请先将其权限等级将为1！")]),
+                QuoteSource(GroupStrategy())
+            )
         if await orm.fetchone(
             select(
                 BlackList.member_id, BlackList.group_id
@@ -154,9 +160,9 @@ async def execute_blacklist_append(member_id: int, group: Group, operator: Membe
             {"member_id": member_id, "group_id": group.id}
         )
         return MessageItem(MessageChain.create([Plain(text=f"{member_id} 添加本群黑名单成功")]), QuoteSource(GroupStrategy()))
-    except Exception:
+    except Exception as e:
         logger.error(traceback.format_exc())
-        return MessageItem(MessageChain.create([Plain(text="出错啦")]), QuoteSource(GroupStrategy()))
+        return MessageItem(MessageChain.create([Plain(text=str(e))]), QuoteSource(GroupStrategy()))
 
 
 async def execute_blacklist_remove(member_id: int, group: Group, operator: Member) -> MessageItem:
@@ -177,6 +183,25 @@ async def execute_blacklist_remove(member_id: int, group: Group, operator: Membe
             [BlackList.member_id == member_id, BlackList.group_id == group.id]
         )
         return MessageItem(MessageChain.create([Plain(text=f"{member_id} 移除本群黑名单成功")]), QuoteSource(GroupStrategy()))
-    except Exception:
+    except Exception as e:
         logger.error(traceback.format_exc())
-        return MessageItem(MessageChain.create([Plain(text="出错啦")]), QuoteSource(GroupStrategy()))
+        return MessageItem(MessageChain.create([Plain(text=str(e))]), QuoteSource(GroupStrategy()))
+
+
+async def check_admin(member: Union[int, Member], group: Union[int, Group]) -> bool:
+    if isinstance(member, Member):
+        member = member.id
+    if isinstance(group, Group):
+        group = group.id
+    if res := await orm.fetchone(
+        select(
+            UserPermission.level
+        ).where(
+            UserPermission.group_id == group,
+            UserPermission.member_id == member
+        )
+    ):
+        return res[0] >= 2
+    else:
+        return False
+
