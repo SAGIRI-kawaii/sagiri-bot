@@ -24,12 +24,14 @@ class GlobalFrequencyLimitDict:
     __blacklist_announced = {}
     frequency_limit_dict = None
 
-    def __new__(cls, frequency_limit_dict: dict):
+    def __new__(cls, frequency_limit_dict: dict = None):
         if not cls.__instance:
             cls.__instance = object.__new__(cls)
         return cls.__instance
 
-    def __init__(self, frequency_limit_dict: dict):
+    def __init__(self, frequency_limit_dict: dict = None):
+        if frequency_limit_dict is None:
+            frequency_limit_dict = {}
         if not self.__first_init:
             self.frequency_limit_dict = frequency_limit_dict
             GlobalFrequencyLimitDict.__first_init = True
