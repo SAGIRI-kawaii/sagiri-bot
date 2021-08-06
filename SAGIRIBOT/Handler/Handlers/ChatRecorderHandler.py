@@ -1,18 +1,14 @@
 import re
 import jieba
-import traceback
 import datetime
-from loguru import logger
 
 from graia.saya import Saya, Channel
-from sqlalchemy.sql import select, desc
 from graia.application import GraiaMiraiApplication
 from graia.application.message.chain import MessageChain
 from graia.application.message.elements.internal import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.event.messages import Group, Member, GroupMessage
 
-# from SAGIRIBOT.ORM.ORM import orm
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
@@ -38,7 +34,7 @@ class ChatRecordHandler(AbstractHandler):
     @staticmethod
     async def record(message: MessageChain, group: Group, member: Member):
         await update_user_call_count_plus1(group, member, UserCalledCount.chat_count, "chat_count")
-        content = "".join([plain.text for plain in message.get(Plain)])
+        content = "".join([plain.text for plain in message.get(Plain)]).strip()
         filter_words = re.findall(r"\[mirai:(.*?)\]", content, re.S)
         for i in filter_words:
             content = content.replace(f"[mirai:{i}]", "")
