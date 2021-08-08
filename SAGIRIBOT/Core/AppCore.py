@@ -184,10 +184,6 @@ class AppCore:
                 logger.warning(f"{path}无效，请检查配置！")
         if self.__config["saucenaoApiKey"] == "balabala":
             logger.warning("saucenaoApiKey无效，请检查配置！")
-        if self.__config["txAppId"] == "1234567890":
-            logger.warning("txAppId无效，请检查配置！")
-        if self.__config["txAppKey"] == "ABCDEFGHIJKLMN":
-            logger.warning("txAppKey无效，请检查配置！")
         if self.__config["loliconApiKey"] == "loliconApiKey":
             logger.warning("loliconApiKey无效，请检查配置！")
         if self.__config["wolframAlphaKey"] == "wolframAlphaKey":
