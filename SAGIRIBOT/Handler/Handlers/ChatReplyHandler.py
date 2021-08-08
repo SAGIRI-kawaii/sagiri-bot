@@ -34,7 +34,7 @@ from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
 from SAGIRIBOT.ORM.AsyncORM import Setting, ChatSession, UserCalledCount
-from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, AtSender, QuoteSource
+from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, AtSender, QuoteSource, DoNothing
 
 
 saya = Saya.current()
@@ -86,6 +86,9 @@ class ChatReplyHandler(AbstractHandler):
                         text = await resp.text()
 
             elif mode_now == "chat":
+                user_data = get_config("tencent")
+                if user_data["secretId"] == "secretId" or user_data["secretKey"] == "secretKey":
+                    return MessageItem(MessageChain.create([Plain(text="secretId/secretKey未初始化")]), DoNothing(GroupStrategy()))
                 text = await ChatReplyHandler.get_chat_reply(content)
             else:
                 raise Exception(f"数据库群 <{group_id}> speak_mode项非法！目前值：{mode_now}")
