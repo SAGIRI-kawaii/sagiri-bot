@@ -43,7 +43,7 @@ class ImageSearchHandler(AbstractHandler):
     @switch()
     @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-        if message.asDisplay() == "搜图":
+        if message.asDisplay() in ("搜图", "以图搜图"):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             if not await get_setting(group.id, Setting.img_search):
                 return MessageItem(MessageChain.create([Plain(text="搜图功能未开启呐~请联系管理员哦~")]), Normal(GroupStrategy()))

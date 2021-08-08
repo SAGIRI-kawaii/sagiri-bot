@@ -209,6 +209,9 @@
 | loliconApiKey | loliconapiKey，用于关键词涩图搜索功能 |
 | loliconImageCache | 是否缓存loliconapi所获取到的图片 |
 | wolframAlphaKey | wolframAlphaKey，用于科学计算api调用 |
+| networkDataCache | 自动保存各api的数据（暂未实现） |
+| automaticUpdate | 自动更新（暂未实现） |
+| dataRetention | 退群后的数据处理 |
 
 ## 使用文档
 
