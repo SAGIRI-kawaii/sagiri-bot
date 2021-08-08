@@ -1,4 +1,8 @@
 import re
+import os
+import sys
+import json
+import hmac
 import time
 import string
 import random
@@ -7,7 +11,13 @@ import hashlib
 import traceback
 from urllib import parse
 from loguru import logger
+from datetime import datetime
 from sqlalchemy import select, desc
+from tencentcloud.common import credential
+from tencentcloud.nlp.v20190408 import nlp_client, models
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 
 from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
@@ -23,8 +33,8 @@ from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.utils import update_user_call_count_plus1
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, AtSender
 from SAGIRIBOT.ORM.AsyncORM import Setting, ChatSession, UserCalledCount
+from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, AtSender, QuoteSource
 
 
 saya = Saya.current()
@@ -76,7 +86,7 @@ class ChatReplyHandler(AbstractHandler):
                         text = await resp.text()
 
             elif mode_now == "chat":
-                text = await ChatReplyHandler.get_chat_reply(group_id, member_id, content)
+                text = await ChatReplyHandler.get_chat_reply(content)
             else:
                 raise Exception(f"数据库群 <{group_id}> speak_mode项非法！目前值：{mode_now}")
             return MessageItem(MessageChain.create([Plain(text=text)]), AtSender(GroupStrategy()))
@@ -84,7 +94,7 @@ class ChatReplyHandler(AbstractHandler):
             raise Exception(f"数据库未查找到群 <{group_id}> speak_mode项，请检查数据库！")
 
     @staticmethod
-    async def get_chat_reply(group_id: int, sender: int, text: str) -> str:
+    async def get_chat_reply_old(group_id: int, sender: int, text: str) -> str:
         if text.strip() == "":
             return "@纱雾干什么呐~是想找纱雾玩嘛~"
         url = "https://api.ai.qq.com/fcgi-bin/nlp/nlp_textchat"
@@ -171,3 +181,25 @@ class ChatReplyHandler(AbstractHandler):
         sign = curl_md5(sign)
         # print("signMD5:", sign)
         return sign
+
+    @staticmethod
+    async def get_chat_reply(query: str) -> str:
+        try:
+            user_data = get_config("tencent")
+            cred = credential.Credential(user_data["secretId"], user_data["secretKey"])
+            httpProfile = HttpProfile()
+            httpProfile.endpoint = "nlp.tencentcloudapi.com"
+
+            clientProfile = ClientProfile()
+            clientProfile.httpProfile = httpProfile
+            client = nlp_client.NlpClient(cred, "ap-guangzhou", clientProfile)
+
+            req = models.ChatBotRequest()
+            params = {"Query": query}
+            req.from_json_string(json.dumps(params))
+            resp = client.ChatBot(req)
+            reply = json.loads(resp.to_json_string())["Reply"].replace("腾讯小龙女", "纱雾酱").replace("小龙女", "纱雾酱")
+            return reply
+        except TencentCloudSDKException as e:
+            logger.error(traceback.format_exc())
+            return str(e)

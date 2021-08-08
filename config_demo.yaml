@@ -14,8 +14,9 @@ wallpaperPath: M:\Pixiv\bizhi\highq\
 sketchPath: M:\线稿\
 
 # 功能相关
-txAppId: !!str 1234567890
-txAppKey: ABCDEFGHIJKLMN
+tencent:
+  secretId: secretId
+  secretKey: secretKey
 shadiaoAppName: shadiao
 saucenaoApiKey: balabala
 webManagerApi: true

@@ -26,3 +26,4 @@ reportlab
 imageio
 graiax-silkcoder
 alembic
+tencentcloud-sdk-python
