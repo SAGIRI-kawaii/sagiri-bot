@@ -11,7 +11,7 @@ from typing import Union
 from urllib import parse
 from loguru import logger
 from PIL import Image as IMG
-from sqlalchemy import select, desc
+from sqlalchemy import select
 from PIL import ImageFont, ImageDraw
 
 from graia.application import GraiaMiraiApplication
@@ -39,7 +39,7 @@ class MessageChainUtils:
         font_path: str = f"{os.getcwd()}/statics/fonts/STKAITI.TTF",
     ) -> MessageChain:
         """
-        将 MessageChain 转换为图片，仅支持只含有本地图片/文本的 MessageChain
+        将 MessageChain 转换为图片，仅支持只含有图片/文本的 MessageChain
         Args:
             message: 要转换的MessageChain
             max_width: 最大长度

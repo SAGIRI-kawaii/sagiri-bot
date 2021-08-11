@@ -5,12 +5,13 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from SAGIRIBOT.ORM.AsyncORM import Base
+target_metadata = Base.metadata
+
 config = context.config
 
 fileConfig(config.config_file_name)
 
-from SAGIRIBOT.ORM.AsyncORM import Base
-target_metadata = Base.metadata
 
 def run_migrations_offline():
     url = config.get_main_option("sqlalchemy.url")

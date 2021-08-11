@@ -148,6 +148,7 @@ class BlackList(Base):
 
     member_id = Column(BIGINT, primary_key=True)
     group_id = Column(BIGINT, primary_key=True)
+    is_global = Column(Boolean, default=False)
 
 
 class UserPermission(Base):
@@ -185,6 +186,7 @@ class Setting(Base):
     bangumi_search = Column(Boolean, default=False)
     compile = Column(Boolean, default=False)
     dice = Column(Boolean, default=False)
+    avatar_func = Column(Boolean, default=False)
     anti_revoke = Column(Boolean, default=False)
     anti_flashimage = Column(Boolean, default=False)
     online_notice = Column(Boolean, default=False)
@@ -242,3 +244,22 @@ class FunctionCalledRecord(Base):
     member_id = Column(BIGINT, nullable=False)
     function = Column(String(length=40), nullable=False)
     result = Column(Boolean, default=True)
+
+
+class JLUEpidemicAccountInfo(Base):
+    """ 吉林大学疫情打卡数据 """
+    __tablename__ = "jlu_epidemic_account_info"
+
+    qq = Column(BIGINT, primary_key=True)
+    name = Column(String(length=5), nullable=True)
+    account = Column(String(length=20), nullable=True)
+    passwd = Column(String(length=50), nullable=True)
+    campus_id = Column(String(length=5), nullable=True)
+    dorm_id = Column(String(length=5), nullable=True)
+    room_id = Column(String(length=5), nullable=True)
+    scheduled = Column(Boolean, default=False)
+
+
+class SchedulerTasks(Base):
+    """ 计划任务 """
+    __tablename__ = "scheduler_tasks"
