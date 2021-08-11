@@ -87,6 +87,8 @@ class JLUEpidemicReporterHandler:
                         return MessageChain.create([Plain(text="打卡失败！请再次尝试或自行前往吉林大学微服务小程序打卡！")])
                 else:
                     return MessageChain.create([Plain(text="用户未确认，中止进程，若想再次进行打卡，请发送 “打卡”")])
+        elif message.asDisplay() == "我的信息":
+            return await JLUEpidemicReporterHandler.show_account_info(friend)
         elif message.asDisplay().startswith("更改属性 "):
             try:
                 _, attribute, value = message.asDisplay().split(" ")
@@ -108,9 +110,10 @@ class JLUEpidemicReporterHandler:
             return MessageChain.create([
                 Plain(text="打卡机器人使用帮助：\n"),
                 Plain(text="进行打卡：发送 ”打卡“ 即可\n\n"),
+                Plain(text="查看个人信息：发送 ”我的信息“ 即可\n\n"),
                 Plain(text="更改个人信息：发送 ”更改属性 属性名 属性值“ 即可\n"),
                 Plain(text="如：更改属性 姓名 张三\n"),
-                Plain(text="注：合法属性如下：姓名、用户名、密码、校园编号、宿舍楼编号、寝室编号\n\n"),
+                Plain(text="注：合法属性如下：姓名、用户名、密码、校区编号、宿舍楼编号、寝室编号\n\n"),
                 Plain(text="开启自动打卡：发送 ”添加计划任务“ 即可\n\n"),
                 Plain(text="停止自动打卡：发送 ”移除计划任务“ 即可\n\n"),
                 Plain(text="清空个人数据：发送 ”删除数据“ 即可")
@@ -118,7 +121,7 @@ class JLUEpidemicReporterHandler:
 
     @staticmethod
     async def data_empty_check(friend: Union[int, Friend]) -> Union[MessageChain, None]:
-        attr_name = ("姓名", "用户名", "密码", "校园编号", "宿舍楼编号", "寝室编号")
+        attr_name = ("姓名", "用户名", "密码", "校区编号", "宿舍楼编号", "寝室编号")
         friend = friend if isinstance(friend, int) else friend.id
         if res := await orm.fetchone(
             select(
@@ -136,7 +139,7 @@ class JLUEpidemicReporterHandler:
             if empty_list:
                 return MessageChain.create([
                     Plain(text=f"您的信息不全，请补充下列信息：{'、'.join(empty_list)}\n"),
-                    Plain(text="补充命令：更改属性 属性名 属性值\n"),
+                    Plain(text="命令：更改属性 属性名 属性值\n"),
                     Plain(text="如：更改属性 姓名 张三"),
                     Plain(text="注：请仔细检查信息，错误信息会导致打卡失效！")
                 ])
@@ -156,7 +159,7 @@ class JLUEpidemicReporterHandler:
 
     @staticmethod
     async def show_and_confirm_account_info(friend: Union[int, Friend]) -> MessageChain:
-        attr_name = ("姓名", "用户名", "密码", "校园编号", "宿舍楼编号", "寝室编号")
+        attr_name = ("姓名", "用户名", "密码", "校区编号", "宿舍楼编号", "寝室编号")
         friend = friend if isinstance(friend, int) else friend.id
         result = await orm.fetchone(
             select(
@@ -177,6 +180,31 @@ class JLUEpidemicReporterHandler:
             Plain(text="如：更改属性 姓名 张三\n"),
             Plain(text="注：请仔细检查信息，错误信息会导致打卡失效！")
         ])
+
+    @staticmethod
+    async def show_account_info(friend: Union[int, Friend]) -> MessageChain:
+        attr_name = ("姓名", "用户名", "密码", "校区编号", "宿舍楼编号", "寝室编号")
+        friend = friend if isinstance(friend, int) else friend.id
+        result = await orm.fetchone(
+            select(
+                JLUEpidemicAccountInfo.name,
+                JLUEpidemicAccountInfo.account,
+                JLUEpidemicAccountInfo.passwd,
+                JLUEpidemicAccountInfo.campus_id,
+                JLUEpidemicAccountInfo.dorm_id,
+                JLUEpidemicAccountInfo.room_id
+            ).where(
+                JLUEpidemicAccountInfo.qq == friend
+            )
+        )
+        return MessageChain.create([
+            Plain(text="您的信息如下\n"),
+            Plain(text='\n'.join([f"{attr_name[i]}：{result[i] if result[i] else 'None'}" for i in range(6)])),
+            Plain(text="\n若想更改请使用以下命令：\n更改属性 属性名 属性值\n"),
+            Plain(text="如：更改属性 姓名 张三\n"),
+            Plain(text="注：请仔细检查信息，错误信息会导致打卡失效！")
+        ])
+
 
     @staticmethod
     async def get_user_data(friend: Union[int, Friend]) -> dict:
@@ -210,7 +238,7 @@ class JLUEpidemicReporterHandler:
             "姓名": "name",
             "用户名": "account",
             "密码": "passwd",
-            "校园编号": "campus_id",
+            "校区编号": "campus_id",
             "宿舍楼编号": "dorm_id",
             "寝室编号": "room_id"
         }
