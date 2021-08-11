@@ -260,6 +260,6 @@ class JLUEpidemicAccountInfo(Base):
     scheduled = Column(Boolean, default=False)
 
 
-class SchedulerTasks(Base):
-    """ 计划任务 """
-    __tablename__ = "scheduler_tasks"
+# class SchedulerTasks(Base):
+#     """ 计划任务 """
+#     __tablename__ = "scheduler_tasks"

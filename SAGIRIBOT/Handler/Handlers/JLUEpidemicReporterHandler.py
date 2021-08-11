@@ -57,26 +57,25 @@ class JLUEpidemicReporterHandler:
 
     @staticmethod
     async def handle(app: GraiaMiraiApplication, message: MessageChain, friend: Friend) -> Union[MessageChain, None]:
+        @Waiter.create_using_function([FriendMessage])
+        def confirm(event: FriendMessage, waiter_friend: Friend, waiter_message: MessageChain):
+            if waiter_friend.id == friend.id:
+                if waiter_message.asDisplay() == "确认":
+                    return event
+                else:
+                    return ProcessTermination()
         if message.asDisplay() == "打卡":
             await app.sendFriendMessage(
                 friend,
-                MessageChain.create([Plain(text="本机器人所收集数据仅会用于吉林大学疫情打卡使用")]))
+                MessageChain.create([Plain(text="本机器人所收集数据仅会用于吉林大学疫情打卡使用，代码以AGPLV3协议开源于https://github.com/SAGIRI-kawaii/sagiri-bot/blob/master/SAGIRIBOT/Handler/Handlers/JLUEpidemicReporterHandler.py")])
+            )
             if res := await JLUEpidemicReporterHandler.data_empty_check(friend):
                 await app.sendFriendMessage(friend, res)
                 return None
             else:
                 await app.sendFriendMessage(friend, await JLUEpidemicReporterHandler.show_and_confirm_account_info(friend))
-
-                @Waiter.create_using_function([FriendMessage])
-                def waiter(event: FriendMessage, waiter_friend: Friend, waiter_message: MessageChain):
-                    if waiter_friend.id == friend.id:
-                        if waiter_message.asDisplay() == "确认":
-                            return event
-                        else:
-                            return ProcessTermination()
-
                 inc = InterruptControl(bcc)
-                result = await inc.wait(waiter)
+                result = await inc.wait(confirm)
                 if not isinstance(result, ProcessTermination):
                     await app.sendFriendMessage(friend, MessageChain.create([Plain(text="正在启动打卡进程...")]))
                     task = ReportTask(await JLUEpidemicReporterHandler.get_user_data(friend))
@@ -98,6 +97,24 @@ class JLUEpidemicReporterHandler:
             return await JLUEpidemicReporterHandler.modify_scheduled(friend, True)
         elif message.asDisplay() == "移除计划任务":
             return await JLUEpidemicReporterHandler.modify_scheduled(friend, False)
+        elif message.asDisplay() == "删除数据":
+            inc = InterruptControl(bcc)
+            result = await inc.wait(confirm)
+            if not isinstance(result, ProcessTermination):
+                return await JLUEpidemicReporterHandler.delete_data(friend)
+            else:
+                return MessageChain.create([Plain(text="用户未确认，中止进程，若想再次进行打卡，请发送 “打卡”")])
+        elif message.asDisplay() == "帮助":
+            return MessageChain.create([
+                Plain(text="打卡机器人使用帮助：\n"),
+                Plain(text="进行打卡：发送 ”打卡“ 即可\n\n"),
+                Plain(text="更改个人信息：发送 ”更改属性 属性名 属性值“ 即可\n"),
+                Plain(text="如：更改属性 姓名 张三\n"),
+                Plain(text="注：合法属性如下：姓名、用户名、密码、校园编号、宿舍楼编号、寝室编号\n\n"),
+                Plain(text="开启自动打卡：发送 ”添加计划任务“ 即可\n\n"),
+                Plain(text="停止自动打卡：发送 ”移除计划任务“ 即可\n\n"),
+                Plain(text="清空个人数据：发送 ”删除数据“ 即可")
+            ])
 
     @staticmethod
     async def data_empty_check(friend: Union[int, Friend]) -> Union[MessageChain, None]:
@@ -214,6 +231,14 @@ class JLUEpidemicReporterHandler:
         try:
             await orm.insert_or_update(JLUEpidemicAccountInfo, [JLUEpidemicAccountInfo.qq == friend], {"qq": friend, "scheduled": value})
             return MessageChain.create([Plain(text="成功加入计划任务！将于每日9:05与21：05进行打卡!" if value else "成功关闭计划任务！")])
+        except Exception as e:
+            return MessageChain.create([Plain(text=f"出错了！\n详情：{str(e)}\n请重试或联系管理员!")])
+
+    @staticmethod
+    async def delete_data(friend: Union[int, Friend]) -> MessageChain:
+        friend = friend if isinstance(friend, int) else friend.id
+        try:
+            await orm.delete(JLUEpidemicAccountInfo, [JLUEpidemicAccountInfo.qq == friend])
         except Exception as e:
             return MessageChain.create([Plain(text=f"出错了！\n详情：{str(e)}\n请重试或联系管理员!")])
 
