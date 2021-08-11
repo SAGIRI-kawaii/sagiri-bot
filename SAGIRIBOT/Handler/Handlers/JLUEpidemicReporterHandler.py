@@ -230,7 +230,7 @@ class JLUEpidemicReporterHandler:
             return res
         try:
             await orm.insert_or_update(JLUEpidemicAccountInfo, [JLUEpidemicAccountInfo.qq == friend], {"qq": friend, "scheduled": value})
-            return MessageChain.create([Plain(text="成功加入计划任务！将于每日9:05与21：05进行打卡!" if value else "成功关闭计划任务！")])
+            return MessageChain.create([Plain(text="成功加入计划任务！将于每日9: 05与21：05进行打卡!" if value else "成功关闭计划任务！")])
         except Exception as e:
             return MessageChain.create([Plain(text=f"出错了！\n详情：{str(e)}\n请重试或联系管理员!")])
 
