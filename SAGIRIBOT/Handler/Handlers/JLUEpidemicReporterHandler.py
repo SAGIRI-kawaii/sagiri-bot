@@ -113,7 +113,8 @@ class JLUEpidemicReporterHandler:
                 Plain(text="查看个人信息：发送 ”我的信息“ 即可\n\n"),
                 Plain(text="更改个人信息：发送 ”更改属性 属性名 属性值“ 即可\n"),
                 Plain(text="如：更改属性 姓名 张三\n"),
-                Plain(text="注：合法属性如下：姓名、用户名、密码、校区编号、宿舍楼编号、寝室编号\n\n"),
+                Plain(text="合法属性如下：姓名、用户名、密码、校区编号、宿舍楼编号、寝室编号\n"),
+                Plain(text="关于校区编号及宿舍楼编号，请看：http://doc.sagiri-web.com/web/#/p/292a25f39cbcb3fa3660b181d9dddda4\n\n"),
                 Plain(text="开启自动打卡：发送 ”添加计划任务“ 即可\n\n"),
                 Plain(text="停止自动打卡：发送 ”移除计划任务“ 即可\n\n"),
                 Plain(text="清空个人数据：发送 ”删除数据“ 即可")
@@ -310,6 +311,7 @@ def report_task(user_data: dict, transaction: str = "BKSMRDK") -> bool:
             if payload_1['fieldXY2'] == '1':
                 payload_1['fieldWantw'] = '1'
             payload_1["fieldDJXXyc"] = '1'
+            payload_1["fieldDJXX"] = "https://ehall.jlu.edu.cn/jlu_meet_new/student_partyteachers#sfty=1"
             for k, v in user_data['fields'].items():
                 payload_1[k] = v
             # payload_1["fieldDJXXyc"] = '1'
@@ -362,7 +364,7 @@ async def scheduled_task(app: GraiaMiraiApplication, friend: int):
         await app.sendFriendMessage(friend, MessageChain.create([Plain(text="打卡失败！请再次尝试或自行前往吉林大学微服务小程序打卡！")]))
 
 
-@scheduler.schedule(crontabify("21 9/21 * * *"))
+@scheduler.schedule(crontabify("5 9/21 * * *"))
 async def load_scheduled_task(app: GraiaMiraiApplication):
     for qq in (await orm.fetchall(select(JLUEpidemicAccountInfo.qq).where(JLUEpidemicAccountInfo.scheduled == True))):
         await scheduled_task(app, qq[0])
