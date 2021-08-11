@@ -279,7 +279,7 @@ def report_task(user_data: dict, transaction: str = "BKSMRDK") -> bool:
             s.verify = False
 
             # logger.info(f"Authenticating user: {user_data['username']}({user_data['name']})")
-            r = s.get('https://ehall.jlu.edu.cn/jlu_portal/login', timeout=TIMEOUT)
+            r = s.get('https://ehall.jlu.edu.cn/sso/login#/', timeout=TIMEOUT)
             pid = re.search('(?<=name="pid" value=")[a-z0-9]{8}', r.text)[0]
             # logger.debug(f"PID: {pid}")
 
@@ -362,7 +362,7 @@ async def scheduled_task(app: GraiaMiraiApplication, friend: int):
         await app.sendFriendMessage(friend, MessageChain.create([Plain(text="打卡失败！请再次尝试或自行前往吉林大学微服务小程序打卡！")]))
 
 
-@scheduler.schedule(crontabify("5 9/21 * * *"))
+@scheduler.schedule(crontabify("21 9/21 * * *"))
 async def load_scheduled_task(app: GraiaMiraiApplication):
     for qq in (await orm.fetchall(select(JLUEpidemicAccountInfo.qq).where(JLUEpidemicAccountInfo.scheduled == True))):
         await scheduled_task(app, qq[0])
