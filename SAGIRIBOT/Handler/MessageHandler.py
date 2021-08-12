@@ -9,7 +9,6 @@ from graia.application.event.messages import Group, Member
 from graia.application.message.elements.internal import Plain, Source
 
 from SAGIRIBOT.Core.AppCore import AppCore
-from .Handlers.HeadHandler import HeadHandler
 from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.Core.Exceptions import FrequencyLimitExceeded

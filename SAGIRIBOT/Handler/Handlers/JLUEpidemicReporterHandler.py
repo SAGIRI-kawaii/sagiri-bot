@@ -364,7 +364,7 @@ async def scheduled_task(app: GraiaMiraiApplication, friend: int):
         await app.sendFriendMessage(friend, MessageChain.create([Plain(text="打卡失败！请再次尝试或自行前往吉林大学微服务小程序打卡！")]))
 
 
-@scheduler.schedule(crontabify("5 9/21 * * *"))
+@scheduler.schedule(crontabify("5 9,21 * * *"))
 async def load_scheduled_task(app: GraiaMiraiApplication):
     for qq in (await orm.fetchall(select(JLUEpidemicAccountInfo.qq).where(JLUEpidemicAccountInfo.scheduled == True))):
         await scheduled_task(app, qq[0])
