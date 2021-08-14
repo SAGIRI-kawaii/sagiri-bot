@@ -6,6 +6,7 @@ import string
 import base64
 import aiohttp
 from typing import Union
+from loguru import logger
 from graiax import silkcoder
 
 from graia.saya import Saya, Channel
