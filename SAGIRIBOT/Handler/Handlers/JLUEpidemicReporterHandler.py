@@ -27,6 +27,7 @@ saya = Saya.current()
 channel = Channel.current()
 bcc = saya.broadcast
 core: AppCore = AppCore.get_core_instance()
+app = core.get_app()
 loop = core.get_loop()
 scheduler = GraiaScheduler(loop, bcc)
 
@@ -37,7 +38,7 @@ DEBUG = 0
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage]))
+# @channel.use(ListenerSchema(listening_events=[FriendMessage]))
 async def jlu_epidemic_reporter_handler(app: GraiaMiraiApplication, message: MessageChain, friend: Friend):
     if result := await JLUEpidemicReporterHandler.handle(app, message, friend):
         await app.sendFriendMessage(friend, result)
@@ -108,10 +109,11 @@ class JLUEpidemicReporterHandler:
                 return MessageChain.create([Plain(text="用户未确认，中止进程，若想再次进行打卡，请发送 “打卡”")])
         elif message.asDisplay() == "帮助":
             return MessageChain.create([
-                Plain(text="打卡机器人使用帮助：\n"),
+                Plain(text="打卡机器人使用帮助：\n\n"),
+                Plain(text="网页版帮助（推荐）请看：http://doc.sagiri-web.com/web/#/p/6033fbf0a85e1192915d2fec1099023e\n\n"),
                 Plain(text="进行打卡：发送 ”打卡“ 即可\n\n"),
-                Plain(text="查看个人信息：发送 ”我的信息“ 即可\n\n"),
-                Plain(text="更改个人信息：发送 ”更改属性 属性名 属性值“ 即可\n"),
+                Plain(text="查看个人信息：发送 我的信息“ 即可\n\n"),
+                Plain(text="更改个人信息：发送 “更改属性 属性名 属性值” 即可\n"),
                 Plain(text="如：更改属性 姓名 张三\n"),
                 Plain(text="合法属性如下：姓名、用户名、密码、校区编号、宿舍楼编号、寝室编号\n"),
                 Plain(text="关于校区编号及宿舍楼编号，请看：http://doc.sagiri-web.com/web/#/p/292a25f39cbcb3fa3660b181d9dddda4\n\n"),
@@ -223,6 +225,7 @@ class JLUEpidemicReporterHandler:
             )
         )
         return {
+            "qq": friend,
             "username": result[1],
             "password": result[2],
             "fields": {
@@ -348,6 +351,10 @@ class ReportTask(Thread):
 
     def run(self) -> None:
         self.result = report_task(self.user_data, self.transaction)
+        if self.result:
+            loop.run_until_complete(app.sendFriendMessage(self.user_data["qq"], MessageChain.create([Plain(text="打卡成功！请前往吉林大学微服务小程序检查是否打卡成功！")])))
+        else:
+            loop.run_until_complete(app.sendFriendMessage(self.user_data["qq"], MessageChain.create([Plain(text="打卡失败！请再次尝试或自行前往吉林大学微服务小程序打卡！")])))
 
     def report_success(self) -> bool:
         return self.result
@@ -357,14 +364,9 @@ async def scheduled_task(app: GraiaMiraiApplication, friend: int):
     await app.sendFriendMessage(friend, MessageChain.create([Plain(text="正在启动打卡进程...")]))
     task = ReportTask(await JLUEpidemicReporterHandler.get_user_data(friend))
     task.start()
-    task.join()
-    if task.report_success():
-        await app.sendFriendMessage(friend, MessageChain.create([Plain(text="打卡成功！请前往吉林大学微服务小程序检查是否打卡成功！")]))
-    else:
-        await app.sendFriendMessage(friend, MessageChain.create([Plain(text="打卡失败！请再次尝试或自行前往吉林大学微服务小程序打卡！")]))
 
 
-@scheduler.schedule(crontabify("5 9,21 * * *"))
-async def load_scheduled_task(app: GraiaMiraiApplication):
-    for qq in (await orm.fetchall(select(JLUEpidemicAccountInfo.qq).where(JLUEpidemicAccountInfo.scheduled == True))):
-        await scheduled_task(app, qq[0])
+# @scheduler.schedule(crontabify("5 9,21 * * *"))
+# async def load_scheduled_task(app: GraiaMiraiApplication):
+#     for qq in (await orm.fetchall(select(JLUEpidemicAccountInfo.qq).where(JLUEpidemicAccountInfo.scheduled == True))):
+#         await scheduled_task(app, qq[0])
