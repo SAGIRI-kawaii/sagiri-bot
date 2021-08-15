@@ -92,7 +92,7 @@ class ChatReplyHandler(AbstractHandler):
                 text = await ChatReplyHandler.get_chat_reply(content)
             else:
                 raise Exception(f"数据库群 <{group_id}> speak_mode项非法！目前值：{mode_now}")
-            return MessageItem(MessageChain.create([Plain(text=text)]), AtSender(GroupStrategy()))
+            return MessageItem(MessageChain.create([Plain(text=f" {text}")]), AtSender(GroupStrategy()))
         else:
             raise Exception(f"数据库未查找到群 <{group_id}> speak_mode项，请检查数据库！")
 
