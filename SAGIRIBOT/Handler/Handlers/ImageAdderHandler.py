@@ -53,7 +53,7 @@ class ImageAdderHandler(AbstractHandler):
                 if os.path.exists(path):
                     try:
                         await ImageAdderHandler.add_image(path, message.get(Image))
-                    except Exception as e:
+                    except:
                         logger.error(traceback.format_exc())
                         return MessageItem(MessageChain.create([Plain(text="出错了呐~请查看日志/控制台输出！")]), Normal(GroupStrategy()))
                     return MessageItem(
@@ -81,8 +81,10 @@ class ImageAdderHandler(AbstractHandler):
                 async with session.get(url=image.url) as resp:
                     img_content = await resp.read()
             img_suffix = image.imageId.split('.').pop()
+            img_suffix = img_suffix if img_suffix != 'mirai' else 'png'
             img = IMG.open(BytesIO(img_content))
-            save_path = os.path.join(path, f"{get_image_save_number()}.{img_suffix}")
-            while os.path.exists(save_path):
-                save_path = os.path.join(path, f"{get_image_save_number()}.{img_suffix}")
+            # save_path = os.path.join(path, f"{get_image_save_number()}.{img_suffix}")
+            save_path = os.path.join(path, f"{image.imageId.split('.')[0][1:-1]}.{img_suffix}")
+            # while os.path.exists(save_path):
+            #     save_path = os.path.join(path, f"{get_image_save_number()}.{img_suffix}")
             img.save(save_path)

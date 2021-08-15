@@ -213,3 +213,6 @@ class AppCore:
 
     def get_saya(self):
         return self.__saya
+
+    def load_schedulers(self):
+        pass

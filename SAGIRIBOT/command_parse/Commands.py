@@ -81,6 +81,10 @@ class Dice(BooleanCommand):
     __name__ = "dice"
 
 
+class AvatarFunc(BooleanCommand):
+    __name__ = "avatar_func"
+
+
 class OnlineNotice(BooleanCommand):
     __name__ = "online_notice"
 
@@ -138,5 +142,6 @@ command_index = {
     "r18_process": R18Process(),
     "speak_mode": SpeakMode(),
     "long_text_type": LongTextType(),
-    "dice": Dice()
+    "dice": Dice(),
+    "avatar_func": AvatarFunc()
 }
