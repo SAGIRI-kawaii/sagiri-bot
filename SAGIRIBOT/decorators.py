@@ -95,27 +95,6 @@ def switch(response_administrator: bool = False):
     return decorate
 
 
-def permission_required_response_when_switch_off():
-    def decorate(func):
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            member_id = -1
-            group_id = -1
-            for i in args:
-                if isinstance(i, Member):
-                    member_id = i.id
-                if isinstance(i, Group):
-                    group_id = i.id
-            if group_id != -1 and not await get_setting(group_id, Setting.switch):
-                if not await user_permission_require(group_id, member_id, 2):
-                    return None
-            if asyncio.iscoroutinefunction(func):
-                return await func(*args, **kwargs)
-            return func(*args, **kwargs)
-        return wrapper
-    return decorate
-
-
 def blacklist():
     def decorate(func):
         @wraps(func)
