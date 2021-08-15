@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from functools import wraps
 from sqlalchemy import select
 
@@ -73,7 +74,28 @@ def frequency_limit_require_weight_free(weight: int):
     return decorate
 
 
-def switch():
+def switch(response_administrator: bool = False):
+    def decorate(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            member_id = -1
+            group_id = -1
+            for i in args:
+                if isinstance(i, Member):
+                    member_id = i.id
+                if isinstance(i, Group):
+                    group_id = i.id
+            if group_id != -1 and not await get_setting(group_id, Setting.switch):
+                if not response_administrator or not await user_permission_require(group_id, member_id, 2):
+                    return None
+            if asyncio.iscoroutinefunction(func):
+                return await func(*args, **kwargs)
+            return func(*args, **kwargs)
+        return wrapper
+    return decorate
+
+
+def permission_required_response_when_switch_off():
     def decorate(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -114,5 +136,21 @@ def blacklist():
             if asyncio.iscoroutinefunction(func):
                 return await func(*args, **kwargs)
             return func(*args, **kwargs)
+        return wrapper
+    return decorate
+
+
+def debug():
+    def decorate(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                if asyncio.iscoroutinefunction(func):
+                    result = await func(*args, **kwargs)
+                else:
+                    result = func(*args, **kwargs)
+                return result
+            except:
+                return MessageItem(MessageChain.create([Plain(text=traceback.format_exc())]), QuoteSource(GroupStrategy()))
         return wrapper
     return decorate

@@ -28,7 +28,7 @@ class BotManagementHandler(AbstractHandler):
     __usage__ = "请查看文档"
 
     @staticmethod
-    @switch()
+    @switch(response_administrator=True)
     @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
