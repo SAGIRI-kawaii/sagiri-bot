@@ -197,6 +197,7 @@ class Setting(Base):
     r18_process = Column(String(length=10), default="revoke")
     speak_mode = Column(String(length=10), default="normal")
     long_text_type = Column(String(length=5), default="text")
+    voice = Column(String(length=10), default="off")
 
 
 class UserCalledCount(Base):
