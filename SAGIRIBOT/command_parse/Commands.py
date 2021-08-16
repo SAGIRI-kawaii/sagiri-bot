@@ -122,6 +122,12 @@ class LongTextType(AbstractCommand):
     level = 3
 
 
+class Voice(AbstractCommand):
+    valid_values = ["off", "0", "1", "2", "3", "4", "5", "6", "7", "1001", "1002", "1003", "1050", "1051", "101001", "101002", "101003", "101004", "101005", "101006", "101007", "101008", "101009", "101010", "101011", "101012", "101013", "101014", "101015", "101016", "101017", "101018", "101019", "101050", "101051"]
+    __name__ = "voice"
+    level = 3
+
+
 command_index = {
     "repeat": Repeat(),
     "frequency_limit": FrequencyLimit(),
@@ -143,5 +149,6 @@ command_index = {
     "speak_mode": SpeakMode(),
     "long_text_type": LongTextType(),
     "dice": Dice(),
-    "avatar_func": AvatarFunc()
+    "avatar_func": AvatarFunc(),
+    "voice": Voice()
 }
