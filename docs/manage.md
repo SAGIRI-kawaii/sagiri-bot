@@ -28,10 +28,11 @@
 | R-18处理方式 | 对发送的R-18图片做撤回/闪照处理 | r18_process | revoke/flashImage | 3+ | 仅在r18选项开启时起作用，后期可能会加入不作处理选项 |
 | 回复方式 | 决定bot被@时的反应 | speak_mode  | normal/rainbow/zuanLow/zuanHigh/chat | 3+ | 请慎用zuanLow 和 zuanHigh模式 |
 | 长文本形式 | 控制长文本是以图片还是文字方式发出 | long_text_type | img/text | 2+ | 长文本发送过多可能会被tx风控 |
+| 语音合成 | 控制语音合成开关以及语音合成所用音色 | voice | off/腾讯语音合成API中音色对应的整数值 | 3+ | 音色列表可查阅[腾讯API文档](https://cloud.tencent.com/document/api/1073/34093#2.-.E8.BE.93.E5.85.A5.E5.8F.82.E6.95.B0)中 VoiceType |
 
 ## 权限授予
 
-在重构后，SAGIRI-BOt引入了权限等级的概念，权限等级的定义如下：
+在重构后，SAGIRI-BOT引入了权限等级的概念，权限等级的定义如下：
 
 | 权限等级 | 等级 |
 | --- | --- |
