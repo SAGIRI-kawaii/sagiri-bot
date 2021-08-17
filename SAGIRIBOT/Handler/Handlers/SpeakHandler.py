@@ -51,14 +51,17 @@ class SpeakHandler(AbstractHandler):
     @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("说 "):
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             text = ''.join([plain.text for plain in message.get(Plain)])[2:].replace(" ", '，')
-            voice = await SpeakHandler.get_voice(group.id, text)
-            if isinstance(voice, str):
-                return MessageItem(MessageChain.create([Plain(text=voice)]), QuoteSource(GroupStrategy()))
-            elif isinstance(voice, bytes):
-                voice_element = await app.uploadVoice(await silkcoder.encode(voice))
-                return MessageItem(MessageChain.create([voice_element]), Normal(GroupStrategy()))
+            if len(text) > 110:
+                return MessageItem(MessageChain.create([Plain(text="要读的东西太长了啦！")]), QuoteSource(GroupStrategy()))
+            else:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                voice = await SpeakHandler.get_voice(group.id, text)
+                if isinstance(voice, str):
+                    return MessageItem(MessageChain.create([Plain(text=voice)]), QuoteSource(GroupStrategy()))
+                elif isinstance(voice, bytes):
+                    voice_element = await app.uploadVoice(await silkcoder.encode(voice))
+                    return MessageItem(MessageChain.create([voice_element]), Normal(GroupStrategy()))
 
     @staticmethod
     async def get_voice(group_id: int, text: str) -> Union[str, bytes]:
