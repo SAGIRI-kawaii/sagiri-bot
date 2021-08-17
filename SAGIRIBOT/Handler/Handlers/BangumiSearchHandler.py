@@ -16,6 +16,7 @@ from graia.application.event.messages import Group, Member, GroupMessage
 from graia.application.message.elements.internal import Plain, Image, At, Source
 
 from SAGIRIBOT.Core.AppCore import AppCore
+from SAGIRIBOT.utils import MessageChainUtils
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.utils import get_setting, sec_to_str
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -101,46 +102,38 @@ class BangumiSearchHandler(AbstractHandler):
 
     @staticmethod
     async def search_bangumi(img: Image) -> MessageChain:
-        url = f"https://trace.moe/api/search?url={img.url}"
+        url = f"https://api.trace.moe/search?anilistInfo&url={img.url}"
         async with aiohttp.ClientSession() as session:
             async with session.post(url=url) as resp:
                 result = await resp.json()
-        if docs := result["docs"]:
-            print(json.dumps(docs[0], indent=4))
-            title_chinese = docs[0]["title_chinese"]
-            title_origin = docs[0]["title_chinese"]
-            file_name = docs[0]["filename"]
-            anilist_id = docs[0]["anilist_id"]
-            time_from = docs[0]["from"]
-            time_to = docs[0]["to"]
-
-            t = docs[0]["at"]
-            tokenthumb = docs[0]["tokenthumb"]
-            thumbnail_url = f"https://media.trace.moe/image/{anilist_id}/{quote(file_name)}?t={t}&token={tokenthumb}&size=l"
-            print(thumbnail_url)
+        # print(result)
+        if result := result.get("result"):
+            # print(json.dumps(result[0], indent=4))
+            title_native = result[0]["anilist"]["title"]["native"]
+            title_romaji = result[0]["anilist"]["title"]["romaji"]
+            title_english = result[0]["anilist"]["title"]["english"]
+            file_name = result[0]["filename"]
+            similarity = round(float(result[0]["similarity"]) * 100, 2)
+            time_from = result[0]["from"]
+            time_to = result[0]["to"]
+            thumbnail_url = result[0]["image"]
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(url=thumbnail_url) as resp:
                     thumbnail_content = await resp.read()
 
-            # url = f"https://anilist.co/anime/{anilist_id}"
-            # async with aiohttp.ClientSession() as session:
-            #     async with session.get(url=url) as resp:
-            #         result = await resp.json()
-            # result = result[0]
-            # start_date = f"{result['startDate']['year']}-{result['startDate']['month']}-{result['startDate']['day']}"
-            # end_date = f"{result['endDate']['year']}-{result['endDate']['month']}-{result['endDate']['day']}"
-            # score = result["averageScore"]
-            message = MessageChain.create([
-                Plain(text="搜索到结果：\n"),
-                Image.fromUnsafeBytes(thumbnail_content),
-                Plain(text=f"name: {title_origin}\n"),
-                Plain(text=f"Chinese name: {title_chinese}\n"),
-                Plain(text=f"file name: {file_name}\n"),
-                Plain(text=f"time: {sec_to_str(time_from)} ~ {sec_to_str(time_to)}\n"),
-                # Plain(text=f"score: {score}\n"),
-                # Plain(text=f"Broadcast date: {start_date} ~ {end_date}\n")
-            ])
+            message = await MessageChainUtils.messagechain_to_img(
+                MessageChain.create([
+                    Plain(text="搜索到结果：\n"),
+                    Image.fromUnsafeBytes(thumbnail_content),
+                    Plain(text=f"番剧名: {title_native}\n"),
+                    Plain(text=f"罗马音名: {title_romaji}\n"),
+                    Plain(text=f"英文名: {title_english}\n"),
+                    Plain(text=f"文件名: {file_name}\n"),
+                    Plain(text=f"时间: {sec_to_str(time_from)} ~ {sec_to_str(time_to)}\n"),
+                    Plain(text=f"相似度: {similarity}%"),
+                ])
+            )
             return message
         else:
             return MessageChain.create([Plain(text="没有查到结果呐~")])

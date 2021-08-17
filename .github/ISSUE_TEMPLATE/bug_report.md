@@ -1,7 +1,7 @@
 ---
 name: 反馈Bug
 about: 反馈遇到的问题
-title: "[Bug Report]"
+title: "[Bug Report]要反馈的问题"
 labels: bug
 assignees: ''
 
