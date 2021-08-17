@@ -185,6 +185,11 @@ class ImageSenderHandler(AbstractHandler):
             keyword = re.findall(r"\[mirai:image:{(.*?)}\..*]", keyword, re.S)[0]
         if function not in ImageSenderHandler.functions:
             return MessageItem(MessageChain.create([Plain(text="非法方法名！")]), QuoteSource(GroupStrategy()))
+        if await orm.fetchone(select(TriggerKeyword.keyword).where(TriggerKeyword.keyword == keyword)):
+            return MessageItem(
+                MessageChain.create([Plain(text="已存在的关键词！请先删除！")]),
+                QuoteSource(GroupStrategy())
+            )
         try:
             await orm.insert_or_ignore(
                 TriggerKeyword,
