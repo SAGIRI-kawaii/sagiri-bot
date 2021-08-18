@@ -67,9 +67,7 @@ class SpeakHandler(AbstractHandler):
     async def get_voice(group_id: int, text: str) -> Union[str, bytes]:
         if voice_type := await orm.fetchone(select(Setting.voice).where(Setting.group_id == group_id)):
             voice_type = voice_type[0]
-            if voice_type == "off":
-                return None
-            else:
+            if voice_type != "off":
                 try:
                     user_data = get_config("tencent")
                     cred = credential.Credential(user_data["secretId"], user_data["secretKey"])
@@ -84,7 +82,9 @@ class SpeakHandler(AbstractHandler):
                         "Text": text,
                         "SessionId": session_ID,
                         "ModelType": 1,
-                        "VoiceType": int(voice_type)
+                        "VoiceType": int(voice_type),
+                        "Volume": 10,
+                        "Codec": "wav"
                     }
                     req.from_json_string(json.dumps(params))
                     resp = client.TextToVoice(req)
@@ -93,3 +93,5 @@ class SpeakHandler(AbstractHandler):
                 except TencentCloudSDKException as err:
                     logger.error(traceback.format_exc())
                     return str(err)
+            else:
+                return None
