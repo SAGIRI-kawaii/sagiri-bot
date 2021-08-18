@@ -51,22 +51,23 @@ class SpeakHandler(AbstractHandler):
     @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("说 "):
-            await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             text = ''.join([plain.text for plain in message.get(Plain)])[2:].replace(" ", '，')
-            voice = await SpeakHandler.get_voice(group.id, text)
-            if isinstance(voice, str):
-                return MessageItem(MessageChain.create([Plain(text=voice)]), QuoteSource(GroupStrategy()))
-            elif isinstance(voice, bytes):
-                voice_element = await app.uploadVoice(await silkcoder.encode(voice))
-                return MessageItem(MessageChain.create([voice_element]), Normal(GroupStrategy()))
+            if len(text) > 110:
+                return MessageItem(MessageChain.create([Plain(text="要读的东西太长了啦！")]), QuoteSource(GroupStrategy()))
+            else:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                voice = await SpeakHandler.get_voice(group.id, text)
+                if isinstance(voice, str):
+                    return MessageItem(MessageChain.create([Plain(text=voice)]), QuoteSource(GroupStrategy()))
+                elif isinstance(voice, bytes):
+                    voice_element = await app.uploadVoice(await silkcoder.encode(voice))
+                    return MessageItem(MessageChain.create([voice_element]), Normal(GroupStrategy()))
 
     @staticmethod
     async def get_voice(group_id: int, text: str) -> Union[str, bytes]:
         if voice_type := await orm.fetchone(select(Setting.voice).where(Setting.group_id == group_id)):
             voice_type = voice_type[0]
-            if voice_type == "off":
-                return None
-            else:
+            if voice_type != "off":
                 try:
                     user_data = get_config("tencent")
                     cred = credential.Credential(user_data["secretId"], user_data["secretKey"])
@@ -81,7 +82,9 @@ class SpeakHandler(AbstractHandler):
                         "Text": text,
                         "SessionId": session_ID,
                         "ModelType": 1,
-                        "VoiceType": int(voice_type)
+                        "VoiceType": int(voice_type),
+                        "Volume": 10,
+                        "Codec": "wav"
                     }
                     req.from_json_string(json.dumps(params))
                     resp = client.TextToVoice(req)
@@ -90,3 +93,5 @@ class SpeakHandler(AbstractHandler):
                 except TencentCloudSDKException as err:
                     logger.error(traceback.format_exc())
                     return str(err)
+            else:
+                return None
