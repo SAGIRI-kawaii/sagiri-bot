@@ -1,3 +1,6 @@
+import re
+import sys
+import inspect
 from abc import ABC, abstractmethod
 
 
@@ -128,27 +131,35 @@ class Voice(AbstractCommand):
     level = 3
 
 
+# command_index = {
+#     "repeat": Repeat(),
+#     "frequency_limit": FrequencyLimit(),
+#     "setu": Setu(),
+#     "real": Real(),
+#     "real_high_quality": RealHighQuality(),
+#     "bizhi": Bizhi(),
+#     "r18": R18(),
+#     "img_search": ImgSearch(),
+#     "bangumi_search": BangumiSearch(),
+#     "compile": Compile(),
+#     "anti_revoke": AntiRevoke(),
+#     "anti_flashimage": AntiFlashImage(),
+#     "online_notice": OnlineNotice(),
+#     "debug": Debug(),
+#     "switch": Switch(),
+#     "music": Music(),
+#     "r18_process": R18Process(),
+#     "speak_mode": SpeakMode(),
+#     "long_text_type": LongTextType(),
+#     "dice": Dice(),
+#     "avatar_func": AvatarFunc(),
+#     "voice": Voice()
+# }
+
 command_index = {
-    "repeat": Repeat(),
-    "frequency_limit": FrequencyLimit(),
-    "setu": Setu(),
-    "real": Real(),
-    "real_high_quality": RealHighQuality(),
-    "bizhi": Bizhi(),
-    "r18": R18(),
-    "img_search": ImgSearch(),
-    "bangumi_search": BangumiSearch(),
-    "compile": Compile(),
-    "anti_revoke": AntiRevoke(),
-    "anti_flashimage": AntiFlashImage(),
-    "online_notice": OnlineNotice(),
-    "debug": Debug(),
-    "switch": Switch(),
-    "music": Music(),
-    "r18_process": R18Process(),
-    "speak_mode": SpeakMode(),
-    "long_text_type": LongTextType(),
-    "dice": Dice(),
-    "avatar_func": AvatarFunc(),
-    "voice": Voice()
+    k: v for k, v in [
+        (re.sub(r"(?P<key>[A-Z])", r"_\g<key>", class_name).strip("_").lower(), class_())
+        for class_name, class_ in inspect.getmembers(sys.modules[__name__], inspect.isclass)
+        if issubclass(class_, BooleanCommand) or issubclass(class_, StringCommand)
+    ]
 }
