@@ -142,6 +142,11 @@ class ImageSearchHandler(AbstractHandler):
                 Plain(text=f"错误：{json_data['header']['message']}")
             ])
 
+        if json_data["header"]["status"] == -2:
+            return MessageChain.create([
+                Plain(text=f"错误：24小时内搜索次数到达上限！")
+            ])
+
         if not json_data["results"]:
             return MessageChain.create([
                 Plain(text="没有搜索到结果呐~")
