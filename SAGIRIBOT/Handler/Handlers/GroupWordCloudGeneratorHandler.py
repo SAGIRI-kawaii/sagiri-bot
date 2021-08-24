@@ -1,3 +1,5 @@
+import os
+import random
 import numpy as np
 import jieba.analyse
 
@@ -100,7 +102,13 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
 
     @staticmethod
     async def draw_word_cloud(read_name) -> bytes:
-        mask = np.array(IMG.open(f'statics/wordcloud/back.jpg'))
+
+        def random_pic(base_path: str) -> str:
+            path_dir = os.listdir(base_path)
+            path = random.sample(path_dir, 1)[0]
+            return base_path + path
+
+        mask = np.array(IMG.open(random_pic(f'statics/wordcloud/')))
         # print(mask.shape)
         wc = WordCloud(
             font_path=f'statics/fonts/STKAITI.TTF',
