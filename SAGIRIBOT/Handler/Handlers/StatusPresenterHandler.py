@@ -72,7 +72,7 @@ class StatusPresenterHandler(AbstractHandler):
                 return MessageItem(MessageChain.create([Plain(text=content)]), QuoteSource(GroupStrategy()))
         elif message_text == "info":
             return MessageItem(
-                MessageChain.create([Plain(text="当前版本：SAGIRI-BOT v2.1.6\n项目地址：https://github.com/SAGIRI-kawaii/sagiri-bot\n欢迎star！（球球）")]),
+                MessageChain.create([Plain(text="当前版本：SAGIRI-BOT v2.1.7\n项目地址：https://github.com/SAGIRI-kawaii/sagiri-bot\n欢迎star！（球球）")]),
                 Normal(GroupStrategy())
             )
         else:
