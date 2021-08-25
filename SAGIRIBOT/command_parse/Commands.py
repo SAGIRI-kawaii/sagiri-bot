@@ -102,30 +102,30 @@ class Switch(BooleanCommand):
     level = 3
 
 
-class Music(AbstractCommand):
+class Music(StringCommand):
     valid_values = ["off", "wyy", "qq"]
     __name__ = "music"
 
 
-class R18Process(AbstractCommand):
+class R18Process(StringCommand):
     valid_values = ["revoke", "flashImage", "noProcess"]
     __name__ = "r18_process"
     level = 3
 
 
-class SpeakMode(AbstractCommand):
+class SpeakMode(StringCommand):
     valid_values = ["normal", "zuanLow", "zuanHigh", "rainbow", "chat"]
     __name__ = "speak_mode"
     level = 3
 
 
-class LongTextType(AbstractCommand):
+class LongTextType(StringCommand):
     valid_values = ["img", "text"]
     __name__ = "long_text_type"
     level = 3
 
 
-class Voice(AbstractCommand):
+class Voice(StringCommand):
     valid_values = ["off", "0", "1", "2", "3", "4", "5", "6", "7", "1001", "1002", "1003", "1050", "1051", "101001", "101002", "101003", "101004", "101005", "101006", "101007", "101008", "101009", "101010", "101011", "101012", "101013", "101014", "101015", "101016", "101017", "101018", "101019", "101050", "101051"]
     __name__ = "voice"
     level = 3
