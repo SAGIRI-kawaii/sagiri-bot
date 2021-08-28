@@ -41,7 +41,7 @@ class ImageAdderHandler(AbstractHandler):
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         legal_type = ("setu", "setu18", "real", "realHighq", "wallpaper", "sketch")
         if re.match(r"添加(setu|setu18|real|realHighq|wallpaper|sketch)图片(\[图片])+", message.asDisplay()):
-            if not user_permission_require(group, member, 2):
+            if not await user_permission_require(group, member, 2):
                 return MessageItem(MessageChain.create([Plain(text="你没有权限，爬！")]), Normal(GroupStrategy()))
             image_type = re.findall(r"添加(.*?)图片.*(\[图片].*)+", message.asDisplay(), re.S)[0][0]
             if image_type not in legal_type:
