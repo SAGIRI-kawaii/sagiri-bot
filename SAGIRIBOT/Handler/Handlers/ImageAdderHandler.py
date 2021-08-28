@@ -41,37 +41,36 @@ class ImageAdderHandler(AbstractHandler):
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         legal_type = ("setu", "setu18", "real", "realHighq", "wallpaper", "sketch")
         if re.match(r"添加(setu|setu18|real|realHighq|wallpaper|sketch)图片(\[图片])+", message.asDisplay()):
-            if await user_permission_require(group, member, 2):
-                image_type = re.findall(r"添加(.*?)图片.*(\[图片].*)+", message.asDisplay(), re.S)[0][0]
-                if image_type not in legal_type:
+            if not user_permission_require(group, member, 2):
+                return MessageItem(MessageChain.create([Plain(text="你没有权限，爬！")]), Normal(GroupStrategy()))
+            image_type = re.findall(r"添加(.*?)图片.*(\[图片].*)+", message.asDisplay(), re.S)[0][0]
+            if image_type not in legal_type:
+                return MessageItem(
+                    MessageChain.create([Plain(text=f"非法图片类型！\n合法image_type：{'、'.join(legal_type)}")]),
+                    QuoteSource(GroupStrategy())
+                )
+            if path := get_config(f"{image_type}Path"):
+                if os.path.exists(path):
+                    try:
+                        await ImageAdderHandler.add_image(path, message.get(Image))
+                    except:
+                        logger.error(traceback.format_exc())
+                        return MessageItem(MessageChain.create([Plain(text="出错了呐~请查看日志/控制台输出！")]), Normal(GroupStrategy()))
                     return MessageItem(
-                        MessageChain.create([Plain(text=f"非法图片类型！\n合法image_type：{'、'.join(legal_type)}")]),
-                        QuoteSource(GroupStrategy())
+                        MessageChain.create([Plain(text=f"保存成功！共保存了{len(message.get(Image))}张图片！")]),
+                        Normal(GroupStrategy())
                     )
-                if path := get_config(f"{image_type}Path"):
-                    if os.path.exists(path):
-                        try:
-                            await ImageAdderHandler.add_image(path, message.get(Image))
-                        except:
-                            logger.error(traceback.format_exc())
-                            return MessageItem(MessageChain.create([Plain(text="出错，请查看日志/控制台输出！")]), Normal(GroupStrategy()))
-                        return MessageItem(
-                            MessageChain.create([Plain(text=f"保存成功！共保存了{len(message.get(Image))}张图片！")]),
-                            Normal(GroupStrategy())
-                        )
-                    else:
-                        return MessageItem(
-                            MessageChain.create(
-                                [Image.fromLocalFile(f"{os.getcwd()}/statics/error/path_not_exists.png")]),
-                            QuoteSource(GroupStrategy())
-                        )
                 else:
                     return MessageItem(
-                        MessageChain.create([Plain(text=f"无{image_type}Path项！请检查配置！")]),
+                        MessageChain.create(
+                            [Image.fromLocalFile(f"{os.getcwd()}/statics/error/path_not_exists.png")]),
                         QuoteSource(GroupStrategy())
                     )
             else:
-                return MessageItem(MessageChain.create([Plain(text="你没有权限，爬！")]), Normal(GroupStrategy()))
+                return MessageItem(
+                    MessageChain.create([Plain(text=f"无{image_type}Path项！请检查配置！")]),
+                    QuoteSource(GroupStrategy())
+                )
         else:
             return None
 
