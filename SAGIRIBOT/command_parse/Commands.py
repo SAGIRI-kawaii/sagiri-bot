@@ -163,4 +163,3 @@ command_index = {
         if issubclass(class_, BooleanCommand) or issubclass(class_, StringCommand)
     ]
 }
-print(command_index)
