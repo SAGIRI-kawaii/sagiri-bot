@@ -77,7 +77,7 @@ class AntiRevoke(BooleanCommand):
 
 
 class AntiFlashImage(BooleanCommand):
-    __name__ = "anti_flashimage"
+    __name__ = "anti_flash_image"
 
 
 class Dice(BooleanCommand):
@@ -163,3 +163,4 @@ command_index = {
         if issubclass(class_, BooleanCommand) or issubclass(class_, StringCommand)
     ]
 }
+print(command_index)
