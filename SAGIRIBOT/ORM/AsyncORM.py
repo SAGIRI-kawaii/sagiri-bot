@@ -188,7 +188,7 @@ class Setting(Base):
     dice = Column(Boolean, default=False)
     avatar_func = Column(Boolean, default=False)
     anti_revoke = Column(Boolean, default=False)
-    anti_flashimage = Column(Boolean, default=False)
+    anti_flash_image = Column(Boolean, default=False)
     online_notice = Column(Boolean, default=False)
     debug = Column(Boolean, default=False)
     switch = Column(Boolean, default=True)
@@ -261,6 +261,17 @@ class JLUEpidemicAccountInfo(Base):
     scheduled = Column(Boolean, default=False)
 
 
+# class GlobalSetting(Base):
+#     """ 机器人全局设置 """
+#     __tablename__ = "global_setting"
+#
+#     saya_auto_reload = Column(Boolean, default=False)
+#     lolicon_image_cache = Column(Boolean, default=False)
+#     network_data_cache = Column(Boolean, default=False)
+#     data_retention = Column(Boolean, default=False)
+
+
 # class SchedulerTasks(Base):
 #     """ 计划任务 """
 #     __tablename__ = "scheduler_tasks"
+# print("\n".join([f"{i}: {type(getattr(JLUEpidemicAccountInfo, i))}" for i in dir(JLUEpidemicAccountInfo)]))

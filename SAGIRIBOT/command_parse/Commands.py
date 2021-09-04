@@ -77,7 +77,7 @@ class AntiRevoke(BooleanCommand):
 
 
 class AntiFlashImage(BooleanCommand):
-    __name__ = "anti_flashimage"
+    __name__ = "anti_flash_image"
 
 
 class Dice(BooleanCommand):
