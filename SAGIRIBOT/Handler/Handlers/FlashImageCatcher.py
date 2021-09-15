@@ -32,7 +32,7 @@ class FlashImageCatcherHandler(AbstractHandler):
     @switch()
     @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-        if message.has(FlashImage) and await get_setting(group.id, Setting.anti_flashimage):
+        if message.has(FlashImage) and await get_setting(group.id, Setting.anti_flash_image):
             return MessageItem(
                 MessageChain.create([Plain(text="FlashImage => Image\n"), message[FlashImage][0].asNormal()]),
                 Normal(GroupStrategy())
