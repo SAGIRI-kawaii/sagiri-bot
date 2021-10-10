@@ -165,6 +165,16 @@ class AvatarFunPicHandler(AbstractHandler):
             elif re.match(r"精神支柱 [0-9]+", message_text):
                 await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
                 return await AvatarFunPicHandler.support(int(message_text[5:]))
+
+        elif message_text.startswith("吞"):
+            match_elements = AvatarFunPicHandler.get_match_element(message)
+            if len(match_elements) >= 1:
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                element = match_elements[0]
+                return await AvatarFunPicHandler.swallowed(element.target if isinstance(element, At) else element.url)
+            elif re.match(r"吞 [0-9]+", message_text):
+                await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
+                return await AvatarFunPicHandler.swallowed(int(message_text[2:]))
         else:
             return None
 
@@ -426,4 +436,40 @@ class AvatarFunPicHandler(AbstractHandler):
         frame = frame.convert('RGB')
         output = BytesIO()
         frame.save(output, format='jpeg')
+        return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
+
+    @staticmethod
+    async def swallowed(image: Union[int, str]) -> MessageItem:
+        avatar = await AvatarFunPicHandler.get_pil_avatar(image)
+        frame_locs = [(180, 60, 100, 100), (184, 75, 100, 100),
+                      (183, 98, 100, 100), (179, 118, 110, 100),
+                      (156, 194, 150, 48), (178, 136, 122, 69),
+                      (175, 66, 122, 85), (170, 42, 130, 96),
+                      (175, 34, 118, 95), (179, 35, 110, 93),
+                      (180, 54, 102, 93), (183, 58, 97, 92),
+                      (174, 35, 120, 94), (179, 35, 109, 93),
+                      (181, 54, 101, 92), (182, 59, 98, 92),
+                      (183, 71, 90, 96), (180, 131, 92, 101)]
+        raw_frames = [f"{os.getcwd()}/statics/SwallowedFrames/frame{i}.png" for i in range(23)]
+        raw_frames = [IMG.open(i).convert('RGBA') for i in raw_frames]
+
+        avatar_frames = []
+        for i in range(len(frame_locs)):
+            frame = IMG.new('RGBA', (480, 400), (255, 255, 255, 0))
+            x, y, l, w = frame_locs[i]
+            avatar_resized = avatar.resize((l, w), IMG.ANTIALIAS)
+            frame.paste(avatar_resized, (x, y))
+            img = raw_frames[i]
+            frame.paste(img, mask=img)
+            avatar_frames.append(frame)
+
+        frames = []
+        for i in range(2):
+            frames.extend(avatar_frames[0:12])
+        frames.extend(avatar_frames[0:8])
+        frames.extend(avatar_frames[12:18])
+        frames.extend(raw_frames[18:23])
+
+        output = BytesIO()
+        imageio.mimsave(output, frames, format='gif', duration=0.06)
         return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
