@@ -1,6 +1,7 @@
 import re
 import aiohttp
 from bs4 import BeautifulSoup
+from aiohttp import TCPConnector
 
 from graia.saya import Saya, Channel
 from graia.application import GraiaMiraiApplication
@@ -46,10 +47,10 @@ class PDFSearchHandler(AbstractHandler):
     @staticmethod
     @frequency_limit_require_weight_free(4)
     async def search_pdf(group: Group, member: Member, keyword: str) -> MessageItem:
-        base_url = "https://1lib.limited"
+        base_url = "https://zh.sa1lib.org"
         url = f"{base_url}/s/?q={keyword}"
         proxy = get_config("proxy") if get_config("proxy") != "proxy_url" else ""
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
             async with session.get(url=url) as resp:
                 html = await resp.read()
         soup = BeautifulSoup(html, "html.parser")
