@@ -39,8 +39,6 @@ from SAGIRIBOT.MessageSender.Strategy import GroupStrategy, AtSender, QuoteSourc
 
 saya = Saya.current()
 channel = Channel.current()
-with open(f"{os.getcwd()}/statics/bot_list.json", "r", encoding="utf-8") as r:
-    bot_list = json.loads(r.read())
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
@@ -59,12 +57,9 @@ class ChatReplyHandler(AbstractHandler):
     @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.has(At) and message.get(At)[0].target == get_config("BotQQ"):
-            if member.id in bot_list:
-                return None
-            else:
-                await update_user_call_count_plus1(group, member, UserCalledCount.at, "at")
-                content = "".join(plain.text for plain in message.get(Plain)).strip().replace(" ", "，")
-                return await ChatReplyHandler.get_reply(member.id, group.id, content)
+            await update_user_call_count_plus1(group, member, UserCalledCount.at, "at")
+            content = "".join(plain.text for plain in message.get(Plain)).strip().replace(" ", "，")
+            return await ChatReplyHandler.get_reply(member.id, group.id, content)
         else:
             return None
 
