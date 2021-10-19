@@ -7,6 +7,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.application.message.elements.internal import Plain, Image
 from graia.application.event.messages import Group, Member, GroupMessage
 
+from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
@@ -29,6 +30,8 @@ class RandomWifeHandler(AbstractHandler):
     __usage__ = "None"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() in ("来个老婆", "随机老婆"):
             return await RandomWifeHandler.get_random_wife()
