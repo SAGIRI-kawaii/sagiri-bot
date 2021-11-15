@@ -190,17 +190,24 @@ async def group_allow_member_invite_changed(app: GraiaMiraiApplication, event: G
 async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChangeEvent):
     try:
         if event.operator:
-            await app.sendGroupMessage(
-                group, MessageChain.create([
-                    Plain(text=f"啊嘞嘞？{event.member.name}的群名片被{event.operator.name}从{event.origin}改为{event.current}了呢！")
-                ])
-            )
+            # mirai 的奇奇怪怪问题，新进群聊的成员第一条发言会触发 MemberCardChangeEvent，但是 member.name == origin 且 current = ""
+            if event.member.name == event.origin:
+                pass
+            else:
+                await app.sendGroupMessage(
+                    group, MessageChain.create([
+                        Plain(text=f"啊嘞嘞？{event.member.name}的群名片被{event.operator.name}从{event.origin}改为{event.current}了呢！")
+                    ])
+                )
         else:
-            await app.sendGroupMessage(
-                group, MessageChain.create([
-                    Plain(text=f"啊嘞嘞？{event.member.name}的群名片从{event.origin}改为{event.current}了呢！")
-                ])
-            )
+            if event.member.name == event.origin:
+                pass
+            else:
+                await app.sendGroupMessage(
+                    group, MessageChain.create([
+                        Plain(text=f"啊嘞嘞？{event.member.name}的群名片从{event.origin}改为{event.current}了呢！")
+                    ])
+                )
     except AccountMuted:
         pass
 
