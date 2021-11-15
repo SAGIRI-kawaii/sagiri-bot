@@ -187,13 +187,20 @@ async def group_allow_member_invite_changed(app: GraiaMiraiApplication, event: G
 
 
 @bcc.receiver("MemberCardChangeEvent")
-async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChangeEvent, group: Group):
+async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChangeEvent):
     try:
-        await app.sendGroupMessage(
-            group, MessageChain.create([
-                Plain(text=f"啊嘞嘞？{event.member.name}的群名片被{event.operator.name}从{event.origin}改为{event.current}了呢！")
-            ])
-        )
+        if event.operator:
+            await app.sendGroupMessage(
+                group, MessageChain.create([
+                    Plain(text=f"啊嘞嘞？{event.member.name}的群名片被{event.operator.name}从{event.origin}改为{event.current}了呢！")
+                ])
+            )
+        else:
+            await app.sendGroupMessage(
+                group, MessageChain.create([
+                    Plain(text=f"啊嘞嘞？{event.member.name}的群名片从{event.origin}改为{event.current}了呢！")
+                ])
+            )
     except AccountMuted:
         pass
 
