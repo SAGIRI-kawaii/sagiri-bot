@@ -190,8 +190,7 @@ async def group_allow_member_invite_changed(app: GraiaMiraiApplication, event: G
 async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChangeEvent):
     try:
         if event.operator:
-            # mirai 的奇奇怪怪问题，新进群聊的成员第一条发言会触发 MemberCardChangeEvent，但是 member.name == origin 且 current = ""
-            if event.member.name == event.origin:
+            if event.member.name == event.origin or event.origin == "" or event.current == "":
                 pass
             else:
                 await app.sendGroupMessage(
@@ -200,7 +199,7 @@ async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChang
                     ])
                 )
         else:
-            if event.member.name == event.origin:
+            if event.member.name == event.origin or event.origin == "" or event.current == "":
                 pass
             else:
                 await app.sendGroupMessage(
