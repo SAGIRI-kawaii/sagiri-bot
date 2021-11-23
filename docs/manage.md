@@ -19,7 +19,7 @@
 | 番剧以图搜番 | 是否开放以图搜番功能 | bangumi_search  | True/False | 2+ |  |
 | 网络编译器 | 菜鸟教程网络编译器开关 | compile | True/False | 2+ |  |
 | 反撤回功能开关 | 决定bot是否对本群消息进行相应 | anti_revoke | True/False | 2+ |  |
-| 闪照转换功能开关 | 决定bot是否对本群闪照进行转换 | anti_flashimage | True/False | 2+ |  |
+| 闪照转换功能开关 | 决定bot是否对本群闪照进行转换 | anti_flash_image | True/False | 2+ |  |
 | 上线提醒 | 机器人上线自动发送上班消息 | online_notice | True/False | 2+ |  |
 | debug | 显示每个请求所执行的时间（从收到消息到发送） | debug | True/False | 3+ | 暂未实现 |
 | 骰子 | 是否开放骰子功能 | dice | True/False | 2+ |  |
