@@ -51,6 +51,11 @@ class ImageAdderHandler(AbstractHandler):
                 )
             if path := get_config(f"{image_type}Path"):
                 if os.path.exists(path):
+                    if not message.has(Image):
+                        return MessageItem(
+                            MessageChain.create([Plain(text="保存失败！消息不含任何图片。")]),
+                            Normal(GroupStrategy())
+                        )
                     try:
                         await ImageAdderHandler.add_image(path, message.get(Image))
                     except:
