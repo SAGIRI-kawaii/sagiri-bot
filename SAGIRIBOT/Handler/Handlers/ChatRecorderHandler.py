@@ -49,16 +49,31 @@ class ChatRecordHandler(AbstractHandler):
             #     tfidf.save(w)
             if not seg_result:
                 return None
-            await orm.add(
-                ChatRecord,
-                {
-                    "time": datetime.datetime.now(),
-                    "group_id": group.id,
-                    "member_id": member.id,
-                    "content": content,
-                    "seg": "|".join(seg_result)
-                }
-            )
+            try:
+                await orm.add(
+                    ChatRecord,
+                    {
+                        "time": datetime.datetime.now(),
+                        "group_id": group.id,
+                        "member_id": member.id,
+                        "content": content,
+                        "seg": "|".join(seg_result)
+                    }
+                )
+            except sqlalchemy.exc.DataError:
+                try:
+                    await orm.add(
+                        ChatRecord,
+                        {
+                            "time": datetime.datetime.now(),
+                            "group_id": group.id,
+                            "member_id": member.id,
+                            "content": content[:4000],
+                            "seg": ("|".join(seg_result))[:4000]
+                        }
+                    )
+                except Exception:
+                    return None
 
     @staticmethod
     async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
