@@ -50,6 +50,14 @@ class HotWordsExplainerHandler(AbstractHandler):
         async with aiohttp.ClientSession() as session:
             async with session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
                 result = await resp.json()
+        if "catagory" in result.keys():
+            if result["catagory"] == "ban_enabled":
+                return MessageItem(
+                    MessageChain.create([
+                        Plain(text=f"请求过多，已达到访问上限，请稍后再试。")
+                    ]),
+                    QuoteSource(GroupStrategy())
+                )
         result = result["data"][0]
         return MessageItem(
             MessageChain.create([
