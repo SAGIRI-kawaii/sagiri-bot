@@ -67,6 +67,7 @@
 |  |  |  |  |  |
 
 tips：
-1. “二次元图”“壁纸”等需自行上传图片到相应文件夹（或使用“图片存储功能”），检测到关键词则随机发送相应文件夹中图片；
+1. “二次元图”“壁纸”等需自行上传图片到相应文件夹（或使用“[图片存储功能](https://github.com/SAGIRI-kawaii/sagiri-bot/blob/master/docs/functions.md#:~:text=%E6%98%AF-,%E5%9B%BE%E7%89%87%E5%AD%98%E5%82%A8%E5%8A%9F%E8%83%BD,-%E5%9C%A8%E7%BE%A4%E4%B8%AD
+)”），检测到关键词则随机发送相应文件夹中图片；
 2. 生成各种表情包时，“@某人”无需空格，“qq id”及“图片”之前需加空格；
 3. 可前往 [管理](https://github.com/SAGIRI-kawaii/sagiri-bot/blob/master/docs/manage.md) 查看开启/关闭功能的指令。
