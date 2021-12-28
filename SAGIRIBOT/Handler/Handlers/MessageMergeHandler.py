@@ -1,9 +1,9 @@
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import MessageChainUtils
 from SAGIRIBOT.decorators import switch, blacklist
@@ -18,7 +18,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def abbreviated_prediction_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await MessageMergeHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -31,7 +31,7 @@ class MessageMergeHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("/merge "):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             elements = [element for element in message.__root__ if (isinstance(element, Image) or isinstance(element, Plain))]

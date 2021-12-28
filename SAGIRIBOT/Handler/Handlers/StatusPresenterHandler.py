@@ -1,11 +1,11 @@
 import re
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Source
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Source
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.decorators import switch, blacklist
@@ -19,7 +19,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def status_presenter_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def status_presenter_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await StatusPresenterHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -32,7 +32,7 @@ class StatusPresenterHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if message_text == "/chains":
             app_core = AppCore.get_core_instance()

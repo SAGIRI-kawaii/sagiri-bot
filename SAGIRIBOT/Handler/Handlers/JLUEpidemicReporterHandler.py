@@ -10,14 +10,14 @@ from sqlalchemy import select
 from graia.saya import Saya, Channel
 from graia.scheduler import GraiaScheduler
 from graia.scheduler.timers import crontabify
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Plain
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain
 from graia.application.event import BaseEvent, BaseDispatcher
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Friend, FriendMessage
+from graia.ariadne.event.message import Friend, FriendMessage
 from graia.broadcast.interfaces.dispatcher import DispatcherInterface
 
 from SAGIRIBOT.Core.AppCore import AppCore
@@ -39,7 +39,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # @channel.use(ListenerSchema(listening_events=[FriendMessage]))
-async def jlu_epidemic_reporter_handler(app: GraiaMiraiApplication, message: MessageChain, friend: Friend):
+async def jlu_epidemic_reporter_handler(app: Ariadne, message: MessageChain, friend: Friend):
     if result := await JLUEpidemicReporterHandler.handle(app, message, friend):
         await app.sendFriendMessage(friend, result)
 
@@ -57,7 +57,7 @@ class JLUEpidemicReporterHandler:
     __usage__ = "None"
 
     @staticmethod
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, friend: Friend) -> Union[MessageChain, None]:
+    async def handle(app: Ariadne, message: MessageChain, friend: Friend) -> Union[MessageChain, None]:
         @Waiter.create_using_function([FriendMessage])
         def confirm(event: FriendMessage, waiter_friend: Friend, waiter_message: MessageChain):
             if waiter_friend.id == friend.id:
@@ -360,13 +360,13 @@ class ReportTask(Thread):
         return self.result
 
 
-async def scheduled_task(app: GraiaMiraiApplication, friend: int):
+async def scheduled_task(app: Ariadne, friend: int):
     await app.sendFriendMessage(friend, MessageChain.create([Plain(text="正在启动打卡进程...")]))
     task = ReportTask(await JLUEpidemicReporterHandler.get_user_data(friend))
     task.start()
 
 
 # @scheduler.schedule(crontabify("5 9,21 * * *"))
-# async def load_scheduled_task(app: GraiaMiraiApplication):
+# async def load_scheduled_task(app: Ariadne):
 #     for qq in (await orm.fetchall(select(JLUEpidemicAccountInfo.qq).where(JLUEpidemicAccountInfo.scheduled == True))):
 #         await scheduled_task(app, qq[0])

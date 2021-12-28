@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 import os
-import yaml
-import traceback
 import threading
+
+import yaml
+from graia.ariadne.app import Ariadne
+from graia.ariadne.event.lifecycle import ApplicationLaunched
+from graia.ariadne.event.message import Group, Member, GroupMessage, FriendMessage, TempMessage
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import *
 from loguru import logger
 
-from graia.application import GraiaMiraiApplication
-from graia.application.message.elements.internal import *
-from graia.application.event.lifecycle import ApplicationLaunched
-from graia.application.event.messages import Group, Member, GroupMessage
-
-from WebManager.websocket import set_log
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.utils import online_notice, get_config
+from WebManager.websocket import set_log
 
 with open('config.yaml', 'r', encoding='utf-8') as f:
-    configs = yaml.load(f.read())
+    configs = yaml.safe_load(f.read())
 
 logger.add(f"{os.getcwd()}/log/common.log", level="INFO", retention=f"{configs['commonRetention']} days", encoding="utf-8")
 logger.add(f"{os.getcwd()}/log/error.log", level="ERROR", retention=f"{configs['errorRetention']} days", encoding="utf-8")
@@ -44,7 +44,7 @@ core.load_saya_modules()
 
 
 @bcc.receiver(GroupMessage)
-async def group_message_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def group_message_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     message_text_log = message.asDisplay().replace("\n", "\\n")
     logger.info(f"收到来自群 <{group.name}> 中成员 <{member.name}> 的消息：{message_text_log}")
 

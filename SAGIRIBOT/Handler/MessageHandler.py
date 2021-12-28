@@ -3,10 +3,10 @@ import traceback
 from loguru import logger
 from abc import ABC, abstractmethod
 
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
-from graia.application.message.elements.internal import Plain, Source
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import Group, Member
+from graia.ariadne.message.element import Plain, Source
 
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.Core.Exceptions import AsyncioTasksGetResult
@@ -35,7 +35,7 @@ class AbstractMessageHandler(MessageHandler):
     __head_handler = None
 
     @abstractmethod
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(self, app: Ariadne, message: MessageChain, group: Group, member: Member):
         pass
 
 
@@ -65,7 +65,7 @@ class GroupMessageHandler(AbstractMessageHandler):
         AppCore.get_core_instance().set_group_chain(self.__handlers)
         logger.success("\n----------------------------------------------\n加载成功，目前加载Handler：\n" + "\n".join([f"{handler.__name__.ljust(40) + handler.__description__}" for handler in self.__chain]) + "\n----------------------------------------------")
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member) -> bool:
+    async def handle(self, app: Ariadne, message: MessageChain, group: Group, member: Member) -> bool:
         tasks = [func(app, message, group, member) for func in self.__other_handlers]
         # for handler in self.__chain:
         #     if isinstance(handler, ChatRecordHandler):

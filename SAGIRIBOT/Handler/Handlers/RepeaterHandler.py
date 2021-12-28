@@ -1,10 +1,11 @@
 import re
 
+from graia.ariadne.message.element import Image
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import get_setting
 from SAGIRIBOT.ORM.AsyncORM import Setting
@@ -19,7 +20,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def repeater_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def repeater_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await RepeaterHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -37,9 +38,9 @@ class RepeaterHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         group_id = group.id
-        message_serialization = message.asSerializationString()
+        message_serialization = message.asPersistentString()
         message_serialization = message_serialization.replace(
             "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message_serialization, re.S)[0] + "]",
             ""

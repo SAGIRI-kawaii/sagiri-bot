@@ -14,10 +14,10 @@ from PIL import Image as IMG
 from sqlalchemy import select
 from PIL import ImageFont, ImageDraw
 
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
-from graia.application.message.elements.internal import Plain, Image, Image_LocalFile, Image_UnsafeBytes
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import Group, Member
+from graia.ariadne.message.element import Plain, Image
 
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
@@ -66,7 +66,7 @@ class MessageChainUtils:
             return line_count + 1
 
         font = ImageFont.truetype(font_path, font_size, encoding="utf-8")
-        message = message.asMerged()
+        message = message.merge()
         elements = message.__root__
 
         plains = message.get(Plain)
@@ -125,7 +125,7 @@ class MessageChainUtils:
         picture.save(bytes_io, format='PNG')
         logger.success("消息转图片处理成功！")
         return MessageChain.create([
-            Image.fromUnsafeBytes(bytes_io.getvalue())
+            Image(data_bytes=bytes_io.getvalue())
         ])
 
 
@@ -173,7 +173,7 @@ def get_config(config: str):
             setuPath: str
     """
     with open('config.yaml', 'r', encoding='utf-8') as f:
-        configs = yaml.load(f.read())
+        configs = yaml.safe_load(f.read())
     if config in configs.keys():
         return configs[config]
     else:
@@ -250,8 +250,8 @@ async def get_admins(group: Group) -> list:
     return admins
 
 
-async def online_notice(app: GraiaMiraiApplication):
-    group_list = await app.groupList()
+async def online_notice(app: Ariadne):
+    group_list = await app.getGroupList()
     for group in group_list:
         if await get_setting(group.id, Setting.online_notice):
             await app.sendGroupMessage(group, MessageChain.create([Plain(text="纱雾酱打卡上班啦！")]))

@@ -4,11 +4,11 @@ import aiohttp
 from html import unescape
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -22,7 +22,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def leetcode_info_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def leetcode_info_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await LeetcodeInfoHanlder.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -35,7 +35,7 @@ class LeetcodeInfoHanlder(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if re.match(r"leetcode \S+", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
@@ -259,7 +259,7 @@ class LeetcodeInfoHanlder(AbstractHandler):
                 async with aiohttp.ClientSession() as session:
                     async with session.post(url=url) as resp:
                         img_content = await resp.read()
-                message_list.append(Image.fromUnsafeBytes(img_content))
+                message_list.append(Image(data_bytes=img_content))
             else:
                 message_list.append(Plain(text=i))
         return MessageItem(

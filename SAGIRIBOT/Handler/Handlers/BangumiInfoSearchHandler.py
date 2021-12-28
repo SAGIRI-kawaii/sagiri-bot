@@ -2,11 +2,11 @@ import aiohttp
 import urllib.parse as parse
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import MessageChainUtils
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -22,7 +22,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def banggumi_info_search_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def banggumi_info_search_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await BangumiInfoSearchHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -35,7 +35,7 @@ class BangumiInfoSearchHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("番剧 "):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             return await BangumiInfoSearchHandler.get_bangumi_info(group, member, message.asDisplay()[3:])
@@ -78,7 +78,7 @@ class BangumiInfoSearchHandler(AbstractHandler):
 
         message = MessageChain.create([
             Plain(text="查询到以下信息：\n"),
-            Image.fromUnsafeBytes(img_content),
+            Image(data_bytes=img_content),
             Plain(text=f"名字:{name}\n\n中文名字:{cn_name}\n\n"),
             Plain(text=f"简介:{summary}\n\n"),
             Plain(text=f"bangumi评分:{score}(参与评分{rating_total}人)"),

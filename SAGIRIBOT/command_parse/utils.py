@@ -3,9 +3,9 @@ from typing import Union
 from loguru import logger
 from sqlalchemy import select
 
-from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
-from graia.application.message.elements.internal import Plain
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import Group, Member
+from graia.ariadne.message.element import Plain
 
 from .Commands import *
 from SAGIRIBOT.ORM.AsyncORM import orm

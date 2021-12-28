@@ -11,12 +11,12 @@ from graiax import silkcoder
 from sqlalchemy import select
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Plain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.ORM.AsyncORM import Setting, UserCalledCount
@@ -39,7 +39,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def speak_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def speak_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await SpeakHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -52,7 +52,7 @@ class SpeakHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("说 "):
             text = ''.join([plain.text for plain in message.get(Plain)])[2:].replace(" ", '，')
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
@@ -84,7 +84,7 @@ class SpeakHandler(AbstractHandler):
             ]), QuoteSource(GroupStrategy()))
 
     @staticmethod
-    async def get_voice(app: GraiaMiraiApplication, group_id: int, text: str) -> Union[str, bytes, None]:
+    async def get_voice(app: Ariadne, group_id: int, text: str) -> Union[str, bytes, None]:
         if voice_type := await orm.fetchone(select(Setting.voice).where(Setting.group_id == group_id)):
             voice_type = voice_type[0]
             if voice_type != "off":
@@ -136,7 +136,7 @@ class SpeakHandler(AbstractHandler):
                 return None
 
     @staticmethod
-    async def get_long_voice(app: GraiaMiraiApplication, voice_type: Union[int, str], text: str, group_id: int):
+    async def get_long_voice(app: Ariadne, voice_type: Union[int, str], text: str, group_id: int):
         try:
             user_data = get_config("tencent")
             cred = credential.Credential(user_data["secretId"], user_data["secretKey"])

@@ -6,13 +6,13 @@ from loguru import logger
 from sqlalchemy import select
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.message.chain import MessageChain
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
-from graia.application.message.elements.internal import Plain, Image, FlashImage
+from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image, FlashImage
 
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Core.AppCore import AppCore
@@ -53,7 +53,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def image_sender_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def image_sender_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await ImageSenderHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -67,9 +67,8 @@ class ImageSenderHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-        message_serialization = message.asSerializationString().replace(
-            "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message.asSerializationString(), re.S)[0] + "]", "")
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
+        message_serialization = message.asPersistentString()
 
         if re.match(r"添加功能关键词#[\s\S]*#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
@@ -161,7 +160,7 @@ class ImageSenderHandler(AbstractHandler):
         }
 
         target_pic_path = await switch[image_type]()
-        return Image.fromLocalFile(target_pic_path)
+        return Image(path=target_pic_path)
 
     @staticmethod
     @frequency_limit_require_weight_free(1)
@@ -171,7 +170,7 @@ class ImageSenderHandler(AbstractHandler):
             if r18_process == "revoke":
                 return MessageItem(MessageChain.create([await ImageSenderHandler.get_pic(func)]), Revoke(GroupStrategy()))
             elif r18_process == "flashImage":
-                return MessageItem(MessageChain.create([(await ImageSenderHandler.get_pic(func)).asFlash()]), Normal(GroupStrategy()))
+                return MessageItem(MessageChain.create([(FlashImage.fromImage(await ImageSenderHandler.get_pic(func)))]), Normal(GroupStrategy()))
             elif r18_process == "noProcess":
                 return MessageItem(MessageChain.create([await ImageSenderHandler.get_pic(func)]), Normal(GroupStrategy()))
             else:
@@ -203,7 +202,7 @@ class ImageSenderHandler(AbstractHandler):
             return MessageItem(MessageChain.create([Plain(text="发生错误！请查看日志！")]), QuoteSource(GroupStrategy()))
 
     @staticmethod
-    async def delete_keyword(app: GraiaMiraiApplication, group: Group, member: Member, message_serialization: str) -> MessageItem:
+    async def delete_keyword(app: Ariadne, group: Group, member: Member, message_serialization: str) -> MessageItem:
         _, keyword = message_serialization.split("#")
         if re.match(r"\[mirai:image:{.*}\..*]", keyword):
             keyword = re.findall(r"\[mirai:image:{(.*?)}\..*]", keyword, re.S)[0]

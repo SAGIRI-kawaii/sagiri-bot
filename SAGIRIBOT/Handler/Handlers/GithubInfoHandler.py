@@ -1,11 +1,11 @@
 import aiohttp
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -18,7 +18,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def abbreviated_prediction_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await GithubInfoHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -31,7 +31,7 @@ class GithubInfoHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("github "):
             image: bool = False
             keyword = message.asDisplay()[7:]
@@ -47,7 +47,7 @@ class GithubInfoHandler(AbstractHandler):
                 return MessageItem(MessageChain.create([Plain(text="没有搜索到结果呢~")]), QuoteSource(GroupStrategy()))
             if image:
                 img_url += result[0]["full_name"]
-                return MessageItem(MessageChain.create([Image.fromNetworkAddress(img_url)]), QuoteSource(GroupStrategy()))
+                return MessageItem(MessageChain.create([Image(url=img_url)]), QuoteSource(GroupStrategy()))
             else:
                 result = result[0]
                 name = result["name"]

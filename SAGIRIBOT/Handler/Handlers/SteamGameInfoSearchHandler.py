@@ -2,11 +2,11 @@ import re
 import aiohttp
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -21,7 +21,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def steam_game_info_search_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def steam_game_info_search_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await SteamGameInfoSearchHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -34,7 +34,7 @@ class SteamGameInfoSearchHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("steam "):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             return await SteamGameInfoSearchHandler.get_steam_game_search(group, member, message.asDisplay()[6:])
@@ -100,7 +100,7 @@ class SteamGameInfoSearchHandler(AbstractHandler):
                     Plain(text="\n搜索到以下信息：\n"),
                     Plain(text="游戏：%s (%s)\n" % (result["name"], result["name_cn"])),
                     Plain(text="游戏id：%s\n" % result["app_id"]),
-                    Image.fromUnsafeBytes(img_content),
+                    Image(data_bytes=img_content),
                     Plain(text="游戏描述：%s\n" % description),
                     Plain(text="\nSteamUrl:https://store.steampowered.com/app/%s/" % result["app_id"])
                 ]),

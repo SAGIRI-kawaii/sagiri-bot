@@ -4,11 +4,11 @@ from pydantic import BaseModel
 from abc import ABC, abstractmethod
 from aiohttp.client_exceptions import ClientResponseError
 
-from graia.application import GraiaMiraiApplication
-from graia.application.exceptions import AccountMuted
-from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
-from graia.application.message.elements.internal import Source
+from graia.ariadne.app import Ariadne, Friend
+from graia.ariadne.exception import AccountMuted
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import Group, Member
+from graia.ariadne.message.element import Source
 
 from .MessageItem import MessageItem
 from .Strategy import Strategy, DoNothing
@@ -27,7 +27,7 @@ class MessageSender(ABC):
     @abstractmethod
     async def send(
             self,
-            app: GraiaMiraiApplication,
+            app: Ariadne,
             message: MessageChain,
             origin_message: MessageChain,
             target_field: BaseModel,
@@ -42,7 +42,7 @@ class GroupMessageSender(MessageSender):
 
     async def send(
             self,
-            app: GraiaMiraiApplication,
+            app: Ariadne,
             message: MessageChain,
             origin_message: MessageChain,
             group: Group,

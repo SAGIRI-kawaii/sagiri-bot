@@ -2,11 +2,11 @@ import re
 import random
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -26,7 +26,7 @@ joke_non_replace = {
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def joke_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def joke_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await JokeHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -39,7 +39,7 @@ class JokeHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if re.match(r"来点.+笑话", message.asDisplay()):
             keyword = message.asDisplay()[2:-2]
             if keyword in joke_non_replace.keys():

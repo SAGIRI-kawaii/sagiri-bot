@@ -1,11 +1,11 @@
 import aiohttp
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import get_config
 from SAGIRIBOT.decorators import switch, blacklist
@@ -20,7 +20,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def wolfram_alpha_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def wolfram_alpha_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await WolframAlphaHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -33,7 +33,7 @@ class WolframAlphaHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("/solve "):
             question = message.asDisplay()[7:]
             return await WolframAlphaHandler.get_result(group, member, question)
@@ -49,6 +49,6 @@ class WolframAlphaHandler(AbstractHandler):
             async with session.get(url=url) as resp:
                 if resp.status == 200:
                     res = await resp.read()
-                    return MessageItem(MessageChain.create([Image.fromUnsafeBytes(res)]), QuoteSource(GroupStrategy()))
+                    return MessageItem(MessageChain.create([Image(data_bytes=res)]), QuoteSource(GroupStrategy()))
                 else:
                     return MessageItem(MessageChain.create([Plain(text=await resp.text())]), QuoteSource(GroupStrategy()))

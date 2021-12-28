@@ -1,8 +1,8 @@
 from loguru import logger
 from abc import ABC, abstractmethod
-from graia.application import GraiaMiraiApplication
-from graia.application.event.messages import Group, Member
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne, Friend
+from graia.ariadne.event.message import Group, Member
+from graia.ariadne.message.chain import MessageChain
 
 
 class Handler(ABC):
@@ -21,9 +21,9 @@ class Handler(ABC):
 
 class AbstractHandler(Handler):
     """
-    Handler Base方法，主要定义Hander默认handle方法
+    Handler Base方法，主要定义Handler默认handle方法
     """
-    _next_hander = None
+    _next_handler = None
     __name__ = ""
     __description__ = ""
     __usage__ = ""
@@ -34,8 +34,8 @@ class AbstractHandler(Handler):
         logger.info(f"Create handler -> {self.__name__}")
 
     def set_next(self, handler):
-        self._next_hander = handler
+        self._next_handler = handler
         return handler
 
     @staticmethod
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member): ...
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member): ...

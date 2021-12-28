@@ -3,11 +3,11 @@ import json
 import aiohttp
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Plain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -21,7 +21,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def hot_words_explainer_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def hot_words_explainer_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await HotWordsExplainerHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -34,7 +34,7 @@ class HotWordsExplainerHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if re.match(r".+是什么梗", message.asDisplay()):
             if keyword := message.asDisplay()[:-4].strip():
                 return await HotWordsExplainerHandler.get_result(group, member, keyword)
@@ -50,6 +50,14 @@ class HotWordsExplainerHandler(AbstractHandler):
         async with aiohttp.ClientSession() as session:
             async with session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
                 result = await resp.json()
+        if "category" in result.keys():
+            if result["category"] == "ban_enabled":
+                return MessageItem(
+                    MessageChain.create([
+                        Plain(text=f"请求过多，已达到访问上限，请稍后再试。")
+                    ]),
+                    QuoteSource(GroupStrategy())
+                )
         result = result["data"][0]
         return MessageItem(
             MessageChain.create([
