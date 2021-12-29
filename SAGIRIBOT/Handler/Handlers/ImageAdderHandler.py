@@ -87,9 +87,9 @@ class ImageAdderHandler(AbstractHandler):
             #     async with session.get(url=image.url) as resp:
             #         img_content = await resp.read()
             # img_suffix = image.imageId.split('.').pop()
-            # img_suffix = img_suffix if img_suffix != 'mirai' else 'png'
             # img = IMG.open(BytesIO(img_content))
             img_suffix = re.compile('"imageId": "{.*}.(.{1,5})"').search(image.asPersistentString()).group(1)
+            img_suffix = img_suffix if img_suffix != 'mirai' else 'png'
             img = IMG.open(BytesIO(await image.get_bytes()))
             # save_path = os.path.join(path, f"{get_image_save_number()}.{img_suffix}")
             save_path = os.path.join(path, f"{image.uuid}.{img_suffix}")
