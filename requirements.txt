@@ -10,10 +10,10 @@ beautifulsoup4
 Pillow
 python_dateutil
 PyYAML
-graia-application-mirai==0.19.2
-graia-broadcast==0.8.11
-graia-saya==0.0.8
-graia-scheduler==0.0.4
+graia-ariadne==0.4.9
+graia-broadcast==0.14.5
+graia-saya==0.0.13
+graia-scheduler==0.0.6
 wordcloud
 python-dateutil
 fastapi
