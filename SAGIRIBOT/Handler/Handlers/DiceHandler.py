@@ -2,11 +2,11 @@ import re
 import random
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Plain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.utils import get_setting
 from SAGIRIBOT.ORM.AsyncORM import Setting
@@ -21,7 +21,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def dice_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def dice_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await DiceHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -34,7 +34,7 @@ class DiceHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if re.match(r"[0-9]+d[0-9]+", message.asDisplay()):
             if not await get_setting(group.id, Setting.dice):
                 return MessageItem(MessageChain.create([Plain(text="骰子功能尚未开启哟~")]), QuoteSource(GroupStrategy()))

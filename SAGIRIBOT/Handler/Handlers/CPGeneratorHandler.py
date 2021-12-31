@@ -4,11 +4,11 @@ import json
 import random
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Plain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -24,7 +24,7 @@ with open(f"{os.getcwd()}/statics/cp_data.json", "r", encoding="utf-8") as r:
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def cp_generator_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def cp_generator_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await CPGeneratorHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -37,7 +37,7 @@ class CPGeneratorHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if re.match(r"/cp \w+ \w+", message.asDisplay()):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             _, attack, defence = message.asDisplay().split(" ")

@@ -1,9 +1,9 @@
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
-from graia.application.message.elements.internal import Plain, FlashImage
+from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, FlashImage, Image
 
 from SAGIRIBOT.utils import get_setting
 from SAGIRIBOT.ORM.AsyncORM import Setting
@@ -18,7 +18,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def flash_image_catcher_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def flash_image_catcher_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await FlashImageCatcherHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -31,9 +31,9 @@ class FlashImageCatcherHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.has(FlashImage) and await get_setting(group.id, Setting.anti_flash_image):
             return MessageItem(
-                MessageChain.create([Plain(text="FlashImage => Image\n"), message[FlashImage][0].asNormal()]),
+                MessageChain.create([Plain(text="FlashImage => Image\n"), Image.fromFlashImage(message[FlashImage][0])]),
                 Normal(GroupStrategy())
             )

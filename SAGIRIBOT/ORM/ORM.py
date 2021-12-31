@@ -16,7 +16,7 @@ environ['NLS_LANG'] = 'AMERICAN_AMERICA.AL32UTF8'
 
 def get_config(config: str):
     with open('config.yaml', 'r', encoding='utf-8') as f:  # 从json读配置
-        configs = yaml.load(f.read())
+        configs = yaml.safe_load(f.read())
     if config in configs.keys():
         return configs[config]
     else:

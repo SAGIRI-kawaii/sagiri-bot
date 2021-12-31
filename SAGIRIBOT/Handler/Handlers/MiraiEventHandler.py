@@ -1,13 +1,14 @@
 import traceback
 
 from dateutil.relativedelta import relativedelta
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import FriendMessage
+from graia.ariadne.event.mirai import *
+from graia.ariadne.exception import AccountMuted, UnknownTarget
+from graia.ariadne.message.element import *
 from loguru import logger
 
-from graia.application.event.mirai import *
-from graia.application.event.messages import Group
-from graia.application import GraiaMiraiApplication
-from graia.application.message.elements.internal import *
-from graia.application.exceptions import AccountMuted, UnknownTarget
 
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.utils import get_config, get_setting
@@ -19,7 +20,7 @@ bcc = core.get_bcc()
 
 
 @bcc.receiver("MemberJoinEvent")
-async def member_join(app: GraiaMiraiApplication, event: MemberJoinEvent):
+async def member_join(app: Ariadne, event: MemberJoinEvent):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
@@ -32,7 +33,7 @@ async def member_join(app: GraiaMiraiApplication, event: MemberJoinEvent):
 
 
 @bcc.receiver("MemberLeaveEventQuit")
-async def member_leave(app: GraiaMiraiApplication, event: MemberLeaveEventQuit):
+async def member_leave(app: Ariadne, event: MemberLeaveEventQuit):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
@@ -44,17 +45,17 @@ async def member_leave(app: GraiaMiraiApplication, event: MemberLeaveEventQuit):
 
 
 @bcc.receiver("MemberMuteEvent")
-async def member_muted(app: GraiaMiraiApplication, event: MemberMuteEvent):
+async def member_muted(app: Ariadne, event: MemberMuteEvent):
     if event.operator is not None:
         if event.member.id == get_config("HostQQ"):
             try:
-                await app.unmute(event.member.group.id, event.member.id)
+                await app.unmuteMember(event.member.group.id, event.member.id)
                 await app.sendGroupMessage(
                     event.member.group.id, MessageChain.create([
                         Plain(text="保护！保护！")
                     ])
                 )
-            except PermissionError:
+            except (PermissionError, AccountMuted):
                 pass
         else:
             try:
@@ -71,7 +72,7 @@ async def member_muted(app: GraiaMiraiApplication, event: MemberMuteEvent):
 
 
 @bcc.receiver("MemberUnmuteEvent")
-async def member_unmuted(app: GraiaMiraiApplication, event: MemberUnmuteEvent):
+async def member_unmuted(app: Ariadne, event: MemberUnmuteEvent):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
@@ -83,7 +84,7 @@ async def member_unmuted(app: GraiaMiraiApplication, event: MemberUnmuteEvent):
 
 
 @bcc.receiver("MemberLeaveEventKick")
-async def member_kicked(app: GraiaMiraiApplication, event: MemberLeaveEventKick):
+async def member_kicked(app: Ariadne, event: MemberLeaveEventKick):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
@@ -95,7 +96,7 @@ async def member_kicked(app: GraiaMiraiApplication, event: MemberLeaveEventKick)
 
 
 @bcc.receiver("MemberSpecialTitleChangeEvent")
-async def member_special_title_change(app: GraiaMiraiApplication, event: MemberSpecialTitleChangeEvent):
+async def member_special_title_change(app: Ariadne, event: MemberSpecialTitleChangeEvent):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
@@ -107,7 +108,7 @@ async def member_special_title_change(app: GraiaMiraiApplication, event: MemberS
 
 
 @bcc.receiver("MemberPermissionChangeEvent")
-async def member_permission_change(app: GraiaMiraiApplication, event: MemberPermissionChangeEvent):
+async def member_permission_change(app: Ariadne, event: MemberPermissionChangeEvent):
     try:
         await app.sendGroupMessage(
             event.member.group.id, MessageChain.create([
@@ -119,8 +120,7 @@ async def member_permission_change(app: GraiaMiraiApplication, event: MemberPerm
 
 
 @bcc.receiver("BotLeaveEventKick")
-async def bot_leave_group(app: GraiaMiraiApplication, event: BotLeaveEventKick):
-    print("bot has been kicked!")
+async def bot_leave_group(app: Ariadne, event: BotLeaveEventKick):
     await app.sendFriendMessage(
         get_config("HostQQ"), MessageChain.create([
             Plain(text=f"呜呜呜主人我被踢出{event.group.name}群了")
@@ -129,7 +129,7 @@ async def bot_leave_group(app: GraiaMiraiApplication, event: BotLeaveEventKick):
 
 
 @bcc.receiver("GroupNameChangeEvent")
-async def group_name_changed(app: GraiaMiraiApplication, event: GroupNameChangeEvent):
+async def group_name_changed(app: Ariadne, event: GroupNameChangeEvent):
     try:
         await app.sendGroupMessage(
             event.group, MessageChain.create([
@@ -141,7 +141,7 @@ async def group_name_changed(app: GraiaMiraiApplication, event: GroupNameChangeE
 
 
 @bcc.receiver("GroupEntranceAnnouncementChangeEvent")
-async def group_entrance_announcement_changed(app: GraiaMiraiApplication, event: GroupEntranceAnnouncementChangeEvent):
+async def group_entrance_announcement_changed(app: Ariadne, event: GroupEntranceAnnouncementChangeEvent):
     try:
         await app.sendGroupMessage(
             event.group, MessageChain.create([
@@ -153,7 +153,7 @@ async def group_entrance_announcement_changed(app: GraiaMiraiApplication, event:
 
 
 @bcc.receiver("GroupAllowAnonymousChatEvent")
-async def group_allow_anonymous_chat_changed(app: GraiaMiraiApplication, event: GroupAllowAnonymousChatEvent):
+async def group_allow_anonymous_chat_changed(app: Ariadne, event: GroupAllowAnonymousChatEvent):
     try:
         await app.sendGroupMessage(
             event.group, MessageChain.create([
@@ -165,7 +165,7 @@ async def group_allow_anonymous_chat_changed(app: GraiaMiraiApplication, event: 
 
 
 @bcc.receiver("GroupAllowConfessTalkEvent")
-async def group_allow_confess_talk_changed(app: GraiaMiraiApplication, event: GroupAllowConfessTalkEvent):
+async def group_allow_confess_talk_changed(app: Ariadne, event: GroupAllowConfessTalkEvent):
     try:
         await app.sendGroupMessage(
             event.group, MessageChain.create([
@@ -177,7 +177,7 @@ async def group_allow_confess_talk_changed(app: GraiaMiraiApplication, event: Gr
 
 
 @bcc.receiver("GroupAllowMemberInviteEvent")
-async def group_allow_member_invite_changed(app: GraiaMiraiApplication, event: GroupAllowMemberInviteEvent):
+async def group_allow_member_invite_changed(app: Ariadne, event: GroupAllowMemberInviteEvent):
     try:
         await app.sendGroupMessage(
             event.group, MessageChain.create([
@@ -189,7 +189,7 @@ async def group_allow_member_invite_changed(app: GraiaMiraiApplication, event: G
 
 
 @bcc.receiver("MemberCardChangeEvent")
-async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChangeEvent):
+async def member_card_changed(app: Ariadne, event: MemberCardChangeEvent):
     try:
         if event.operator:
             if event.member.name == event.origin or event.origin == "" or event.current == "":
@@ -214,7 +214,7 @@ async def member_card_changed(app: GraiaMiraiApplication, event: MemberCardChang
 
 
 @bcc.receiver("NewFriendRequestEvent")
-async def new_friend_request(app: GraiaMiraiApplication, event: NewFriendRequestEvent):
+async def new_friend_request(app: Ariadne, event: NewFriendRequestEvent):
     await app.sendFriendMessage(
         get_config("HostQQ"), MessageChain.create([
             Plain(text=f"主人主人，有个人来加我好友啦！\n"),
@@ -227,7 +227,7 @@ async def new_friend_request(app: GraiaMiraiApplication, event: NewFriendRequest
 
 
 @bcc.receiver("MemberJoinRequestEvent")
-async def new_member_join_request(app: GraiaMiraiApplication, event: MemberJoinRequestEvent):
+async def new_member_join_request(app: Ariadne, event: MemberJoinRequestEvent):
     try:
         await app.sendGroupMessage(
             event.groupId, MessageChain.create([
@@ -242,7 +242,7 @@ async def new_member_join_request(app: GraiaMiraiApplication, event: MemberJoinR
 
 
 @bcc.receiver("BotInvitedJoinGroupRequestEvent")
-async def bot_invited_join_group(app: GraiaMiraiApplication, event: BotInvitedJoinGroupRequestEvent):
+async def bot_invited_join_group(app: Ariadne, event: BotInvitedJoinGroupRequestEvent):
     if event.supplicant != get_config("HostQQ"):
         await app.sendFriendMessage(
             get_config("HostQQ"), MessageChain.create([
@@ -255,14 +255,14 @@ async def bot_invited_join_group(app: GraiaMiraiApplication, event: BotInvitedJo
 
 
 @bcc.receiver("GroupRecallEvent")
-async def anti_revoke(app: GraiaMiraiApplication, event: GroupRecallEvent):
+async def anti_revoke(app: Ariadne, event: GroupRecallEvent):
     if await get_setting(event.group.id, Setting.anti_revoke) and event.authorId != get_config("BotQQ"):
         try:
-            msg = await app.messageFromId(event.messageId)
+            msg = await app.getMessageFromId(event.messageId)
             revoked_msg = msg.messageChain
             author_member = await app.getMember(event.group.id, event.authorId)
             author_name = "自己" if event.operator.id == event.authorId else author_member.name
-            resended_msg = MessageChain.join(
+            resended_msg = MessageChain.extend(
                 MessageChain.create([Plain(text=f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦：\n\n")]),
                 revoked_msg
             )
@@ -275,7 +275,7 @@ async def anti_revoke(app: GraiaMiraiApplication, event: GroupRecallEvent):
 
 
 @bcc.receiver("BotJoinGroupEvent")
-async def bot_join_group(app: GraiaMiraiApplication, group: Group):
+async def bot_join_group(app: Ariadne, group: Group):
     logger.info(f"机器人加入群组 <{group.name}>")
     try:
         await orm.insert_or_update(
@@ -302,7 +302,7 @@ nudge_info = {}
 
 
 @bcc.receiver("NudgeEvent")
-async def nudge(app: GraiaMiraiApplication, event: NudgeEvent):
+async def nudge(app: Ariadne, event: NudgeEvent):
     if event.target == get_config("BotQQ"):
         if event.context_type == "group":
             if member := await app.getMember(event.group_id, event.supplicant):
@@ -315,13 +315,13 @@ async def nudge(app: GraiaMiraiApplication, event: NudgeEvent):
                         count = nudge_info[member.group.id][member.id]["count"] + 1
                         if count == 1:
                             try:
-                                await app.nudge(member)
+                                await app.sendNudge(member)
                             except:
                                 pass
                             nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 2:
                             try:
-                                await app.nudge(member)
+                                await app.sendNudge(member)
                                 await app.sendGroupMessage(
                                     member.group.id, MessageChain.create([
                                         Plain(text=f"不许戳了！")
@@ -332,7 +332,7 @@ async def nudge(app: GraiaMiraiApplication, event: NudgeEvent):
                             nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 3:
                             try:
-                                await app.nudge(member)
+                                await app.sendNudge(member)
                                 await app.sendGroupMessage(
                                     member.group.id, MessageChain.create([
                                         Plain(text=f"说了不许再戳了！")
@@ -343,13 +343,13 @@ async def nudge(app: GraiaMiraiApplication, event: NudgeEvent):
                             nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 4:
                             try:
-                                await app.nudge(member)
+                                await app.sendNudge(member)
                             except:
                                 pass
                             nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 5:
                             try:
-                                await app.nudge(member)
+                                await app.sendNudge(member)
                                 await app.sendGroupMessage(
                                     member.group.id, MessageChain.create([
                                         Plain(text=f"呜呜呜你欺负我，不理你了！")
@@ -362,7 +362,7 @@ async def nudge(app: GraiaMiraiApplication, event: NudgeEvent):
                             nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 10:
                             try:
-                                await app.nudge(member)
+                                await app.sendNudge(member)
                                 await app.sendGroupMessage(
                                     member.group.id, MessageChain.create([
                                         Plain(text="你真的很有耐心欸。")
@@ -372,10 +372,10 @@ async def nudge(app: GraiaMiraiApplication, event: NudgeEvent):
                                 pass
                     else:
                         nudge_info[member.group.id][member.id] = {"count": 1, "time": datetime.now()}
-                        await app.nudge(member)
+                        await app.sendNudge(member)
                 else:
                     nudge_info[member.group.id] = {member.id: {"count": 1, "time": datetime.now()}}
-                    await app.nudge(member)
+                    await app.sendNudge(member)
         else:
             if friend := await app.getFriend(event.supplicant):
                 logger.info(f"机器人被好友 <{friend.nickname}> 戳了戳。")

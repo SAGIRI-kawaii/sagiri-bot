@@ -147,9 +147,26 @@
 2021-05-15 10:51:39.677 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.WolframAlphaHandler
 2021-05-15 10:51:39.677 | DEBUG    | graia.saya:require:76 - require SAGIRIBOT.Handler.Handlers.__init__
 2021-05-15 10:51:39.678 | INFO     | graia.saya:require:95 - module loading finished: SAGIRIBOT.Handler.Handlers.__init__
-[2021-05-15 10:51:39,901][INFO]: initializing app...
-[2021-05-15 10:51:39,910][INFO]: detecting remote's version...
-2021-05-15 10:51:39.912 | INFO     | SAGIRIBOT.Core.AppCore:config_check:156 - checking config
+                _           _
+     /\        (_)         | |
+    /  \   _ __ _  __ _  __| |_ __   ___
+   / /\ \ | '__| |/ _` |/ _` | '_ \ / _ \
+  / ____ \| |  | | (_| | (_| | | | |  __/
+ /_/    \_\_|  |_|\__,_|\__,_|_| |_|\___|
+Ariadne version: 0.4.9
+Broadcast version: 0.14.5
+Scheduler version: 0.0.6
+Saya version: 0.0.13
+2021-12-29 00:45:15.524 | INFO     | graia.ariadne.app:launch:1287 - Launching app...
+2021-12-29 00:45:15.525 | DEBUG    | graia.ariadne.app:daemon:1208 - Ariadne daemon started.
+2021-12-29 00:45:15.539 | INFO     | graia.ariadne.adapter:fetch_cycle:378 - websocket: connected
+2021-12-29 00:45:15.539 | INFO     | graia.ariadne.adapter:fetch_cycle:383 - websocket: ping task created
+2021-12-29 00:45:15.541 | DEBUG    | graia.ariadne.adapter:ws_ping:304 - websocket: ping
+2021-12-29 00:45:15.542 | DEBUG    | graia.ariadne.adapter:ws_ping:309 - websocket: ping success, delay 30.0s
+2021-12-29 00:45:15.546 | DEBUG    | graia.ariadne.adapter:fetch_cycle:396 - websocket: received pong
+2021-12-29 00:45:15.554 | INFO     | graia.ariadne.app:launch:1295 - Remote version: 2.4.0
+2021-12-29 00:45:15.554 | INFO     | graia.ariadne.app:launch:1298 - Application launched with 0.041s
+2021-12-29 00:45:15.558 | INFO     | SAGIRIBOT.Core.AppCore:config_check:179 - checking config
 2021-05-15 10:51:39.912 | INFO     | SAGIRIBOT.Core.AppCore:config_check:171 - check done
 [2021-05-15 10:51:39,914][INFO]: detected remote's version: 1.9.8
 [2021-05-15 10:51:39,916][INFO]: using pure websocket to receive event

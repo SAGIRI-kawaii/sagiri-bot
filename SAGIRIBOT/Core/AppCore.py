@@ -7,13 +7,15 @@ from asyncio.events import AbstractEventLoop
 
 from graia.saya import Saya
 from sqlalchemy import select
-from graia.application import Session
+from graia.ariadne.model import MiraiSession
 from graia.broadcast import Broadcast
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
 from graia.saya.builtins.broadcast import BroadcastBehaviour
+
 try:
     from graia.scheduler import GraiaScheduler
     from graia.scheduler.saya import GraiaSchedulerBehaviour
+
     _install_scheduler = True
 except (ModuleNotFoundError, ImportError):
     _install_scheduler = False
@@ -28,7 +30,7 @@ from SAGIRIBOT.exception_resender import ExceptionReSender, exception_resender_l
 class AppCore:
     __instance = None
     __first_init: bool = False
-    __app: GraiaMiraiApplication = None
+    __app: Ariadne = None
     __loop: AbstractEventLoop = None
     __bcc = None
     __saya = None
@@ -52,15 +54,14 @@ class AppCore:
                 raise ValueError(f"Missing necessary parameters! (miraiHost, authKey, BotQQ)")
             self.__loop = asyncio.get_event_loop()
             self.__bcc = Broadcast(loop=self.__loop)
-            self.__app = GraiaMiraiApplication(
+            self.__app = Ariadne(
                 broadcast=self.__bcc,
-                connect_info=Session(
+                connect_info=MiraiSession(
                     host=config["miraiHost"],
-                    authKey=config["authKey"],
+                    verify_key=config["authKey"],
                     account=config["BotQQ"],
-                    websocket=True
                 ),
-                enable_chat_log=False
+                chat_log_config=False
             )
             self.__saya = Saya(self.__bcc)
             self.__saya.install_behaviours(BroadcastBehaviour(self.__bcc))
@@ -93,7 +94,7 @@ class AppCore:
         else:
             raise AppCoreNotInitialized()
 
-    def get_app(self) -> GraiaMiraiApplication:
+    def get_app(self) -> Ariadne:
         if self.__app:
             return self.__app
         else:
@@ -143,7 +144,7 @@ class AppCore:
             os.system("alembic revision --autogenerate -m 'update'")
             os.system("alembic upgrade head")
             await orm.update(Setting, [], {"active": False})
-            group_list = await self.__app.groupList()
+            group_list = await self.__app.getGroupList()
             frequency_limit_dict = {}
             for group in group_list:
                 frequency_limit_dict[group.id] = 0

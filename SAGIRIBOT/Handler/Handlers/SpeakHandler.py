@@ -3,17 +3,18 @@ import uuid
 import base64
 import traceback
 from typing import Union
+from graia.ariadne.model import UploadMethod
 from loguru import logger
 from graiax import silkcoder
 from sqlalchemy import select
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Plain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.ORM.AsyncORM import Setting, UserCalledCount
@@ -36,7 +37,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def speak_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def speak_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await SpeakHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -49,7 +50,7 @@ class SpeakHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("说 "):
             text = ''.join([plain.text for plain in message.get(Plain)])[2:].replace(" ", '，')
             if len(text) > 110:
@@ -60,11 +61,11 @@ class SpeakHandler(AbstractHandler):
                 if isinstance(voice, str):
                     return MessageItem(MessageChain.create([Plain(text=voice)]), QuoteSource(GroupStrategy()))
                 elif isinstance(voice, bytes):
-                    voice_element = await app.uploadVoice(await silkcoder.encode(voice))
+                voice_element = await app.uploadVoice(await silkcoder.encode(voice), method=UploadMethod.Group)
                     return MessageItem(MessageChain.create([voice_element]), Normal(GroupStrategy()))
 
     @staticmethod
-    async def get_voice(group_id: int, text: str) -> Union[str, bytes]:
+    async def get_voice(app: Ariadne, group_id: int, text: str) -> Union[str, bytes, None]:
         if voice_type := await orm.fetchone(select(Setting.voice).where(Setting.group_id == group_id)):
             voice_type = voice_type[0]
             if voice_type != "off":

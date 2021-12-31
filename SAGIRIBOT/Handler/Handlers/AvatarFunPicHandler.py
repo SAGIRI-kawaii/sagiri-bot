@@ -12,11 +12,11 @@ from moviepy.editor import ImageSequenceClip
 from PIL import ImageDraw, ImageFilter, ImageOps
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
-from graia.application.message.elements.internal import At, Image, Plain
+from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.element import At, Image, Plain
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -53,7 +53,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def avatar_fun_pic_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def avatar_fun_pic_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await AvatarFunPicHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -70,7 +70,7 @@ class AvatarFunPicHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if message_text.startswith("摸"):
             match_elements = AvatarFunPicHandler.get_match_element(message)
@@ -282,7 +282,7 @@ class AvatarFunPicHandler(AbstractHandler):
 
         os.remove(f"{os.getcwd()}/statics/temp/tempPetPet-{md5}.gif")
 
-        return MessageItem(MessageChain.create([Image.fromUnsafeBytes(image_bytes)]), Normal(GroupStrategy()))
+        return MessageItem(MessageChain.create([Image(data_bytes=image_bytes)]), Normal(GroupStrategy()))
 
     @staticmethod
     async def kiss_make_frame(operator, target, i):
@@ -335,7 +335,7 @@ class AvatarFunPicHandler(AbstractHandler):
         with open(f"{os.getcwd()}/statics/temp/tempKiss-{md5}.gif", 'rb') as r:
             img_content = r.read()
         os.remove(f"{os.getcwd()}/statics/temp/tempKiss-{md5}.gif")
-        return MessageItem(MessageChain.create([Image.fromUnsafeBytes(img_content)]), Normal(GroupStrategy()))
+        return MessageItem(MessageChain.create([Image(data_bytes=img_content)]), Normal(GroupStrategy()))
 
     @staticmethod
     async def ripped(image: Union[int, str]) -> MessageItem:
@@ -350,7 +350,7 @@ class AvatarFunPicHandler(AbstractHandler):
         frame = frame.convert('RGB')
         output = BytesIO()
         frame.save(output, format='jpeg')
-        return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
+        return MessageItem(MessageChain.create([Image(data_bytes=output.getvalue())]), Normal(GroupStrategy()))
 
     @staticmethod
     async def throw(image: Union[int, str]) -> MessageItem:
@@ -369,7 +369,7 @@ class AvatarFunPicHandler(AbstractHandler):
         throw = throw.convert('RGB')
         output = BytesIO()
         throw.save(output, format='jpeg')
-        return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
+        return MessageItem(MessageChain.create([Image(data_bytes=output.getvalue())]), Normal(GroupStrategy()))
 
     @staticmethod
     async def crawl(image: Union[int, str]) -> MessageItem:
@@ -389,7 +389,7 @@ class AvatarFunPicHandler(AbstractHandler):
         crawl = crawl.convert('RGB')
         output = BytesIO()
         crawl.save(output, format='jpeg')
-        return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
+        return MessageItem(MessageChain.create([Image(data_bytes=output.getvalue())]), Normal(GroupStrategy()))
 
     @staticmethod
     async def resize_img(img, width, height, angle=0):
@@ -423,7 +423,7 @@ class AvatarFunPicHandler(AbstractHandler):
             frames.append(frame)
         output = BytesIO()
         imageio.mimsave(output, frames, format='gif', duration=0.05)
-        return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
+        return MessageItem(MessageChain.create([Image(data_bytes=output.getvalue())]), Normal(GroupStrategy()))
 
     @staticmethod
     async def support(image: Union[int, str]) -> MessageItem:
@@ -436,7 +436,7 @@ class AvatarFunPicHandler(AbstractHandler):
         frame = frame.convert('RGB')
         output = BytesIO()
         frame.save(output, format='jpeg')
-        return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
+        return MessageItem(MessageChain.create([Image(data_bytes=output.getvalue())]), Normal(GroupStrategy()))
 
     @staticmethod
     async def swallowed(image: Union[int, str]) -> MessageItem:
@@ -472,4 +472,4 @@ class AvatarFunPicHandler(AbstractHandler):
 
         output = BytesIO()
         imageio.mimsave(output, frames, format='gif', duration=0.06)
-        return MessageItem(MessageChain.create([Image.fromUnsafeBytes(output.getvalue())]), Normal(GroupStrategy()))
+        return MessageItem(MessageChain.create([Image(data_bytes=output.getvalue())]), Normal(GroupStrategy()))

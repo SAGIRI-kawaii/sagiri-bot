@@ -5,11 +5,11 @@ from io import BytesIO
 from PIL import Image as IMG
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.ORM.AsyncORM import Setting, UserCalledCount
@@ -24,7 +24,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def lolicon_keyword_search_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def lolicon_keyword_search_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await LoliconKeywordSearchHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -37,7 +37,7 @@ class LoliconKeywordSearchHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if re.match(r"来点.+[色涩瑟]图", message.asDisplay()):
             # await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             await update_user_call_count_plus1(group, member, UserCalledCount.setu, "setu")
@@ -77,7 +77,7 @@ class LoliconKeywordSearchHandler(AbstractHandler):
             return MessageItem(
                 MessageChain.create([
                     Plain(text=f"你要的{keyword}涩图来辣！\n"),
-                    Image.fromLocalFile(file_path),
+                    Image(path=file_path),
                     Plain(text=f"\n{info}")
                 ]),
                 QuoteSource(GroupStrategy()) if not r18 else Revoke(GroupStrategy())
@@ -92,7 +92,7 @@ class LoliconKeywordSearchHandler(AbstractHandler):
             return MessageItem(
                 MessageChain.create([
                     Plain(text=f"你要的{keyword}涩图来辣！\n"),
-                    Image.fromUnsafeBytes(img_content),
+                    Image(data_bytes=img_content),
                     Plain(text=f"\n{info}")
                 ]),
                 QuoteSource(GroupStrategy()) if not r18 else Revoke(GroupStrategy())

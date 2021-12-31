@@ -3,9 +3,9 @@ import traceback
 from functools import wraps
 from sqlalchemy import select
 
-from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
-from graia.application.message.elements.internal import Plain
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import Group, Member
+from graia.ariadne.message.element import Plain
 
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem

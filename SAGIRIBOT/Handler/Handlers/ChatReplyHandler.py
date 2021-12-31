@@ -20,11 +20,11 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, At
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, At
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.utils import get_config
@@ -42,7 +42,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def chat_reply_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def chat_reply_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await ChatReplyHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -55,7 +55,7 @@ class ChatReplyHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.has(At) and message.get(At)[0].target == get_config("BotQQ"):
             await update_user_call_count_plus1(group, member, UserCalledCount.at, "at")
             content = "".join(plain.text for plain in message.get(Plain)).strip().replace(" ", "，")

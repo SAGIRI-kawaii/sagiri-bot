@@ -3,11 +3,11 @@ import qrcode
 from io import BytesIO
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Image
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -21,7 +21,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def qrcode_generator_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def qrcode_generator_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await QrCodeGeneratorHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -34,13 +34,13 @@ class QrCodeGeneratorHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if re.match(r"qrcode .+", message.asDisplay()):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             content = message.asDisplay()[7:]
             qrcode_img = qrcode.make(content)
             bytes_io = BytesIO()
             qrcode_img.save(bytes_io)
-            return MessageItem(MessageChain.create([Image.fromUnsafeBytes(bytes_io.getvalue())]), QuoteSource(GroupStrategy()))
+            return MessageItem(MessageChain.create([Image(data_bytes=bytes_io.getvalue())]), QuoteSource(GroupStrategy()))
         else:
             return None

@@ -1,11 +1,11 @@
 import re
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.message.elements.internal import Plain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -18,7 +18,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def marketing_content_generator_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def marketing_content_generator_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await MarketingContentGeneratorHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -31,7 +31,7 @@ class MarketingContentGeneratorHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if re.match("营销号#.*#.*#.*", message.asDisplay()):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             _, somebody, something, other_word = message.asDisplay().split("#")

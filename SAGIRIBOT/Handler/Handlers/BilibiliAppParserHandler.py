@@ -3,13 +3,14 @@ import time
 import aiohttp
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
-from graia.application.message.elements.internal import App, Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.element import App, Plain, Image
 
-from SAGIRIBOT.utils import sec_format
+from SAGIRIBOT.ORM.AsyncORM import Setting
+from SAGIRIBOT.utils import sec_format, get_setting, MessageChainUtils
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.static_datas import bilibili_partition_dict
@@ -22,7 +23,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def bilibili_app_parser_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def bilibili_app_parser_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await BilibiliAppParserHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -35,7 +36,7 @@ class BilibiliAppParserHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if apps := message.get(App):
             app_json = json.loads(apps[0].content)
             if app_json["prompt"] == "[QQ小程序]哔哩哔哩" or "meta" in app_json and "detail_1" in app_json["meta"] and app_json["meta"]["detail_1"]["title"] == "哔哩哔哩":
@@ -101,7 +102,7 @@ class BilibiliAppParserHandler(AbstractHandler):
             async with session.get(url=img_url) as resp:
                 img_content = await resp.read()
 
-        chain_list.append(Image.fromUnsafeBytes(img_content))
+        chain_list.append(Image(data_bytes=img_content))
         chain_list.append(Plain(text=f"\n【分区】{bilibili_partition_dict[str(data['tid'])]['name']}->{data['tname']}\n"))
         chain_list.append(Plain(text=f"【视频类型】{'原创' if data['copyright'] == 1 else '转载'}\n"))
         chain_list.append(Plain(text=f"【投稿时间】{time.strftime('%Y-%m-%d', time.localtime(int(data['pubdate'])))}\n"))

@@ -5,11 +5,11 @@ from PIL import Image as IMG
 from PIL import ImageEnhance
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -25,7 +25,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def phantom_tank_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def phantom_tank_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await PhantomTankHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -38,7 +38,7 @@ class PhantomTankHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         message_text = "".join([plain.text for plain in message.get(Plain)]).strip()
         if message_text == "幻影" or message_text == "彩色幻影":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
@@ -66,7 +66,7 @@ class PhantomTankHandler(AbstractHandler):
     @frequency_limit_require_weight_free(2)
     async def get_phantom_message(group: Group, member: Member, display_img: IMG, hide_img: IMG):
         return MessageItem(
-            MessageChain.create([Image.fromUnsafeBytes(await PhantomTankHandler.make_tank(display_img, hide_img))]),
+            MessageChain.create([Image(data_bytes=await PhantomTankHandler.make_tank(display_img, hide_img))]),
             QuoteSource(GroupStrategy())
         )
 
@@ -74,7 +74,7 @@ class PhantomTankHandler(AbstractHandler):
     @frequency_limit_require_weight_free(2)
     async def get_colorful_phantom_message(group: Group, member: Member, display_img: IMG, hide_img: IMG):
         return MessageItem(
-            MessageChain.create([Image.fromUnsafeBytes(await PhantomTankHandler.colorful_tank(display_img, hide_img))]),
+            MessageChain.create([Image(data_bytes=await PhantomTankHandler.colorful_tank(display_img, hide_img))]),
             QuoteSource(GroupStrategy())
         )
 

@@ -3,12 +3,12 @@ import json
 import random
 from pathlib import Path
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
+from graia.ariadne.message.element import Plain, Image
 from SAGIRIBOT.MessageSender.MessageSender import GroupMessageSender
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -21,7 +21,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def tarot_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def tarot_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await TarotHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -34,7 +34,7 @@ class TarotHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() == "塔罗牌":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
             return await TarotHandler.get_tarot()
@@ -50,7 +50,7 @@ class TarotHandler(AbstractHandler):
         elements = []
         img_path = f"{os.getcwd()}/statics/tarot/{dir}/{filename + '.jpg'}"
         if filename and os.path.exists(img_path):
-            elements.append(Image.fromLocalFile(img_path))
+            elements.append(Image(path=img_path))
         elements.append(Plain(text=content))
         return MessageItem(MessageChain.create(elements), QuoteSource(GroupStrategy()))
 

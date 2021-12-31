@@ -7,11 +7,11 @@ from loguru import logger
 from PIL import Image as IMG
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -25,7 +25,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def image_adder_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def image_adder_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await ImageAdderHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -38,9 +38,10 @@ class ImageAdderHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         legal_type = ("setu", "setu18", "real", "realHighq", "wallpaper", "sketch")
-        if re.match(r"添加(setu|setu18|real|realHighq|wallpaper|sketch)图片(\[图片])+", message.asDisplay()):
+        if re.match(r"添加(setu|setu18|real|realHighq|wallpaper|sketch)图片(\[图片])+", message.asDisplay()) or \
+                re.match(r"添加(setu|setu18|real|realHighq|wallpaper|sketch)图片\\n(\[图片])+", message.asDisplay()):
             if not await user_permission_require(group, member, 2):
                 return MessageItem(MessageChain.create([Plain(text="你没有权限，爬！")]), Normal(GroupStrategy()))
             image_type = re.findall(r"添加(.*?)图片.*(\[图片].*)+", message.asDisplay(), re.S)[0][0]
@@ -60,7 +61,7 @@ class ImageAdderHandler(AbstractHandler):
                         await ImageAdderHandler.add_image(path, message.get(Image))
                     except:
                         logger.error(traceback.format_exc())
-                        return MessageItem(MessageChain.create([Plain(text="出错了呐~请查看日志/控制台输出！")]), Normal(GroupStrategy()))
+                        return MessageItem(MessageChain.create([Plain(text="出错，请查看日志/控制台输出！")]), Normal(GroupStrategy()))
                     return MessageItem(
                         MessageChain.create([Plain(text=f"保存成功！共保存了{len(message.get(Image))}张图片！")]),
                         Normal(GroupStrategy())
@@ -68,7 +69,7 @@ class ImageAdderHandler(AbstractHandler):
                 else:
                     return MessageItem(
                         MessageChain.create(
-                            [Image.fromLocalFile(f"{os.getcwd()}/statics/error/path_not_exists.png")]),
+                            [Image(path=f"{os.getcwd()}/statics/error/path_not_exists.png")]),
                         QuoteSource(GroupStrategy())
                     )
             else:
@@ -82,14 +83,16 @@ class ImageAdderHandler(AbstractHandler):
     @staticmethod
     async def add_image(path: str, images: list):
         for image in images:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url=image.url) as resp:
-                    img_content = await resp.read()
-            img_suffix = image.imageId.split('.').pop()
+            # async with aiohttp.ClientSession() as session:
+            #     async with session.get(url=image.url) as resp:
+            #         img_content = await resp.read()
+            # img_suffix = image.imageId.split('.').pop()
+            # img = IMG.open(BytesIO(img_content))
+            img_suffix = re.compile('"imageId": "{.*}.(.{1,5})"').search(image.asPersistentString()).group(1)
             img_suffix = img_suffix if img_suffix != 'mirai' else 'png'
-            img = IMG.open(BytesIO(img_content))
+            img = IMG.open(BytesIO(await image.get_bytes()))
             # save_path = os.path.join(path, f"{get_image_save_number()}.{img_suffix}")
-            save_path = os.path.join(path, f"{image.imageId.split('.')[0][1:-1]}.{img_suffix}")
+            save_path = os.path.join(path, f"{image.uuid}.{img_suffix}")
             # while os.path.exists(save_path):
             #     save_path = os.path.join(path, f"{get_image_save_number()}.{img_suffix}")
             img.save(save_path)

@@ -7,11 +7,11 @@ from decimal import Decimal, ROUND_HALF_UP
 from PIL import Image as IMG, ImageDraw, ImageFont
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.decorators import switch, blacklist
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -40,7 +40,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def style_picture_generator_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def style_picture_generator_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await StylePictureGeneratorHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -56,7 +56,7 @@ class StylePictureGeneratorHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if re.match("5000兆 .* .*", message_text):
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
@@ -78,7 +78,7 @@ class StylePictureGeneratorHandler(AbstractHandler):
             try:
                 img_byte = BytesIO()
                 GoSenChoEnHoShiStyleUtils.genImage(word_a=left_text, word_b=right_text).save(img_byte, format='PNG')
-                return MessageItem(MessageChain.create([Image.fromUnsafeBytes(img_byte.getvalue())]), Normal(GroupStrategy()))
+                return MessageItem(MessageChain.create([Image(data_bytes=img_byte.getvalue())]), Normal(GroupStrategy()))
             except TypeError:
                 return MessageItem(MessageChain.create([Plain(text="不支持的内容！不要给我一些稀奇古怪的东西！")]), Normal(GroupStrategy()))
         except ValueError:
@@ -413,7 +413,7 @@ class PornhubStyleUtils:
     @staticmethod
     async def make_ph_style_logo(left_text: str, right_text: str) -> MessageChain:
         return MessageChain.create([
-            Image.fromUnsafeBytes(await PornhubStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
+            Image(data_bytes=await PornhubStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
         ])
 
 
@@ -491,5 +491,5 @@ class YoutubeStyleUtils:
     @staticmethod
     async def make_yt_style_logo(left_text: str, right_text: str) -> MessageChain:
         return MessageChain.create([
-            Image.fromUnsafeBytes(await YoutubeStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
+            Image(data_bytes=await YoutubeStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
         ])

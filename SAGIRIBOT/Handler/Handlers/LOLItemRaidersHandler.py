@@ -4,10 +4,10 @@ import aiohttp
 import asyncio
 from bs4 import BeautifulSoup
 
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
-from graia.application.event.messages import Group, Member
-from graia.application.message.elements.internal import Plain, Image
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import Group, Member
+from graia.ariadne.message.element import Plain, Image
 
 from SAGIRIBOT.Handler.Handler import AbstractHandler
 from SAGIRIBOT.MessageSender.MessageItem import MessageItem
@@ -18,7 +18,7 @@ from SAGIRIBOT.static_datas import lol_hero_name_to_code
 class LOLItemRaidersHandler(AbstractHandler):
     __name__ = "LOLItemRaidersHandler"
 
-    async def handle(self, app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(self, app: Ariadne, message: MessageChain, group: Group, member: Member):
         if re.match(r"lol .* .*", message.asDisplay()):
             pass
         elif re.match(r"lol .*", message.asDisplay()):
@@ -130,7 +130,7 @@ class LOLItemRaidersHandler(AbstractHandler):
 
         return MessageItem(
             MessageChain.create([
-                Image.fromUnsafeAddress(url) for url in skill_imgs
+                Image(url=url) for url in skill_imgs
             ]),
             QuoteSource(GroupStrategy())
         )

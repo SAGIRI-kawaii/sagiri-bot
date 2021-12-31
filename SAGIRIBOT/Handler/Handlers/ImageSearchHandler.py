@@ -3,14 +3,14 @@ import aiohttp
 from loguru import logger
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.application.exceptions import AccountMuted
+from graia.ariadne.exception import AccountMuted
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.message.chain import MessageChain
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.event.messages import Group, Member, GroupMessage
-from graia.application.message.elements.internal import Source, Plain, At, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.element import Source, Plain, At, Image
 
 from SAGIRIBOT.Core.AppCore import AppCore
 from SAGIRIBOT.decorators import switch, blacklist
@@ -27,7 +27,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def image_search_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def image_search_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await ImageSearchHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -41,7 +41,7 @@ class ImageSearchHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() in ("搜图", "以图搜图"):
             await update_user_call_count_plus1(group, member, UserCalledCount.search, "search")
             if not await get_setting(group.id, Setting.img_search):
@@ -168,6 +168,6 @@ class ImageSearchHandler(AbstractHandler):
             else:
                 data_str += f"\n{key}:\n    {data[key]}\n"
         return MessageChain.create([
-            Image.fromUnsafeBytes(img_content),
+            Image(data_bytes=img_content),
             Plain(text=f"\n{data_str}")
         ])

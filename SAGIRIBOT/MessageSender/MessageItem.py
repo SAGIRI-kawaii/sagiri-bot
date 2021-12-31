@@ -1,6 +1,6 @@
 from typing import Union
 
-from graia.application.message.chain import MessageChain
+from graia.ariadne.message.chain import MessageChain
 
 from SAGIRIBOT.MessageSender.Strategy import Strategy
 

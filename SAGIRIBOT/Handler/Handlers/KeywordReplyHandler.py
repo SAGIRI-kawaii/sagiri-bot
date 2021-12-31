@@ -8,14 +8,14 @@ from loguru import logger
 from sqlalchemy import select
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
+from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.application.exceptions import AccountMuted
+from graia.ariadne.exception import AccountMuted
 from graia.broadcast.interrupt import InterruptControl
-from graia.application.message.chain import MessageChain
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 
 from SAGIRIBOT.ORM.AsyncORM import orm
@@ -33,7 +33,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def keyword_reply_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def keyword_reply_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await KeywordReplyHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -46,9 +46,8 @@ class KeywordReplyHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
-        message_serialization = message.asSerializationString().replace(
-            "[mirai:source:" + re.findall(r'\[mirai:source:(.*?)]', message.asSerializationString(), re.S)[0] + "]", "")
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
+        message_serialization = message.asPersistentString()
         if re.match(r"添加回复关键词#[\s\S]*#[\s\S]*", message_serialization):
             if await user_permission_require(group, member, 2):
                 return await KeywordReplyHandler.update_keyword(message, message_serialization)
@@ -78,7 +77,7 @@ class KeywordReplyHandler(AbstractHandler):
             reply, reply_type = random.choice(result)
             return MessageItem(
                 MessageChain.create([
-                    Plain(text=reply) if reply_type == "text" else Image.fromUnsafeBytes(base64.b64decode(reply))
+                    Plain(text=reply) if reply_type == "text" else Image(data_bytes=base64.b64decode(reply))
                 ]),
                 Normal(GroupStrategy())
             )
@@ -124,7 +123,7 @@ class KeywordReplyHandler(AbstractHandler):
             return MessageItem(MessageChain.create([Plain(text="发生错误！请查看日志！")]), Normal(GroupStrategy()))
 
     @staticmethod
-    async def delete_keyword(app: GraiaMiraiApplication, message_serialization: str, group: Group, member: Member):
+    async def delete_keyword(app: Ariadne, message_serialization: str, group: Group, member: Member):
         try:
             _, keyword = message_serialization.split("#")
         except ValueError:
@@ -156,7 +155,7 @@ class KeywordReplyHandler(AbstractHandler):
             msg = [Plain(text=f"关键词{keyword}目前有以下数据：\n")]
             for i in range(len(replies)):
                 msg.append(Plain(text=f"{i + 1}. "))
-                msg.append(Plain(text=replies[i][1]) if replies[i][0] == "text" else Image.fromUnsafeBytes(base64.b64decode(replies[i][1])))
+                msg.append(Plain(text=replies[i][1]) if replies[i][0] == "text" else Image(data_bytes=base64.b64decode(replies[i][1])))
                 msg.append(Plain(text="\n"))
             msg.append(Plain(text="请发送你要删除的回复编号"))
             try:
@@ -191,7 +190,7 @@ class KeywordReplyHandler(AbstractHandler):
                             Plain(text="你确定要删除下列回复吗(是/否)：\n"),
                             Plain(text=keyword),
                             Plain(text="\n->\n"),
-                            Plain(text=replies[number - 1][1]) if replies[number - 1][0] == "text" else Image.fromUnsafeBytes(base64.b64decode(replies[number - 1][1]))
+                            Plain(text=replies[number - 1][1]) if replies[number - 1][0] == "text" else Image(data_bytes=base64.b64decode(replies[number - 1][1]))
                         ])
                     )
                 except AccountMuted:

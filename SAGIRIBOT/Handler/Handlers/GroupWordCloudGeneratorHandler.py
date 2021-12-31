@@ -12,11 +12,11 @@ from dateutil.relativedelta import relativedelta
 from wordcloud import WordCloud, ImageColorGenerator
 
 from graia.saya import Saya, Channel
-from graia.application import GraiaMiraiApplication
-from graia.application.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.application.message.elements.internal import Plain, Image
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from SAGIRIBOT.ORM.AsyncORM import orm
 from SAGIRIBOT.Handler.Handler import AbstractHandler
@@ -33,7 +33,7 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def group_wordcloud_generator_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+async def group_wordcloud_generator_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await GroupWordCloudGeneratorHandler.handle(app, message, group, member):
         await GroupMessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -46,7 +46,7 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         message_text = message.asDisplay()
         if message_text == "我的月内总结":
             await update_user_call_count_plus1(group, member, UserCalledCount.functions, "functions")
@@ -201,7 +201,7 @@ class GroupWordCloudGeneratorHandler(AbstractHandler):
                 Plain(text=f"{time_right}"),
                 Plain(
                     text=f"\n自有记录以来，{'你' if target == 'member' else '本群'}一共发了{times}条消息\n下面是{'你的' if target == 'member' else '本群的'}{tag}词云:\n"),
-                Image.fromUnsafeBytes(await GroupWordCloudGeneratorHandler.draw_word_cloud(jieba.analyse.extract_tags(" ".join(texts), topK=1000, withWeight=True, allowPOS=())))
+                Image(data_bytes=await GroupWordCloudGeneratorHandler.draw_word_cloud(jieba.analyse.extract_tags(" ".join(texts), topK=1000, withWeight=True, allowPOS=())))
             ]),
             QuoteSource(GroupStrategy())
         )
