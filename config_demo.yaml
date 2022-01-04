@@ -1,36 +1,40 @@
-# 必要数据
-BotQQ: 123
-HostQQ: 123
-miraiHost: http://localhost:8080
-authKey: !!str 1234567890
-DBLink: sqlite+aiosqlite:///data.db
+# 必要数据及设置
+bot_qq: bot_qq
+host_qq: host_qq
+mirai_host: http://localhost:23456
+verify_key: verify_key
+db_link: sqlite+aiosqlite:///data.db
+web_manager_api: true
+web_manager_auto_boot: true
+proxy: proxy
 
 # 路径相关
-setuPath: M:\Pixiv\pxer_new\
-setu18Path: M:\Pixiv\pxer18_new\
-realPath: M:\Pixiv\reality\
-realHighqPath: M:\Pixiv\reality\highq\
-wallpaperPath: M:\Pixiv\bizhi\highq\
-sketchPath: M:\线稿\
+image_path:
+  setu: setu
+  setu18: setu18
+  real: real
+  real_highq: real_highq
+  wallpaper: wallpaper
+  sketch: sketch
 
 # 功能相关
-tencent:
-  secretId: secretId
-  secretKey: secretKey
-shadiaoAppName: shadiao
-saucenaoApiKey: balabala
-webManagerApi: true
-webManagerAutoBoot: true
-loliconApiKey: loliconApiKey
-wolframAlphaKey: wolframAlphaKey
-proxy: proxy_url
+functions:
+  tencent:
+    secret_id: secret_id
+    secret_key: secret_key
+  saucenao_api_key: saucenao_api_key
+  lolicon_api_key: lolicon_api_key
+  wolfram_alpha_key: wolfram_alpha_key
+  shadiao_app_name: shadiao_app_name
 
 # 日志相关
-errorRetention: 14
-commonRetention: 7
+log_related:
+  error_retention: 14
+  common_retention: 7
 
 # 数据相关
-loliconImageCache: true
-networkDataCache: true
-automaticUpdate: false
-dataRetention: true
+data_related:
+  lolicon_image_cache: true
+  network_data_cache: true
+  automatic_update: false
+  data_retention: true

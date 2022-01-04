@@ -5,48 +5,59 @@ import traceback
 import threading
 from loguru import logger
 
-from graia.application import GraiaMiraiApplication
-from graia.application.message.elements.internal import *
-from graia.application.event.lifecycle import ApplicationLaunched
-from graia.application.event.messages import Group, Member, GroupMessage
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.element import Plain
+from graia.ariadne.event.lifecycle import ApplicationLaunched
+from graia.ariadne.event.message import Group, Member, MessageChain, Friend
 
-from WebManager.websocket import set_log
-from SAGIRIBOT.Core.AppCore import AppCore
-from SAGIRIBOT.utils import online_notice, get_config
+from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.utils import online_notice, load_config
 
-with open('config.yaml', 'r', encoding='utf-8') as f:
-    configs = yaml.load(f.read())
-
-logger.add(f"{os.getcwd()}/log/common.log", level="INFO", retention=f"{configs['commonRetention']} days", encoding="utf-8")
-logger.add(f"{os.getcwd()}/log/error.log", level="ERROR", retention=f"{configs['errorRetention']} days", encoding="utf-8")
-logger.add(set_log)
-
-core = AppCore(configs)
+core = AppCore(load_config())
 
 app = core.get_app()
 bcc = core.get_bcc()
 saya = core.get_saya()
+config = core.get_config()
 
-ignore = ["__init__", "__pycache__"]
+logger.add(
+    f"{os.getcwd()}/log/common.log",
+    level="INFO",
+    retention=f"{config.log_related['common_retention']} days",
+    encoding="utf-8"
+)
+logger.add(
+    f"{os.getcwd()}/log/error.log",
+    level="ERROR",
+    retention=f"{config.log_related['error_retention']} days",
+    encoding="utf-8"
+)
+
+ignore = ["__init__.py", "__pycache__"]
 with saya.module_context():
-    for module in os.listdir("SAGIRIBOT/Handler/Handlers"):
+    for module in os.listdir("sagiri_bot/handler/handlers"):
         if module in ignore:
             continue
         try:
             if os.path.isdir(module):
-                saya.require(f"SAGIRIBOT.Handler.Handlers.{module}")
+                saya.require(f"sagiri_bot.handler.handlers.{module}")
             else:
-                saya.require(f"SAGIRIBOT.Handler.Handlers.{module.split('.')[0]}")
+                saya.require(f"sagiri_bot.handler.handlers.{module.split('.')[0]}")
         except ModuleNotFoundError:
             pass
 
 core.load_saya_modules()
 
 
-@bcc.receiver(GroupMessage)
-async def group_message_handler(app: GraiaMiraiApplication, message: MessageChain, group: Group, member: Member):
+@bcc.receiver("GroupMessage")
+async def group_message_handler(message: MessageChain, group: Group, member: Member):
     message_text_log = message.asDisplay().replace("\n", "\\n")
     logger.info(f"收到来自群 <{group.name}> 中成员 <{member.name}> 的消息：{message_text_log}")
+
+
+@bcc.receiver("FriendMessage")
+async def friend_message_listener(app: Ariadne, friend: Friend):
+    await app.sendMessage(friend, MessageChain.create([Plain("Hello, World!")]))
 
 
 @logger.catch
@@ -54,18 +65,6 @@ async def group_message_handler(app: GraiaMiraiApplication, message: MessageChai
 async def init():
     await core.bot_launch_init()
     await online_notice(app)
-
-
-def management_boot():
-    from WebManager.web_manager import run_api
-    run_api()
-
-
-if get_config("webManagerApi"):
-    threading.Thread(target=management_boot, args=()).start()
-    if get_config("webManagerAutoBoot"):
-        import webbrowser
-        webbrowser.open(f"{os.getcwd()}/WebManager/index.html")
 
 
 core.launch()
