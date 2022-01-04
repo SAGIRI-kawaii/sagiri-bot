@@ -23,7 +23,6 @@ functions:
     secret_id: secret_id
     secret_key: secret_key
   saucenao_api_key: saucenao_api_key
-  lolicon_api_key: lolicon_api_key
   wolfram_alpha_key: wolfram_alpha_key
   shadiao_app_name: shadiao_app_name
 
