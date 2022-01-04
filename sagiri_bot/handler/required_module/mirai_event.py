@@ -194,7 +194,7 @@ async def group_allow_member_invite_changed(app: Ariadne, event: GroupAllowMembe
         pass
 
 
-@bcc.receiver("MemberCardChangeEvent")
+# @bcc.receiver("MemberCardChangeEvent")
 async def member_card_changed(app: Ariadne, event: MemberCardChangeEvent, group: Group):
     try:
         if event.operator:
