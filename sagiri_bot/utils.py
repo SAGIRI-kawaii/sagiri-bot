@@ -71,7 +71,13 @@ async def get_setting(group_id: int, setting) -> Union[bool, str]:
         raise ValueError(f"未找到 {group_id} -> {str(setting)} 结果！请检查数据库！")
 
 
-async def update_user_call_count_plus(group: Group, member: Member, table_column, column_name: str, count: int = 1) -> bool:
+async def update_user_call_count_plus(
+        group: Group,
+        member: Member,
+        table_column,
+        column_name: str,
+        count: int = 1
+) -> bool:
     new_value = await orm.fetchone(
         select(table_column).where(UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id)
     )
