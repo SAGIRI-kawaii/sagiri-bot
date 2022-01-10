@@ -8,7 +8,7 @@ from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 
 from sagiri_bot.orm.async_orm import orm
-from sagiri_bot.utils import get_setting
+from sagiri_bot.utils import get_setting, user_permission_require
 from sagiri_bot.message_sender.message_item import MessageItem
 from sagiri_bot.message_sender.strategy import QuoteSource, DoNothing
 from sagiri_bot.orm.async_orm import UserPermission, Setting, BlackList
@@ -130,7 +130,7 @@ def debug():
                     result = func(*args, **kwargs)
                 return result
             except:
-                return MessageItem(MessageChain.create([Plain(text=traceback.format_exc())]), QuoteSource(GroupStrategy()))
+                return MessageItem(MessageChain.create([Plain(text=traceback.format_exc())]), QuoteSource())
         return wrapper
     return decorate
 
