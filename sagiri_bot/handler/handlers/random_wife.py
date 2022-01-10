@@ -37,7 +37,7 @@ class RandomWife(AbstractHandler):
     @switch()
     @blacklist()
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        if message.asDisplay() in ("", "随机老婆"):
+        if message.asDisplay() == "随机老婆":
             return await RandomWife.get_random_wife()
 
     @staticmethod

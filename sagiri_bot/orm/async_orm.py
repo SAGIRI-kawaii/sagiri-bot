@@ -238,31 +238,6 @@ class FunctionCalledRecord(Base):
     result = Column(Boolean, default=True)
 
 
-class JLUEpidemicAccountInfo(Base):
-    """ 吉林大学疫情打卡数据 """
-    __tablename__ = "jlu_epidemic_account_info"
-
-    qq = Column(BIGINT, primary_key=True)
-    name = Column(String(length=5), nullable=True)
-    account = Column(String(length=20), nullable=True)
-    passwd = Column(String(length=50), nullable=True)
-    campus_id = Column(String(length=5), nullable=True)
-    dorm_id = Column(String(length=5), nullable=True)
-    room_id = Column(String(length=5), nullable=True)
-    scheduled = Column(Boolean, default=False)
-
-
-class JLUOANotice(Base):
-    """ 吉林大学通知内容数据 """
-    __tablename__ = "jlu_oa_notice"
-
-    id = Column(BIGINT, primary_key=True)
-    title = Column(String(length=200), nullable=False)
-    time = Column(DateTime, nullable=False)
-    publisher = Column(String(length=100), nullable=False)
-    content = Column(Text, nullable=False)
-
-
 class LoliconData(Base):
     """ lolicon api数据 """
     __tablename__ = "lolicon_data"
