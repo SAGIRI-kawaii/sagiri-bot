@@ -193,9 +193,9 @@ Saya version: 0.0.13
 
 - [mirai-api-http](https://github.com/project-mirai/mirai-api-http) ，Mirai HTTP API (console) plugin
 
-- [Graia Appliation](https://github.com/GraiaProject/Application) ，一个设计精巧, 协议实现完备的, 基于 mirai-api-http 的即时聊天软件自动化框架.
+- [Graia Appliation（老版使用）](https://github.com/GraiaProject/Application) ，一个设计精巧, 协议实现完备的, 基于 mirai-api-http 的即时聊天软件自动化框架.
 
-- [Graia Appliation](https://github.com/GraiaProject/Ariadne) ，Another elegant framework for Mirai and mirai-api-http v2. Powered by GraiaProject.
+- [Graia Ariadne（目前使用）](https://github.com/GraiaProject/Ariadne) ，一个优雅且完备的 Python QQ 自动化框架。基于 Mirai API HTTP v2。
 
 - 特别感谢 [JetBrains](https://www.jetbrains.com/?from=sagiri-bot) 为开源项目提供免费的 [PyCharm](https://www.jetbrains.com/pycharm/?from=sagiri-bot) 等 IDE 的授权  
 
