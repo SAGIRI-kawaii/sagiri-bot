@@ -173,6 +173,10 @@ Saya version: 0.0.13
 
 ## 使用文档
 
+```diff
+注：目前使用文档还未更新，请查看模块内说明
+```
+
 - [功能列表](docs/functions.md)
 - [管理](docs/manage.md)
 - [功能扩展](docs/function_extension.md)
