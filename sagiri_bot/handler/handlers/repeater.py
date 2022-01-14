@@ -1,3 +1,5 @@
+from typing import Optional
+
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -10,16 +12,19 @@ from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.message_sender.strategy import Normal
 from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
 
 saya = Saya.current()
 channel = Channel.current()
+
+channel.name("Repeater")
+channel.author("SAGIRI-kawaii")
+channel.description("一个复读插件，有两条以上相同信息时自动触发")
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def repeater(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await Repeater.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+        await app.sendMessage(group, result.message)
 
 
 class Repeater(AbstractHandler):
@@ -27,7 +32,7 @@ class Repeater(AbstractHandler):
     复读Handler
     """
     __name__ = "Repeater"
-    __description__ = "一个复读Handler"
+    __description__ = "一个复读插件"
     __usage__ = "有两条以上相同信息时自动触发"
 
     group_repeat = {}
@@ -35,7 +40,7 @@ class Repeater(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member) -> Optional[MessageItem]:
         group_id = group.id
         message_serialization = message.asPersistentString()
         if await get_setting(group_id, Setting.repeat):

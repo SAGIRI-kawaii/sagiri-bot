@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 from aiohttp.client_exceptions import ClientResponseError
 
 from graia.ariadne.app import Ariadne
-from graia.ariadne.message.element import Source
 from graia.ariadne.exception import AccountMuted
 from graia.ariadne.event.message import MessageEvent
 from graia.ariadne.message.chain import MessageChain
@@ -15,42 +14,13 @@ from graia.ariadne.model import Group, Member, Friend
 from .message_item import MessageItem
 from .strategy import Strategy, DoNothing
 from sagiri_bot.exception_resender import ExceptionReSender
-from sagiri_bot.core.exceptions import AsyncioTasksGetResult
 
-
-# class MessageSender1:
-#     """
-#     message_sender interface，
-#     """
-#     promote: Strategy = None
-#     message: MessageChain = None
-#
-#     def __init__(self, strategy: Strategy):
-#         self.__promote = strategy
-#
-#     async def send(
-#             self,
-#             app: Ariadne,
-#             message: MessageChain,
-#             origin_message: MessageChain,
-#             target_field: Union[MessageEvent, Group, Friend, Member],
-#             sender: Union[Member, Friend]
-#     ):
-#         try:
-#             await self.__promote.send(app, message, origin_message, target_field, sender)
-#         except AccountMuted:
-#             logger.error(f"Bot 在群 <{target_field.name}> 被禁言，无法发送！")
-#         except ClientResponseError:
-#             logger.error(traceback.format_exc())
-#             ExceptionReSender().addTask([
-#                 MessageItem(message, self.__promote),
-#                 origin_message,
-#                 target_field,
-#                 sender,
-#                 1
-#             ])
-#         except TypeError:
-#             pass
+try:
+    from sagiri_bot.handler.handlers.repeater import Repeater
+    has_sagiri_repeater = True
+except ImportError:
+    has_sagiri_repeater = False
+    Repeater = None
 
 
 class MessageSender:
@@ -69,6 +39,20 @@ class MessageSender:
             sender: Union[Friend, Member]
     ):
         try:
+            if has_sagiri_repeater:
+                if target_field.id in Repeater.group_repeat.keys():
+                    print(
+                        Repeater.group_repeat[target_field.id]["lastMsg"],
+                        Repeater.group_repeat[target_field.id]["thisMsg"]
+                    )
+                    Repeater.group_repeat[target_field.id]["lastMsg"] = Repeater.group_repeat[target_field.id]["thisMsg"]
+                    Repeater.group_repeat[target_field.id]["thisMsg"] = message.asPersistentString()
+                else:
+                    Repeater.group_repeat[target_field.id] = {
+                        "lastMsg": "",
+                        "thisMsg": message.asPersistentString(),
+                        "stopMsg": ""
+                    }
             await self.__strategy.send(app, message, origin_message, target_field, sender)
             if not isinstance(self.promote, DoNothing):
                 logger.success(
