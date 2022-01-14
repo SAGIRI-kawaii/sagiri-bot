@@ -18,9 +18,13 @@ from sagiri_bot.decorators import frequency_limit_require_weight_free, switch, b
 saya = Saya.current()
 channel = Channel.current()
 
+channel.name("AbbreviatedPrediction")
+channel.author("SAGIRI-kawaii")
+channel.description("一个获取英文缩写意思的插件，在群中发送 `缩 内容` 即可")
+
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abbreviated_prediction_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
+async def abbreviated_prediction(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await AbbreviatedPrediction.handle(app, message, group, member):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 

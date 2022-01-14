@@ -71,7 +71,6 @@ class AppCore(object):
                         account=config.bot_qq
                     ),
                 )
-
             )
             self.__saya = Saya(self.__bcc)
             self.__saya.install_behaviours(BroadcastBehaviour(self.__bcc))
