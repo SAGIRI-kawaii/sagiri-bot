@@ -13,3 +13,11 @@ pillow
 qrcode
 sqlalchemy
 aiosqlite
+pyyaml
+loguru
+pydantic
+aiohttp
+beautifulsoup4
+numpy
+python-dateutil
+pydantic
