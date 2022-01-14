@@ -41,10 +41,6 @@ class MessageSender:
         try:
             if has_sagiri_repeater:
                 if target_field.id in Repeater.group_repeat.keys():
-                    print(
-                        Repeater.group_repeat[target_field.id]["lastMsg"],
-                        Repeater.group_repeat[target_field.id]["thisMsg"]
-                    )
                     Repeater.group_repeat[target_field.id]["lastMsg"] = Repeater.group_repeat[target_field.id]["thisMsg"]
                     Repeater.group_repeat[target_field.id]["thisMsg"] = message.asPersistentString()
                 else:
