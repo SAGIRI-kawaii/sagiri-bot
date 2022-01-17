@@ -37,3 +37,9 @@ data_related:
   network_data_cache: true
   automatic_update: false
   data_retention: true
+
+# 数据库相关
+database_related:
+  mysql:
+    pool_size: 40
+    max_overflow: 60

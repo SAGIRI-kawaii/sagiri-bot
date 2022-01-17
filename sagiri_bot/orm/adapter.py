@@ -1,12 +1,12 @@
-mysql_adapter = {
-    "pool_size": 40,
-    "max_overflow": 60,
-    "charset": "utf8mb4"
-}
+import yaml
 
 
 def get_adapter(url: str) -> dict:
-    if url.startswith("mysql"):
-        return mysql_adapter
-    else:
-        return {}
+    with open('config.yaml', 'r', encoding='utf-8') as f:
+        configs = yaml.load(f.read(), yaml.BaseLoader)
+    if adapters := configs.get("database_related"):
+        adapter = None
+        if url.startswith("mysql"):
+            adapter = adapters.get("mysql")
+        return adapter if adapter else {}
+    return {}
