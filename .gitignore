@@ -14,3 +14,4 @@ config.yaml
 /alembic/versions
 /.idea
 data.db
+test.py
