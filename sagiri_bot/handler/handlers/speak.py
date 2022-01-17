@@ -1,8 +1,12 @@
+import asyncio
 import json
 import uuid
 import base64
 import traceback
 from typing import Union
+
+import aiohttp
+from graia.ariadne.model import UploadMethod
 from loguru import logger
 from graiax import silkcoder
 from sqlalchemy import select
@@ -59,15 +63,12 @@ class Speak(AbstractHandler):
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("说 "):
             text = ''.join([plain.text for plain in message.get(Plain)])[2:].replace(" ", '，')
-            if len(text) > 110:
-                return MessageItem(MessageChain.create([Plain(text="要读的东西太长了啦！")]), QuoteSource())
-            else:
-                await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-                voice = await Speak.get_voice(group.id, text)
+            await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
+            if voice := await Speak.get_voice(app, group.id, text):
                 if isinstance(voice, str):
                     return MessageItem(MessageChain.create([Plain(text=voice)]), QuoteSource())
                 elif isinstance(voice, bytes):
-                    voice_element = await app.uploadVoice(await silkcoder.encode(voice))
+                    voice_element = await app.uploadVoice(await silkcoder.encode(voice), method=UploadMethod.Group)
                     return MessageItem(MessageChain.create([voice_element]), Normal())
 
     @staticmethod
@@ -99,6 +100,66 @@ class Speak(AbstractHandler):
                     return base64.b64decode(voice)
                 except TencentCloudSDKException as err:
                     logger.error(traceback.format_exc())
+                    if err.get_code() == "UnsupportedOperation.TextTooLong":
+                        return await Speak.get_long_voice(voice_type, text)
                     return str(err)
             else:
                 return None
+
+    @staticmethod
+    async def get_long_voice(voice_type: Union[int, str], text: str):
+        try:
+            user_data = config.functions["tencent"]
+            cred = credential.Credential(user_data["secret_id"], user_data["secret_key"])
+            httpProfile = HttpProfile()
+            httpProfile.endpoint = "tts.tencentcloudapi.com"
+            clientProfile = ClientProfile()
+            clientProfile.httpProfile = httpProfile
+            client = tts_client.TtsClient(cred, "", clientProfile)
+            req = models.CreateTtsTaskRequest()
+            params = {
+                "Text": text,
+                "ModelType": 1,
+                "VoiceType": int(voice_type),
+                "Volume": 10,
+                "Codec": "wav"
+            }
+            req.from_json_string(json.dumps(params))
+            resp = client.CreateTtsTask(req)
+            task_id = json.loads(resp.to_json_string())["Data"]["TaskId"]
+            while True:
+                status = await Speak.get_long_voice_status(task_id)
+                if status["Data"]["Status"] in (0, 1):
+                    await asyncio.sleep(1)
+                elif status["Data"]["Status"] == 3:
+                    return "长文本转语音失败。"
+                elif status["Data"]["Status"] == 2:
+                    url = status["Data"]["ResultUrl"]
+                    break
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url=url) as resp:
+                    voice = await resp.read()
+                    return voice
+        except TencentCloudSDKException as err:
+            logger.error(traceback.format_exc())
+            return str(err)
+
+    @staticmethod
+    async def get_long_voice_status(task_id: str):
+        try:
+            user_data = config.functions["tencent"]
+            cred = credential.Credential(user_data["secret_id"], user_data["secret_key"])
+            httpProfile = HttpProfile()
+            httpProfile.endpoint = "tts.tencentcloudapi.com"
+            clientProfile = ClientProfile()
+            clientProfile.httpProfile = httpProfile
+            client = tts_client.TtsClient(cred, "", clientProfile)
+            req = models.DescribeTtsTaskStatusRequest()
+            params = {
+                "TaskId": task_id
+            }
+            req.from_json_string(json.dumps(params))
+            resp = client.DescribeTtsTaskStatus(req)
+            return json.loads(resp.to_json_string())
+        except TencentCloudSDKException:
+            return None
