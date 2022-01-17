@@ -58,9 +58,9 @@ class HotWordsExplainer(AbstractHandler):
             if result["category"] == "ban_enabled":
                 return MessageItem(
                     MessageChain.create([
-                        Plain(text=f"请求过多，已达到访问上限，请稍后再试。")
+                        Plain(text="请求过多，已达到访问上限，请稍后再试。")
                     ]),
-                    QuoteSource(GroupStrategy())
+                    QuoteSource()
                 )
         result = result["data"][0]
         return MessageItem(
