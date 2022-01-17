@@ -23,7 +23,7 @@ channel = Channel.current()
 
 channel.name("FakeForward")
 channel.author("SAGIRI-kawaii")
-channel.description("一个简单的投骰子插件，发送 `{times}d{range}` 即可")
+channel.description("一个生成转发消息的插件，发送 '/fake [@目标] [内容]' 即可")
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
@@ -43,6 +43,8 @@ class FakeForward(AbstractHandler):
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay().startswith("/fake "):
             content = "".join(i.text for i in message.get(Plain))[6:]
+            if not message.has(At):
+                return MessageItem(MessageChain.create([Plain(text="未指定目标！")]), Normal())
             sender = message.get(At)[0]
             forward_nodes = [
                 ForwardNode(

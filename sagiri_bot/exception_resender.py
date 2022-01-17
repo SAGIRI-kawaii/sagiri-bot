@@ -70,10 +70,10 @@ def exception_resender_listener(app: Ariadne, exception_resender_instance: Excep
     while True:
         task = exception_resender_instance.get()
         if task:
-            logger.warning("task catched! " + "len:" + str(exception_resender_instance.getLen()) + "task: " + str(task))
+            logger.warning("task caught! " + "len:" + str(exception_resender_instance.getLen()) + "task: " + str(task))
             try:
                 asyncio.run_coroutine_threadsafe(task[0].strategy.send(app, task[0].message, task[1], task[2], task[3]), loop)
-                logger.success(f"task resend seccess! task: {str(task)}")
+                logger.success(f"task resend successfully! task: {str(task)}")
             except Exception:
                 task[4] += 1
                 if task[4] <= exception_resender_instance.max_retries:
