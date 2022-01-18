@@ -170,6 +170,7 @@ Saya version: 0.0.13
 | network_data_cache | 自动保存各api的数据（暂未实现） |
 | automatic_update | 自动更新（暂未实现） |
 | data_retention | 退群后的数据处理 |
+| database_related | 数据库相关（若不了解请不要修改这一部分，用于自定义engine参数） |
 
 ## 使用文档
 
