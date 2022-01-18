@@ -20,4 +20,3 @@ aiohttp
 beautifulsoup4
 numpy
 python-dateutil
-pydantic
