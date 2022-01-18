@@ -21,8 +21,10 @@ config = core.get_config()
 
 
 @bcc.receiver("MemberJoinEvent")
-async def member_join(app: Ariadne, event: MemberJoinEvent):
+async def member_join(app: Ariadne, group: Group, event: MemberJoinEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
                 At(target=event.member.id),
@@ -34,8 +36,10 @@ async def member_join(app: Ariadne, event: MemberJoinEvent):
 
 
 @bcc.receiver("MemberLeaveEventQuit")
-async def member_leave(app: Ariadne, event: MemberLeaveEventQuit):
+async def member_leave(app: Ariadne, group: Group, event: MemberLeaveEventQuit):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
                 Plain(text="%s怎么走了呐~是因为偷袭了69岁的老同志吗嘤嘤嘤" % event.member.name)
@@ -46,7 +50,9 @@ async def member_leave(app: Ariadne, event: MemberLeaveEventQuit):
 
 
 @bcc.receiver("MemberMuteEvent")
-async def member_muted(app: Ariadne, event: MemberMuteEvent):
+async def member_muted(app: Ariadne, group: Group, event: MemberMuteEvent):
+    if not await get_setting(group, Setting.switch):
+        return None
     if event.operator is not None:
         if event.member.id == config.host_qq:
             try:
@@ -77,8 +83,10 @@ async def member_muted(app: Ariadne, event: MemberMuteEvent):
 
 
 @bcc.receiver("MemberUnmuteEvent")
-async def member_unmute(app: Ariadne, event: MemberUnmuteEvent):
+async def member_unmute(app: Ariadne, group: Group, event: MemberUnmuteEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
                 Plain(text="啊嘞嘞？%s被放出来了呢~" % event.member.name)
@@ -89,8 +97,10 @@ async def member_unmute(app: Ariadne, event: MemberUnmuteEvent):
 
 
 @bcc.receiver("MemberLeaveEventKick")
-async def member_kicked(app: Ariadne, event: MemberLeaveEventKick):
+async def member_kicked(app: Ariadne, group: Group, event: MemberLeaveEventKick):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
                 Plain(text="%s滚蛋了呐~" % event.member.name)
@@ -101,8 +111,10 @@ async def member_kicked(app: Ariadne, event: MemberLeaveEventKick):
 
 
 @bcc.receiver("MemberSpecialTitleChangeEvent")
-async def member_special_title_change(app: Ariadne, event: MemberSpecialTitleChangeEvent):
+async def member_special_title_change(app: Ariadne, group: Group, event: MemberSpecialTitleChangeEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
                 Plain(text="啊嘞嘞？%s的群头衔从%s变成%s了呐~" % (event.member.name, event.origin, event.current))
@@ -113,8 +125,10 @@ async def member_special_title_change(app: Ariadne, event: MemberSpecialTitleCha
 
 
 @bcc.receiver("MemberPermissionChangeEvent")
-async def member_permission_change(app: Ariadne, event: MemberPermissionChangeEvent):
+async def member_permission_change(app: Ariadne, group: Group, event: MemberPermissionChangeEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
                 Plain(text="啊嘞嘞？%s的权限变成%s了呐~跪舔大佬！" % (event.member.name, event.current))
@@ -126,7 +140,7 @@ async def member_permission_change(app: Ariadne, event: MemberPermissionChangeEv
 
 @bcc.receiver("BotLeaveEventKick")
 async def bot_leave_group(app: Ariadne, event: BotLeaveEventKick):
-    print("bot has been kicked!")
+    logger.warning("bot has been kicked!")
     await app.sendFriendMessage(
         config.host_qq, MessageChain.create([
             Plain(text=f"呜呜呜主人我被踢出{event.group.name}群了")
@@ -135,8 +149,10 @@ async def bot_leave_group(app: Ariadne, event: BotLeaveEventKick):
 
 
 @bcc.receiver("GroupNameChangeEvent")
-async def group_name_changed(app: Ariadne, event: GroupNameChangeEvent):
+async def group_name_changed(app: Ariadne, group: Group, event: GroupNameChangeEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.group, MessageChain.create([
                 Plain(text=f"群名改变啦！告别过去，迎接未来哟~\n本群名称由{event.origin}变为{event.current}辣！")
@@ -147,8 +163,10 @@ async def group_name_changed(app: Ariadne, event: GroupNameChangeEvent):
 
 
 @bcc.receiver("GroupEntranceAnnouncementChangeEvent")
-async def group_entrance_announcement_changed(app: Ariadne, event: GroupEntranceAnnouncementChangeEvent):
+async def group_entrance_announcement_changed(app: Ariadne, group: Group, event: GroupEntranceAnnouncementChangeEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.group, MessageChain.create([
                 Plain(text=f"入群公告改变啦！注意查看呐~\n原公告：{event.origin}\n新公告：{event.current}")
@@ -159,8 +177,10 @@ async def group_entrance_announcement_changed(app: Ariadne, event: GroupEntrance
 
 
 @bcc.receiver("GroupAllowAnonymousChatEvent")
-async def group_allow_anonymous_chat_changed(app: Ariadne, event: GroupAllowAnonymousChatEvent):
+async def group_allow_anonymous_chat_changed(app: Ariadne, group: Group, event: GroupAllowAnonymousChatEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.group, MessageChain.create([
                 Plain(text=f"匿名功能现在{'开启辣！畅所欲言吧！' if event.current else '关闭辣！光明正大做人吧！'}")
@@ -171,8 +191,10 @@ async def group_allow_anonymous_chat_changed(app: Ariadne, event: GroupAllowAnon
 
 
 @bcc.receiver("GroupAllowConfessTalkEvent")
-async def group_allow_confess_talk_changed(app: Ariadne, event: GroupAllowConfessTalkEvent):
+async def group_allow_confess_talk_changed(app: Ariadne, group: Group, event: GroupAllowConfessTalkEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.group, MessageChain.create([
                 Plain(text=f"坦白说功能现在{'开启辣！快来让大家更加了解你吧！' if event.current else '关闭辣！有时候也要给自己留点小秘密哟~'}")
@@ -183,8 +205,10 @@ async def group_allow_confess_talk_changed(app: Ariadne, event: GroupAllowConfes
 
 
 @bcc.receiver("GroupAllowMemberInviteEvent")
-async def group_allow_member_invite_changed(app: Ariadne, event: GroupAllowMemberInviteEvent):
+async def group_allow_member_invite_changed(app: Ariadne, group: Group, event: GroupAllowMemberInviteEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendMessage(
             event.group, MessageChain.create([
                 Plain(text=f"现在{'允许邀请成员加入辣！快把朋友拉进来玩叭！' if event.current else '不允许邀请成员加入辣！要注意哦~'}")
@@ -194,9 +218,11 @@ async def group_allow_member_invite_changed(app: Ariadne, event: GroupAllowMembe
         pass
 
 
-# @bcc.receiver("MemberCardChangeEvent")
-async def member_card_changed(app: Ariadne, event: MemberCardChangeEvent, group: Group):
+@bcc.receiver("MemberCardChangeEvent")
+async def member_card_changed(app: Ariadne, group: Group, event: MemberCardChangeEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         if event.operator:
             if event.member.name == event.origin or event.origin == "" or event.current == "":
                 pass
@@ -236,8 +262,10 @@ async def new_friend_request(app: Ariadne, event: NewFriendRequestEvent):
 
 
 @bcc.receiver("MemberJoinRequestEvent")
-async def new_member_join_request(app: Ariadne, event: MemberJoinRequestEvent):
+async def new_member_join_request(app: Ariadne, group: Group, event: MemberJoinRequestEvent):
     try:
+        if not await get_setting(group, Setting.switch):
+            return None
         await app.sendGroupMessage(
             event.groupId, MessageChain.create([
                 Plain(text=f"有个新的加群加群请求哟~管理员们快去看看叭！\n"),
@@ -264,7 +292,9 @@ async def bot_invited_join_group(app: Ariadne, event: BotInvitedJoinGroupRequest
 
 
 @bcc.receiver("GroupRecallEvent")
-async def anti_revoke(app: Ariadne, event: GroupRecallEvent):
+async def anti_revoke(app: Ariadne, group: Group, event: GroupRecallEvent):
+    if not await get_setting(group, Setting.switch):
+        return None
     if await get_setting(event.group.id, Setting.anti_revoke) and event.authorId != config.bot_qq:
         try:
             msg = await app.getMessageFromId(event.messageId)
@@ -311,7 +341,9 @@ nudge_info = {}
 
 
 @bcc.receiver("NudgeEvent")
-async def nudge(app: Ariadne, event: NudgeEvent):
+async def nudge(app: Ariadne, group: Group, event: NudgeEvent):
+    if not await get_setting(group, Setting.switch):
+        return None
     if event.target == config.bot_qq:
         if event.context_type == "group":
             if member := await app.getMember(event.group_id, event.supplicant):

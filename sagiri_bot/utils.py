@@ -4,12 +4,10 @@ import math
 import yaml
 import json
 import base64
-import hashlib
 import aiohttp
 import datetime
 from io import BytesIO
 from typing import Union
-from urllib import parse
 from loguru import logger
 from PIL import Image as IMG
 from sqlalchemy import select
@@ -64,11 +62,13 @@ def get_config(config: str):
         return None
 
 
-async def get_setting(group_id: int, setting) -> Union[bool, str]:
-    if result := await orm.fetchone(select(setting).where(Setting.group_id == group_id)):
+async def get_setting(group: Union[Group, int], setting) -> Union[bool, str]:
+    if isinstance(group, Group):
+        group = group.id
+    if result := await orm.fetchone(select(setting).where(Setting.group_id == group)):
         return result[0]
     else:
-        raise ValueError(f"未找到 {group_id} -> {str(setting)} 结果！请检查数据库！")
+        raise ValueError(f"未找到 {group} -> {str(setting)} 结果！请检查数据库！")
 
 
 async def update_user_call_count_plus(
