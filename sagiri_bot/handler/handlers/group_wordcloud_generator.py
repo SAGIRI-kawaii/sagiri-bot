@@ -160,7 +160,7 @@ class GroupWordCloudGenerator(AbstractHandler):
             tag = "年内"
         elif review_type == "month":
             timep = time - relativedelta(months=1)
-            time_left = (time - relativedelta(years=1)).strftime("%Y-%m-%d %H:%M:%S")
+            time_left = (time - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S")
             tag = "月内"
         else:
             return MessageItem(MessageChain.create([Plain(text="Error: review_type invalid!")]), QuoteSource())
