@@ -301,10 +301,8 @@ async def anti_revoke(app: Ariadne, group: Group, event: GroupRecallEvent):
             revoked_msg = msg.messageChain
             author_member = await app.getMember(event.group.id, event.authorId)
             author_name = "自己" if event.operator.id == event.authorId else author_member.name
-            resend_msg = sum(
-                MessageChain.create([Plain(text=f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦：\n\n")]),
-                revoked_msg
-            )
+            resend_msg = MessageChain.create([Plain(text=f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦：\n\n")])\
+                .extend(revoked_msg)
             await app.sendMessage(
                 event.group,
                 resend_msg.asSendable()
