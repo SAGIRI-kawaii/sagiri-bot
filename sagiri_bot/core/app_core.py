@@ -186,7 +186,7 @@ class AppCore(object):
             listener.start()
         except:
             logger.error(traceback.format_exc())
-            exit()
+            exit(0)
 
     @staticmethod
     def dict_check(dictionary: dict, indent: int = 4) -> None:
@@ -209,7 +209,7 @@ class AppCore(object):
             value = self.__config.__getattribute__(key)
             if key in required_key and key == value:
                 logger.error(f"Required initial value not changed detected: {key} - {value}")
-                exit()
+                exit(0)
             elif isinstance(value, dict):
                 logger.success(f"{key}:")
                 self.dict_check(value)

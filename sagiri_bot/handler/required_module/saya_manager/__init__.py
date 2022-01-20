@@ -11,12 +11,15 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
+from .utils import SayaData, saya_init
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.utils import user_permission_require
 from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.strategy import QuoteSource
 from sagiri_bot.message_sender.message_item import MessageItem
 from sagiri_bot.message_sender.message_sender import MessageSender
+
+saya_init()
 
 saya = Saya.current()
 channel = Channel.current()
@@ -32,12 +35,7 @@ channel.description(
 
 core = AppCore.get_core_instance()
 inc = InterruptControl(core.get_bcc())
-
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def saya_manager(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await SayaManager.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+saya_data = SayaData()
 
 
 class SayaManager(AbstractHandler):
@@ -49,6 +47,11 @@ class SayaManager(AbstractHandler):
 
     @staticmethod
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member) -> MessageItem:
+        global saya_data
+        if message.asDisplay() == "test" and member.id == 1900384123:
+            from .utils import saya_data
+            print(saya_data.switch)
+            saya_data.switch["sagiri_bot.handler.handlers.image_searcher"][963453075] = False
         if message.asDisplay().strip() == "已加载插件":
             loaded_channels = SayaManager.get_loaded_channels()
             keys = list(loaded_channels.keys())
@@ -107,7 +110,7 @@ class SayaManager(AbstractHandler):
                 ]),
                 QuoteSource()
             )
-        elif message.asDisplay().startswith("加载插件 "):
+        elif message.asDisplay().startswith("加载插件 .+"):
             if not user_permission_require(group, member, 3):
                 return MessageItem(MessageChain.create([Plain(text="爬，权限不足")]), QuoteSource())
             target = message.asDisplay()[5:].strip()
@@ -149,7 +152,7 @@ class SayaManager(AbstractHandler):
                     return MessageItem(MessageChain.create([Plain(text="加载成功")]), QuoteSource())
             else:
                 return MessageItem(MessageChain.create([Plain(text="进程退出")]), QuoteSource())
-        elif re.match(r"[卸重]载插件", message.asDisplay()):
+        elif re.match(r"[卸重]载插件 .+", message.asDisplay()):
             if not user_permission_require(group, member, 3):
                 return MessageItem(MessageChain.create([Plain(text="爬，权限不足")]), QuoteSource())
             load_type = "reload" if message.asDisplay()[0] == "重" else "unload"
@@ -171,7 +174,8 @@ class SayaManager(AbstractHandler):
                 else:
                     return MessageItem(MessageChain.create([Plain(text="错误的名称！请检查后再发送！")]), QuoteSource())
 
-            await app.sendMessage(group, MessageChain.create([Plain(text=f"你确定要{message.asDisplay()[0]}载插件 `{channel._name}` 吗？（是/否）")]))
+            await app.sendMessage(group, MessageChain.create(
+                [Plain(text=f"你确定要{message.asDisplay()[0]}载插件 `{channel._name}` 吗？（是/否）")]))
 
             @Waiter.create_using_function([GroupMessage])
             def confirm_waiter(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
@@ -188,13 +192,34 @@ class SayaManager(AbstractHandler):
             if not result:
                 return MessageItem(MessageChain.create([Plain(text="非预期回复，进程退出")]), QuoteSource())
             elif result == "是":
-                result = SayaManager.unload_channel(channel_path) if load_type == "unload" else SayaManager.reload_channel(channel_path)
+                result = SayaManager.unload_channel(
+                    channel_path) if load_type == "unload" else SayaManager.reload_channel(channel_path)
                 if result:
                     return MessageItem(MessageChain.create([Plain(text=f"发生错误：{result[channel_path]}")]), QuoteSource())
                 else:
                     return MessageItem(MessageChain.create([Plain(text=f"{message.asDisplay()[0]}载成功")]), QuoteSource())
             else:
                 return MessageItem(MessageChain.create([Plain(text="进程退出")]), QuoteSource())
+        elif re.match(r"(打开|关闭)插件 .+", message.asDisplay()):
+            if not user_permission_require(group, member, 3):
+                return MessageItem(MessageChain.create([Plain(text="爬，权限不足")]), QuoteSource())
+            switch_type = "on" if message.asDisplay()[:2] == "打开" else "off"
+            target = message.asDisplay()[5:].strip()
+            loaded_channels = SayaManager.get_loaded_channels()
+            keys = list(loaded_channels.keys())
+            keys.sort()
+            channel_path = ""
+            if target.isdigit():
+                if not 0 <= int(target) - 1 < len(keys):
+                    return MessageItem(MessageChain.create([Plain(text="错误的编号！请检查后再发送！")]), QuoteSource())
+                channel_path = keys[int(target) - 1]
+            else:
+                for lchannel in loaded_channels.keys():
+                    if loaded_channels[lchannel]._name == target:
+                        channel_path = lchannel
+                        break
+            saya_data.switch_on(channel_path, group) if switch_type == "on" else saya_data.switch_off(channel_path, group)
+            return MessageItem(MessageChain.create([Plain(text=f"插件{channel_path}已{message.asDisplay()[:2]}！")]), QuoteSource())
 
     @staticmethod
     def get_loaded_channels() -> Dict[str, Channel]:
@@ -270,3 +295,9 @@ class SayaManager(AbstractHandler):
                 except Exception as e:
                     exceptions[channel] = e
         return exceptions
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def saya_manager(app: Ariadne, message: MessageChain, group: Group, member: Member):
+    if result := await SayaManager.handle(app, message, group, member):
+        await MessageSender(result.strategy).send(app, result.message, message, group, member)
