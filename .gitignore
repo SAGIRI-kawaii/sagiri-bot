@@ -16,4 +16,4 @@ config.yaml
 data.db
 test.py
 /log
-saya_data.json
+/sagiri_bot/handler/required_module/saya_manager/saya_data.json

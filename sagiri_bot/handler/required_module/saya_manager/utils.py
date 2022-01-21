@@ -1,5 +1,5 @@
-import os
 import json
+from pathlib import Path
 from loguru import logger
 from typing import Dict, Union
 
@@ -48,7 +48,7 @@ def saya_init():
     bcc = core.get_bcc()
     for channel in channels.values():
         cubes = channel.content
-        logger.info(f"installing saya module: {channel._name}")
+        logger.info(f"converting saya module: {channel.module}")
         for cube in cubes:
             if isinstance(cube.metaclass, ListenerSchema):
                 bcc.removeListener(bcc.getListener(cube.content))
@@ -183,11 +183,11 @@ class SayaData:
     def notice_off(self, name: str, group: Union[Group, int]) -> None:
         self.value_change(name, group, "notice", False)
 
-    def save(self, path: str = f"{os.getcwd()}/saya_data.json"):
+    def save(self, path: str = str(Path(__file__).parent.joinpath("saya_data.json"))):
         with open(path, "w") as w:
             w.write(json.dumps({"switch": self.switch, "permission": self.permission}, indent=4))
 
-    def load(self, path: str = f"{os.getcwd()}/saya_data.json") -> "SayaData":
+    def load(self, path: str = str(Path(__file__).parent.joinpath("saya_data.json"))) -> "SayaData":
         try:
             with open(path, "r") as r:
                 data = json.load(r)

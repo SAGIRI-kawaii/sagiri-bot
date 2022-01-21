@@ -4,6 +4,8 @@ from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.parser.twilight import Twilight, Sparkle
+from graia.ariadne.message.parser.pattern import FullMatch, RegexMatch
 
 from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.handler.handler import AbstractHandler
@@ -28,9 +30,27 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个普通话转抽象话的插件，在群中发送 `/抽象 文字` 即可")
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def abstract_message_transformer(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await AbstractMessageTransformer.handle(app, message, group, member):
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight(
+                Sparkle(
+                    [FullMatch("/抽象 ")],
+                    {"content": RegexMatch(r".*")}
+                )
+            )
+        ]
+    )
+)
+async def abstract_message_transformer(
+        app: Ariadne,
+        message: MessageChain,
+        group: Group,
+        member: Member,
+        content: RegexMatch
+):
+    if result := await AbstractMessageTransformer.handle(app, message, group, member, content):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
@@ -42,9 +62,9 @@ class AbstractMessageTransformer(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        if message.asDisplay().startswith("/抽象 "):
-            return await AbstractMessageTransformer.transform_abstract_message(message.asDisplay()[4:])
+    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member, content: RegexMatch):
+        if content.matched:
+            return await AbstractMessageTransformer.transform_abstract_message(content.result.asDisplay())
         else:
             return None
 
