@@ -1,4 +1,3 @@
-import traceback
 from loguru import logger
 from dateutil.relativedelta import relativedelta
 
@@ -91,7 +90,7 @@ async def member_leave_event_kick(app: Ariadne, group: Group, event: MemberLeave
             return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
-                Plain(text="%s滚蛋了呐~" % event.member.name)
+                Plain(text=f"{event.member.name}滚蛋了呐~")
             ])
         )
     except AccountMuted:
