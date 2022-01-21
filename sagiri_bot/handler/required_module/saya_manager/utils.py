@@ -1,12 +1,13 @@
-from pathlib import Path
+import os
+import json
 from loguru import logger
 from typing import Dict, Union
 
 from graia.saya import Saya
 from graia.ariadne.app import Ariadne
+from graia.ariadne.event.message import Group
 from graia.broadcast.exceptions import ExecutionStop
 from graia.broadcast.builtin.decorators import Depend
-from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.chain import MessageChain, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
@@ -58,9 +59,9 @@ def saya_init():
                 bcc.listeners.append(listener)
                 if not cube.metaclass.inline_dispatchers:
                     logger.warning(f"插件{channel._name}未使用inline_dispatchers！默认notice为False！")
-                    saya_data.add_saya(channel._name, notice=False)
+                    saya_data.add_saya(channel.module, notice=False)
                 else:
-                    saya_data.add_saya(channel._name)
+                    saya_data.add_saya(channel.module)
 
 
 @singleton
@@ -68,6 +69,11 @@ class SayaData:
     permission: Dict[int, Dict[int, int]]
     switch: Dict[str, Dict[int, Dict[str, bool]]]
     """
+    permission = {
+        group: {
+            member: level(int)
+        }
+    }
     switch = {
         channel_module: {
             group: {
@@ -96,6 +102,7 @@ class SayaData:
                 self.switch[key][group] = {}
                 self.switch[key][group]["switch"] = DEFAULT_SWITCH
                 self.switch[key][group]["notice"] = DEFAULT_NOTICE
+        self.save()
 
     def remove_group(self, group: Union[Group, int]) -> None:
         if isinstance(group, Group):
@@ -105,6 +112,7 @@ class SayaData:
         for key in self.switch:
             if group in self.switch[key]:
                 del self.switch[key][group]
+        self.save()
 
     def add_saya(self, name: str, switch: bool = DEFAULT_SWITCH, notice: bool = DEFAULT_NOTICE) -> None:
         if name not in self.switch:
@@ -113,10 +121,12 @@ class SayaData:
                 self.switch[name][group] = {}
                 self.switch[name][group]["switch"] = switch
                 self.switch[name][group]["notice"] = notice
+        self.save()
 
     def remove_saya(self, name: str) -> None:
         if name in self.switch:
             del self.switch[name]
+        self.save()
 
     def is_turned_on(self, name: str, group: Union[Group, int]) -> bool:
         if isinstance(group, Group):
@@ -159,6 +169,7 @@ class SayaData:
             if not self.switch[name].get(group):
                 self.add_group(group)
         self.switch[name][group][key] = value
+        self.save()
 
     def switch_on(self, name: str, group: Union[Group, int]) -> None:
         self.value_change(name, group, "switch", True)
@@ -172,5 +183,19 @@ class SayaData:
     def notice_off(self, name: str, group: Union[Group, int]) -> None:
         self.value_change(name, group, "notice", False)
 
+    def save(self, path: str = f"{os.getcwd()}/saya_data.json"):
+        with open(path, "w") as w:
+            w.write(json.dumps({"switch": self.switch, "permission": self.permission}, indent=4))
 
-saya_data = SayaData()
+    def load(self, path: str = f"{os.getcwd()}/saya_data.json") -> "SayaData":
+        try:
+            with open(path, "r") as r:
+                data = json.load(r)
+                self.switch = data.get("switch", {})
+                self.permission = data.get("permission", {})
+        except FileNotFoundError:
+            pass
+        return self
+
+
+saya_data = SayaData().load()

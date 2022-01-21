@@ -16,3 +16,4 @@ config.yaml
 data.db
 test.py
 /log
+saya_data.json

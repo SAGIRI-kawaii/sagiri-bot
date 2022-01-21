@@ -11,7 +11,7 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
-from .utils import SayaData, saya_init
+from .utils import saya_data, saya_init
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.utils import user_permission_require
 from sagiri_bot.handler.handler import AbstractHandler
@@ -35,7 +35,6 @@ channel.description(
 
 core = AppCore.get_core_instance()
 inc = InterruptControl(core.get_bcc())
-saya_data = SayaData()
 
 
 class SayaManager(AbstractHandler):
