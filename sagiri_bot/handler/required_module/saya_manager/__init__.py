@@ -48,10 +48,6 @@ class SayaManager(AbstractHandler):
     @staticmethod
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member) -> MessageItem:
         global saya_data
-        if message.asDisplay() == "test" and member.id == 1900384123:
-            from .utils import saya_data
-            print(saya_data.switch)
-            saya_data.switch["sagiri_bot.handler.handlers.image_searcher"][963453075] = False
         if message.asDisplay().strip() == "已加载插件":
             loaded_channels = SayaManager.get_loaded_channels()
             keys = list(loaded_channels.keys())

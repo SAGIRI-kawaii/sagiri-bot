@@ -25,7 +25,7 @@ channel.description("一个简单的投骰子插件，发送 `{times}d{range}` �
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def dice_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
+async def dice(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await Dice.handle(app, message, group, member):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 
