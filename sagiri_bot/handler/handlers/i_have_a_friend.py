@@ -100,7 +100,7 @@ class IHaveAFriend(AbstractHandler):
                 avatar = BuildImage(200, 100, background=BytesIO(avatar))
             else:
                 avatar = BuildImage(200, 100, color=(0, 0, 0))
-            avatar.circle()
+            avatar.circle_new()
             text = BuildImage(300, 30, font_size=30, color="white" if not dark.matched else "black")
             text.text((0, 0), member.name, (0, 0, 0) if not dark.matched else (141, 141, 146))
             A = BuildImage(700, 150, font_size=25, color="white" if not dark.matched else "black")
