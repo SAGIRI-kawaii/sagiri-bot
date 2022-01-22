@@ -99,9 +99,7 @@ class SayaData:
             self.permission[group] = {}
         for key in self.switch:
             if group not in self.switch[key]:
-                self.switch[key][group] = {}
-                self.switch[key][group]["switch"] = DEFAULT_SWITCH
-                self.switch[key][group]["notice"] = DEFAULT_NOTICE
+                self.switch[key][group] = {"switch": DEFAULT_SWITCH, "notice": DEFAULT_NOTICE}
         self.save()
 
     def remove_group(self, group: Union[Group, int]) -> None:
