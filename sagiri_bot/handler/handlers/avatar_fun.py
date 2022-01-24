@@ -56,7 +56,7 @@ channel.description("一个可以生成头像相关趣味图的插件，在群�
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def avatar_fun_pic_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
+async def avatar_fun_pic(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await AvatarFunPic.handle(app, message, group, member):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 

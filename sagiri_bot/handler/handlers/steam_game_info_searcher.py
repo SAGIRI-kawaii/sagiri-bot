@@ -22,7 +22,7 @@ channel = Channel.current()
 
 channel.name("SteamGameInfoSearch")
 channel.author("SAGIRI-kawaii")
-channel.description("一个可以搜索steam游戏信息的Handler，在群中发送 `steam {游戏名}` 即可")
+channel.description("一个可以搜索steam游戏信息的插件，在群中发送 `steam {游戏名}` 即可")
 
 core = AppCore.get_core_instance()
 config = core.get_config()
@@ -37,7 +37,7 @@ async def steam_game_info_searcher(app: Ariadne, message: MessageChain, group: G
 
 class SteamGameInfoSearch(AbstractHandler):
     __name__ = "SteamGameInfoSearch"
-    __description__ = "一个可以搜索steam游戏信息的Handler"
+    __description__ = "一个可以搜索steam游戏信息的插件"
     __usage__ = "在群中发送 `steam {游戏名}` 即可"
 
     @staticmethod

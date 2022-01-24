@@ -42,7 +42,7 @@ async def image_adder(app: Ariadne, message: MessageChain, group: Group, member:
 
 
 class ImageAdder(AbstractHandler):
-    __name__ = "ImageAdderHandler"
+    __name__ = "ImageAdder"
     __description__ = "一个能够在图库中添加图片的插件"
     __usage__ = "在群中发送 `添加(图库名)图片([图片])+` 即可"
 

@@ -29,7 +29,7 @@ proxy = AppCore.get_core_instance().get_config().proxy
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def bangumi_info_search_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
+async def bangumi_info_searcher(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await BangumiInfoSearcher.handle(app, message, group, member):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 

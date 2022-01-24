@@ -34,7 +34,7 @@ channel = Channel.current()
 channel.name("GroupWordCloudGenerator")
 channel.author("SAGIRI-kawaii")
 channel.description(
-    "群词云生成器"
+    "群词云生成器，"
     "在群中发送 `[我的|本群][月|年]内总结` 即可查看个人/群 月/年词云（群词云需要权限等级2）"
 )
 

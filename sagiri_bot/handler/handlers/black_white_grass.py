@@ -24,7 +24,7 @@ channel = Channel.current()
 
 channel.name("BWGrass")
 channel.author("SAGIRI-kawaii")
-channel.description("一个生成黑白草的插件，在群中发送 `黑白[草]图 内容 图片` 即可")
+channel.description("一个生成黑白草图的插件，在群中发送 `黑白[草]图 内容 图片` 即可")
 
 core = AppCore.get_core_instance()
 config = core.get_config()
@@ -57,7 +57,7 @@ async def black_white_grass(
 
 class BWGrass(AbstractHandler):
     __name__ = "BWGrass"
-    __description__ = "一个生成黑白草的插件"
+    __description__ = "一个生成黑白草图的插件"
     __usage__ = "在群中发送 `黑白[草]图 内容 图片` 即可"
     __origin__ = "https://github.com/HibiKier/zhenxun_bot"
 

@@ -25,7 +25,7 @@ channel.description("一个可以查询热门词的插件，在群中发送 `{ke
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def hot_words_explainer_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
+async def hot_words_explainer(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await HotWordsExplainer.handle(app, message, group, member):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 

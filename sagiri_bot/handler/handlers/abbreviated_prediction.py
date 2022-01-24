@@ -1,4 +1,3 @@
-import re
 import aiohttp
 
 from graia.saya import Saya, Channel

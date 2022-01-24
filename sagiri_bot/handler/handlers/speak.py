@@ -46,7 +46,7 @@ config = core.get_config()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def speak_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
+async def speak(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await Speak.handle(app, message, group, member):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 

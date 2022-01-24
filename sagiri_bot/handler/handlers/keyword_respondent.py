@@ -35,8 +35,8 @@ channel.name("KeywordRespondent")
 channel.author("SAGIRI-kawaii")
 channel.description(
     "一个关键字回复插件，在群中发送已添加关键词可自动回复\n"
-    "在群中发送 `添加回复关键词#{keyword}#{reply} 可添加关键词`\n"
-    "在群中发送 `删除回复关键词#{keyword} 可删除关键词`"
+    "在群中发送 `添加回复关键词#{keyword}#{reply}` 可添加关键词\n"
+    "在群中发送 `删除回复关键词#{keyword}` 可删除关键词"
 )
 
 
@@ -50,8 +50,8 @@ class KeywordRespondent(AbstractHandler):
     __name__ = "KeywordRespondent"
     __description__ = "一个关键字回复插件"
     __usage__ = "在群中发送已添加关键词可自动回复\n" \
-                "在群中发送 `添加回复关键词#{keyword}#{reply} 可添加关键词`\n" \
-                "在群中发送 `删除回复关键词#{keyword} 可删除关键词`"
+                "在群中发送 `添加回复关键词#{keyword}#{reply}` 可添加关键词\n" \
+                "在群中发送 `删除回复关键词#{keyword}` 可删除关键词"
 
     @staticmethod
     @switch()
