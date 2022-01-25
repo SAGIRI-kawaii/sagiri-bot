@@ -8,5 +8,7 @@ def get_adapter(url: str) -> dict:
         adapter = None
         if url.startswith("mysql"):
             adapter = adapters.get("mysql")
+            for key in adapter.keys():
+                adapter[key] = int(adapter[key])
         return adapter if adapter else {}
     return {}
