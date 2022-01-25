@@ -2,6 +2,7 @@ import yaml
 from os import environ
 from loguru import logger
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import OperationalError
 from sqlalchemy import select, update, insert, delete
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -126,6 +127,14 @@ class AsyncORM(AsyncEngine):
 
     async def delete(self, table, condition):
         return await self.execute(delete(table).where(*condition))
+
+    async def inited(self) -> bool:
+        for table in Base.__subclasses__():
+            try:
+                await self.fetchone(select(table))
+            except OperationalError:
+                return False
+        return True
 
 
 orm = AsyncORM(DB_LINK)
