@@ -13,6 +13,7 @@ from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from .utils import saya_data, saya_init
 from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.utils import MessageChainUtils
 from sagiri_bot.utils import user_permission_require
 from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.strategy import QuoteSource
@@ -32,6 +33,7 @@ channel.description(
     "发送 `插件详情 [编号|名称]` 可查看插件详情\n"
     "发送 `[加载|重载|卸载]插件 [编号|名称]` 可加载/重载/卸载插件"
 )
+channel.uninstallable(False)
 
 core = AppCore.get_core_instance()
 inc = InterruptControl(core.get_bcc())
@@ -46,20 +48,22 @@ class SayaManager(AbstractHandler):
 
     @staticmethod
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member) -> MessageItem:
-        global saya_data
+        # global saya_data
         if message.asDisplay().strip() == "已加载插件":
             loaded_channels = SayaManager.get_loaded_channels()
             keys = list(loaded_channels.keys())
             keys.sort()
             return MessageItem(
-                MessageChain.create([
-                    Plain(text="目前加载插件：\n")
-                ] + [
-                    Plain(text=f"{i + 1}. {loaded_channels[keys[i]]._name}\n")
-                    for i in range(len(keys))
-                ] + [
-                    Plain(text="发送 `插件详情 [编号|名称]` 可查看插件详情")
-                ]),
+                await MessageChainUtils.messagechain_to_img(
+                    MessageChain.create([
+                        Plain(text="目前加载插件：\n")
+                    ] + [
+                        Plain(text=f"{i + 1}. {loaded_channels[keys[i]]._name}\n")
+                        for i in range(len(keys))
+                    ] + [
+                        Plain(text="发送 `插件详情 [编号|名称]` 可查看插件详情")
+                    ])
+                ),
                 QuoteSource()
             )
         elif message.asDisplay().startswith("插件详情 "):

@@ -66,8 +66,8 @@ def saya_init():
 
 @singleton
 class SayaData:
-    permission: Dict[int, Dict[int, int]]
-    switch: Dict[str, Dict[int, Dict[str, bool]]]
+    permission: Dict[str, Dict[int, int]]
+    switch: Dict[str, Dict[str, Dict[str, bool]]]
     """
     permission = {
         group: {
@@ -86,15 +86,16 @@ class SayaData:
     """
     def __init__(
             self,
-            permission: Dict[int, Dict[int, int]] = None,
-            switch: Dict[str, Dict[int, Dict[str, bool]]] = None
+            permission: Dict[str, Dict[int, int]] = None,
+            switch: Dict[str, Dict[str, Dict[str, bool]]] = None
     ):
         self.permission = permission if permission else {}
         self.switch = switch if switch else {}
 
-    def add_group(self, group: Union[Group, int]) -> None:
+    def add_group(self, group: Union[Group, int, str]) -> None:
         if isinstance(group, Group):
             group = group.id
+        group = str(group)
         if group not in self.permission:
             self.permission[group] = {}
         for key in self.switch:
@@ -102,9 +103,10 @@ class SayaData:
                 self.switch[key][group] = {"switch": DEFAULT_SWITCH, "notice": DEFAULT_NOTICE}
         self.save()
 
-    def remove_group(self, group: Union[Group, int]) -> None:
+    def remove_group(self, group: Union[Group, int, str]) -> None:
         if isinstance(group, Group):
             group = group.id
+        group = str(group)
         if group in self.permission:
             del self.permission[group]
         for key in self.switch:
@@ -129,6 +131,7 @@ class SayaData:
     def is_turned_on(self, name: str, group: Union[Group, int]) -> bool:
         if isinstance(group, Group):
             group = group.id
+        group = str(group)
         if self.switch.get(name):
             if group in self.switch[name]:
                 return self.switch[name][group]["switch"]
@@ -144,6 +147,7 @@ class SayaData:
     def is_notice_on(self, name: str, group: Union[Group, int]) -> bool:
         if isinstance(group, Group):
             group = group.id
+        group = str(group)
         if self.switch.get(name):
             if group in self.switch[name]:
                 return self.switch[name][group]["notice"]
@@ -159,6 +163,7 @@ class SayaData:
     def value_change(self, name: str, group: Union[Group, int], key: str, value: bool) -> None:
         if isinstance(group, Group):
             group = group.id
+        group = str(group)
         if self.switch.get(name):
             if group not in self.switch[name]:
                 self.add_group(group)
