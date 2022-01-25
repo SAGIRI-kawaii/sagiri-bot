@@ -1,4 +1,6 @@
 import json
+import random
+
 import aiohttp
 import traceback
 from loguru import logger
@@ -25,7 +27,7 @@ from sagiri_bot.orm.async_orm import Setting, UserCalledCount
 from sagiri_bot.message_sender.message_item import MessageItem
 from sagiri_bot.message_sender.message_sender import MessageSender
 from sagiri_bot.message_sender.strategy import AtSender, DoNothing
-
+from statics.zuan import zuan_low, zuan_high
 
 saya = Saya.current()
 channel = Channel.current()
@@ -66,15 +68,9 @@ class ChatReply(AbstractHandler):
             if mode_now == "normal":
                 return None
             elif mode_now == "zuanLow":
-                url = f"https://nmsl.shadiao.app/api.php?level=min&from={config.functions['shadiao_app_name']}"
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url=url) as resp:
-                        text = await resp.text()
+                text = random.choice(zuan_low)
             elif mode_now == "zuanHigh":
-                url = f"https://nmsl.shadiao.app/api.php?from={config.functions['shadiao_app_name']}"
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url=url) as resp:
-                        text = await resp.text()
+                text = random.choice(zuan_high)
             elif mode_now == "rainbow":
                 url = f"https://chp.shadiao.app/api.php?from={config.functions['shadiao_app_name']}"
                 async with aiohttp.ClientSession() as session:
