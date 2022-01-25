@@ -33,7 +33,6 @@ channel.description(
     "发送 `插件详情 [编号|名称]` 可查看插件详情\n"
     "发送 `[加载|重载|卸载]插件 [编号|名称]` 可加载/重载/卸载插件"
 )
-channel.uninstallable(False)
 
 core = AppCore.get_core_instance()
 inc = InterruptControl(core.get_bcc())
