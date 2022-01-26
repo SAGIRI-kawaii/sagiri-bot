@@ -19,8 +19,9 @@ channel.author("SAGIRI-kawaii")
 channel.description("对各种事件响应")
 
 functions = sys.modules["sagiri_bot.handler.required_module.mirai_event"].__dict__
-listening_events = list(gen_subclass(GroupEvent))
-listening_events.remove(GroupMessage)
+group_listening_events = list(gen_subclass(GroupEvent))
+mirai_listening_events = list(gen_subclass(MiraiEvent))
+group_listening_events.remove(GroupMessage)
 
 
 def argument_signature(callable_target: Callable):
@@ -33,9 +34,21 @@ def argument_signature(callable_target: Callable):
     }
 
 
-@channel.use(ListenerSchema(listening_events=listening_events))
-async def mirai_event(app: Ariadne, group: Group, event: GroupEvent):
+@channel.use(ListenerSchema(listening_events=group_listening_events))
+async def mirai_event_group(app: Ariadne, group: Group, event: GroupEvent):
     args = {"app": app, "group": group, "event": event}
+    key = camel_to_underscore(event.__class__.__name__)
+    if func := functions.get(key):
+        argument_signatures = argument_signature(func)
+        for arg in args:
+            if arg in argument_signatures and not isinstance(args[arg], argument_signatures[arg][0]):
+                return None
+        await run_always_await_safely(func, **args)
+
+
+@channel.use(ListenerSchema(listening_events=mirai_listening_events))
+async def mirai_event_group(app: Ariadne, event: GroupEvent):
+    args = {"app": app, "event": event}
     key = camel_to_underscore(event.__class__.__name__)
     if func := functions.get(key):
         argument_signatures = argument_signature(func)

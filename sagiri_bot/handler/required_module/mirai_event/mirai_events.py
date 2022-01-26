@@ -313,6 +313,8 @@ async def bot_join_group_event(app: Ariadne, group: Group):
 
 
 nudge_info = {}
+
+
 async def nudge_event(app: Ariadne, group: Group, event: NudgeEvent):
     if not await get_setting(group, Setting.switch):
         return None
