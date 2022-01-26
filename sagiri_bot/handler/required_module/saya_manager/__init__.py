@@ -31,7 +31,7 @@ channel.description(
     "插件管理插件"
     "发送 `已加载插件` 查看已加载插件\n"
     "发送 `插件详情 [编号|名称]` 可查看插件详情\n"
-    "发送 `[加载|重载|卸载]插件 [编号|名称]` 可加载/重载/卸载插件"
+    "发送 `[加载|重载|卸载|打开|关闭]插件 [编号|名称]` 可加载/重载/卸载/打开/关闭插件"
 )
 
 core = AppCore.get_core_instance()
@@ -43,7 +43,7 @@ class SayaManager(AbstractHandler):
     __description__ = "插件管理"
     __usage__ = "发送 `已加载插件` 查看已加载插件\n" \
                 "发送 `插件详情 [编号|名称]` 可查看插件详情\n" \
-                "发送 `[加载|重载|卸载]插件 [编号|名称]` 可加载/重载/卸载插件"
+                "发送 `[加载|重载|卸载|打开|关闭]插件 [编号|名称]` 可加载/重载/卸载/打开/关闭插件"
 
     @staticmethod
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member) -> MessageItem:
