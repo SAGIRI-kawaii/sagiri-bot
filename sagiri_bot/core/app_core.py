@@ -151,7 +151,7 @@ class AppCore(object):
                 with open(f"{os.getcwd()}/alembic/env.py", "w") as w:
                     w.write(alembic_env_py_content)
                 logger.warning(f"请前往更改 {os.getcwd()}/alembic.ini 文件，将其中的 sqlalchemy.url 替换为自己的数据库url（不需注明引擎）后重启机器人")
-                exit()
+                exit(0)
             if not os.path.exists(f"{os.getcwd()}/alembic/versions"):
                 os.mkdir(f"{os.getcwd()}/alembic/versions")
             os.system("alembic revision --autogenerate -m 'update'")
