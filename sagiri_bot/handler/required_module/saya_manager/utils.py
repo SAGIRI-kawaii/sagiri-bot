@@ -196,7 +196,7 @@ class SayaData:
                 data = json.load(r)
                 self.switch = data.get("switch", {})
                 self.permission = data.get("permission", {})
-        except FileNotFoundError:
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
             pass
         return self
 
