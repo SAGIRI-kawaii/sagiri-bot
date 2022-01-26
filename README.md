@@ -11,7 +11,7 @@
     <h3>一个基于 Mirai 和 Graia-Ariadne 的QQ机器人</h3>
     <div>SAGIRI之名取自动漫《埃罗芒阿老师》中的角色 <a href="https://zh.moegirl.org.cn/%E5%92%8C%E6%B3%89%E7%BA%B1%E9%9B%BE">和泉纱雾(Izumi Sagiri)</a></div>
     <br>
-    <div>若您在使用过程中发现了bug或有一些建议，欢迎提出ISSUE或PR</div>
+    <div>若您在使用过程中发现了bug或有一些建议，欢迎提出ISSUE、PR或加入 <a href="https://jq.qq.com/?_wv=1027&k=9hfqo8AL">QQ交流群：788031679</a> </div>
     <br>
     <div><s>来个star吧，球球惹！</s></div>
 </div>
