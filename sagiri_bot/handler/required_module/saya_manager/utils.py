@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from loguru import logger
 from typing import Dict, Union
+from json.decoder import JSONDecodeError
 
 from graia.saya import Saya
 from graia.ariadne.app import Ariadne
@@ -196,7 +197,7 @@ class SayaData:
                 data = json.load(r)
                 self.switch = data.get("switch", {})
                 self.permission = data.get("permission", {})
-        except (FileNotFoundError, json.decoder.JSONDecodeError):
+        except (FileNotFoundError, JSONDecodeError):
             pass
         return self
 
