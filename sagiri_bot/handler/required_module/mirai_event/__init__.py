@@ -20,7 +20,7 @@ channel.description("对各种事件响应")
 
 functions = sys.modules["sagiri_bot.handler.required_module.mirai_event"].__dict__
 group_listening_events = list(gen_subclass(GroupEvent))
-mirai_listening_events = list(gen_subclass(MiraiEvent))
+mirai_listening_events = [i for i in gen_subclass(MiraiEvent) if not issubclass(i, GroupEvent)]
 group_listening_events.remove(GroupMessage)
 
 
