@@ -93,7 +93,7 @@ class SayaManager(AbstractHandler):
                 QuoteSource()
             )
         elif message.asDisplay().startswith("未加载插件"):
-            if not user_permission_require(group, member, 3):
+            if not await user_permission_require(group, member, 3):
                 return MessageItem(MessageChain.create([Plain(text="爬，权限不足")]), QuoteSource())
             unloaded_channels = SayaManager.get_unloaded_channels()
             unloaded_channels.sort()
@@ -109,7 +109,7 @@ class SayaManager(AbstractHandler):
                 QuoteSource()
             )
         elif message.asDisplay().startswith("加载插件 .+"):
-            if not user_permission_require(group, member, 3):
+            if not await user_permission_require(group, member, 3):
                 return MessageItem(MessageChain.create([Plain(text="爬，权限不足")]), QuoteSource())
             target = message.asDisplay()[5:].strip()
             unloaded_channels = SayaManager.get_unloaded_channels()
@@ -151,7 +151,7 @@ class SayaManager(AbstractHandler):
             else:
                 return MessageItem(MessageChain.create([Plain(text="进程退出")]), QuoteSource())
         elif re.match(r"[卸重]载插件 .+", message.asDisplay()):
-            if not user_permission_require(group, member, 3):
+            if not await user_permission_require(group, member, 3):
                 return MessageItem(MessageChain.create([Plain(text="爬，权限不足")]), QuoteSource())
             load_type = "reload" if message.asDisplay()[0] == "重" else "unload"
             target = message.asDisplay()[5:].strip()
@@ -199,7 +199,7 @@ class SayaManager(AbstractHandler):
             else:
                 return MessageItem(MessageChain.create([Plain(text="进程退出")]), QuoteSource())
         elif re.match(r"(打开|关闭)插件 .+", message.asDisplay()):
-            if not user_permission_require(group, member, 3):
+            if not await user_permission_require(group, member, 3):
                 return MessageItem(MessageChain.create([Plain(text="爬，权限不足")]), QuoteSource())
             switch_type = "on" if message.asDisplay()[:2] == "打开" else "off"
             target = message.asDisplay()[5:].strip()
