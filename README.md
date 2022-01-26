@@ -174,15 +174,7 @@ Saya version: 0.0.13
 
 ## 使用文档
 
-```diff
-注：目前使用文档还未更新，请查看模块内说明
-```
-
-- [功能列表](docs/functions.md)
-- [管理](docs/manage.md)
-- [功能扩展](docs/function_extension.md)
-
-因项目重构，原文档失效，新文档还在完善中🕊🕊🕊
+[文档链接](https://sagiri-kawaii.github.io/sagiri-bot/)
 
 ## 注意
 - 目前机器人尚未完善，仍有许多bug存在，若您在使用中发现了bug或有更好的建议，请提ISSUE
