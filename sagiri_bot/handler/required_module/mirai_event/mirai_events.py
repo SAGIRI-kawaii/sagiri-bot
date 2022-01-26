@@ -312,6 +312,15 @@ async def bot_join_group_event(app: Ariadne, group: Group):
         pass
 
 
+async def member_honor_change_event(app: Ariadne, group: Group, event: MemberHonorChangeEvent):
+    if event.action == "Active" and event.honor == "TALKATIVE":
+        await app.sendMessage(
+            group, MessageChain.create([
+                Plain(text=f"恭喜 {event.member.name} 成为今天的龙王，真能说！")
+            ])
+        )
+
+
 nudge_info = {}
 
 
