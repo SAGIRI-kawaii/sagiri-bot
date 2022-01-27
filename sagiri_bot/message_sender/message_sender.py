@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from aiohttp.client_exceptions import ClientResponseError
 
 from graia.ariadne.app import Ariadne
-from graia.ariadne.exception import AccountMuted
+from graia.ariadne.exception import AccountMuted, UnknownError
 from graia.ariadne.event.message import MessageEvent
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.model import Group, Member, Friend
@@ -57,14 +57,17 @@ class MessageSender:
                 )
         except AccountMuted:
             logger.error(f"Bot 在群 <{target_field.name}> 被禁言，无法发送！")
-        except ClientResponseError:
-            logger.error(traceback.format_exc())
-            ExceptionReSender().addTask([
-                MessageItem(message, self.__strategy),
-                origin_message,
-                target_field,
-                sender,
-                1
-            ])
+        except (ClientResponseError, UnknownError) as e:
+            if "GROUP_CHAT_LIMITED" in str(e):
+                logger.error(f"Bot 在群 <{target_field.name} 中发言超限，无法发送！>")
+            else:
+                logger.error(traceback.format_exc())
+                ExceptionReSender().addTask([
+                    MessageItem(message, self.__strategy),
+                    origin_message,
+                    target_field,
+                    sender,
+                    1
+                ])
         except TypeError:
             pass
