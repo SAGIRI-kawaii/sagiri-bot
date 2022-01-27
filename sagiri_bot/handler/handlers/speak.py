@@ -11,9 +11,8 @@ from sqlalchemy import select
 from graiax import silkcoder
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.model import UploadMethod
-from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Plain, Voice
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
@@ -63,12 +62,11 @@ class Speak(AbstractHandler):
         if message.asDisplay().startswith("说 "):
             text = ''.join([plain.text for plain in message.get(Plain)])[2:].replace(" ", '，')
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            if voice := await Speak.get_voice(app, group.id, text):
+            if voice := await Speak.get_voice(group.id, text):
                 if isinstance(voice, str):
                     return MessageItem(MessageChain.create([Plain(text=voice)]), QuoteSource())
                 elif isinstance(voice, bytes):
-                    voice_element = await app.uploadVoice(await silkcoder.encode(voice), method=UploadMethod.Group)
-                    return MessageItem(MessageChain.create([voice_element]), Normal())
+                    return MessageItem(MessageChain.create([Voice(data_bytes=await silkcoder.encode(voice))]), Normal())
 
     @staticmethod
     async def get_voice(group_id: int, text: str) -> Union[str, bytes, None]:
