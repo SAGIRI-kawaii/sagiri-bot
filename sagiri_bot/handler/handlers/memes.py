@@ -90,7 +90,7 @@ class Memes(AbstractHandler):
         content: RegexMatch
     ):
         prefix = prefix.result.asDisplay().strip()
-        content = shlex.split(content.result.asDisplay().strip())
+        content = [content.result.asDisplay()]
         result = None
         if prefix == "nokia":
             result = await Memes.make_nokia(content)
@@ -111,6 +111,7 @@ class Memes(AbstractHandler):
         elif prefix == "滚屏":
             result = await Memes.make_scroll(content)
         else:
+            content = shlex.split(content[0])
             for key in gif_subtitle_memes.keys():
                 if prefix in gif_subtitle_memes[key]["aliases"]:
                     if len(content) != len(gif_subtitle_memes[key]["pieces"]):
