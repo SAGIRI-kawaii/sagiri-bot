@@ -63,7 +63,7 @@ class Speak(AbstractHandler):
         if message.asDisplay().startswith("说 "):
             text = ''.join([plain.text for plain in message.get(Plain)])[2:].replace(" ", '，')
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            if voice := await Speak.get_voice(app, group.id, text):
+            if voice := await Speak.get_voice(group.id, text):
                 if isinstance(voice, str):
                     return MessageItem(MessageChain.create([Plain(text=voice)]), QuoteSource())
                 elif isinstance(voice, bytes):

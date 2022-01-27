@@ -38,11 +38,11 @@ class RandomWife(AbstractHandler):
     @blacklist()
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() in ("来个老婆", "随机老婆"):
-            return await RandomWife.get_random_wife()
+            return await RandomWife.get_random_wife(group, member)
 
     @staticmethod
     @frequency_limit_require_weight_free(4)
-    async def get_random_wife():
+    async def get_random_wife(group: Group, member: Member):
         return MessageItem(
             MessageChain.create([
                 Image(url=f"https://www.thiswaifudoesnotexist.net/example-{random.randint(1, 100000)}.jpg")
