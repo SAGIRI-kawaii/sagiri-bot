@@ -1,6 +1,7 @@
 aiohttp==3.8.1
 beautifulsoup4==4.10.0
 graia-ariadne==0.5.1rc4
+graia-broadcast==0.14.5
 graia-saya==0.0.13
 graiax-silkcoder==0.1.2
 fastapi==0.73.0
@@ -18,7 +19,8 @@ qrcode==7.3.1
 sqlalchemy==1.4.29
 tencentcloud_sdk_python==3.0.557
 uvicorn==0.16.0
-python-dateutil==2.8.2
 wordcloud==1.8.1
 aiosqlite==0.17.0
 alembic==1.7.5
+playwright==1.18.1
+pytz==2021.3
