@@ -3,7 +3,6 @@ import json
 from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Union
 
 import aiohttp
 from graia.ariadne.app import Ariadne
@@ -51,17 +50,17 @@ class GithubWatcher:
     initialize = False
 
     @staticmethod
-    async def enable(**kwargs) -> MessageChain:
+    async def enable(**kwargs):
         GithubWatcher.status = True
         return MessageChain.create([Plain(text="已开启 Github 仓库订阅")])
 
     @staticmethod
-    async def disable(**kwargs) -> MessageChain:
+    async def disable(**kwargs):
         GithubWatcher.status = False
         return MessageChain.create([Plain(text="已关闭 Github 仓库订阅")])
 
     @staticmethod
-    async def add(**kwargs) -> MessageChain:
+    async def add(**kwargs):
         """
         说明：
             添加订阅
@@ -149,7 +148,7 @@ class GithubWatcher:
             return MessageChain.create(res)
 
     @staticmethod
-    async def remove(**kwargs) -> MessageChain:
+    async def remove(**kwargs):
         """
         说明：
             移除订阅
@@ -215,7 +214,7 @@ class GithubWatcher:
             return MessageChain.create(res)
 
     @staticmethod
-    async def cache(**kwargs) -> MessageChain:
+    async def cache(**kwargs):
         accepted = ['update', 'store']
         command = None
         for name, arg in kwargs.items():
@@ -237,7 +236,7 @@ class GithubWatcher:
         """
 
     @staticmethod
-    def update_cache(manual: bool = False) -> Union[MessageChain, None]:
+    def update_cache(manual: bool = False):
         """
         说明：
             更新缓存
@@ -257,7 +256,7 @@ class GithubWatcher:
             return MessageChain.create([Plain(text="无法更新缓存，请检查是否删除了缓存文件并重新储存缓存")])
 
     @staticmethod
-    def store_cache(manual: bool = False) -> Union[MessageChain, None]:
+    def store_cache(manual: bool = False):
         """
         说明：
             储存缓存
@@ -303,7 +302,7 @@ class GithubWatcher:
         return MessageChain.create(res)
 
     @staticmethod
-    async def get_repo_event(app: Ariadne, repo: tuple, per_page: int = 30, page: int = 1) -> Union[list, None]:
+    async def get_repo_event(app: Ariadne, repo: tuple, per_page: int = 30, page: int = 1):
         """
         说明：
             取得 GitHub 中某个仓库的 events
@@ -346,7 +345,7 @@ class GithubWatcher:
         return await asyncio.get_event_loop().run_in_executor(None, GithubWatcher.generate_plain, event)
 
     @staticmethod
-    def generate_plain(event: dict) -> Union[Plain, None]:
+    def generate_plain(event: dict):
         """
         说明：
             生成 Plain
@@ -443,7 +442,7 @@ class GithubWatcher:
         return None
 
     @staticmethod
-    async def github_schedule(**kwargs) -> [None, MessageChain]:
+    async def github_schedule(**kwargs):
         """
         说明：
             GitHub 定时工具
@@ -533,7 +532,7 @@ class GithubWatcher:
                 return MessageItem(MessageChain.create([Plain(text=f"Github 订阅功能已关闭。")]), QuoteSource())
 
 
-@scheduler.schedule(crontabify("* * * * *"))
+@scheduler.schedule(crontabify("*/15 * * * *"))
 async def github_schedule(app: Ariadne):
     try:
         await GithubWatcher.github_schedule(app=app, manual=False)

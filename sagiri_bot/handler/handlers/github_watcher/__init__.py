@@ -28,13 +28,13 @@ channel.description("/github-watch enable [3级权限]"
 
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage]))
-async def github_watcher_handler(app: Ariadne, message: MessageChain, friend: Friend):
+async def github_watcher_friend_handler(app: Ariadne, message: MessageChain, friend: Friend):
     if result := await GithubWatcherEntryPoint.real_handle(app, message, friend=friend):
         await MessageSender(result.strategy).send(app, result.message, message, friend, friend)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def github_watcher_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
+async def github_watcher_group_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await GithubWatcherEntryPoint.real_handle(app, message, group=group, member=member):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 
@@ -52,6 +52,7 @@ class GithubWatcherEntryPoint(AbstractHandler):
         说明：
             为了满足 signature 不择手段
         """
+        pass
 
     @staticmethod
     @switch()
