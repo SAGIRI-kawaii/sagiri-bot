@@ -11,7 +11,7 @@ config.yaml
 .LSOverride
 ._*
 
-/alembic/versions
+/alembic
 /.idea
 data.db
 test.py
