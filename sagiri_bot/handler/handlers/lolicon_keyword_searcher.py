@@ -64,13 +64,15 @@ class LoliconKeywordSearcher(AbstractHandler):
         r18 = await get_setting(group.id, Setting.r18)
         url = f"https://api.lolicon.app/setu/v2?keyword={keyword}&r18={1 if r18 else 0}"
         async with aiohttp.ClientSession() as session:
-            async with session.get(url=url) as resp:
+            async with session.get(url=url, proxy=proxy) as resp:
                 result = await resp.json()
         print(result)
         if result["error"]:
             return MessageItem(MessageChain.create([Plain(result["error"])]), QuoteSource())
-
-        result = result["data"][0]
+        if result["data"]:
+            result = result["data"][0]
+        else:
+            return MessageItem(MessageChain.create([Plain(text=f"没有搜到有关{keyword}的图哦～有没有一种可能，你的xp太怪了？")]), QuoteSource())
 
         if data_cache:
             await orm.insert_or_update(

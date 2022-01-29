@@ -11,9 +11,10 @@ config.yaml
 .LSOverride
 ._*
 
-/alembic/versions
+/alembic
 /.idea
 data.db
 test.py
 /log
 /sagiri_bot/handler/required_module/saya_manager/saya_data.json
+*.pyc
