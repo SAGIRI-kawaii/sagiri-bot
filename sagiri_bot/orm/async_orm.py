@@ -128,11 +128,13 @@ class AsyncORM(AsyncEngine):
     async def delete(self, table, condition):
         return await self.execute(delete(table).where(*condition))
 
-    async def inited(self) -> bool:
+    async def init_check(self) -> bool:
         for table in Base.__subclasses__():
             try:
                 await self.fetchone(select(table))
             except OperationalError:
+                async with self.engine.begin() as conn:
+                    await conn.run_sync(table.__table__.create(self.engine))
                 return False
         return True
 

@@ -64,7 +64,7 @@ class LoliconKeywordSearcher(AbstractHandler):
         r18 = await get_setting(group.id, Setting.r18)
         url = f"https://api.lolicon.app/setu/v2?keyword={keyword}&r18={1 if r18 else 0}"
         async with aiohttp.ClientSession() as session:
-            async with session.get(url=url) as resp:
+            async with session.get(url=url, proxy=proxy) as resp:
                 result = await resp.json()
         print(result)
         if result["error"]:
