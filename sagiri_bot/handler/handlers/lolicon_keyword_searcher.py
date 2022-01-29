@@ -69,8 +69,10 @@ class LoliconKeywordSearcher(AbstractHandler):
         print(result)
         if result["error"]:
             return MessageItem(MessageChain.create([Plain(result["error"])]), QuoteSource())
-
-        result = result["data"][0]
+        if result["data"]:
+            result = result["data"][0]
+        else:
+            return MessageItem(MessageChain.create([Plain(text=f"没有搜到有关{keyword}的图哦～有没有一种可能，你的xp太怪了？")]), QuoteSource())
 
         if data_cache:
             await orm.insert_or_update(
