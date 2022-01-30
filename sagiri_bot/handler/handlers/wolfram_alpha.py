@@ -7,7 +7,7 @@ from graia.ariadne.message.element import Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
-from sagiri_bot.utils import get_config
+from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.strategy import QuoteSource
@@ -21,6 +21,8 @@ channel = Channel.current()
 channel.name("WolframAlpha")
 channel.author("SAGIRI-kawaii")
 channel.description("一个接入WolframAlpha的插件，在群中发送 `/solve {content}` 即可")
+
+api_key = AppCore.get_core_instance().get_config().functions.get("wolfram_alpha_key", None)
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
@@ -45,9 +47,8 @@ class WolframAlpha(AbstractHandler):
     @staticmethod
     @frequency_limit_require_weight_free(4)
     async def get_result(group: Group, member: Member, question: str) -> MessageItem:
-        api_key = get_config("wolframAlphaKey")
-        if api_key == "wolframAlphaKey":
-            return MessageItem(MessageChain.create([Plain(text="尚未配置wolframAlphaKey！")]), QuoteSource())
+        if not api_key or api_key == "wolfram_alpha_key":
+            return MessageItem(MessageChain.create([Plain(text="尚未配置wolfram_alpha_key！")]), QuoteSource())
         url = f"https://api.wolframalpha.com/v1/simple?i={question.replace('+', '%2B')}&appid={api_key}"
         async with aiohttp.ClientSession() as session:
             async with session.get(url=url) as resp:
