@@ -4,6 +4,7 @@ import aiohttp
 from io import BytesIO
 from PIL import Image as IMG
 from datetime import datetime
+from aiohttp import TCPConnector
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
@@ -63,7 +64,7 @@ class LoliconKeywordSearcher(AbstractHandler):
     async def get_image(group: Group, member: Member, keyword: str):
         r18 = await get_setting(group.id, Setting.r18)
         url = f"https://api.lolicon.app/setu/v2?keyword={keyword}&r18={1 if r18 else 0}"
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
             async with session.get(url=url, proxy=proxy) as resp:
                 result = await resp.json()
         print(result)
@@ -112,7 +113,7 @@ class LoliconKeywordSearcher(AbstractHandler):
                 QuoteSource() if not r18 else Revoke()
             )
         else:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
                 async with session.get(url=result["urls"]["original"], proxy=proxy) as resp:
                     img_content = await resp.read()
             if image_cache:
