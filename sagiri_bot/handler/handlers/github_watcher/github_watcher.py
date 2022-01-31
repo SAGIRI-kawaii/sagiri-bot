@@ -5,6 +5,7 @@ from json import JSONDecodeError
 from pathlib import Path
 
 import aiohttp
+from aiohttp import BasicAuth
 from graia.ariadne.app import Ariadne
 from graia.ariadne.exception import UnknownTarget, AccountMuted
 from graia.ariadne.message.chain import MessageChain
@@ -25,6 +26,7 @@ core: AppCore = AppCore.get_core_instance()
 app = core.get_app()
 loop = core.get_loop()
 scheduler = GraiaScheduler(loop, bcc)
+config = core.get_config()
 
 
 class GithubWatcher:
@@ -42,7 +44,16 @@ class GithubWatcher:
         }
     }
     '''
-    session = aiohttp.ClientSession()
+    if config.functions['github']['username'] != "username" and config.functions['github']['token'] != 'token':
+        _auth = True
+        session = aiohttp.ClientSession(auth=BasicAuth(
+            login=config.functions['github']['username'],
+            password=config.functions['github']['token']
+        ))
+    else:
+        _auth = False
+        first_warned = False
+        session = aiohttp.ClientSession()
     status = True
     base_url = "https://api.github.com"
     events_url = "/repos/{owner}/{repo}/events"
@@ -105,10 +116,10 @@ class GithubWatcher:
             url = f"https://api.github.com/search/repositories?q={repo}"
             async with GithubWatcher.session.get(url=url) as resp:
                 result = (await resp.json())["items"]
+                if not result:
+                    failed.append(repo)
+                    continue
                 repo = result[0]['full_name']
-            if not result:
-                failed.append(repo)
-                continue
             repo = repo.split("/")
             repo = (repo[0], repo[1])
             if repo not in GithubWatcher.cached.keys():
@@ -302,12 +313,11 @@ class GithubWatcher:
         return MessageChain.create(res)
 
     @staticmethod
-    async def get_repo_event(app: Ariadne, repo: tuple, per_page: int = 30, page: int = 1):
+    async def get_repo_event(repo: tuple, per_page: int = 30, page: int = 1):
         """
         说明：
             取得 GitHub 中某个仓库的 events
         参数：
-            :param app: Ariadne
             :param repo: 形如 (SAGIRI-kawaii, sagiri-bot) 的仓库名
             :param per_page: [可选] 取得特定数量的 events，默认取 30 个
             :param page: [可选] 取得特定页数的 events，默认取第一页
@@ -318,19 +328,20 @@ class GithubWatcher:
         try:
             res = await GithubWatcher.session.get(url=url)
             res = await res.json()
+            if isinstance(res, list):
+                return res
+            elif isinstance(res, dict):
+                if "message" in res.keys():
+                    if "API rate limit exceeded" in res["message"]:
+                        logger.error("GitHub API 超出速率限制")
+                        if not GithubWatcher._auth:
+                            logger.error("请设置 GitHub 用户名和 OAuth Token 以提高限制")
+                            GithubWatcher.first_warned = True
             return res
         except Exception as e:
             logger.error(e)
-            if groups := GithubWatcher.cached[repo]['group']:
-                for group in groups:
-                    await app.sendGroupMessage(group, MessageChain.create([
-                        Plain(f"无法取得仓库 {repo[0]}/{repo[1]} 的更新，将跳过该仓库。")
-                    ]))
-            if groups := GithubWatcher.cached[repo]['friend']:
-                for group in groups:
-                    await app.sendGroupMessage(group, MessageChain.create([
-                        Plain(f"无法取得仓库 {repo[0]}/{repo[1]} 的更新，将跳过该仓库。")
-                    ]))
+            logger.error(f"无法取得仓库 {repo[0]}/{repo[1]} 的更新，将跳过该仓库")
+            logger.error(f"请检查仓库是否存在，或者 GitHub 用户名与 OAuth Token 是否配置正确")
             GithubWatcher.cached[repo]['enabled'] = False
             return None
 
@@ -454,6 +465,9 @@ class GithubWatcher:
         """
         if GithubWatcher.is_running:
             return None
+        if not GithubWatcher.initialize:
+            GithubWatcher.update_cache()
+            GithubWatcher.initialize = True
         app = None
         manual = False
         repo = None
@@ -476,7 +490,7 @@ class GithubWatcher:
             return None
         if GithubWatcher.status and repo:
             res = []
-            if events := await GithubWatcher.get_repo_event(app, repo, per_page, page):
+            if events := await GithubWatcher.get_repo_event(repo, per_page, page):
                 GithubWatcher.cached[repo]['last_id'] = int(events[0]['id'])
                 if resp := await GithubWatcher.a_generate_plain(events[0]):
                     res.append(resp)
@@ -490,10 +504,9 @@ class GithubWatcher:
             GithubWatcher.is_running = True
             for repo in GithubWatcher.cached.keys():
                 if not GithubWatcher.cached[repo]['enabled']:
-                    print('continued')
                     continue
                 res = []
-                if events := await GithubWatcher.get_repo_event(app, repo, per_page, page):
+                if events := await GithubWatcher.get_repo_event(repo, per_page, page):
                     last_id = GithubWatcher.cached[repo]['last_id']
                     new_last_id = last_id
                     for index, event in enumerate(events):
@@ -525,14 +538,13 @@ class GithubWatcher:
                             await app.sendFriendMessage(friend, res)
                         except UnknownTarget:
                             pass
-            GithubWatcher.store_cache()
             GithubWatcher.is_running = False
         else:
             if manual:
                 return MessageItem(MessageChain.create([Plain(text=f"Github 订阅功能已关闭。")]), QuoteSource())
 
 
-@scheduler.schedule(crontabify("*/15 * * * *"))
+@scheduler.schedule(crontabify("* * * * *"))
 async def github_schedule(app: Ariadne):
     try:
         await GithubWatcher.github_schedule(app=app, manual=False)

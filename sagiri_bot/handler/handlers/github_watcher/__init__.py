@@ -59,8 +59,6 @@ class GithubWatcherEntryPoint(AbstractHandler):
     @blacklist()
     async def real_handle(app: Ariadne, message: MessageChain, group: Group = None,
                           member: Member = None, friend: Friend = None) -> MessageItem:
-        if message.asDisplay() == "#eval":
-            return MessageItem(MessageChain.create([Plain(text=str(eval(str(GithubWatcher.cached))))]), Normal())
         commands = {
             "enable": {
                 "permission": [3, []],
@@ -97,16 +95,12 @@ class GithubWatcherEntryPoint(AbstractHandler):
                 "manual": "/github-watch cache {update/store}",
                 "description": "更新/储存缓存",
                 "func": GithubWatcher.cache
-            },
-            "fetch": {
-                "permission": [1, []],
-                "manual": "/github-watch fetch",
-                "description": "更新/储存缓存",
-                "func": GithubWatcher.cache
-            },
+            }
         }
         if message.asDisplay().startswith("/github-watch"):
-            GithubWatcher.update_cache()
+            if not GithubWatcher.initialize:
+                GithubWatcher.update_cache()
+                GithubWatcher.initialize = True
             args = message.asDisplay().split(" ", maxsplit=1)
             if len(args) == 1:
                 ...

@@ -140,37 +140,39 @@ Saya version: 0.0.13
 用于存储机器人的各种配置，可随时进行更改
 注意：所有路径的结尾都应该有斜杠，如："/bot/setuPath/" 或 "\bot\setuPath\" 等
 
-|  参数名   | 说明  |
-|  ----  | ----  |
-| bot_qq  | 机器人的QQ号 |
-| host_qq  | 主人的QQ号，默认权限等级4 |
-| verify_key | mirai-api-http 的 verify_key，格式为 `!!str authKey` |
-| mirai_host | 主机ip + mirai-api-http 的 port，一般在本地不用更改 |
-| db_link | 数据库链接，可参看 [使用前准备](#使用前准备) |
-| web_manager_api | api是否启动（用于管理页面）\[暂未实现] |
-| web_manager_auto_boot | 是否自动打开管理页面（webManagerApi为True时才起作用）\[暂未实现] |
-| image_path | 图库路径，可自行添加图库，已给出六个自带图库 |
-| setu | 二次元图片存储路径（绝对路径） |
-| setu18 | 不对劲二次元图片存储路径（绝对路径） |
-| real | 三次元图片存储路径（绝对路径） |
-| real_highq | 高质量三次元图片存储路径（绝对路径） |
-| wallpaper | 壁纸图片存储路径（绝对路径） |
-| sketch | 线稿图片存储路径（绝对路径） |
-| functions | 功能相关 |
-| tencent-secret_id | 腾讯云secret_id（自行申请） |
-| tencent-secret_key | 腾讯云secret_key（自行申请） |
-| shadiao_app_name | shadiaoApp 应用名（自行申请） |
-| saucenao_api_key | saucenao api key（自行获取） |
-| wolfram_alpha_key | wolframAlphaKey，用于科学计算api调用 |
-| log_related | 日志相关 |
-| error_retention | 错误日志记录周期 |
-| common_retention | 普通日志清空周期 |
-| lolicon_image_cache | 是否缓存lolicon api所获取到的图片 |
-| lolicon_data_cache | 是否缓存lolicon api所获取到的json数据 |
-| network_data_cache | 自动保存各api的数据（暂未实现） |
-| automatic_update | 自动更新（暂未实现） |
-| data_retention | 退群后的数据处理 |
-| database_related | 数据库相关（若不了解请不要修改这一部分，用于自定义engine参数） |
+| 参数名                   | 说明                                              |
+|-----------------------|-------------------------------------------------|
+| bot_qq                | 机器人的QQ号                                         |
+| host_qq               | 主人的QQ号，默认权限等级4                                  |
+| verify_key            | mirai-api-http 的 verify_key，格式为 `!!str authKey` |
+| mirai_host            | 主机ip + mirai-api-http 的 port，一般在本地不用更改          |
+| db_link               | 数据库链接，可参看 [使用前准备](#使用前准备)                       |
+| web_manager_api       | api是否启动（用于管理页面）\[暂未实现]                          |
+| web_manager_auto_boot | 是否自动打开管理页面（webManagerApi为True时才起作用）\[暂未实现]      |
+| image_path            | 图库路径，可自行添加图库，已给出六个自带图库                          |
+| setu                  | 二次元图片存储路径（绝对路径）                                 |
+| setu18                | 不对劲二次元图片存储路径（绝对路径）                              |
+| real                  | 三次元图片存储路径（绝对路径）                                 |
+| real_highq            | 高质量三次元图片存储路径（绝对路径）                              |
+| wallpaper             | 壁纸图片存储路径（绝对路径）                                  |
+| sketch                | 线稿图片存储路径（绝对路径）                                  |
+| functions             | 功能相关                                            |
+| tencent-secret_id     | 腾讯云secret_id（自行申请）                              |
+| tencent-secret_key    | 腾讯云secret_key（自行申请）                             |
+| shadiao_app_name      | shadiaoApp 应用名（自行申请）                            |
+| saucenao_api_key      | saucenao api key（自行获取）                          |
+| wolfram_alpha_key     | wolframAlphaKey，用于科学计算api调用                     |
+| github-user_name      | GitHub 用户名，用于订阅 Github 仓库变动                     |
+| github-token          | GitHub 用户 Token ，用于订阅 Github 仓库变动               |
+| log_related           | 日志相关                                            |
+| error_retention       | 错误日志记录周期                                        |
+| common_retention      | 普通日志清空周期                                        |
+| lolicon_image_cache   | 是否缓存lolicon api所获取到的图片                          |
+| lolicon_data_cache    | 是否缓存lolicon api所获取到的json数据                      |
+| network_data_cache    | 自动保存各api的数据（暂未实现）                               |
+| automatic_update      | 自动更新（暂未实现）                                      |
+| data_retention        | 退群后的数据处理                                        |
+| database_related      | 数据库相关（若不了解请不要修改这一部分，用于自定义engine参数）              |
 
 ## 使用文档
 
