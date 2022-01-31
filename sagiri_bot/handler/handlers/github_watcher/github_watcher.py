@@ -462,6 +462,7 @@ class GithubWatcher:
                         else:
                             continue
                     GithubWatcher.cached[repo]['last_id'] = new_last_id
+                    GithubWatcher.update_cache()
                 if res:
                     res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
                     res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
