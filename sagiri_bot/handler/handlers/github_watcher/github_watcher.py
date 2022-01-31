@@ -72,17 +72,8 @@ class GithubWatcher:
 
     @staticmethod
     async def add(**kwargs):
-        """
-        说明：
-            添加订阅
-        参数：
-            :**kwarg app: Ariadne 实例
-            :**kwarg arg: 仓库名，需以字符串形式传入
-            :**kwarg group: Group 实例，默认为 None
-            :**kwarg friend: Friend 实例，默认为 None
-        """
         if not GithubWatcher.status:
-            return MessageChain.create([Plain(text=f"Github 仓库订阅功能已关闭")])
+            return MessageChain.create([Plain(text="Github 仓库订阅功能已关闭")])
         repos = None
         group = None
         friend = None
@@ -96,18 +87,21 @@ class GithubWatcher:
                 friend = arg
             if isinstance(arg, Ariadne):
                 app = arg
+        err = []
         if not group and not friend:
-            return MessageChain.create([
+            err = err.extend([
                 Plain(text="无法获取 Group 或 Friend 实例")
             ])
         if not app:
-            return MessageChain.create([
+            err = err.extend([
                 Plain(text="无法获取 Ariadne 实例")
             ])
         if not repos:
-            return MessageChain.create([
+            err = err.extend([
                 Plain(text="未填写需要订阅的仓库")
             ])
+        if err:
+            return MessageChain.create(err)
         repos = repos.split(" ")
         failed = []
         duplicated = []
@@ -160,19 +154,12 @@ class GithubWatcher:
 
     @staticmethod
     async def remove(**kwargs):
-        """
-        说明：
-            移除订阅
-        参数：
-            :**kwarg arg: 仓库名，需以字符串形式传入
-            :**kwarg group: Group 实例，默认为 None
-            :**kwarg friend: Friend 实例，默认为 None
-        """
         if not GithubWatcher.status:
             return MessageChain.create([Plain(text=f"Github 仓库订阅功能已关闭")])
         repos = None
         group = None
         friend = None
+        err = []
         for name, arg in kwargs.items():
             if name == "arg" and isinstance(arg, str):
                 repos = arg
@@ -181,13 +168,15 @@ class GithubWatcher:
             if isinstance(arg, Friend):
                 friend = arg
         if not group and not friend:
-            return MessageChain.create([
+            err = err.extend([
                 Plain(text=f"无法获取 Group 或 Friend 实例")
             ])
         if not repos:
-            return MessageChain.create([
+            err = err.extend([
                 Plain(text="未填写需要取消订阅的仓库")
             ])
+        if err:
+            return MessageChain.create(err)
         repos = repos.split(" ")
         failed = []
         success_count = 0
@@ -239,21 +228,9 @@ class GithubWatcher:
             return GithubWatcher.update_cache(manual=True)
         if command == 'store':
             return GithubWatcher.store_cache(manual=True)
-        """
-        说明：
-            更新缓存
-        参数：
-            :**kwarg command: 功能，update 或 store
-        """
 
     @staticmethod
     def update_cache(manual: bool = False):
-        """
-        说明：
-            更新缓存
-        参数：
-            :param manual: 手动，为 True 则返回 MessageChain，为否则仅运行
-        """
         try:
             with open(str(Path(__file__).parent.joinpath("watcher_data.json")), "r") as r:
                 data = json.loads(r.read())
@@ -268,12 +245,6 @@ class GithubWatcher:
 
     @staticmethod
     def store_cache(manual: bool = False):
-        """
-        说明：
-            储存缓存
-        参数：
-            :param manual: 手动，为 True 则返回 MessageChain，为否则仅运行
-        """
         with open(str(Path(__file__).parent.joinpath("watcher_data.json")), "w") as w:
             cache = {}
             for key in GithubWatcher.cached.keys():
@@ -284,13 +255,6 @@ class GithubWatcher:
 
     @staticmethod
     async def check(**kwargs) -> MessageChain:
-        """
-        说明：
-            查询订阅
-        参数：
-            :**kwarg group: Group 实例，默认为 None
-            :**kwarg friend: Friend 实例，默认为 None
-        """
         group = None
         friend = None
         for name, arg in kwargs.items():
@@ -314,14 +278,6 @@ class GithubWatcher:
 
     @staticmethod
     async def get_repo_event(repo: tuple, per_page: int = 30, page: int = 1):
-        """
-        说明：
-            取得 GitHub 中某个仓库的 events
-        参数：
-            :param repo: 形如 (SAGIRI-kawaii, sagiri-bot) 的仓库名
-            :param per_page: [可选] 取得特定数量的 events，默认取 30 个
-            :param page: [可选] 取得特定页数的 events，默认取第一页
-        """
         url = GithubWatcher.base_url \
               + GithubWatcher.events_url.replace('{owner}', repo[0]).replace('{repo}', repo[1]) \
               + f'?per_page={per_page}&page={page}'
@@ -341,31 +297,20 @@ class GithubWatcher:
         except Exception as e:
             logger.error(e)
             logger.error(f"无法取得仓库 {repo[0]}/{repo[1]} 的更新，将跳过该仓库")
-            logger.error(f"请检查仓库是否存在，或者 GitHub 用户名与 OAuth Token 是否配置正确")
+            logger.error(f"请检查仓库是否存在{'，或者 GitHub 用户名与 OAuth Token 是否配置正确' if GithubWatcher._auth else ''}")
             GithubWatcher.cached[repo]['enabled'] = False
             return None
 
     @staticmethod
     async def a_generate_plain(event: dict):
-        """
-        说明：
-            异步 生成 Plain
-        参数：
-            :param event: 从 GitHub API /repo/{owner}/{repo}/events 所取得列表中的任意一项
-        """
         return await asyncio.get_event_loop().run_in_executor(None, GithubWatcher.generate_plain, event)
 
     @staticmethod
     def generate_plain(event: dict):
-        """
-        说明：
-            生成 Plain
-        参数：
-            :param event: 从 GitHub API /repo/{owner}/{repo}/events 所取得列表中的任意一项
-        """
         actor = event['actor']['display_login']
         event_time = datetime.fromisoformat(event['created_at'] + '+08:00') \
             .strftime('%Y-%m-%d %H:%M:%S')
+        resp = None
         if event['type'] == 'IssuesEvent':
             if event['payload']['action'] == 'opened':
                 title = event['payload']['issue']['title']
@@ -376,7 +321,7 @@ class GithubWatcher:
                         body = body[:100] + "......"
                     body = body + "\n"
                 link = event['payload']['issue']['html_url']
-                return Plain(text=f"----------\n"
+                resp = Plain(text=f"----------\n"
                                   f"[新 Issue]\n"
                                   f"#{number} {title}\n"
                                   f"{body}\n"
@@ -394,7 +339,7 @@ class GithubWatcher:
                         body = body[:100] + "......"
                     body = body + "\n"
                 link = event['payload']['comment']['html_url']
-                return Plain(text=f"----------\n"
+                resp = Plain(text=f"----------\n"
                                   f"[新 Comment]\n"
                                   f"#{number} {title}\n"
                                   f"{body}"
@@ -415,7 +360,7 @@ class GithubWatcher:
                 base = event['payload']['pull_request']['base']['label']
                 commits = event['payload']['pull_request']['commits']
                 link = event['payload']['pull_request']['html_url']
-                return Plain(text=f"----------\n"
+                resp = Plain(text=f"----------\n"
                                   f"[新 PR]\n"
                                   f"#{number} {title}\n"
                                   f"{body}"
@@ -429,7 +374,7 @@ class GithubWatcher:
             commits = []
             for commit in event['payload']['commits']:
                 commits.append(f"· [{commit['author']['name']}] {commit['message']}")
-            return Plain(text=f"----------\n"
+            resp = Plain(text=f"----------\n"
                               f"[新 Push]\n"
                               + "\n".join(commits) +
                               f"\n"
@@ -443,14 +388,14 @@ class GithubWatcher:
                     body = body[:100] + "......"
                 body = body + "\n"
             link = event['payload']['comment']['html_url']
-            return Plain(text=f"----------\n"
+            resp = Plain(text=f"----------\n"
                               f"[新 Comment]\n"
                               f"{body}"
                               f"\n"
                               f"发布人：{actor}\n"
                               f"时间：{event_time}\n"
                               f"链接：{link}\n")
-        return None
+        return resp if resp else None
 
     @staticmethod
     async def github_schedule(**kwargs):
@@ -485,8 +430,7 @@ class GithubWatcher:
             if isinstance(arg, Ariadne):
                 app = arg
         if not app:
-            e = "无法获得 Ariadne 实例"
-            logger.error(e)
+            logger.error("无法获得 Ariadne 实例")
             return None
         if GithubWatcher.status and repo:
             res = []
@@ -497,8 +441,7 @@ class GithubWatcher:
             if not res:
                 return None
             res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
-            res.append(Plain(text=f"----------\n"
-                                  f"获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
+            res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
             return MessageChain.create(res)
         if GithubWatcher.status and not GithubWatcher.is_running:
             GithubWatcher.is_running = True
@@ -521,8 +464,7 @@ class GithubWatcher:
                     GithubWatcher.cached[repo]['last_id'] = new_last_id
                 if res:
                     res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
-                    res.append(Plain(text=f"----------\n"
-                                          f"获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
+                    res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
                     # res = await MessageChainUtils.messagechain_to_img(MessageChain.create(res))
                     res = MessageChain.create(res)
                     if manual:
@@ -541,7 +483,7 @@ class GithubWatcher:
             GithubWatcher.is_running = False
         else:
             if manual:
-                return MessageItem(MessageChain.create([Plain(text=f"Github 订阅功能已关闭。")]), QuoteSource())
+                return MessageItem(MessageChain.create([Plain(text="Github 订阅功能已关闭。")]), QuoteSource())
 
 
 @scheduler.schedule(crontabify("* * * * *"))
