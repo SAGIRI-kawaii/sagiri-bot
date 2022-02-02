@@ -285,4 +285,3 @@ async def init(flag: bool = False):
 
 
 loop.run_until_complete(init(True))
-print(resource_name_list)

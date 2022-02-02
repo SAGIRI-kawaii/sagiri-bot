@@ -44,7 +44,7 @@ with saya.module_context():
             else:
                 saya.require(f"sagiri_bot.handler.handlers.{module.split('.')[0]}")
         except ModuleNotFoundError:
-            pass
+            logger.exception("")
 
 core.load_saya_modules()
 

@@ -15,7 +15,7 @@ from graia.ariadne.message.element import Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.pattern import RegexMatch, UnionMatch
+from graia.ariadne.message.parser.twilight import RegexMatch, UnionMatch
 
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.decorators import switch, blacklist
@@ -50,10 +50,10 @@ BREAK_LINE_MSG = '文字长度过长，请手动换行或适当缩减'
                 Sparkle(
                     {
                         "prefix": UnionMatch(
-                            "nokia", "鲁迅说", "王境泽", "喜报", "记仇", "狂爱", "狂粉", "低语", "别说了", "一巴掌", "为所欲为"
+                            "nokia", "鲁迅说", "王境泽", "喜报", "记仇", "狂爱", "狂粉", "低语", "别说了", "一巴掌", "为所欲为",
                             "馋身子", "切格瓦拉", "谁反对", "连连看", "压力大爷", "你好骚啊", "食屎啦你", "五年", "滚屏"
                         ),
-                        "content": RegexMatch(".+")
+                        "content": RegexMatch(r"[\s\S]+")
                     }
                 )
             )

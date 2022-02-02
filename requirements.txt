@@ -6,7 +6,7 @@ graiax-silkcoder==0.1.2
 fastapi==0.73.0
 imageio==2.13.5
 jieba==0.42.1
-loguru==0.5.3
+loguru==0.6.0
 matplotlib==3.5.1
 moviepy==1.0.3
 numpy==1.22.1
