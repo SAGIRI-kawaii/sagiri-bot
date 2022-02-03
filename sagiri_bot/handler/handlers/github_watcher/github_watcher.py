@@ -33,46 +33,36 @@ class GithubWatcher:
     __name__ = "GithubWatcher"
     __description__ = "Github 订阅 Handler"
     __usage__ = "None"
-    cached = {}
-    '''
-    cached = {
-        ("owner", "repo"): {
-            "group": [114514],
-            "friend": [1919810],
-            "last_id": 1145141919,
-            "enabled": True
-        }
-    }
-    '''
+    __cached = {}
     if config.functions['github']['username'] != "username" and config.functions['github']['token'] != 'token':
-        _auth = True
-        session = aiohttp.ClientSession(auth=BasicAuth(
+        __auth = True
+        __session = aiohttp.ClientSession(auth=BasicAuth(
             login=config.functions['github']['username'],
             password=config.functions['github']['token']
         ))
     else:
-        _auth = False
-        first_warned = False
-        session = aiohttp.ClientSession()
-    status = True
-    base_url = "https://api.github.com"
-    events_url = "/repos/{owner}/{repo}/events"
-    is_running = False
+        __auth = False
+        __first_warned = False
+        __session = aiohttp.ClientSession()
+    __status = True
+    __base_url = "https://api.github.com"
+    __events_url = "/repos/{owner}/{repo}/events"
+    __is_running = False
     initialize = False
 
     @staticmethod
     async def enable(**kwargs):
-        GithubWatcher.status = True
+        GithubWatcher.__status = True
         return MessageChain.create([Plain(text="已开启 Github 仓库订阅")])
 
     @staticmethod
     async def disable(**kwargs):
-        GithubWatcher.status = False
+        GithubWatcher.__status = False
         return MessageChain.create([Plain(text="已关闭 Github 仓库订阅")])
 
     @staticmethod
     async def add(**kwargs):
-        if not GithubWatcher.status:
+        if not GithubWatcher.__status:
             return MessageChain.create([Plain(text="Github 仓库订阅功能已关闭")])
         repos = None
         group = None
@@ -108,7 +98,7 @@ class GithubWatcher:
         success_count = 0
         for repo in repos:
             url = f"https://api.github.com/search/repositories?q={repo}"
-            async with GithubWatcher.session.get(url=url) as resp:
+            async with GithubWatcher.__session.get(url=url) as resp:
                 result = (await resp.json())["items"]
                 if not result:
                     failed.append(repo)
@@ -116,24 +106,24 @@ class GithubWatcher:
                 repo = result[0]['full_name']
             repo = repo.split("/")
             repo = (repo[0], repo[1])
-            if repo not in GithubWatcher.cached.keys():
-                GithubWatcher.cached[repo] = {
+            if repo not in GithubWatcher.__cached.keys():
+                GithubWatcher.__cached[repo] = {
                     "group": [],
                     "friend": [],
                     "last_id": -1,
                     "enabled": True
                 }
             if group:
-                if group.id in GithubWatcher.cached[repo]['group']:
+                if group.id in GithubWatcher.__cached[repo]['group']:
                     duplicated.append(f"{repo[0]}/{repo[1]}")
                 else:
-                    GithubWatcher.cached[repo]['group'] = GithubWatcher.cached[repo]['group'] + [group.id]
+                    GithubWatcher.__cached[repo]['group'] = GithubWatcher.__cached[repo]['group'] + [group.id]
             if friend:
-                if friend.id in GithubWatcher.cached[repo]['friend']:
+                if friend.id in GithubWatcher.__cached[repo]['friend']:
                     duplicated.append(f"{repo[0]}/{repo[1]}")
                 else:
-                    GithubWatcher.cached[repo]['friend'] = GithubWatcher.cached[repo]['friend'] + [friend.id]
-            if GithubWatcher.cached[repo]['last_id'] == -1:
+                    GithubWatcher.__cached[repo]['friend'] = GithubWatcher.__cached[repo]['friend'] + [friend.id]
+            if GithubWatcher.__cached[repo]['last_id'] == -1:
                 await GithubWatcher.github_schedule(app=app, manuel=True, per_page=1, page=1, repo=repo)
             success_count += 1
         res = [Plain(text=f"{success_count} 个仓库订阅成功")]
@@ -154,7 +144,7 @@ class GithubWatcher:
 
     @staticmethod
     async def remove(**kwargs):
-        if not GithubWatcher.status:
+        if not GithubWatcher.__status:
             return MessageChain.create([Plain(text=f"Github 仓库订阅功能已关闭")])
         repos = None
         group = None
@@ -186,19 +176,19 @@ class GithubWatcher:
                 failed.append("/".join(repo))
                 continue
             repo = (repo[0], repo[1])
-            if repo not in GithubWatcher.cached.keys():
+            if repo not in GithubWatcher.__cached.keys():
                 failed.append("/".join(repo))
                 continue
             if group:
-                GithubWatcher.cached[repo]['group'] = [
-                    group_id for group_id in GithubWatcher.cached[repo]['group'] if group_id != group.id
+                GithubWatcher.__cached[repo]['group'] = [
+                    group_id for group_id in GithubWatcher.__cached[repo]['group'] if group_id != group.id
                 ]
             if friend:
-                GithubWatcher.cached[repo]['friend'] = [
-                    friend_id for friend_id in GithubWatcher.cached[repo]['group'] if friend_id != friend.id
+                GithubWatcher.__cached[repo]['friend'] = [
+                    friend_id for friend_id in GithubWatcher.__cached[repo]['group'] if friend_id != friend.id
                 ]
-            if not (GithubWatcher.cached[repo]['group'] and GithubWatcher.cached[repo]['friend']):
-                GithubWatcher.cached.pop(repo)
+            if not (GithubWatcher.__cached[repo]['group'] and GithubWatcher.__cached[repo]['friend']):
+                GithubWatcher.__cached.pop(repo)
             success_count += 1
         res = [Plain(text=f"{success_count} 个仓库取消订阅成功")]
         if failed:
@@ -238,7 +228,7 @@ class GithubWatcher:
                 for key in data.keys():
                     owner, repo = key.split("/")
                     cache[(owner, repo)] = data[key]
-                GithubWatcher.cached = cache
+                GithubWatcher.__cached = cache
             return MessageChain.create([Plain(text="更新缓存成功")]) if manual else None
         except (FileNotFoundError, JSONDecodeError):
             return MessageChain.create([Plain(text="无法更新缓存，请检查是否删除了缓存文件并重新储存缓存")])
@@ -247,9 +237,9 @@ class GithubWatcher:
     def store_cache(manual: bool = False):
         with open(str(Path(__file__).parent.joinpath("watcher_data.json")), "w") as w:
             cache = {}
-            for key in GithubWatcher.cached.keys():
+            for key in GithubWatcher.__cached.keys():
                 new_key = f"{key[0]}/{key[1]}"
-                cache[new_key] = GithubWatcher.cached[key]
+                cache[new_key] = GithubWatcher.__cached[key]
             w.write(json.dumps(cache, indent=4))
         return MessageChain.create([Plain(text="写入缓存成功")]) if manual else None
 
@@ -269,8 +259,8 @@ class GithubWatcher:
         watched = []
         target = group if group else friend
         field = 'group' if group else 'friend'
-        for repo in GithubWatcher.cached.keys():
-            if target.id in GithubWatcher.cached[repo][field]:
+        for repo in GithubWatcher.__cached.keys():
+            if target.id in GithubWatcher.__cached[repo][field]:
                 watched.append(f"{repo[0]}/{repo[1]}")
         res = [Plain(text=f"{'本群' if group else '你'}订阅的仓库有：\n"
                           f"{' '.join(watched)}")]
@@ -278,11 +268,11 @@ class GithubWatcher:
 
     @staticmethod
     async def get_repo_event(repo: tuple, per_page: int = 30, page: int = 1):
-        url = GithubWatcher.base_url \
-              + GithubWatcher.events_url.replace('{owner}', repo[0]).replace('{repo}', repo[1]) \
+        url = GithubWatcher.__base_url \
+              + GithubWatcher.__events_url.replace('{owner}', repo[0]).replace('{repo}', repo[1]) \
               + f'?per_page={per_page}&page={page}'
         try:
-            res = await GithubWatcher.session.get(url=url)
+            res = await GithubWatcher.__session.get(url=url)
             res = await res.json()
             if isinstance(res, list):
                 return res
@@ -290,15 +280,15 @@ class GithubWatcher:
                 if "message" in res.keys():
                     if "API rate limit exceeded" in res["message"]:
                         logger.error("GitHub API 超出速率限制")
-                        if not GithubWatcher._auth:
+                        if not GithubWatcher.__auth:
                             logger.error("请设置 GitHub 用户名和 OAuth Token 以提高限制")
-                            GithubWatcher.first_warned = True
+                            GithubWatcher.__first_warned = True
             return res
         except Exception as e:
             logger.error(e)
             logger.error(f"无法取得仓库 {repo[0]}/{repo[1]} 的更新，将跳过该仓库")
-            logger.error(f"请检查仓库是否存在{'，或者 GitHub 用户名与 OAuth Token 是否配置正确' if GithubWatcher._auth else ''}")
-            GithubWatcher.cached[repo]['enabled'] = False
+            logger.error(f"请检查仓库是否存在{'，或者 GitHub 用户名与 OAuth Token 是否配置正确' if GithubWatcher.__auth else ''}")
+            GithubWatcher.__cached[repo]['enabled'] = False
             return None
 
     @staticmethod
@@ -399,16 +389,7 @@ class GithubWatcher:
 
     @staticmethod
     async def github_schedule(**kwargs):
-        """
-        说明：
-            GitHub 定时工具
-        参数：
-            :**kwarg app: Ariadne 实例
-            :**kwarg manual: [可选] 手动，为 True 则返回 MessageChain，为否则直接发送
-            :**kwarg per_page: [可选] 取得特定数量的 events，默认取 30 个
-            :**kwarg page: [可选] 取得特定页数的 events，默认取第一页
-        """
-        if GithubWatcher.is_running:
+        if GithubWatcher.__is_running:
             return None
         if not GithubWatcher.initialize:
             GithubWatcher.update_cache()
@@ -432,10 +413,10 @@ class GithubWatcher:
         if not app:
             logger.error("无法获得 Ariadne 实例")
             return None
-        if GithubWatcher.status and repo:
+        if GithubWatcher.__status and repo:
             res = []
             if events := await GithubWatcher.get_repo_event(repo, per_page, page):
-                GithubWatcher.cached[repo]['last_id'] = int(events[0]['id'])
+                GithubWatcher.__cached[repo]['last_id'] = int(events[0]['id'])
                 if resp := await GithubWatcher.a_generate_plain(events[0]):
                     res.append(resp)
             if not res:
@@ -443,14 +424,14 @@ class GithubWatcher:
             res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
             res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
             return MessageChain.create(res)
-        if GithubWatcher.status and not GithubWatcher.is_running:
-            GithubWatcher.is_running = True
-            for repo in GithubWatcher.cached.keys():
-                if not GithubWatcher.cached[repo]['enabled']:
+        if GithubWatcher.__status and not GithubWatcher.__is_running:
+            GithubWatcher.__is_running = True
+            for repo in GithubWatcher.__cached.keys():
+                if not GithubWatcher.__cached[repo]['enabled']:
                     continue
                 res = []
                 if events := await GithubWatcher.get_repo_event(repo, per_page, page):
-                    last_id = GithubWatcher.cached[repo]['last_id']
+                    last_id = GithubWatcher.__cached[repo]['last_id']
                     new_last_id = last_id
                     for index, event in enumerate(events):
                         if index == 0:
@@ -461,27 +442,26 @@ class GithubWatcher:
                             res.append(resp)
                         else:
                             continue
-                    GithubWatcher.cached[repo]['last_id'] = new_last_id
-                    GithubWatcher.update_cache()
+                    GithubWatcher.__cached[repo]['last_id'] = new_last_id
+                    GithubWatcher.store_cache()
                 if res:
                     res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
                     res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
-                    # res = await MessageChainUtils.messagechain_to_img(MessageChain.create(res))
                     res = MessageChain.create(res)
                     if manual:
-                        GithubWatcher.is_running = False
+                        GithubWatcher.__is_running = False
                         return MessageItem(res, Normal())
-                    for group in GithubWatcher.cached[repo]['group']:
+                    for group in GithubWatcher.__cached[repo]['group']:
                         try:
                             await app.sendGroupMessage(group, res)
                         except (AccountMuted, UnknownTarget):
                             pass
-                    for friend in GithubWatcher.cached[repo]['friend']:
+                    for friend in GithubWatcher.__cached[repo]['friend']:
                         try:
                             await app.sendFriendMessage(friend, res)
                         except UnknownTarget:
                             pass
-            GithubWatcher.is_running = False
+            GithubWatcher.__is_running = False
         else:
             if manual:
                 return MessageItem(MessageChain.create([Plain(text="Github 订阅功能已关闭。")]), QuoteSource())
