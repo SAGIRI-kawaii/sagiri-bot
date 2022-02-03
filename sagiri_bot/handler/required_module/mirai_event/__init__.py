@@ -40,19 +40,25 @@ async def mirai_event_group(app: Ariadne, group: Group, event: GroupEvent):
     key = camel_to_underscore(event.__class__.__name__)
     if func := functions.get(key):
         argument_signatures = argument_signature(func)
+        final_args = {}
         for arg in args:
-            if arg in argument_signatures and not isinstance(args[arg], argument_signatures[arg][0]):
-                return None
-        await run_always_await_safely(func, **args)
+            if arg in argument_signatures:
+                if not isinstance(args[arg], argument_signatures[arg][0]):
+                    return None
+                final_args[arg] = args[arg]
+        await run_always_await_safely(func, **final_args)
 
 
 @channel.use(ListenerSchema(listening_events=mirai_listening_events))
-async def mirai_event_group(app: Ariadne, event: GroupEvent):
+async def mirai_event_group(app: Ariadne, event: MiraiEvent):
     args = {"app": app, "event": event}
     key = camel_to_underscore(event.__class__.__name__)
     if func := functions.get(key):
         argument_signatures = argument_signature(func)
+        final_args = {}
         for arg in args:
-            if arg in argument_signatures and not isinstance(args[arg], argument_signatures[arg][0]):
-                return None
-        await run_always_await_safely(func, **args)
+            if arg in argument_signatures:
+                if not isinstance(args[arg], argument_signatures[arg][0]):
+                    return None
+                final_args[arg] = args[arg]
+        await run_always_await_safely(func, **final_args)
