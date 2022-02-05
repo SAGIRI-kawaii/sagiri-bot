@@ -18,7 +18,11 @@ class GlobalConfig(BaseModel):
         },
         "saucenao_api_key": "saucenao_api_key",
         "lolicon_api_key": "lolicon_api_key",
-        "wolfram_alpha_key": "wolfram_alpha_key"
+        "wolfram_alpha_key": "wolfram_alpha_key",
+        "github": {
+            "username": "username",
+            "token": "token"
+        },
     }
     log_related: dict = {
         "error_retention": 14,
