@@ -27,6 +27,7 @@ app = core.get_app()
 loop = core.get_loop()
 scheduler = GraiaScheduler(loop, bcc)
 config = core.get_config()
+proxy = config.proxy if config.proxy != "proxy" else ''
 
 
 class GithubWatcher:
@@ -98,7 +99,7 @@ class GithubWatcher:
         success_count = 0
         for repo in repos:
             url = f"https://api.github.com/search/repositories?q={repo}"
-            async with GithubWatcher.__session.get(url=url) as resp:
+            async with GithubWatcher.__session.get(url=url, proxy=proxy) as resp:
                 result = (await resp.json())["items"]
                 if not result:
                     failed.append(repo)
@@ -272,7 +273,7 @@ class GithubWatcher:
               + GithubWatcher.__events_url.replace('{owner}', repo[0]).replace('{repo}', repo[1]) \
               + f'?per_page={per_page}&page={page}'
         try:
-            res = await GithubWatcher.__session.get(url=url)
+            res = await GithubWatcher.__session.get(url=url, proxy=proxy)
             res = await res.json()
             if isinstance(res, list):
                 return res
@@ -394,73 +395,77 @@ class GithubWatcher:
         if not GithubWatcher.initialize:
             GithubWatcher.update_cache()
             GithubWatcher.initialize = True
-        app = None
-        manual = False
-        repo = None
-        per_page = 30
-        page = 1
-        for name, arg in kwargs.items():
-            if name == "manual" and isinstance(arg, bool):
-                manual = arg
-            if name == "repo" and isinstance(arg, tuple):
-                repo = arg
-            if name == "per_page" and isinstance(arg, int):
-                per_page = arg
-            if name == "page" and isinstance(arg, int):
-                page = arg
-            if isinstance(arg, Ariadne):
-                app = arg
-        if not app:
-            logger.error("无法获得 Ariadne 实例")
-            return None
-        if GithubWatcher.__status and repo:
-            res = []
-            if events := await GithubWatcher.get_repo_event(repo, per_page, page):
-                GithubWatcher.__cached[repo]['last_id'] = int(events[0]['id'])
-                if resp := await GithubWatcher.a_generate_plain(events[0]):
-                    res.append(resp)
-            if not res:
+        try:
+            app = None
+            manual = False
+            repo = None
+            per_page = 30
+            page = 1
+            for name, arg in kwargs.items():
+                if name == "manual" and isinstance(arg, bool):
+                    manual = arg
+                if name == "repo" and isinstance(arg, tuple):
+                    repo = arg
+                if name == "per_page" and isinstance(arg, int):
+                    per_page = arg
+                if name == "page" and isinstance(arg, int):
+                    page = arg
+                if isinstance(arg, Ariadne):
+                    app = arg
+            if not app:
+                logger.error("无法获得 Ariadne 实例")
                 return None
-            res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
-            res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
-            return MessageChain.create(res)
-        if GithubWatcher.__status and not GithubWatcher.__is_running:
-            GithubWatcher.__is_running = True
-            for repo in GithubWatcher.__cached.keys():
-                if not GithubWatcher.__cached[repo]['enabled']:
-                    continue
+            if GithubWatcher.__status and repo:
                 res = []
                 if events := await GithubWatcher.get_repo_event(repo, per_page, page):
-                    last_id = GithubWatcher.__cached[repo]['last_id']
-                    new_last_id = last_id
-                    for index, event in enumerate(events):
-                        if index == 0:
-                            new_last_id = int(event['id'])
-                        if int(event['id']) <= last_id:
-                            break
-                        if resp := await GithubWatcher.a_generate_plain(event):
-                            res.append(resp)
-                        else:
-                            continue
-                    GithubWatcher.__cached[repo]['last_id'] = new_last_id
-                    GithubWatcher.store_cache()
-                if res:
-                    res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
-                    res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
-                    res = MessageChain.create(res)
-                    if manual:
-                        GithubWatcher.__is_running = False
-                        return MessageItem(res, Normal())
-                    for group in GithubWatcher.__cached[repo]['group']:
-                        try:
-                            await app.sendGroupMessage(group, res)
-                        except (AccountMuted, UnknownTarget):
-                            pass
-                    for friend in GithubWatcher.__cached[repo]['friend']:
-                        try:
-                            await app.sendFriendMessage(friend, res)
-                        except UnknownTarget:
-                            pass
+                    GithubWatcher.__cached[repo]['last_id'] = int(events[0]['id'])
+                    if resp := await GithubWatcher.a_generate_plain(events[0]):
+                        res.append(resp)
+                if not res:
+                    return None
+                res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
+                res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
+                return MessageChain.create(res)
+            if GithubWatcher.__status and not GithubWatcher.__is_running:
+                GithubWatcher.__is_running = True
+                for repo in GithubWatcher.__cached.keys():
+                    if not GithubWatcher.__cached[repo]['enabled']:
+                        continue
+                    res = []
+                    if events := await GithubWatcher.get_repo_event(repo, per_page, page):
+                        last_id = GithubWatcher.__cached[repo]['last_id']
+                        new_last_id = last_id
+                        for index, event in enumerate(events):
+                            if index == 0:
+                                new_last_id = int(event['id'])
+                            if int(event['id']) <= last_id:
+                                break
+                            if resp := await GithubWatcher.a_generate_plain(event):
+                                res.append(resp)
+                            else:
+                                continue
+                        GithubWatcher.__cached[repo]['last_id'] = new_last_id
+                        GithubWatcher.store_cache()
+                    if res:
+                        res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
+                        res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
+                        res = MessageChain.create(res)
+                        if manual:
+                            GithubWatcher.__is_running = False
+                            return MessageItem(res, Normal())
+                        for group in GithubWatcher.__cached[repo]['group']:
+                            try:
+                                await app.sendGroupMessage(group, res)
+                            except (AccountMuted, UnknownTarget):
+                                pass
+                        for friend in GithubWatcher.__cached[repo]['friend']:
+                            try:
+                                await app.sendFriendMessage(friend, res)
+                            except UnknownTarget:
+                                pass
+                GithubWatcher.__is_running = False
+        except Exception as e:
+            logger.error(e)
             GithubWatcher.__is_running = False
         else:
             if manual:
