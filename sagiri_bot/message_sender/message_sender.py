@@ -1,8 +1,6 @@
 import traceback
 from typing import Union
 from loguru import logger
-from pydantic import BaseModel
-from abc import ABC, abstractmethod
 from aiohttp.client_exceptions import ClientResponseError
 
 from graia.ariadne.app import Ariadne
@@ -16,7 +14,7 @@ from .strategy import Strategy, DoNothing
 from sagiri_bot.exception_resender import ExceptionReSender
 
 try:
-    from sagiri_bot.handler.handlers.repeater import Repeater
+    from sagiri_bot.handler.handlers.repeater import Repeater, mutex
     has_sagiri_repeater = True
 except ImportError:
     has_sagiri_repeater = False
@@ -41,8 +39,10 @@ class MessageSender:
         try:
             if has_sagiri_repeater:
                 if target_field.id in Repeater.group_repeat.keys():
+                    await mutex.acquire()
                     Repeater.group_repeat[target_field.id]["lastMsg"] = Repeater.group_repeat[target_field.id]["thisMsg"]
                     Repeater.group_repeat[target_field.id]["thisMsg"] = message.asPersistentString()
+                    mutex.release()
                 else:
                     Repeater.group_repeat[target_field.id] = {
                         "lastMsg": "",
