@@ -1,5 +1,6 @@
 import os
 import re
+import traceback
 from typing import List, Dict, Optional, Union
 
 from graia.saya import Saya, Channel
@@ -65,7 +66,7 @@ class SayaManager(AbstractHandler):
                 ),
                 QuoteSource()
             )
-        elif message.asDisplay().startswith("插件详情 "):
+        elif re.match(r"插件详情 .+", message.asDisplay()):
             target = message.asDisplay()[5:].strip()
             loaded_channels = SayaManager.get_loaded_channels()
             keys = list(loaded_channels.keys())
@@ -92,7 +93,7 @@ class SayaManager(AbstractHandler):
                 ]),
                 QuoteSource()
             )
-        elif message.asDisplay().startswith("未加载插件"):
+        elif message.asDisplay() == "未加载插件":
             if not await user_permission_require(group, member, 3):
                 return MessageItem(MessageChain.create([Plain(text="爬，权限不足")]), QuoteSource())
             unloaded_channels = SayaManager.get_unloaded_channels()
@@ -108,7 +109,7 @@ class SayaManager(AbstractHandler):
                 ]),
                 QuoteSource()
             )
-        elif message.asDisplay().startswith("加载插件 .+"):
+        elif re.match(r"加载插件 .+", message.asDisplay()):
             if not await user_permission_require(group, member, 3):
                 return MessageItem(MessageChain.create([Plain(text="爬，权限不足")]), QuoteSource())
             target = message.asDisplay()[5:].strip()

@@ -10,6 +10,7 @@ from graia.ariadne.event.message import Group
 from graia.broadcast.exceptions import ExecutionStop
 from graia.broadcast.builtin.decorators import Depend
 from graia.ariadne.message.chain import MessageChain, Plain
+from graia.ariadne.event.mirai import MiraiEvent, GroupEvent
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from sagiri_bot.core.app_core import AppCore
@@ -30,8 +31,9 @@ def singleton(cls):
     return _singleton
 
 
-def manageable(name: str) -> Depend:
-    async def manage(app: Ariadne, group: Group):
+def manageable(name: str, group_events: bool = True) -> Depend:
+
+    async def manage_group_events(app: Ariadne, group: Group):
         if name not in saya_data.switch:
             saya_data.add_saya(name)
         if group.id not in saya_data.switch[name]:
@@ -40,7 +42,20 @@ def manageable(name: str) -> Depend:
             if saya_data.is_notice_on(name, group):
                 await app.sendMessage(group, MessageChain.create([Plain(text=f"{name}插件已关闭，请联系管理员")]))
             raise ExecutionStop()
-    return Depend(manage)
+
+    async def manage_mirai_events(app: Ariadne, event: MiraiEvent):
+        group = event.group_id if hasattr(event, "group_id") else '0'
+        if name not in saya_data.switch:
+            saya_data.add_saya(name)
+        if group not in saya_data.switch[name]:
+            saya_data.add_group(group)
+        if not saya_data.is_turned_on(name, group):
+            if saya_data.is_notice_on(name, group):
+                if group != '0':
+                    await app.sendGroupMessage(int(group), MessageChain.create([Plain(text=f"{name}插件已关闭，请联系管理员")]))
+            raise ExecutionStop()
+
+    return Depend(manage_group_events) if group_events else Depend(manage_mirai_events)
 
 
 def saya_init():
@@ -53,7 +68,10 @@ def saya_init():
         for cube in cubes:
             if isinstance(cube.metaclass, ListenerSchema):
                 bcc.removeListener(bcc.getListener(cube.content))
-                cube.metaclass.decorators.append(manageable(channel.module))
+                if all([issubclass(i, GroupEvent) for i in cube.metaclass.listening_events]):
+                    cube.metaclass.decorators.append(manageable(channel.module))
+                else:
+                    cube.metaclass.decorators.append(manageable(channel.module, False))
                 listener = cube.metaclass.build_listener(cube.content, bcc)
                 if not listener.namespace:
                     listener.namespace = bcc.getDefaultNamespace()
@@ -129,11 +147,13 @@ class SayaData:
             del self.switch[name]
         self.save()
 
-    def is_turned_on(self, name: str, group: Union[Group, int]) -> bool:
+    def is_turned_on(self, name: str, group: Union[Group, int, str]) -> bool:
         if isinstance(group, Group):
             group = group.id
         group = str(group)
         if self.switch.get(name):
+            if '0' in self.switch[name] and self.switch['0'] == False:
+                return False
             if group in self.switch[name]:
                 return self.switch[name][group]["switch"]
             else:
@@ -145,7 +165,7 @@ class SayaData:
                 self.add_group(group)
             return DEFAULT_SWITCH
 
-    def is_notice_on(self, name: str, group: Union[Group, int]) -> bool:
+    def is_notice_on(self, name: str, group: Union[Group, int, str]) -> bool:
         if isinstance(group, Group):
             group = group.id
         group = str(group)
@@ -161,7 +181,7 @@ class SayaData:
                 self.add_group(group)
             return DEFAULT_NOTICE
 
-    def value_change(self, name: str, group: Union[Group, int], key: str, value: bool) -> None:
+    def value_change(self, name: str, group: Union[Group, int, str], key: str, value: bool) -> None:
         if isinstance(group, Group):
             group = group.id
         group = str(group)
@@ -175,16 +195,16 @@ class SayaData:
         self.switch[name][group][key] = value
         self.save()
 
-    def switch_on(self, name: str, group: Union[Group, int]) -> None:
+    def switch_on(self, name: str, group: Union[Group, int, str]) -> None:
         self.value_change(name, group, "switch", True)
 
-    def switch_off(self, name: str, group: Union[Group, int]) -> None:
+    def switch_off(self, name: str, group: Union[Group, int, str]) -> None:
         self.value_change(name, group, "switch", False)
 
-    def notice_on(self, name: str, group: Union[Group, int]) -> None:
+    def notice_on(self, name: str, group: Union[Group, int, str]) -> None:
         self.value_change(name, group, "notice", True)
 
-    def notice_off(self, name: str, group: Union[Group, int]) -> None:
+    def notice_off(self, name: str, group: Union[Group, int, str]) -> None:
         self.value_change(name, group, "notice", False)
 
     def save(self, path: str = str(Path(__file__).parent.joinpath("saya_data.json"))):

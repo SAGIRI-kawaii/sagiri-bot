@@ -22,6 +22,7 @@ functions = sys.modules["sagiri_bot.handler.required_module.mirai_event"].__dict
 group_listening_events = list(gen_subclass(GroupEvent))
 mirai_listening_events = [i for i in gen_subclass(MiraiEvent) if not issubclass(i, GroupEvent)]
 group_listening_events.remove(GroupMessage)
+mirai_listening_events.remove(NudgeEvent)
 
 
 def argument_signature(callable_target: Callable):

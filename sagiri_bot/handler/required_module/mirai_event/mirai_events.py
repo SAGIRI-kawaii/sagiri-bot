@@ -313,9 +313,94 @@ async def bot_join_group_event(app: Ariadne, group: Group):
 
 
 async def member_honor_change_event(app: Ariadne, group: Group, event: MemberHonorChangeEvent):
-    if event.action == "Active" and event.honor == "TALKATIVE":
-        await app.sendMessage(
-            group, MessageChain.create([
-                Plain(text=f"恭喜 {event.member.name} 成为今天的龙王，真能说！")
-            ])
-        )
+    await app.sendMessage(
+        group, MessageChain.create([
+            Plain(text="恭喜" if event.action == 'achieve' else "很遗憾，"),
+            At(event.member.id),
+            Plain(f"{'获得了' if event.action == 'achieve' else '失去了'} 群荣誉 {event.honor}！"),
+        ])
+    )
+
+
+nudge_info = {}
+
+
+async def nudge_event(app: Ariadne, event: NudgeEvent):
+    if event.group_id and not await get_setting(event.group_id, Setting.switch):
+        return None
+    if event.target == config.bot_qq:
+        if event.context_type == "group":
+            if member := await app.getMember(event.group_id, event.supplicant):
+                logger.info(f"机器人被群 <{member.group.name}> 中用户 <{member.name}> 戳了戳。")
+                if member.group.id in nudge_info.keys():
+                    if member.id in nudge_info[member.group.id].keys():
+                        period = nudge_info[member.group.id][member.id]["time"] + relativedelta(minutes=1)
+                        if datetime.now() >= period:
+                            nudge_info[member.group.id][member.id] = {"count": 0, "time": datetime.now()}
+                        count = nudge_info[member.group.id][member.id]["count"] + 1
+                        if count == 1:
+                            try:
+                                await app.sendNudge(member)
+                            except:
+                                pass
+                            nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
+                        elif count == 2:
+                            try:
+                                await app.sendNudge(member)
+                                await app.sendMessage(
+                                    member.group, MessageChain.create([
+                                        Plain(text=f"不许戳了！")
+                                    ])
+                                )
+                            except:
+                                pass
+                            nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
+                        elif count == 3:
+                            try:
+                                await app.sendNudge(member)
+                                await app.sendMessage(
+                                    member.group, MessageChain.create([
+                                        Plain(text=f"说了不许再戳了！")
+                                    ])
+                                )
+                            except:
+                                pass
+                            nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
+                        elif count == 4:
+                            try:
+                                await app.sendNudge(member)
+                            except:
+                                pass
+                            nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
+                        elif count == 5:
+                            try:
+                                await app.sendNudge(member)
+                                await app.sendMessage(
+                                    member.group, MessageChain.create([
+                                        Plain(text=f"呜呜呜你欺负我，不理你了！")
+                                    ])
+                                )
+                            except:
+                                pass
+                            nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
+                        elif 6 <= count <= 9:
+                            nudge_info[member.group.id][member.id] = {"count": count, "time": datetime.now()}
+                        elif count == 10:
+                            try:
+                                await app.sendNudge(member)
+                                await app.sendMessage(
+                                    member.group, MessageChain.create([
+                                        Plain(text="你真的很有耐心欸。")
+                                    ])
+                                )
+                            except:
+                                pass
+                    else:
+                        nudge_info[member.group.id][member.id] = {"count": 1, "time": datetime.now()}
+                        await app.sendNudge(member)
+                else:
+                    nudge_info[member.group.id] = {member.id: {"count": 1, "time": datetime.now()}}
+                    await app.sendNudge(member)
+        else:
+            if friend := await app.getFriend(event.supplicant):
+                logger.info(f"机器人被好友 <{friend.nickname}> 戳了戳。")
