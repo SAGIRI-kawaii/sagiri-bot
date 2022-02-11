@@ -15,7 +15,6 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from sagiri_bot.core.app_core import AppCore
 
-
 DEFAULT_SWITCH = True
 DEFAULT_NOTICE = False
 
@@ -32,7 +31,6 @@ def singleton(cls):
 
 
 def manageable(name: str, group_events: bool = True) -> Depend:
-
     async def manage_group_events(app: Ariadne, group: Group):
         if name not in saya_data.switch:
             saya_data.add_saya(name)
@@ -103,6 +101,7 @@ class SayaData:
         ...
     }
     """
+
     def __init__(
             self,
             permission: Dict[str, Dict[int, int]] = None,
@@ -152,7 +151,7 @@ class SayaData:
             group = group.id
         group = str(group)
         if self.switch.get(name):
-            if '0' in self.switch[name] and self.switch['0'] == False:
+            if '0' in self.switch[name] and self.switch[name]['0'] is False:
                 return False
             if group in self.switch[name]:
                 return self.switch[name][group]["switch"]
