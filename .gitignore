@@ -18,3 +18,4 @@ test.py
 /log
 /sagiri_bot/handler/required_module/saya_manager/saya_data.json
 *.pyc
+/sagiri_bot/handler/handlers/pica/cache
