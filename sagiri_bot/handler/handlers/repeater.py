@@ -48,16 +48,16 @@ class Repeater(AbstractHandler):
         message_serialization = message.asPersistentString()
         if await get_setting(group_id, Setting.repeat):
             if group_id in Repeater.group_repeat.keys():
-                await mutex.acquire()
+                # await mutex.acquire()
                 Repeater.group_repeat[group.id]["lastMsg"] = Repeater.group_repeat[group.id]["thisMsg"]
                 Repeater.group_repeat[group.id]["thisMsg"] = message_serialization
                 if Repeater.group_repeat[group.id]["lastMsg"] != Repeater.group_repeat[group.id]["thisMsg"]:
                     Repeater.group_repeat[group.id]["stopMsg"] = ""
-                    mutex.release()
+                    # mutex.release()
                 else:
                     if Repeater.group_repeat[group.id]["thisMsg"] != Repeater.group_repeat[group.id]["stopMsg"]:
                         Repeater.group_repeat[group.id]["stopMsg"] = Repeater.group_repeat[group.id]["thisMsg"]
-                        mutex.release()
+                        # mutex.release()
                         return MessageItem(message.asSendable(), Normal())
             else:
                 Repeater.group_repeat[group_id] = {"lastMsg": "", "thisMsg": message_serialization, "stopMsg": ""}

@@ -39,10 +39,10 @@ class MessageSender:
         try:
             if has_sagiri_repeater:
                 if target_field.id in Repeater.group_repeat.keys():
-                    await mutex.acquire()
+                    # await mutex.acquire()
                     Repeater.group_repeat[target_field.id]["lastMsg"] = Repeater.group_repeat[target_field.id]["thisMsg"]
                     Repeater.group_repeat[target_field.id]["thisMsg"] = message.asPersistentString()
-                    mutex.release()
+                    # mutex.release()
                 else:
                     Repeater.group_repeat[target_field.id] = {
                         "lastMsg": "",
