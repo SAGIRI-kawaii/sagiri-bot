@@ -28,6 +28,15 @@ functions:
   github:
     username: username
     token: token
+  pica:
+    username: username
+    password: password
+    download_cache: true
+    search_cache: true
+    daily_download_limit: 1
+    daily_search_limit: 1
+    daily_random_limit: 1
+    daily_rank_limit: 1
 
 # 日志相关
 log_related:
