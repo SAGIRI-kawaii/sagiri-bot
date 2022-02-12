@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import yaml
-import traceback
 import threading
 from loguru import logger
 
@@ -12,6 +10,7 @@ from graia.ariadne.event.message import Group, Member, MessageChain, Friend
 
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.utils import online_notice, load_config
+from sagiri_bot.core.api_server.app import run_api_server, set_log
 
 core = AppCore(load_config())
 
@@ -32,6 +31,7 @@ logger.add(
     retention=f"{config.log_related['error_retention']} days",
     encoding="utf-8"
 )
+logger.add(set_log)
 
 ignore = ["__init__.py", "__pycache__"]
 with saya.module_context():
@@ -67,4 +67,5 @@ async def init():
     await online_notice(app)
 
 
+threading.Thread(target=run_api_server, args=()).start()
 core.launch()

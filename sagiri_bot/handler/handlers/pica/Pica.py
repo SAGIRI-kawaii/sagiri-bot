@@ -9,6 +9,7 @@ import zipfile
 from io import BytesIO
 from pathlib import Path
 from urllib import parse
+from loguru import logger
 from hashlib import sha256
 from PIL import Image as IMG
 from aiohttp import TCPConnector
@@ -53,6 +54,7 @@ class Pica:
     def __init__(self, account, password):
         if not os.path.exists(CACHE_PATH):
             os.makedirs(CACHE_PATH)
+        self.init = False
         self.account = account
         self.password = password
         self.header = header.copy()
@@ -62,6 +64,7 @@ class Pica:
     async def check(self):
         token = await self.login()
         self.header["authorization"] = token
+        self.init = True
 
     def update_signature(self, url: str, method: Literal["GET", "POST"]) -> dict:
         ts = str(int(time.time()))
@@ -233,7 +236,10 @@ class Pica:
             return zip_name, r.read()
 
 
-pica = Pica(username, password)
+try:
+    pica = Pica(username, password)
+except aiohttp.ClientConnectorError:
+    pica = None
 # print(loop.run_until_complete(pica.search("SAGIRI")))
 # print(loop.run_until_complete(pica.categories()))
 # print(loop.run_until_complete(pica.random()))

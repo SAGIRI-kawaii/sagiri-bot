@@ -141,9 +141,10 @@ class AppCore(object):
         """ 机器人启动初始化 """
         self.config_check()
         try:
-            await orm.init_check()
-            # if not await orm.inited():
-            #     await orm.create_all()
+            try:
+                await orm.init_check()
+            except AttributeError:
+                await orm.create_all()
             if not os.path.exists(f"{os.getcwd()}/alembic"):
                 logger.info("未检测到alembic目录，进行初始化")
                 os.system("alembic init alembic")
