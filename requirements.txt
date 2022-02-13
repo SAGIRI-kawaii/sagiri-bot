@@ -24,3 +24,4 @@ aiosqlite==0.17.0
 alembic==1.7.5
 playwright==1.18.1
 pytz==2021.3
+psutil==5.9.0
