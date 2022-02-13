@@ -59,7 +59,10 @@ class Pica:
         self.password = password
         self.header = header.copy()
         self.header["nonce"] = uuid_s
-        loop.run_until_complete(self.check())
+        try:
+            loop.run_until_complete(self.check())
+        except aiohttp.ClientConnectorError:
+            logger.exception("")
 
     async def check(self):
         token = await self.login()
@@ -236,10 +239,7 @@ class Pica:
             return zip_name, r.read()
 
 
-try:
-    pica = Pica(username, password)
-except aiohttp.ClientConnectorError:
-    pica = None
+pica = Pica(username, password)
 # print(loop.run_until_complete(pica.search("SAGIRI")))
 # print(loop.run_until_complete(pica.categories()))
 # print(loop.run_until_complete(pica.random()))

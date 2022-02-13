@@ -1,4 +1,5 @@
 import os
+import aiohttp
 from loguru import logger
 from datetime import datetime, timedelta
 
@@ -75,7 +76,7 @@ limit_text = {
                 Sparkle(
                     [FullMatch("pica")],
                     {
-                        "operation": UnionMatch("download", "search", "random", "rank"),
+                        "operation": UnionMatch("download", "search", "random", "rank", "init"),
                         "forward_type": ArgumentMatch("-forward", action="store_true", optional=True),
                         "message_type": ArgumentMatch("-message", action="store_true", optional=True),
                         "rank_time": UnionMatch("-H24", "-D7", "-D30", optional=True),
@@ -126,6 +127,8 @@ class PicaHandler(AbstractHandler):
         rank_time: UnionMatch,
         content: RegexMatch
     ):
+        if not pica.init:
+            return MessageItem(MessageChain.create([Plain(text="pica实例初始化失败，请重启机器人或重载插件！")]), Normal())
         if any([
             operation.result.asDisplay() == "download" and not DAILY_DOWNLOAD_LIMITER.check(member.id),
             operation.result.asDisplay() == "search" and not DAILY_SEARCH_LIMITER.check(member.id),
@@ -145,7 +148,15 @@ class PicaHandler(AbstractHandler):
         elif operation.result.asDisplay() == "rank":
             DAILY_RANK_LIMITER.increase(member.id)
 
-        if operation.result.asDisplay() == "download" and forward_type.matched and content.matched:
+        if operation.result.asDisplay() == "init":
+            if pica.init:
+                return MessageItem(MessageChain.create([Plain(text="pica已初始化")]), Normal())
+            try:
+                await pica.check()
+                return MessageItem(MessageChain.create([Plain(text="pica初始化成功")]), Normal())
+            except aiohttp.ClientConnectorError:
+                return MessageItem(MessageChain.create([Plain(text="pica初始化失败，请检查代理")]), Normal())
+        elif operation.result.asDisplay() == "download" and forward_type.matched and content.matched:
             comic_id = content.result.asDisplay()
             await app.sendMessage(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
             info = await pica.download_comic(comic_id, False)
