@@ -1,4 +1,5 @@
 import yaml
+from sqlalchemy.pool import NullPool
 
 
 def get_adapter(url: str) -> dict:
@@ -8,6 +9,8 @@ def get_adapter(url: str) -> dict:
         adapter = None
         if url.startswith("mysql"):
             adapter = adapters.get("mysql")
+            if adapter['disable_pooling']:
+                return {"poolclass": NullPool}
             for key in adapter.keys():
                 adapter[key] = int(adapter[key])
         return adapter if adapter else {}
