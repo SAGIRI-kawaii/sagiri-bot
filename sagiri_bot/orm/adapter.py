@@ -9,8 +9,9 @@ def get_adapter(url: str) -> dict:
         adapter = None
         if url.startswith("mysql"):
             adapter = adapters.get("mysql")
-            if adapter['disable_pooling']:
+            if adapter['disable_pooling'] == 'true':
                 return {"poolclass": NullPool}
+            adapter.pop("disable_pooling")
             for key in adapter.keys():
                 adapter[key] = int(adapter[key])
         return adapter if adapter else {}
