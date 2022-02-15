@@ -5,7 +5,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Optional
 from PIL import Image as IMG
-from threading import Semaphore
+from asyncio import Semaphore
 
 try:
     from realesrgan import RealESRGANer
@@ -138,10 +138,9 @@ class SuperResolution(AbstractHandler):
                     return MessageItem(MessageChain.create([Plain(text="未检测到图片，请重新发送，进程退出")]), QuoteSource())
             except asyncio.TimeoutError:
                 return MessageItem(MessageChain.create([Plain(text="图片等待超时，进程退出")]), QuoteSource())
-        mutex.acquire()
         if SuperResolution.processing:
-            mutex.release()
             return MessageItem(MessageChain.create([Plain(text="有任务正在处理中，请稍后重试")]), QuoteSource())
+        await mutex.acquire()
         SuperResolution.processing = True
         mutex.release()
         await app.sendMessage(
@@ -152,7 +151,7 @@ class SuperResolution(AbstractHandler):
         try:
             return await SuperResolution.super_resolution(image_data, resize.matched)
         except RuntimeError as e:
-            mutex.acquire()
+            await mutex.acquire()
             SuperResolution.processing = False
             mutex.release()
             return MessageItem(MessageChain.create([Plain(text=str(e))]), QuoteSource())
@@ -164,6 +163,9 @@ class SuperResolution(AbstractHandler):
         image_size = image.size[0] * image.size[1]
         if image_size > max_size:
             if not resize:
+                await mutex.acquire()
+                SuperResolution.processing = False
+                mutex.release()
                 return MessageItem(
                     MessageChain.create([
                         Plain(text="图片尺寸过大！请发送1080p以内即像素数小于 1920×1080=2073600的照片！\n"),
@@ -186,7 +188,7 @@ class SuperResolution(AbstractHandler):
         img.save(result, format='PNG')  # format: PNG / JPEG
         end = time.time()
         use_time = round(end - start, 2)
-        mutex.acquire()
+        await mutex.acquire()
         SuperResolution.processing = False
         mutex.release()
         return MessageItem(

@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+import platform
 from json import JSONDecodeError
 from typing import Union, Optional, List, Dict
 
@@ -100,7 +101,11 @@ class UserData:
 
     def __init__(self, path: str = f"{os.path.dirname(__file__)}/data.json"):
         if not os.path.exists(path):
-            os.mknod(path)
+            if platform.system() != "Windows":
+                os.mknod(path)
+            else:
+                with open(path, "w") as fp:
+                    fp.write("")
         with open(path, "r") as r:
             try:
                 self._data = json.load(r)

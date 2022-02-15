@@ -54,5 +54,6 @@ data_related:
 # 数据库相关
 database_related:
   mysql:
+    disable_pooling: false
     pool_size: 40
     max_overflow: 60
