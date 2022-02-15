@@ -8,6 +8,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from statics.character_dict import character_dict
+from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.strategy import QuoteSource
 from sagiri_bot.message_sender.message_item import MessageItem
@@ -33,6 +34,8 @@ class RandomCharacter(AbstractHandler):
     __usage__ = "在群中发送 `随机人设` 即可"
 
     @staticmethod
+    @switch()
+    @blacklist()
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
         if message.asDisplay() == "随机人设":
             return MessageItem(MessageChain.create([Plain(text=RandomCharacter.get_rand())]), QuoteSource())
