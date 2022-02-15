@@ -128,9 +128,7 @@ class PicaHandler(AbstractHandler):
         content: RegexMatch
     ):
         if not pica.init:
-            return MessageItem(MessageChain.create([
-                Plain(text="pica实例初始化失败，请在检查用户名与密码后重启机器人或重载插件！")
-            ]), Normal())
+            return MessageItem(MessageChain.create([Plain(text="pica实例初始化失败，请重启机器人或重载插件！")]), Normal())
         if any([
             operation.result.asDisplay() == "download" and not DAILY_DOWNLOAD_LIMITER.check(member.id),
             operation.result.asDisplay() == "search" and not DAILY_SEARCH_LIMITER.check(member.id),

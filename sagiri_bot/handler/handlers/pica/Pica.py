@@ -65,9 +65,9 @@ class Pica:
             logger.exception("")
 
     async def check(self):
-        if token := await self.login():
-            self.header["authorization"] = token
-            self.init = True
+        token = await self.login()
+        self.header["authorization"] = token
+        self.init = True
 
     def update_signature(self, url: str, method: Literal["GET", "POST"]) -> dict:
         ts = str(int(time.time()))
@@ -116,11 +116,7 @@ class Pica:
         temp_header = self.update_signature(url, "POST")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.post(url=url, headers=temp_header, data=json.dumps(send), proxy=proxy) as resp:
-                if resp.status == 200:
-                    self.header["authorization"] = (await resp.json())["data"]["token"]
-                else:
-                    self.header["authorization"] = None
-                    logger.error("无法获取 Pica 认证 token，请检查用户名与密码是否配置正确")
+                self.header["authorization"] = (await resp.json())["data"]["token"]
         return self.header["authorization"]
 
     async def categories(self):
