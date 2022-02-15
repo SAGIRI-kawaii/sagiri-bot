@@ -156,6 +156,8 @@ class PicaHandler(AbstractHandler):
                 return MessageItem(MessageChain.create([Plain(text="pica初始化成功")]), Normal())
             except aiohttp.ClientConnectorError:
                 return MessageItem(MessageChain.create([Plain(text="pica初始化失败，请检查代理")]), Normal())
+            except KeyError:
+                return MessageItem(MessageChain.create([Plain(text="pica初始化失败，请检查账号密码是否配置正确")]), Normal())
         elif operation.result.asDisplay() == "download" and forward_type.matched and content.matched:
             comic_id = content.result.asDisplay()
             await app.sendMessage(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
