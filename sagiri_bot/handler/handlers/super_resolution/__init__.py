@@ -164,6 +164,7 @@ class SuperResolution(AbstractHandler):
         image_size = image.size[0] * image.size[1]
         if image_size > max_size:
             if not resize:
+                SuperResolution.processing = False
                 return MessageItem(
                     MessageChain.create([
                         Plain(text="图片尺寸过大！请发送1080p以内即像素数小于 1920×1080=2073600的照片！\n"),
