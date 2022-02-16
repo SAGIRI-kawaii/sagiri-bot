@@ -223,16 +223,17 @@ class PicaHandler(AbstractHandler):
                     data=info[1],
                     method=UploadMethod.Group,
                     target=group,
-                    name=f"{info[0].replace(' ', '')}"
+                    name=f"{info[0].replace(' ', '')}.zip"
                 )
             except RemoteException:
                 await app.uploadFile(
                     data=info[1],
                     method=UploadMethod.Group,
                     target=group,
-                    name=f"pica_{comic_id}"
+                    name=f"pica_{comic_id}.zip"
                 )
-            return MessageItem(MessageChain("请自行添加 .zip 后缀名后进行解压"), Normal())
+            # return MessageItem(MessageChain("请自行添加 .zip 后缀名后进行解压"), Normal())
+            return None
 
         elif operation.result.asDisplay() in ("search", "random"):
             search = operation.result.asDisplay() == "search"
