@@ -37,6 +37,7 @@ functions:
     daily_search_limit: 1
     daily_random_limit: 1
     daily_rank_limit: 1
+    compress_password: i_luv_sagiri
 
 # 日志相关
 log_related:
