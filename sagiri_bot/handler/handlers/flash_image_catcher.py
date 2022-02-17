@@ -5,7 +5,7 @@ from graia.ariadne.message.element import Plain, FlashImage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
-from sagiri_bot.utils import get_setting
+from sagiri_bot.utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.message_sender.strategy import Normal
@@ -36,7 +36,7 @@ class FlashImageCatcherHandler(AbstractHandler):
     @switch()
     @blacklist()
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        if message.has(FlashImage) and await get_setting(group.id, Setting.anti_flash_image):
+        if message.has(FlashImage) and await group_setting.get_setting(group.id, Setting.anti_flash_image):
             return MessageItem(
                 MessageChain.create([Plain(text="FlashImage => Image\n"), message[FlashImage][0].toImage()]),
                 Normal()

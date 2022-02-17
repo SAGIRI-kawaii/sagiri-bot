@@ -19,11 +19,11 @@ channel = Channel.current()
 
 channel.name("GithubWatcher")
 channel.author("nullqwertyuiop")
-channel.description("/github-watch enable [3级权限]"
-                    "/github-watch disable [3级权限]"
-                    "/github-watch add {repo} [repo]+ [2级或管理员权限]"
-                    "/github-watch remove {repo} [repo]+ [2级或管理员权限]"
-                    "/github-watch check [任何人]"
+channel.description("/github-watch enable [3级权限]\n"
+                    "/github-watch disable [3级权限]\n"
+                    "/github-watch add {repo} [repo]+ [2级或管理员权限]\n"
+                    "/github-watch remove {repo} [repo]+ [2级或管理员权限]\n"
+                    "/github-watch check [任何人]\n"
                     "/github-watch cache {update/store} [2级或管理员权限]")
 
 

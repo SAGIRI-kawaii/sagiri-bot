@@ -1,17 +1,12 @@
-import re
-import random
 from datetime import datetime
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.element import ForwardNode, Image, Plain, Forward, At
+from graia.ariadne.message.element import ForwardNode, Plain, Forward, At
 
-from sagiri_bot.utils import get_setting
-from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.message_sender.strategy import Normal
 from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.handler.handler import AbstractHandler

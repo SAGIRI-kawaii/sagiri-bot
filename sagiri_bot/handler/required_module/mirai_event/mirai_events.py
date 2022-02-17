@@ -8,7 +8,7 @@ from graia.ariadne.event.message import Group
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.exception import AccountMuted, UnknownTarget
 
-from sagiri_bot.utils import get_setting
+from sagiri_bot.utils import group_setting
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.orm.async_orm import orm, UserPermission, Setting
 from sagiri_bot.frequency_limit_module import GlobalFrequencyLimitDict
@@ -19,7 +19,7 @@ config = core.get_config()
 
 async def member_join_event(app: Ariadne, group: Group, event: MemberJoinEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
@@ -33,7 +33,7 @@ async def member_join_event(app: Ariadne, group: Group, event: MemberJoinEvent):
 
 async def member_leave_event_quit(app: Ariadne, group: Group, event: MemberLeaveEventQuit):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
@@ -45,7 +45,7 @@ async def member_leave_event_quit(app: Ariadne, group: Group, event: MemberLeave
 
 
 async def member_mute_event(app: Ariadne, group: Group, event: MemberMuteEvent):
-    if not await get_setting(group, Setting.switch):
+    if not await group_setting.get_setting(group, Setting.switch):
         return None
     if event.operator is not None:
         if event.member.id == config.host_qq:
@@ -73,7 +73,7 @@ async def member_mute_event(app: Ariadne, group: Group, event: MemberMuteEvent):
 
 async def member_unmute_event(app: Ariadne, group: Group, event: MemberUnmuteEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
@@ -86,7 +86,7 @@ async def member_unmute_event(app: Ariadne, group: Group, event: MemberUnmuteEve
 
 async def member_leave_event_kick(app: Ariadne, group: Group, event: MemberLeaveEventKick):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
@@ -99,7 +99,7 @@ async def member_leave_event_kick(app: Ariadne, group: Group, event: MemberLeave
 
 async def member_special_title_change_event(app: Ariadne, group: Group, event: MemberSpecialTitleChangeEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
@@ -112,7 +112,7 @@ async def member_special_title_change_event(app: Ariadne, group: Group, event: M
 
 async def member_permission_change_event(app: Ariadne, group: Group, event: MemberPermissionChangeEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
@@ -134,7 +134,7 @@ async def bot_leave_event_kick(app: Ariadne, event: BotLeaveEventKick):
 
 async def group_name_change_event(app: Ariadne, group: Group, event: GroupNameChangeEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.group, MessageChain.create([
@@ -151,7 +151,7 @@ async def group_entrance_announcement_change_event(
         event: GroupEntranceAnnouncementChangeEvent
 ):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.group, MessageChain.create([
@@ -164,7 +164,7 @@ async def group_entrance_announcement_change_event(
 
 async def group_allow_anonymous_chat_event(app: Ariadne, group: Group, event: GroupAllowAnonymousChatEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.group, MessageChain.create([
@@ -177,7 +177,7 @@ async def group_allow_anonymous_chat_event(app: Ariadne, group: Group, event: Gr
 
 async def group_allow_confess_talk_event(app: Ariadne, group: Group, event: GroupAllowConfessTalkEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.group, MessageChain.create([
@@ -190,7 +190,7 @@ async def group_allow_confess_talk_event(app: Ariadne, group: Group, event: Grou
 
 async def group_allow_member_invite_event(app: Ariadne, group: Group, event: GroupAllowMemberInviteEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendMessage(
             event.group, MessageChain.create([
@@ -203,7 +203,7 @@ async def group_allow_member_invite_event(app: Ariadne, group: Group, event: Gro
 
 async def member_card_change_event(app: Ariadne, group: Group, event: MemberCardChangeEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         if event.operator:
             if event.member.name == event.origin or event.origin == "" or event.current == "":
@@ -244,7 +244,7 @@ async def new_friend_request_event(app: Ariadne, event: NewFriendRequestEvent):
 
 async def member_join_request_event(app: Ariadne, group: Group, event: MemberJoinRequestEvent):
     try:
-        if not await get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.sendGroupMessage(
             event.groupId, MessageChain.create([
@@ -271,9 +271,9 @@ async def bot_invited_join_group_request_event(app: Ariadne, event: BotInvitedJo
 
 
 async def group_recall_event(app: Ariadne, group: Group, event: GroupRecallEvent):
-    if not await get_setting(group, Setting.switch):
+    if not await group_setting.get_setting(group, Setting.switch):
         return None
-    if await get_setting(event.group.id, Setting.anti_revoke) and event.authorId != config.bot_qq:
+    if await group_setting.get_setting(event.group.id, Setting.anti_revoke) and event.authorId != config.bot_qq:
         try:
             msg = await app.getMessageFromId(event.messageId)
             revoked_msg = msg.messageChain.asSendable()
@@ -326,7 +326,7 @@ nudge_info = {}
 
 
 async def nudge_event(app: Ariadne, event: NudgeEvent):
-    if event.group_id and not await get_setting(event.group_id, Setting.switch):
+    if event.group_id and not await group_setting.get_setting(event.group_id, Setting.switch):
         return None
     if event.target == config.bot_qq:
         if event.context_type == "group":

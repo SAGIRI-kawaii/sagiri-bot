@@ -19,7 +19,7 @@ from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.message_item import MessageItem
 from sagiri_bot.message_sender.message_sender import MessageSender
 from sagiri_bot.message_sender.strategy import QuoteSource, Revoke
-from sagiri_bot.utils import get_setting, update_user_call_count_plus
+from sagiri_bot.utils import group_setting, update_user_call_count_plus
 from sagiri_bot.orm.async_orm import Setting, UserCalledCount, LoliconData
 from sagiri_bot.decorators import frequency_limit_require_weight_free, switch, blacklist
 
@@ -62,7 +62,7 @@ class LoliconKeywordSearcher(AbstractHandler):
     @staticmethod
     @frequency_limit_require_weight_free(2)
     async def get_image(group: Group, member: Member, keyword: str):
-        r18 = await get_setting(group.id, Setting.r18)
+        r18 = await group_setting.get_setting(group.id, Setting.r18)
         url = f"https://api.lolicon.app/setu/v2?keyword={keyword}&r18={1 if r18 else 0}"
         async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
             async with session.get(url=url, proxy=proxy) as resp:

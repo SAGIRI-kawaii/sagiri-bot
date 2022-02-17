@@ -15,7 +15,7 @@ from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch
 
-from sagiri_bot.utils import get_setting
+from sagiri_bot.utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.core.app_core import AppCore
 
@@ -54,7 +54,7 @@ async def send_newspaper(app: Ariadne):
             logger.error(f"第 {i + 1} 次日报加载失败\n{e}")
             await asyncio.sleep(3)
     for group in await app.getGroupList():
-        if not await get_setting(group, Setting.daily_newspaper):
+        if not await group_setting.get_setting(group, Setting.daily_newspaper):
             continue
         await app.sendMessage(group, MessageChain.create(Image(data_bytes=image_content)))
         await asyncio.sleep(random.randint(3, 6))

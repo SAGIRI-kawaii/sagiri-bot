@@ -8,7 +8,7 @@ from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
-from sagiri_bot.utils import get_setting
+from sagiri_bot.utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.message_item import MessageItem
@@ -43,7 +43,7 @@ class NetworkCompiler(AbstractHandler):
         message_text = message.asDisplay()
         if re.match(r"super .*[\n\r]+[\s\S]*", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            if not await get_setting(group.id, Setting.compile):
+            if not await group_setting.get_setting(group.id, Setting.compile):
                 return MessageItem(MessageChain.create([Plain(text="网络编译器功能关闭了呐~去联系管理员开启吧~")]), Normal())
             language = re.findall(r"super (.*?)[\n\r]+[\s\S]*", message_text, re.S)[0]
             code = message_text[7 + len(language):]

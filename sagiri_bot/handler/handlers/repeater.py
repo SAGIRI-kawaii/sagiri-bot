@@ -7,7 +7,7 @@ from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
-from sagiri_bot.utils import get_setting
+from sagiri_bot.utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.message_sender.strategy import Normal
@@ -46,7 +46,7 @@ class Repeater(AbstractHandler):
     async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member) -> Optional[MessageItem]:
         group_id = group.id
         message_serialization = message.asPersistentString()
-        if await get_setting(group_id, Setting.repeat):
+        if await group_setting.get_setting(group_id, Setting.repeat):
             if group_id in Repeater.group_repeat.keys():
                 # await mutex.acquire()
                 Repeater.group_repeat[group.id]["lastMsg"] = Repeater.group_repeat[group.id]["thisMsg"]
