@@ -3,8 +3,6 @@ import os
 import threading
 from loguru import logger
 
-from graia.ariadne.app import Ariadne
-from graia.ariadne.message.element import Plain
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.ariadne.event.message import Group, Member, MessageChain, Friend
 
@@ -56,8 +54,9 @@ async def group_message_handler(message: MessageChain, group: Group, member: Mem
 
 
 @bcc.receiver("FriendMessage")
-async def friend_message_listener(app: Ariadne, friend: Friend):
-    await app.sendMessage(friend, MessageChain.create([Plain("Hello, World!")]))
+async def friend_message_listener(friend: Friend, message: MessageChain):
+    message_text_log = message.asDisplay().replace("\n", "\\n")
+    logger.info(f"收到来自好友 <{friend.nickname}> 的消息：{message_text_log}")
 
 
 @logger.catch

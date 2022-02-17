@@ -51,7 +51,10 @@ class GithubInfo(AbstractHandler):
                 return MessageItem(MessageChain.create([Plain(text="没有搜索到结果呢~")]), QuoteSource())
             if image:
                 img_url += result[0]["full_name"]
-                return MessageItem(MessageChain.create([Image(url=img_url)]), QuoteSource())
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(img_url) as resp:
+                        content = await resp.read()
+                return MessageItem(MessageChain.create([Image(data_bytes=content)]), QuoteSource())
             else:
                 result = result[0]
                 name = result["name"]

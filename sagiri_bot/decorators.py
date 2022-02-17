@@ -8,11 +8,11 @@ from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 
 from sagiri_bot.orm.async_orm import orm
-from sagiri_bot.utils import get_setting, user_permission_require
 from sagiri_bot.message_sender.message_item import MessageItem
+from sagiri_bot.utils import user_permission_require, group_setting
 from sagiri_bot.message_sender.strategy import QuoteSource, DoNothing
-from sagiri_bot.orm.async_orm import UserPermission, Setting, BlackList
 from sagiri_bot.frequency_limit_module import GlobalFrequencyLimitDict
+from sagiri_bot.orm.async_orm import UserPermission, Setting, BlackList
 
 
 def require_permission_level(group: Group, member: Member, level: int):
@@ -51,7 +51,7 @@ def frequency_limit_require_weight_free(weight: int):
                     member_id = i.id
                 if isinstance(i, Group):
                     group_id = i.id
-            if member_id == -1 or group_id == -1 or not await get_setting(group_id, Setting.frequency_limit):
+            if member_id == -1 or group_id == -1 or not await group_setting.get_setting(group_id, Setting.frequency_limit):
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)
@@ -85,7 +85,7 @@ def switch(response_administrator: bool = False):
                     member_id = i.id
                 if isinstance(i, Group):
                     group_id = i.id
-            if group_id != -1 and not await get_setting(group_id, Setting.switch):
+            if group_id != -1 and not await group_setting.get_setting(group_id, Setting.switch):
                 if not response_administrator or not await user_permission_require(group_id, member_id, 2):
                     return None
             if asyncio.iscoroutinefunction(func):

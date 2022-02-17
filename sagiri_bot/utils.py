@@ -12,8 +12,9 @@ from pathlib import Path
 from loguru import logger
 from PIL import Image as IMG
 from sqlalchemy import select
-from typing import Tuple, Optional, Union, List, Literal
 from PIL import ImageDraw, ImageFont, ImageFilter
+from sqlalchemy.orm.attributes import InstrumentedAttribute
+from typing import Tuple, Optional, Union, List, Literal, Dict
 
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -25,6 +26,59 @@ from sagiri_bot.config import GlobalConfig
 from sagiri_bot.orm.async_orm import Setting, UserPermission, UserCalledCount, FunctionCalledRecord
 
 yaml.warnings({'YAMLLoadWarning': False})
+
+
+class GroupSetting(object):
+    data: Dict[int, Dict[str, Union[bool, str]]]
+
+    def __init__(self):
+        self.data = {}
+
+    async def data_init(self):
+        columns = {
+            i: Setting.__dict__[i]
+            for i in Setting.__dict__.keys() if isinstance(Setting.__dict__[i], InstrumentedAttribute)
+        }
+        column_names = list(columns.keys())
+        column_names.sort()
+        datas = await orm.fetchall(
+            select(
+                Setting.group_id,
+                *([columns[name] for name in column_names])
+            )
+        )
+        for data in datas:
+            self.data[data[0]] = dict(zip(column_names, data[1:]))
+
+    async def get_setting(self, group: Union[Group, int], setting: InstrumentedAttribute) -> Union[bool, str]:
+        setting_name = str(setting).split('.')[1]
+        if isinstance(group, Group):
+            group = group.id
+        if self.data.get(group, None):
+            if res := self.data[group].get(setting_name):
+                return res
+        else:
+            self.data[group] = {}
+        if result := await orm.fetchone(select(setting).where(Setting.group_id == group)):
+            self.data[group][setting_name] = result[0]
+            return result[0]
+        else:
+            raise ValueError(f"未找到 {group} -> {str(setting)} 结果！请检查数据库！")
+
+    async def modify_setting(
+        self, group: Union[Group, int], setting: Union[InstrumentedAttribute, str], new_value: Union[bool, str]
+    ):
+        setting_name = str(setting).split('.')[1] if isinstance(setting, InstrumentedAttribute) else setting
+        print("modify:", setting_name)
+        if isinstance(group, Group):
+            group = group.id
+        if self.data.get(group, None):
+            self.data[group][setting_name] = new_value
+        else:
+            self.data[group] = {setting_name: new_value}
+
+
+group_setting = GroupSetting()
 
 
 def sec_format(secs: int) -> str:
@@ -120,7 +174,7 @@ async def get_admins(group: Group) -> list:
 async def online_notice(app: Ariadne):
     group_list = await app.getGroupList()
     for group in group_list:
-        if await get_setting(group.id, Setting.online_notice):
+        if await group_setting.get_setting(group.id, Setting.online_notice):
             await app.sendGroupMessage(group, MessageChain.create([Plain(text="纱雾酱打卡上班啦！")]))
 
 

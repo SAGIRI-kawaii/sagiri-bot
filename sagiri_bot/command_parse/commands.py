@@ -102,6 +102,11 @@ class Switch(BooleanCommand):
     level = 3
 
 
+class DailyNewspaper(BooleanCommand):
+    __name__ = "switch"
+    level = 2
+
+
 class Music(StringCommand):
     valid_values = ["off", "wyy", "qq"]
     __name__ = "music"

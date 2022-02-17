@@ -23,8 +23,8 @@ from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.strategy import Strategy
 from sagiri_bot.utils import update_user_call_count_plus
 from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.utils import get_setting, user_permission_require
 from sagiri_bot.message_sender.message_sender import MessageSender
+from sagiri_bot.utils import group_setting, user_permission_require
 from sagiri_bot.message_sender.strategy import QuoteSource, Normal, Revoke
 from sagiri_bot.orm.async_orm import TriggerKeyword, Setting, UserCalledCount
 from sagiri_bot.decorators import frequency_limit_require_weight_free, switch, blacklist
@@ -151,20 +151,20 @@ class ImageSender(AbstractHandler):
                         image_count
                     )
                 if tfunc == "setu":
-                    if await get_setting(group.id, Setting.setu):
-                        if await get_setting(group.id, Setting.r18):
+                    if await group_setting.get_setting(group.id, Setting.setu):
+                        if await group_setting.get_setting(group.id, Setting.r18):
                             return await ImageSender.get_image_message(app, group, member, "setu18", image_count)
                         else:
                             return await ImageSender.get_image_message(app, group, member, tfunc, image_count)
                     else:
                         return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal())
                 elif tfunc == "real_highq":
-                    if await get_setting(group.id, Setting.real) and await get_setting(group.id, Setting.real_high_quality):
+                    if await group_setting.get_setting(group.id, Setting.real) and await group_setting.get_setting(group.id, Setting.real_high_quality):
                         return await ImageSender.get_image_message(app, group, member, tfunc, image_count)
                     else:
                         return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal())
                 else:
-                    if tfunc not in setting_column_index or await get_setting(group.id, setting_column_index[tfunc]):
+                    if tfunc not in setting_column_index or await group_setting.get_setting(group.id, setting_column_index[tfunc]):
                         return await ImageSender.get_image_message(app, group, member, tfunc, image_count)
                     else:
                         return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal())
@@ -217,7 +217,7 @@ class ImageSender(AbstractHandler):
         if image_count == 0:
             return MessageItem(MessageChain.create([Plain(text="0张要个头啊你，爪巴！")]), QuoteSource())
         if func == "setu18":
-            r18_process = await get_setting(group.id, Setting.r18_process)
+            r18_process = await group_setting.get_setting(group.id, Setting.r18_process)
             if r18_process == "revoke":
                 return await ImageSender.get_message_item(
                     app, group, ImageSender.get_pic(func, image_count), image_count, Revoke()
