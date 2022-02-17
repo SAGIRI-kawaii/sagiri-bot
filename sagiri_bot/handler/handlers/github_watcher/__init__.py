@@ -10,7 +10,8 @@ from graia.ariadne.app import Ariadne, Friend
 from graia.ariadne.event.message import Group, Member, FriendMessage, GroupMessage
 from graia.ariadne.exception import UnknownTarget, AccountMuted
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, ForwardNode, Forward
+from graia.ariadne.message.element import Plain
+# from graia.ariadne.message.element import ForwardNode, Forward
 from graia.ariadne.model import MemberPerm
 from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -399,7 +400,7 @@ class GithubWatcher(AbstractHandler):
     @staticmethod
     def generate_plain(event: dict):
         actor = event['actor']['display_login']
-        event_time = datetime.fromisoformat(event['created_at'] + '+08:00') \
+        event_time = (datetime.strptime(event['created_at'], '%Y-%m-%dT%H:%M:%SZ') + timedelta(hours=8)) \
             .strftime('%Y-%m-%d %H:%M:%S')
         resp = None
         if event['type'] == 'IssuesEvent':
@@ -556,34 +557,37 @@ class GithubWatcher(AbstractHandler):
                         else:
                             res.append(Plain(text=events["message"]))
                     if res:
-                        fwd_nodes = [
-                            ForwardNode(
-                                senderId=config.bot_qq,
-                                time=datetime.now(),
-                                senderName="[Index]",
-                                messageChain=MessageChain.create(Plain(text=f"仓库：{repo[0]}/{repo[1]}\n")),
-                            )
-                        ]
-                        for index, element in enumerate(res):
-                            fwd_nodes.append(
-                                ForwardNode(
-                                    senderId=config.bot_qq,
-                                    time=datetime.now() + timedelta(minutes=index + 1),
-                                    senderName=f"[Event {index + 1}]",
-                                    messageChain=MessageChain.create(element),
-                                )
-                            )
-                        fwd_nodes.append(
-                            ForwardNode(
-                                senderId=config.bot_qq,
-                                time=datetime.now(),
-                                senderName="[Time]",
-                                messageChain=MessageChain.create(Plain(
-                                    text=f"获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-                                ),
-                            )
-                        )
-                        res = MessageChain.create(Forward(nodeList=fwd_nodes))
+                        res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
+                        res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
+                        res = MessageChain.create(res)
+                        # fwd_nodes = [
+                        #     ForwardNode(
+                        #         senderId=config.bot_qq,
+                        #         time=datetime.now(),
+                        #         senderName="Github 订阅",
+                        #         messageChain=MessageChain.create(Plain(text=f"仓库：{repo[0]}/{repo[1]}\n")),
+                        #     )
+                        # ]
+                        # for index, element in enumerate(res):
+                        #     fwd_nodes.append(
+                        #         ForwardNode(
+                        #             senderId=config.bot_qq,
+                        #             time=datetime.now() + timedelta(minutes=index + 1),
+                        #             senderName="Github 订阅",
+                        #             messageChain=MessageChain.create(element),
+                        #         )
+                        #     )
+                        # fwd_nodes.append(
+                        #     ForwardNode(
+                        #         senderId=config.bot_qq,
+                        #         time=datetime.now(),
+                        #         senderName="Github 订阅",
+                        #         messageChain=MessageChain.create(Plain(
+                        #             text=f"获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                        #         ),
+                        #     )
+                        # )
+                        # res = MessageChain.create(Forward(nodeList=fwd_nodes))
                         if manual:
                             self.__is_running = False
                             return MessageItem(res, Normal())
@@ -615,6 +619,7 @@ async def github_schedule(app: Ariadne):
         await gw.github_schedule(app=app, manual=False)
     except:
         pass
+
 
 @channel.use(ListenerSchema(listening_events=[FriendMessage]))
 async def github_watcher_friend_handler(app: Ariadne, message: MessageChain, friend: Friend):
