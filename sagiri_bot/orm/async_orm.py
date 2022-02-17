@@ -195,6 +195,7 @@ class Setting(Base):
     anti_revoke = Column(Boolean, default=False)
     anti_flash_image = Column(Boolean, default=False)
     online_notice = Column(Boolean, default=False)
+    daily_newspaper = Column(Boolean, default=False)
     debug = Column(Boolean, default=False)
     switch = Column(Boolean, default=True)
     active = Column(Boolean, default=True)
