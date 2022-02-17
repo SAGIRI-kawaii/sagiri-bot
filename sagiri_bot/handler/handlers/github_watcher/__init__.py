@@ -45,18 +45,6 @@ channel.description("/github-watch enable [3级权限]\n"
                     "/github-watch cache {update/store} [2级或管理员权限]\n")
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage]))
-async def github_watcher_friend_handler(app: Ariadne, message: MessageChain, friend: Friend):
-    if result := await GithubWatcher.real_handle(app, message, friend=friend):
-        await MessageSender(result.strategy).send(app, result.message, message, friend, friend)
-
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def github_watcher_group_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await GithubWatcher.real_handle(app, message, group=group, member=member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
-
-
 class GithubWatcher(AbstractHandler):
     __name__ = "GithubWatcher"
     __description__ = "Github 订阅 Handler"
@@ -627,3 +615,14 @@ async def github_schedule(app: Ariadne):
         await gw.github_schedule(app=app, manual=False)
     except:
         pass
+
+@channel.use(ListenerSchema(listening_events=[FriendMessage]))
+async def github_watcher_friend_handler(app: Ariadne, message: MessageChain, friend: Friend):
+    if result := await GithubWatcher.real_handle(app, message, friend=friend):
+        await MessageSender(result.strategy).send(app, result.message, message, friend, friend)
+
+
+@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+async def github_watcher_group_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
+    if result := await GithubWatcher.real_handle(app, message, group=group, member=member):
+        await MessageSender(result.strategy).send(app, result.message, message, group, member)
