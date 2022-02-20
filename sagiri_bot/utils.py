@@ -11,7 +11,7 @@ from io import BytesIO
 from pathlib import Path
 from loguru import logger
 from PIL import Image as IMG
-from sqlalchemy import select
+from sqlalchemy import select, column
 from PIL import ImageDraw, ImageFont, ImageFilter
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from typing import Tuple, Optional, Union, List, Literal, Dict
@@ -121,7 +121,8 @@ def get_config(config: str):
 async def get_setting(group: Union[Group, int], setting) -> Union[bool, str]:
     if isinstance(group, Group):
         group = group.id
-    if result := await orm.fetchone(select(setting).where(Setting.group_id == group)):
+    setting = str(setting).split(".", maxsplit=1)[1]
+    if result := await orm.fetchone(select(column(setting)).where(Setting.group_id == group)):
         return result[0]
     else:
         raise ValueError(f"未找到 {group} -> {str(setting)} 结果！请检查数据库！")
@@ -134,28 +135,36 @@ async def update_user_call_count_plus(
         column_name: str,
         count: int = 1
 ) -> bool:
-    new_value = await orm.fetchone(
-        select(table_column).where(UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id)
-    )
-    new_value = new_value[0] + count if new_value else count
-    res = await orm.insert_or_update(
-        UserCalledCount,
-        [UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id],
-        {"group_id": group.id, "member_id": member.id, column_name: new_value}
-    )
-    if not res:
-        return False
-    if not column_name == "chat_count":
-        await orm.add(
-            FunctionCalledRecord,
-            {
-                "time": datetime.datetime.now(),
-                "group_id": group.id,
-                "member_id": member.id,
-                "function": column_name
-            }
+    for try_times in range(5):
+        new_value = await orm.fetchone(
+            select(table_column).where(UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id)
         )
-    return True
+        new_value = new_value[0] + count if new_value else count
+        try:
+            res = await orm.insert_or_update(
+                UserCalledCount,
+                [UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id],
+                {"group_id": group.id, "member_id": member.id, column_name: new_value}
+            )
+            if not res:
+                return False
+            if not column_name == "chat_count":
+                await orm.add(
+                    FunctionCalledRecord,
+                    {
+                        "time": datetime.datetime.now(),
+                        "group_id": group.id,
+                        "member_id": member.id,
+                        "function": column_name
+                    }
+                )
+            return True
+        except IntegrityError:
+            await asyncio.sleep(1)
+            continue
+        except Exception as e:
+            logger.error(e)
+            return False
 
 
 async def get_admins(group: Group) -> list:
