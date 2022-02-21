@@ -69,9 +69,11 @@ class Pica:
             self.header["authorization"] = token
             self.init = True
         except aiohttp.ClientConnectorError:
-            logger.exception("")
+            logger.error("proxy配置可能错误或失效，请检查")
         except KeyError:
             logger.error("pica 账号密码可能错误，请检查")
+        except:
+            logger.exception("")
 
     def update_signature(self, url: str, method: Literal["GET", "POST"]) -> dict:
         ts = str(int(time.time()))

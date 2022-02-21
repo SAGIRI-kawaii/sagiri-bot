@@ -2,11 +2,13 @@ import aiohttp
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne.exception import MessageTooLong
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
+from sagiri_bot.utils import MessageChainUtils
 from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.strategy import QuoteSource
@@ -24,7 +26,12 @@ channel.description("可以搜索Github项目信息的插件，在群中发送 `
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def github_info(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await GithubInfo.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+        try:
+            await MessageSender(result.strategy).send(app, result.message, message, group, member)
+        except MessageTooLong:
+            await MessageSender(result.strategy).send(
+                app, await MessageChainUtils.messagechain_to_img(result.message), message, group, member
+            )
 
 
 class GithubInfo(AbstractHandler):
