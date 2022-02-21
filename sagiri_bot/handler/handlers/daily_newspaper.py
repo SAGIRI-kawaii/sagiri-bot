@@ -23,6 +23,10 @@ saya = Saya.current()
 channel = Channel.current()
 host_qq = AppCore.get_core_instance().get_config().host_qq
 
+channel.name("DailyNewspaper")
+channel.author("SAGIRI-kawaii")
+channel.description("一个定时发送每日日报的插件\n主人私聊bot发送 `发送早报` 可在群中发送早报")
+
 
 @channel.use(SchedulerSchema(crontabify("30 8 * * *")))
 async def something_scheduled(app: Ariadne):
