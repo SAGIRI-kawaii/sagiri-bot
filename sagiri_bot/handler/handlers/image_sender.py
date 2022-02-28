@@ -309,7 +309,7 @@ class ImageSender(AbstractHandler):
 
     @staticmethod
     async def show_keywords(function: str) -> MessageItem:
-        if keywords := await orm.fetchall(select(TriggerKeyword.function).where(TriggerKeyword.function == function)):
+        if keywords := await orm.fetchall(select(TriggerKeyword.keyword).where(TriggerKeyword.function == function)):
             return MessageItem(
                 MessageChain.create([
                     Plain(text='\n'.join([keyword[0] for keyword in keywords]))
