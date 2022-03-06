@@ -242,9 +242,9 @@ async def new_friend_request_event(app: Ariadne, event: NewFriendRequestEvent):
     )
 
 
-async def member_join_request_event(app: Ariadne, group: Group, event: MemberJoinRequestEvent):
+async def member_join_request_event(app: Ariadne, event: MemberJoinRequestEvent):
     try:
-        if not await group_setting.get_setting(group, Setting.switch):
+        if not await group_setting.get_setting(event.groupId, Setting.switch):
             return None
         await app.sendGroupMessage(
             event.groupId, MessageChain.create([

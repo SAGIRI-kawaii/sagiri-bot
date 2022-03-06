@@ -76,6 +76,7 @@ class PDFSearcher(AbstractHandler):
                 break
             name = div.find("h3").get_text().strip()
             href = div.find("h3").find("a", href=True)["href"]
+            cover = div.find("table").find("img")["src"]
             first_div = div.find("table").find("table").find("div")
             publisher = first_div.get_text().strip() if re.search('.*?title="Publisher".*?', str(first_div)) else None
             authors = div.find("div", {"class": "authors"}).get_text().strip()
@@ -88,6 +89,7 @@ class PDFSearcher(AbstractHandler):
 
             books.append({
                 "name": name,
+                "cover": cover,
                 "href": base_url + href,
                 "publisher": publisher,
                 "authors": authors

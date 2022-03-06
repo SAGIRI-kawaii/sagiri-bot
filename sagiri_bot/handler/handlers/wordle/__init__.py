@@ -183,7 +183,6 @@ async def wordle(
         )
         return None
     if give_up.matched:
-        await app.sendGroupMessage(group, MessageChain("你还没有开始一局游戏怎么就放弃了呢"), quote=message.getFirst(Source))
         return None
     await mutex.acquire()
     if group.id in group_running and group_running[group.id]:

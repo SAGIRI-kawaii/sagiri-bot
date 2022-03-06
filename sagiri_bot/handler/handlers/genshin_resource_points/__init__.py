@@ -41,7 +41,7 @@ channel.description(
         inline_dispatchers=[
             Twilight(
                 Sparkle(
-                    [RegexMatch(r"哪里?有", optional=True)],
+                    [FullMatch("原神"), RegexMatch(r"哪里?有", optional=True)],
                     {
                         "resource_name": RegexMatch(r".+"),
                         "where": RegexMatch(r"在哪里?")
