@@ -667,7 +667,6 @@ async def github_watcher_friend_handler(app: Ariadne, message: MessageChain, fri
         # inline_dispatchers=[twilight]
     )
 )
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def github_watcher_group_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await gw.real_handle(app, message, group=group, member=member):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
