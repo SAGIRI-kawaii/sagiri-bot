@@ -15,6 +15,7 @@ from graia.saya.channel import Channel
 from graia.ariadne.model import MiraiSession
 from graia.ariadne.adapter import DefaultAdapter
 from graia.saya.builtins.broadcast import BroadcastBehaviour
+from sqlalchemy.exc import InternalError, ProgrammingError
 
 try:
     from graia.scheduler import GraiaScheduler
@@ -144,7 +145,7 @@ class AppCore(object):
         try:
             try:
                 await orm.init_check()
-            except AttributeError:
+            except (AttributeError, InternalError, ProgrammingError):
                 await orm.create_all()
             if not os.path.exists(f"{os.getcwd()}/alembic"):
                 logger.info("未检测到alembic目录，进行初始化")
