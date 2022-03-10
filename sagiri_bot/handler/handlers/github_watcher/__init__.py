@@ -12,6 +12,7 @@ from graia.ariadne.exception import UnknownTarget, AccountMuted
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain
 # from graia.ariadne.message.element import ForwardNode, Forward
+from graia.ariadne.message.parser.twilight import Twilight, FullMatch, UnionMatch, WildcardMatch
 from graia.ariadne.model import MemberPerm
 from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -204,6 +205,12 @@ class GithubWatcher(AbstractHandler):
         for repo in repos:
             url = f"https://api.github.com/search/repositories?q={repo}"
             async with self.__session.get(url=url, proxy=proxy) as resp:
+                try:
+                    resp.raise_for_status()
+                except aiohttp.ClientError as e:
+                    logger.error(e)
+                    logger.error(f"暂时无法取得仓库 {repo} 的更新（状态码 {resp.status}）")
+                    continue
                 result = (await resp.json())["items"]
                 if not result:
                     failed.append(repo)
@@ -370,8 +377,10 @@ class GithubWatcher(AbstractHandler):
         url = self.__base_url \
               + self.__events_url.replace('{owner}', repo[0]).replace('{repo}', repo[1]) \
               + f'?per_page={per_page}&page={page}'
+        res = None
         try:
             res = await self.__session.get(url=url, proxy=proxy)
+            res.raise_for_status()
             res = await res.json()
             if isinstance(res, list):
                 return res
@@ -386,9 +395,10 @@ class GithubWatcher(AbstractHandler):
                         logger.error(f"无法找到仓库 {repo[0]}/{repo[1]}")
                         self.__cached[repo]['enabled'] = False
             return res
-        except aiohttp.ClientResponseError as e:
+        except aiohttp.ClientError as e:
             logger.error(e)
-            logger.error(f"因网络问题暂时无法取得仓库 {repo[0]}/{repo[1]} 的更新")
+            logger.error(f"暂时无法取得仓库 {repo[0]}/{repo[1]} 的更新"
+                         f"{'' if not res else '（状态码 ' + str(res.status) + '）'}")
             return None
         except Exception as e:
             logger.error(e)
@@ -557,6 +567,16 @@ class GithubWatcher(AbstractHandler):
                         else:
                             res.append(Plain(text=events["message"]))
                     if res:
+                        if res[0].asDisplay() == "Bad credentials":
+                            self.__is_running = False
+                            self.__status = False
+                            await app.sendFriendMessage(
+                                config.host_qq, MessageChain.create([
+                                    Plain(text="凭据无效，请检查是否已更改或吊销 Github Token\n"
+                                               "已自动关闭 Github Watcher")
+                                ])
+                            )
+                            raise Exception("凭据无效，请检查是否已更改或吊销 Github Token")
                         res.insert(0, Plain(text=f"仓库：{repo[0]}/{repo[1]}\n"))
                         res.append(Plain(text=f"----------\n获取时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"))
                         res = MessageChain.create(res)
@@ -621,13 +641,32 @@ async def github_schedule(app: Ariadne):
         pass
 
 
-@channel.use(ListenerSchema(listening_events=[FriendMessage]))
+twilight = Twilight(
+    [
+        FullMatch("/github-watch "),
+        UnionMatch("disable", "add", "remove", "check", "cache"),
+        WildcardMatch()
+    ]
+)
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[FriendMessage],
+        # inline_dispatchers=[twilight]
+    )
+)
 async def github_watcher_friend_handler(app: Ariadne, message: MessageChain, friend: Friend):
     if result := await gw.real_handle(app, message, friend=friend):
         await MessageSender(result.strategy).send(app, result.message, message, friend, friend)
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        # inline_dispatchers=[twilight]
+    )
+)
 async def github_watcher_group_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     if result := await gw.real_handle(app, message, group=group, member=member):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
