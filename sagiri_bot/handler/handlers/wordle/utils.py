@@ -13,6 +13,7 @@ class StatisticType(Enum):
     wrong = "wrong"
     correct = "correct"
     game = "game"
+    hint = "hint"
 
 
 async def update_member_statistic(
@@ -32,6 +33,7 @@ async def update_member_statistic(
             WordleStatistic.correct_count,
             WordleStatistic.wrong_count,
             WordleStatistic.game_count,
+            WordleStatistic.hint_count
         ).where(
             WordleStatistic.member_id == member,
             WordleStatistic.group_id == group
@@ -47,6 +49,8 @@ async def update_member_statistic(
         new_value_dict = {"wrong_count": old_value[3] + value if old_value else value}
     elif statistic_type == StatisticType.game:
         new_value_dict = {"game_count": old_value[4] + value if old_value else value}
+    elif statistic_type == StatisticType.hint:
+        new_value_dict = {"hint_count": old_value[5] + value if old_value else value}
     else:
         raise ValueError(f"Unknown statistic_type: {statistic_type}")
     new_value_dict["group_id"] = group
@@ -68,6 +72,7 @@ async def get_member_statistic(group: Union[int, Group], member: Union[int, Memb
             WordleStatistic.correct_count,
             WordleStatistic.wrong_count,
             WordleStatistic.game_count,
+            WordleStatistic.hint_count
         ).where(
             WordleStatistic.member_id == member,
             WordleStatistic.group_id == group
@@ -75,4 +80,4 @@ async def get_member_statistic(group: Union[int, Group], member: Union[int, Memb
     ):
         return data
     else:
-        return 0, 0, 0, 0, 0
+        return 0, 0, 0, 0, 0, 0

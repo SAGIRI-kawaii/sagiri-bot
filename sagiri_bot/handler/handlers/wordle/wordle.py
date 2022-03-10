@@ -50,6 +50,8 @@ class Wordle(object):
 
     font_color: Union[str, Tuple[int, int, int]]    # 文字颜色
 
+    hint_set: set    # 记录提示信息
+
     def __init__(
         self,
         length: int,
@@ -84,6 +86,7 @@ class Wordle(object):
         self.none_chara = none_chara
         self.border_color = border_color
         self.font_color = font_color
+        self.hint_set = set()
         self.row = self.get_retry_times(self.length)
         board_side_width = 2 * padding + (self.length - 1) * block_padding + self.length * block_side_length
         board_side_height = 2 * padding + (self.row - 1) * block_padding + self.row * block_side_length
@@ -112,8 +115,10 @@ class Wordle(object):
     def get_retry_times(length: int) -> int:
         return length + 1
 
-    def guess(self, word: str) -> Tuple[bool, bool, bool, PIL.Image.Image]:
+    def guess(self, word: str) -> Optional[Tuple[bool, bool, bool, PIL.Image.Image]]:
         """ game_end: bool, win: bool, legal: bool, board: PIL.Image.Image """
+        if self.current_row > self.row:
+            return None
         if not self.legal_word(word):
             return False, False, False, self.board
         else:
@@ -153,8 +158,10 @@ class Wordle(object):
         for i in range(len(word)):
             char = word[i]
             if char == self.word[i]:
+                self.hint_set.add(char)
                 result.append((char, self.correct_place))
             elif char in self.word:
+                self.hint_set.add(char)
                 result.append((char, self.wrong_place))
             else:
                 result.append((char, self.none_chara))
@@ -163,6 +170,37 @@ class Wordle(object):
     def get_board_bytes(self) -> bytes:
         bytes_io = BytesIO()
         self.board.save(bytes_io, format="PNG")
+        return bytes_io.getvalue()
+
+    def get_hint(self) -> str:
+        return ''.join([i if i in self.hint_set else '*' for i in self.word])
+
+    def draw_hint(self) -> bytes:
+        hint_canvas = PIL.Image.new(
+            "RGB",
+            (
+                2 * self.padding + self.block_side_length * self.length + self.block_padding * (self.length - 1),
+                2 * self.padding + self.block_side_length
+            ),
+            "white"
+        )
+        hint = self.get_hint()
+        for i in range(len(hint)):
+            char = hint[i].upper()
+            block = PIL.Image.new("RGB", (self.block_side_length, self.block_side_length), self.border_color)
+            char_block = PIL.Image.new(
+                "RGB", (self.white_side_length, self.white_side_length), self.correct_place if char != '*' else "white")
+            canvas = ImageDraw.Draw(char_block)
+            font_size = self.font.getsize(char)
+            if char != '*':
+                canvas.text(
+                    (int((self.white_side_length - font_size[0]) / 2), int((self.white_side_length - font_size[1]) / 2)),
+                    char, self.font_color, self.font
+                )
+            block.paste(char_block, (self.block_border, self.block_border))
+            hint_canvas.paste(block, (self.padding + i * (self.block_side_length + self.block_padding), self.padding))
+        bytes_io = BytesIO()
+        hint_canvas.save(bytes_io, format="PNG")
         return bytes_io.getvalue()
 
     def run(self): ...

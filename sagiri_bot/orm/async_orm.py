@@ -290,6 +290,7 @@ class WordleStatistic(Base):
     lose_count = Column(BIGINT, default=0)
     correct_count = Column(BIGINT, default=0)
     wrong_count = Column(BIGINT, default=0)
+    hint_count = Column(BIGINT, default=0)
 
 
 # class SchedulerTasks(Base):

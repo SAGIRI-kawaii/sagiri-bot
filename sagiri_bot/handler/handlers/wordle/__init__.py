@@ -43,7 +43,7 @@ class TimeWaiter(Waiter.create([GroupMessage])):
 
 
 class WordleWaiter(Waiter.create([GroupMessage])):
-    """涩图 tag 接收器"""
+    """ wordle Waiter """
 
     def __init__(self, wordle_instance: Wordle, group: Union[Group, int], member: Optional[Union[Member, int]] = None):
         self.wordle = wordle_instance
@@ -78,10 +78,25 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 group_running[group.id] = False
                 mutex.release()
                 return True
+            if message.asDisplay().strip() == "/wordle -hint":
+                await update_member_statistic(group, member, StatisticType.hint)
+                app = Ariadne.get_running()
+                hint = self.wordle.get_hint()
+                if not hint:
+                    await app.sendGroupMessage(
+                        group, MessageChain("你还没有猜对过一个字母哦~再猜猜吧~"), quote=message.getFirst(Source)
+                    )
+                else:
+                    await app.sendGroupMessage(
+                        group, MessageChain([Image(data_bytes=self.wordle.draw_hint())]), quote=message.getFirst(Source)
+                    )
+                return False
             if len(word) == self.wordle.length and word.encode('utf-8').isalpha():
                 self.member_list.add(member.id)
                 app = Ariadne.get_running()
                 result = self.wordle.guess(word)
+                if not result:
+                    return True
                 if result[0]:
                     await update_member_statistic(
                         group, member, StatisticType.correct if result[1] else StatisticType.wrong
@@ -177,7 +192,7 @@ async def wordle(
             MessageChain(
                 f"用户 {member.name}\n"
                 f"共参与{data[4]}场游戏，其中胜利{data[0]}场，失败{data[1]}场\n"
-                f"一共猜对{data[2]}次，猜错{data[3]}次，再接再厉哦~"
+                f"一共猜对{data[2]}次，猜错{data[3]}次，共使用过{data[5]}次提示，再接再厉哦~"
             ),
             quote=message.getFirst(Source)
         )
@@ -229,7 +244,7 @@ async def wordle(
     game_end = False
     try:
         while not game_end:
-            game_end = await inc.wait(WordleWaiter(wordle_instance, group, member if single else None), timeout=60)
+            game_end = await inc.wait(WordleWaiter(wordle_instance, group, member if single else None), timeout=300)
     except asyncio.exceptions.TimeoutError:
         await app.sendGroupMessage(group, MessageChain("游戏超时，进程结束"), quote=message.getFirst(Source))
         await mutex.acquire()
