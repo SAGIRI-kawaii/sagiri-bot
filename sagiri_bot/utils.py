@@ -13,6 +13,7 @@ from loguru import logger
 from PIL import Image as IMG
 from sqlalchemy import select, column
 from PIL import ImageDraw, ImageFont, ImageFilter
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from typing import Tuple, Optional, Union, List, Literal, Dict
 
