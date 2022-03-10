@@ -1,6 +1,7 @@
 import yaml
 from os import environ
 from loguru import logger
+from asyncio import Semaphore
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import select, update, insert, delete
@@ -31,6 +32,8 @@ def get_config(config: str):
 DB_LINK = get_config("db_link")
 # DB_LINK = "sqlite+aiosqlite:///data.db"
 
+db_mutex = Semaphore(1) if DB_LINK.startswith("sqlite") else None
+
 
 class AsyncEngine:
     def __init__(self, db_link):
@@ -43,6 +46,8 @@ class AsyncEngine:
     async def execute(self, sql, **kwargs):
         async with AsyncSession(self.engine) as session:
             try:
+                if db_mutex:
+                    await db_mutex.acquire()
                 result = await session.execute(sql, **kwargs)
                 await session.commit()
                 return result
@@ -50,6 +55,9 @@ class AsyncEngine:
                 await session.rollback()
                 # await session.close()
                 raise e
+            finally:
+                if db_mutex:
+                    db_mutex.release()
 
     async def fetchall(self, sql):
         return (await self.execute(sql)).fetchall()
@@ -129,12 +137,12 @@ class AsyncORM(AsyncEngine):
         return await self.execute(delete(table).where(*condition))
 
     async def init_check(self) -> bool:
-        for table in Base.__subclasses__():
+        for table in self.Base.__subclasses__():
             try:
                 await self.fetchone(select(table))
             except OperationalError:
-                async with self.engine.begin() as conn:
-                    await conn.run_sync(table.__table__.create(self.engine))
+                # async with self.engine.begin() as conn:
+                table.__table__.create(self.engine)
                 return False
         return True
 
@@ -269,6 +277,19 @@ class LoliconData(Base):
     ext = Column(String(length=20), nullable=False)
     upload_date = Column(DateTime, nullable=False)
     original_url = Column(String(length=200), nullable=False)
+
+
+class WordleStatistic(Base):
+    """ wordle 游戏数据 """
+    __tablename__ = "wordle_statistic"
+
+    group_id = Column(BIGINT, primary_key=True)
+    member_id = Column(BIGINT, primary_key=True)
+    game_count = Column(BIGINT, default=0)
+    win_count = Column(BIGINT, default=0)
+    lose_count = Column(BIGINT, default=0)
+    correct_count = Column(BIGINT, default=0)
+    wrong_count = Column(BIGINT, default=0)
 
 
 # class SchedulerTasks(Base):

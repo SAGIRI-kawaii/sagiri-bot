@@ -21,3 +21,4 @@ test.py
 /sagiri_bot/handler/handlers/pica/cache
 statics/genshin/*.json
 sagiri_bot/core/api_server/data.json
+statics/genshin/.*

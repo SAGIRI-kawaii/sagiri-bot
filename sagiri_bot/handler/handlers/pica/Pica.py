@@ -6,6 +6,7 @@ import uuid
 import shutil
 import aiohttp
 import zipfile
+import asyncio
 import pyzipper
 from io import BytesIO
 from pathlib import Path
@@ -69,9 +70,11 @@ class Pica:
             self.header["authorization"] = token
             self.init = True
         except aiohttp.ClientConnectorError:
-            logger.exception("")
+            logger.error("proxy配置可能错误或失效，请检查")
         except KeyError:
             logger.error("pica 账号密码可能错误，请检查")
+        except:
+            logger.exception("")
 
     def update_signature(self, url: str, method: Literal["GET", "POST"]) -> dict:
         ts = str(int(time.time()))
@@ -195,6 +198,7 @@ class Pica:
         info = await self.comic_info(book_id)
         episodes = info["epsCount"]
         comic_name = f"{info['title']} - {info['author']}"
+        tasks = []
         for char in path_filter:
             comic_name = comic_name.replace(char, ' ')
         comic_path = CACHE_PATH + f"/{comic_name}"
@@ -217,7 +221,9 @@ class Pica:
                 print(comic_name, episode_title, media['originalName'], sep=" - ")
                 if os.path.exists(image_path):
                     continue
-                _ = await self.download_image(img_url, image_path)
+                # _ = await self.download_image(img_url, image_path)
+                tasks.append(asyncio.create_task((self.download_image(img_url, image_path))))
+        _ = await asyncio.gather(*tasks)
         if return_zip:
             return self.zip_directory(comic_path, comic_name, compress_password)
         else:
