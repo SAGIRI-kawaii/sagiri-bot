@@ -4,6 +4,7 @@ import random
 import PIL.Image
 from io import BytesIO
 from pathlib import Path
+from asyncio import Semaphore
 from PIL import ImageFont, ImageDraw
 from typing import Tuple, List, Union, Optional
 
@@ -52,6 +53,10 @@ class Wordle(object):
 
     hint_set: set    # 记录提示信息
 
+    guess_word: List[str]    # 记录已猜单词
+
+    draw_mutex: Semaphore   # 绘图信号量
+
     def __init__(
         self,
         length: int,
@@ -87,6 +92,8 @@ class Wordle(object):
         self.border_color = border_color
         self.font_color = font_color
         self.hint_set = set()
+        self.guess_word = []
+        self.draw_mutex = Semaphore(1)
         self.row = self.get_retry_times(self.length)
         board_side_width = 2 * padding + (self.length - 1) * block_padding + self.length * block_side_length
         board_side_height = 2 * padding + (self.row - 1) * block_padding + self.row * block_side_length
@@ -115,19 +122,22 @@ class Wordle(object):
     def get_retry_times(length: int) -> int:
         return length + 1
 
-    def guess(self, word: str) -> Optional[Tuple[bool, bool, bool, PIL.Image.Image]]:
-        """ game_end: bool, win: bool, legal: bool, board: PIL.Image.Image """
+    def guess(self, word: str) -> Optional[Tuple[bool, bool, bool, bool, PIL.Image.Image]]:
+        """ game_end: bool, win: bool, legal: bool, duplicate: bool, board: PIL.Image.Image """
         if self.current_row > self.row:
             return None
         if not self.legal_word(word):
-            return False, False, False, self.board
+            return False, False, False, False, self.board
+        elif word in self.guess_word:
+            return False, False, True, True, self.board
         else:
+            self.guess_word.append(word)
             self.draw(word)
-            return self.current_row == self.row or self.correct_word(word), self.correct_word(word), True, self.board
+            return self.current_row == self.row or self.correct_word(word), self.correct_word(word), True, False, self.board
 
     @staticmethod
     def legal_word(word: str) -> bool:
-        return root.search(word.lower())
+        return root.search(word.lower()) or root.search(word.upper()) or root.search(word)
 
     def correct_word(self, word: str) -> bool:
         return word.lower() == self.word.lower()

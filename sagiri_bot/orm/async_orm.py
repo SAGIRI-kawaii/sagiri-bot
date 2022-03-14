@@ -1,11 +1,11 @@
 import yaml
 from os import environ
 from loguru import logger
+from typing import NoReturn
 from asyncio import Semaphore
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import OperationalError
-from sqlalchemy import select, update, insert, delete
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import select, update, insert, delete, inspect
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, BLOB, BIGINT
 
@@ -136,15 +136,21 @@ class AsyncORM(AsyncEngine):
     async def delete(self, table, condition):
         return await self.execute(delete(table).where(*condition))
 
-    async def init_check(self) -> bool:
+    async def init_check(self) -> NoReturn:
         for table in self.Base.__subclasses__():
-            try:
-                await self.fetchone(select(table))
-            except OperationalError:
-                # async with self.engine.begin() as conn:
+            if not await self.table_exists(table.__tablename__):
                 table.__table__.create(self.engine)
-                return False
-        return True
+        return None
+
+    @staticmethod
+    def use_inspector(conn):
+        inspector = inspect(conn)
+        return inspector.get_table_names()
+
+    async def table_exists(self, table_name: str) -> bool:
+        async with self.engine.connect() as conn:
+            tables = await conn.run_sync(self.use_inspector)
+        return table_name in tables
 
 
 orm = AsyncORM(DB_LINK)

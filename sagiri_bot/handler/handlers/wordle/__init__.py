@@ -94,7 +94,9 @@ class WordleWaiter(Waiter.create([GroupMessage])):
             if len(word) == self.wordle.length and word.encode('utf-8').isalpha():
                 self.member_list.add(member.id)
                 app = Ariadne.get_running()
+                await self.wordle.draw_mutex.acquire()
                 result = self.wordle.guess(word)
+                self.wordle.draw_mutex.release()
                 if not result:
                     return True
                 if result[0]:
@@ -128,6 +130,8 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     await app.sendGroupMessage(
                         group, MessageChain(f"你确定 {word} 是一个合法的单词吗？"), quote=message_source
                     )
+                elif result[3]:
+                    await app.sendGroupMessage(group, MessageChain("你已经猜过这个单词了呢"), quote=message_source)
                 else:
                     await update_member_statistic(group, member, StatisticType.wrong)
                     await app.sendGroupMessage(
@@ -181,6 +185,7 @@ async def wordle(
                 "发起游戏：/wordle -l=5 -d=SAT，其中-l/-length为单词长度，-d/-dic为指定词典，默认为5和CET4\n"
                 "中途放弃：/wordle -g 或 /wordle -giveup\n"
                 "查看数据统计：/wordle -s 或 /wordle -statistic\n"
+                "查看提示：/wordle -hint\n"
                 f"注：目前包含词典：{'、'.join(word_dics)}"
             )
         )
