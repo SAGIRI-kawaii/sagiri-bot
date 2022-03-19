@@ -117,7 +117,7 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                             Image(data_bytes=self.wordle.get_board_bytes()),
                             Plain(
                                 f"\n{'恭喜你猜出了单词！' if result[1] else '很遗憾，没有人猜出来呢'}\n"
-                                f"单词：{self.wordle.word}\n{explain}"
+                                f"【单词】：{self.wordle.word}\n{explain}"
                             )
                         ]),
                         quote=message_source

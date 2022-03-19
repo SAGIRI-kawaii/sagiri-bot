@@ -124,7 +124,7 @@ class Wordle(object):
 
     def guess(self, word: str) -> Optional[Tuple[bool, bool, bool, bool, PIL.Image.Image]]:
         """ game_end: bool, win: bool, legal: bool, duplicate: bool, board: PIL.Image.Image """
-        if self.current_row > self.row:
+        if self.current_row >= self.row:
             return None
         if not self.legal_word(word):
             return False, False, False, False, self.board
@@ -165,12 +165,13 @@ class Wordle(object):
 
     def get_color(self, word: str) -> List[Tuple[str, Tuple[int, int, int]]]:
         result = []
+        lower_answer = self.word.lower()
         for i in range(len(word)):
             char = word[i]
-            if char == self.word[i]:
+            if char == lower_answer[i]:
                 self.hint_set.add(char)
                 result.append((char, self.correct_place))
-            elif char in self.word:
+            elif char in lower_answer:
                 self.hint_set.add(char)
                 result.append((char, self.wrong_place))
             else:
@@ -246,9 +247,21 @@ class TrieNode(object):
             curr = curr.nodes[char]
         return curr.is_leaf
 
+    def search_lower(self, word: str):
+        curr = self
+        for char in word:
+            if char not in curr.nodes:
+                if char.upper() not in curr.nodes:
+                    return False
+                else:
+                    curr = curr.nodes[char.upper()]
+            else:
+                curr = curr.nodes[char]
+        return curr.is_leaf
+
 
 word_list = {}
-word_dics = [i[:-5] for i in os.listdir(Path(os.path.dirname(__file__)) / "words")]
+word_dics = [i[:-5] for i in os.listdir(Path(os.path.dirname(__file__)) / "words") if i.endswith(".json")]
 
 for dic in word_dics:
     with open(Path(os.path.dirname(__file__)) / "words" / f"{dic}.json", 'r', encoding="utf-8") as r:
@@ -263,3 +276,8 @@ root = TrieNode()
 for key in word_list.keys():
     for length in word_list[key].keys():
         root.insert_many(*[i for i in word_list[key][length].keys()])
+
+with open(Path(os.path.dirname(__file__)) / "words" / f"words.txt", 'r', encoding="utf-8") as r:
+    words = r.read().split("\n")
+    for word in words:
+        root.insert(word.strip())
