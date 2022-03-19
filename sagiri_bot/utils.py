@@ -18,6 +18,7 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 from typing import Tuple, Optional, Union, List, Literal, Dict
 
 from graia.ariadne.app import Ariadne
+from graia.ariadne.exception import AccountMuted
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image
 from graia.ariadne.event.message import Group, Member, Friend
@@ -185,7 +186,10 @@ async def online_notice(app: Ariadne):
     group_list = await app.getGroupList()
     for group in group_list:
         if await group_setting.get_setting(group.id, Setting.online_notice):
-            await app.sendGroupMessage(group, MessageChain.create([Plain(text="纱雾酱打卡上班啦！")]))
+            try:
+                await app.sendGroupMessage(group, MessageChain.create([Plain(text="纱雾酱打卡上班啦！")]))
+            except AccountMuted:
+                pass
 
 
 async def compress_image_bs4(b64, mb=100, k=0.9):
