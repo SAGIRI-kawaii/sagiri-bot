@@ -2,7 +2,6 @@ import PIL.Image
 from io import BytesIO
 from pathlib import Path
 from PIL import ImageDraw
-from loguru import logger
 from abc import ABC, abstractmethod
 from PIL.ImageFont import FreeTypeFont
 from base64 import b64decode, b64encode
