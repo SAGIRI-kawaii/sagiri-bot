@@ -1,24 +1,19 @@
-import re
-import aiohttp
-import traceback
 from loguru import logger
 from typing import Union, Tuple, List, Optional
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne import get_running
+from graia.ariadne.adapter import Adapter
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Image, Plain
+from graia.ariadne.message.element import Image, Source
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, RegexResult
 
 from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.orm.async_orm import UserCalledCount
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.utils import update_user_call_count_plus
-from sagiri_bot.message_sender.strategy import QuoteSource
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -33,74 +28,73 @@ API = 'https://www.gstatic.com/android/keyboard/emojikitchen/'
 proxy = AppCore.get_core_instance().get_config().proxy
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def emoji_mix(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await EmojiMix.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight([
+                RegexMatch(u"[\u200d-\U0001fab5]") @ "emoji1", FullMatch("+"),
+                RegexMatch(u"[\u200d-\U0001fab5]") @ "emoji2"]
+            )
+        ],
+        decorators=[
+            FrequencyLimit.require("emoji_mix", 2),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
+    )
+)
+async def emoji_mix(app: Ariadne, message: MessageChain, group: Group, emoji1: RegexResult, emoji2: RegexResult):
+    emoji1 = emoji1.result.asDisplay()
+    emoji2 = emoji2.result.asDisplay()
+    result = await mix_emoji(emoji1, emoji2)
+    if isinstance(result, str):
+        await app.sendGroupMessage(group, MessageChain(result), quote=message.getFirst(Source))
+    elif isinstance(result, bytes):
+        await app.sendGroupMessage(group, MessageChain([Image(data_bytes=result)]), quote=message.getFirst(Source))
 
 
-class EmojiMix(AbstractHandler):
-    __name__ = "EmojiMix"
-    __description__ = "一个生成emoji融合图的插件"
-    __usage__ = "发送 '{emoji1}+{emoji2}' 即可"
+def create_url(emoji1: EmojiData, emoji2: EmojiData) -> str:
+    def emoji_code(emoji: EmojiData):
+        return '-'.join(map(lambda c: f'u{c:x}', emoji[0]))
 
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        message_text = message.asDisplay().strip()
-        if re.match(u"[\u200d-\U0001fab5]\+[\u200d-\U0001fab5]", message_text):
-            await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            emoji1 = message_text.split('+')[0]
-            emoji2 = message_text.split('+')[1]
-            result = await EmojiMix.mix_emoji(emoji1, emoji2)
-            if isinstance(result, str):
-                return MessageItem(MessageChain.create([Plain(text=result)]), QuoteSource())
-            elif isinstance(result, bytes):
-                return MessageItem(MessageChain.create([Image(data_bytes=result)]), QuoteSource())
+    u1 = emoji_code(emoji1)
+    u2 = emoji_code(emoji2)
+    return f'{API}{emoji1[2]}/{u1}/{u1}_{u2}.png'
 
-    @staticmethod
-    def create_url(emoji1: EmojiData, emoji2: EmojiData) -> str:
-        def emoji_code(emoji: EmojiData):
-            return '-'.join(map(lambda c: f'u{c:x}', emoji[0]))
 
-        u1 = emoji_code(emoji1)
-        u2 = emoji_code(emoji2)
-        return f'{API}{emoji1[2]}/{u1}/{u1}_{u2}.png'
+async def mix_emoji(emoji_code1: str, emoji_code2: str) -> Union[str, bytes]:
+    emoji1 = find_emoji(emoji_code1)
+    emoji2 = find_emoji(emoji_code2)
+    if not emoji1:
+        return f'不支持的emoji：{emoji_code1}'
+    if not emoji2:
+        return f'不支持的emoji：{emoji_code2}'
 
-    @staticmethod
-    async def mix_emoji(emoji_code1: str, emoji_code2: str) -> Union[str, bytes]:
-        emoji1 = EmojiMix.find_emoji(emoji_code1)
-        emoji2 = EmojiMix.find_emoji(emoji_code2)
-        if not emoji1:
-            return f'不支持的emoji：{emoji_code1}'
-        if not emoji2:
-            return f'不支持的emoji：{emoji_code2}'
+    url1 = create_url(emoji1, emoji2)
+    url2 = create_url(emoji2, emoji1)
+    # logger.info(url1)
+    # logger.info(url2)
+    try:
+        async with get_running(Adapter).session.get(url1, proxy=proxy) as resp:
+            if resp.status == 200:
+                return await resp.read()
+        async with get_running(Adapter).session.get(url2, proxy=proxy) as resp:
+            if resp.status == 200:
+                return await resp.read()
+        return '出错了，可能不支持该emoji组合'
+    except:
+        logger.exception("")
+        return '下载出错，请稍后再试'
 
-        url1 = EmojiMix.create_url(emoji1, emoji2)
-        url2 = EmojiMix.create_url(emoji2, emoji1)
-        # logger.info(url1)
-        # logger.info(url2)
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url1, proxy=proxy) as resp:
-                    if resp.status == 200:
-                        return await resp.read()
-                async with session.get(url2, proxy=proxy) as resp:
-                    if resp.status == 200:
-                        return await resp.read()
-                return '出错了，可能不支持该emoji组合'
-        except:
-            logger.warning(traceback.format_exc())
-            return '下载出错，请稍后再试'
 
-    @staticmethod
-    def find_emoji(emoji_code: str) -> Optional[EmojiData]:
-        emoji_num = ord(emoji_code)
-        for e in emojis:
-            if emoji_num in e[0]:
-                return e
-        return None
+def find_emoji(emoji_code: str) -> Optional[EmojiData]:
+    emoji_num = ord(emoji_code)
+    for e in emojis:
+        if emoji_num in e[0]:
+            return e
+    return None
 
 
 emojis: List[EmojiData] = [

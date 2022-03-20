@@ -1,4 +1,3 @@
-import re
 import os
 import numpy as np
 from io import BytesIO
@@ -9,18 +8,13 @@ from PIL import Image as IMG, ImageDraw, ImageFont
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.element import Image, Source
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.strategy import Normal, QuoteSource
-from sagiri_bot.message_sender.message_sender import MessageSender
-from sagiri_bot.decorators import frequency_limit_require_weight_free
-from sagiri_bot.utils import update_user_call_count_plus, UserCalledCount
-
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 _round = lambda f, r=ROUND_HALF_UP: int(Decimal(str(f)).quantize(Decimal("0"), rounding=r))
 rgb = lambda r, g, b: (r, g, b)
@@ -43,82 +37,86 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个可以生成不同风格图片的插件，在群中发送 `[5000兆|ph|yt] 文字1 文字2` 即可")
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def style_picture_generator(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await StylePictureGenerator.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight([RegexMatch("(5000兆|ph|yt)") @ "logo_type", RegexMatch(r"[^\s]+"), RegexMatch(r"[^\s]+")])
+        ],
+        decorators=[
+            FrequencyLimit.require("style_picture_generator", 1),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
+    )
+)
+async def style_picture_generator(app: Ariadne, message: MessageChain, group: Group, logo_type: RegexResult):
+    logo_type = logo_type.result.asDisplay()
+    if logo_type == "5000兆":
+        await app.sendGroupMessage(
+            group,
+            StylePictureGenerator.gosencho_en_hoshi_style_image_generator(message),
+            quote=message.getFirst(Source)
+        )
+    elif logo_type == "ph":
+        await app.sendGroupMessage(
+            group,
+            StylePictureGenerator.pornhub_style_image_generator(message),
+            quote=message.getFirst(Source)
+        )
+    elif logo_type == "yt":
+        await app.sendGroupMessage(
+            group,
+            StylePictureGenerator.youtube_style_image_generator(message),
+            quote=message.getFirst(Source)
+        )
 
 
-class StylePictureGenerator(AbstractHandler):
-    """
-    风格图片生成Handler
-    """
-    __name__ = "StylePictureGenerator"
-    __description__ = "一个可以生成不同风格图片的插件"
-    __usage__ = "在群中发送 `[5000兆|ph|yt] 文字1 文字2` 即可"
+class StylePictureGenerator(object):
 
     @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        message_text = message.asDisplay()
-        if re.match("5000兆 .* .*", message_text):
-            await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await StylePictureGenerator.gosencho_en_hoshi_style_image_generator(group, member, message)
-        elif re.match("ph .* .*", message_text):
-            await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await StylePictureGenerator.pornhub_style_image_generator(group, member, message)
-        elif re.match("yt .* .*", message_text):
-            await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await StylePictureGenerator.youtube_style_image_generator(group, member, message)
-        else:
-            return None
-
-    @staticmethod
-    @frequency_limit_require_weight_free(1)
-    async def gosencho_en_hoshi_style_image_generator(group: Group, member: Member, message: MessageChain) -> MessageItem:
+    def gosencho_en_hoshi_style_image_generator(message: MessageChain) -> MessageChain:
         try:
             _, left_text, right_text = message.asDisplay().split(" ")
             try:
                 img_byte = BytesIO()
                 GoSenChoEnHoShiStyleUtils.genImage(word_a=left_text, word_b=right_text).save(img_byte, format='PNG')
-                return MessageItem(MessageChain.create([Image(data_bytes=img_byte.getvalue())]), Normal())
+                return MessageChain([Image(data_bytes=img_byte.getvalue())])
             except TypeError:
-                return MessageItem(MessageChain.create([Plain(text="不支持的内容！不要给我一些稀奇古怪的东西！")]), Normal())
+                return MessageChain("不支持的内容！不要给我一些稀奇古怪的东西！")
         except ValueError:
-            return MessageItem(MessageChain.create([Plain(text="参数非法！使用格式：5000兆 text1 text2")]), Normal())
+            return MessageChain("参数非法！使用格式：5000兆 text1 text2")
 
     @staticmethod
-    @frequency_limit_require_weight_free(1)
-    async def pornhub_style_image_generator(group: Group, member: Member, message: MessageChain) -> MessageItem:
+    def pornhub_style_image_generator(message: MessageChain) -> MessageChain:
         message_text = message.asDisplay()
         if '/' in message_text or '\\' in message_text:
-            return MessageItem(MessageChain.create([Plain(text="不支持 '/' 与 '\\' ！")]), QuoteSource())
+            return MessageChain("不支持 '/' 与 '\\' ！")
         try:
             _, left_text, right_text = message_text.split(" ")
         except ValueError:
-            return MessageItem(MessageChain.create([Plain(text="格式错误！使用方法：ph left right!")]), QuoteSource())
+            return MessageChain("格式错误！使用方法：ph left right!")
         try:
-            return MessageItem(await PornhubStyleUtils.make_ph_style_logo(left_text, right_text), Normal())
+            return PornhubStyleUtils.make_ph_style_logo(left_text, right_text)
         except OSError as e:
             if "[Errno 22] Invalid argument:" in str(e):
-                return MessageItem(MessageChain.create([Plain(text="非法字符！")]), QuoteSource())
+                return MessageChain("非法字符！")
 
     @staticmethod
-    @frequency_limit_require_weight_free(1)
-    async def youtube_style_image_generator(group: Group, member: Member, message: MessageChain) -> MessageItem:
+    def youtube_style_image_generator(message: MessageChain) -> MessageChain:
         message_text = message.asDisplay()
         if '/' in message_text or '\\' in message_text:
-            return MessageItem(MessageChain.create([Plain(text="不支持 '/' 与 '\\' ！")]), QuoteSource())
+            return MessageChain("不支持 '/' 与 '\\' ！")
         try:
             _, left_text, right_text = message_text.split(" ")
         except ValueError:
-            return MessageItem(MessageChain.create([Plain(text="格式错误！使用方法：yt left right!")]), QuoteSource())
+            return MessageChain("格式错误！使用方法：ph left right!")
         try:
-            return MessageItem(await YoutubeStyleUtils.make_yt_style_logo(left_text, right_text), Normal())
+            return YoutubeStyleUtils.make_yt_style_logo(left_text, right_text)
         except OSError as e:
             if "[Errno 22] Invalid argument:" in str(e):
-                return MessageItem(MessageChain.create([Plain(text="非法字符！")]), QuoteSource())
+                return MessageChain("非法字符！")
 
 
 class GoSenChoEnHoShiStyleUtils:
@@ -337,7 +335,7 @@ class GoSenChoEnHoShiStyleUtils:
 
         # finish
         previmg = IMG.new("RGBA", (max([upper_width, downer_width]) + leftmargin + 300 + 100, height + 100),
-                            (255, 255, 255, 0))
+                          (255, 255, 255, 0))
         previmg.alpha_composite(tiltres[0], (0, 50), (0, 0))
         previmg.alpha_composite(tiltres[1], (subset, _round(height / 2) + 50), (0, 0))
         croprange = previmg.getbbox()
@@ -350,7 +348,7 @@ class GoSenChoEnHoShiStyleUtils:
 
 class PornhubStyleUtils:
     @staticmethod
-    async def create_left_part_img(text: str, font_size: int):
+    def create_left_part_img(text: str, font_size: int):
         font = ImageFont.truetype(f'{os.getcwd()}/statics/fonts/ArialEnUnicodeBold.ttf', font_size)
         font_width, font_height = font.getsize(text)
         offset_y = font.font.getsize(text)[1][1]
@@ -365,7 +363,7 @@ class PornhubStyleUtils:
         return image
 
     @staticmethod
-    async def create_right_part_img(text: str, font_size: int):
+    def create_right_part_img(text: str, font_size: int):
         radii = RIGHT_PART_RADII
         font = ImageFont.truetype(f'{os.getcwd()}/statics/fonts/ArialEnUnicodeBold.ttf', font_size)
         font_width, font_height = font.getsize(text)
@@ -401,9 +399,9 @@ class PornhubStyleUtils:
         return image
 
     @staticmethod
-    async def combine_img(left_text: str, right_text, font_size: int) -> bytes:
-        left_img = await PornhubStyleUtils.create_left_part_img(left_text, font_size)
-        right_img = await PornhubStyleUtils.create_right_part_img(right_text, font_size)
+    def combine_img(left_text: str, right_text, font_size: int) -> bytes:
+        left_img = PornhubStyleUtils.create_left_part_img(left_text, font_size)
+        right_img = PornhubStyleUtils.create_right_part_img(right_text, font_size)
         blank = 30
         bg_img_width = left_img.width + right_img.width + blank * 2
         bg_img_height = left_img.height
@@ -415,9 +413,9 @@ class PornhubStyleUtils:
         return byte_io.getvalue()
 
     @staticmethod
-    async def make_ph_style_logo(left_text: str, right_text: str) -> MessageChain:
+    def make_ph_style_logo(left_text: str, right_text: str) -> MessageChain:
         return MessageChain.create([
-            Image(data_bytes=await PornhubStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
+            Image(data_bytes=PornhubStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
         ])
 
 
@@ -428,7 +426,7 @@ class YoutubeStyleUtils:
     RIGHT_TEXT_COLOR = "#FFFFFF"
 
     @staticmethod
-    async def create_left_part_img(text: str, font_size: int):
+    def create_left_part_img(text: str, font_size: int):
         font = ImageFont.truetype(f'{os.getcwd()}/statics/fonts/ArialEnUnicodeBold.ttf', font_size)
         font_width, font_height = font.getsize(text)
         offset_y = font.font.getsize(text)[1][1]
@@ -443,7 +441,7 @@ class YoutubeStyleUtils:
         return image
 
     @staticmethod
-    async def create_right_part_img(text: str, font_size: int):
+    def create_right_part_img(text: str, font_size: int):
         radii = RIGHT_PART_RADII
         font = ImageFont.truetype(f'{os.getcwd()}/statics/fonts/ArialEnUnicodeBold.ttf', font_size)
         font_width, font_height = font.getsize(text)
@@ -479,9 +477,9 @@ class YoutubeStyleUtils:
         return image
 
     @staticmethod
-    async def combine_img(left_text: str, right_text, font_size: int) -> bytes:
-        left_img = await YoutubeStyleUtils.create_left_part_img(left_text, font_size)
-        right_img = await YoutubeStyleUtils.create_right_part_img(right_text, font_size)
+    def combine_img(left_text: str, right_text, font_size: int) -> bytes:
+        left_img = YoutubeStyleUtils.create_left_part_img(left_text, font_size)
+        right_img = YoutubeStyleUtils.create_right_part_img(right_text, font_size)
         blank = 30
         bg_img_width = left_img.width + right_img.width + blank * 2
         bg_img_height = left_img.height
@@ -493,7 +491,7 @@ class YoutubeStyleUtils:
         return byte_io.getvalue()
 
     @staticmethod
-    async def make_yt_style_logo(left_text: str, right_text: str) -> MessageChain:
+    def make_yt_style_logo(left_text: str, right_text: str) -> MessageChain:
         return MessageChain.create([
-            Image(data_bytes=await YoutubeStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
+            Image(data_bytes=YoutubeStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
         ])

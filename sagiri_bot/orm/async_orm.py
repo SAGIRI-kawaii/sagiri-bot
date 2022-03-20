@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import select, update, insert, delete, inspect
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, BLOB, BIGINT
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, BLOB, BIGINT, Text
 
 from .adapter import get_adapter
 
@@ -210,6 +210,7 @@ class Setting(Base):
     anti_flash_image = Column(Boolean, default=False)
     online_notice = Column(Boolean, default=False)
     daily_newspaper = Column(Boolean, default=False)
+    setting = Column(Text, default="{}")
     debug = Column(Boolean, default=False)
     switch = Column(Boolean, default=True)
     active = Column(Boolean, default=True)
@@ -241,7 +242,6 @@ class KeywordReply(Base):
     __tablename__ = "keyword_reply"
 
     keyword = Column(String(length=200), primary_key=True)
-    # keyword_type = Column(String(length=20), default="fullmatch")
     reply_type = Column(String(length=10), nullable=False)
     reply = Column(BLOB, nullable=False)
     reply_md5 = Column(String(length=32), primary_key=True)

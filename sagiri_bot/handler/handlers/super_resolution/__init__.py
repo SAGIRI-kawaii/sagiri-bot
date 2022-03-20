@@ -19,11 +19,11 @@ from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.twilight import FullMatch, ElementMatch
+from graia.ariadne.message.parser.twilight import FullMatch, ElementMatch, ElementResult, RegexResult
 
 from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.handler.handler import AbstractHandler
@@ -68,18 +68,12 @@ mutex = Semaphore(1)
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                Sparkle(
-                    [
-                        FullMatch("/超分")
-                    ],
-                    {
-                        "resize": FullMatch("-resize", optional=True),
-                        "enter": FullMatch("\n", optional=True),
-                        "image": ElementMatch(Image, optional=True)
-                    }
-                )
-            )
+            Twilight([
+                FullMatch("/超分"),
+                FullMatch("-resize", optional=True) @ "resize",
+                FullMatch("\n", optional=True) @ "enter",
+                ElementMatch(Image, optional=True) @ "image"
+            ])
         ]
     )
 )
@@ -88,8 +82,8 @@ async def super_resolution(
     message: MessageChain,
     group: Group,
     member: Member,
-    image: ElementMatch,
-    resize: FullMatch
+    image: ElementResult,
+    resize: RegexResult
 ):
     if result := await SuperResolution.handle(app, message, group, member, image, resize):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
@@ -111,8 +105,8 @@ class SuperResolution(AbstractHandler):
         message: MessageChain,
         group: Group,
         member: Member,
-        image: ElementMatch,
-        resize: FullMatch
+        image: ElementResult,
+        resize: RegexResult
     ) -> Optional[MessageItem]:
 
         @Waiter.create_using_function(listening_events=[GroupMessage])

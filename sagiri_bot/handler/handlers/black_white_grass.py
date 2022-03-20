@@ -3,12 +3,12 @@ from io import BytesIO
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne.message.element import Image
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, Image
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, ElementMatch
+from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, ElementMatch, RegexResult, ElementResult
 
 from sagiri_bot.utils import BuildImage
 from sagiri_bot.core.app_core import AppCore
@@ -34,22 +34,20 @@ config = core.get_config()
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                Sparkle(
-                    [FullMatch("黑白"), FullMatch("草", optional=True), FullMatch("图")],
-                    {"content": RegexMatch(r".+"), "image": ElementMatch(Image)}
-                )
-            )
+            Twilight([
+                FullMatch("黑白"), FullMatch("草", optional=True), FullMatch("图"),
+                RegexMatch(r".+") @ "content", ElementMatch(Image) @ "image"
+            ])
         ]
     )
 )
 async def black_white_grass(
-        app: Ariadne,
-        message: MessageChain,
-        group: Group,
-        member: Member,
-        content: RegexMatch,
-        image: ElementMatch
+    app: Ariadne,
+    message: MessageChain,
+    group: Group,
+    member: Member,
+    content: RegexResult,
+    image: ElementResult
 ):
     if result := await BWGrass.handle(app, message, group, member, content, image):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
@@ -65,12 +63,12 @@ class BWGrass(AbstractHandler):
     @switch()
     @blacklist()
     async def handle(
-            app: Ariadne,
-            message: MessageChain,
-            group: Group,
-            member: Member,
-            content: RegexMatch,
-            image: ElementMatch
+        app: Ariadne,
+        message: MessageChain,
+        group: Group,
+        member: Member,
+        content: RegexResult,
+        image: ElementResult
     ):
         msg = content.result.asDisplay()
         img = await image.result.get_bytes()

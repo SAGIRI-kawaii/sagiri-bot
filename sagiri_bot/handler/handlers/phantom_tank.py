@@ -1,23 +1,20 @@
-import aiohttp
+import PIL.Image
 import numpy as np
 from io import BytesIO
-from PIL import Image as IMG
 from PIL import ImageEnhance
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne import get_running
+from graia.ariadne.adapter import Adapter
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.element import Image, Source
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.parser.twilight import FullMatch, ElementMatch, RegexResult, ElementResult
 
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.message_sender.strategy import QuoteSource
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
-from sagiri_bot.decorators import frequency_limit_require_weight_free
-from sagiri_bot.utils import update_user_call_count_plus, UserCalledCount
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 
 saya = Saya.current()
@@ -28,68 +25,48 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个幻影坦克生成器，在群中发送 `幻影 [显示图] [隐藏图]` 即可")
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def phantom_tank(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await PhantomTank.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight([
+                FullMatch("彩色", optional=True) @ "colorful", FullMatch("幻影"),
+                ElementMatch(Image) @ "img1", ElementMatch(Image) @ "img2"
+            ])
+        ],
+        decorators=[
+            FrequencyLimit.require("phantom_tank", 3),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
+    )
+)
+async def phantom_tank(
+    app: Ariadne,
+    message: MessageChain,
+    group: Group,
+    colorful: RegexResult,
+    img1: ElementResult,
+    img2: ElementResult
+):
+    async with get_running(Adapter).session.get(url=img1.result.url) as resp:
+        display_img = PIL.Image.open(BytesIO(await resp.read()))
+    async with get_running(Adapter).session.get(url=img2.result.url) as resp:
+        hide_img = PIL.Image.open(BytesIO(await resp.read()))
+    if colorful.matched:
+        message = MessageChain([Image(data_bytes=await PhantomTank.colorful_tank(display_img, hide_img))])
+    await app.sendGroupMessage(group, message, quote=message.getFirst(Source))
 
 
-class PhantomTank(AbstractHandler):
-    __name__ = "PhantomTank"
-    __description__ = "一个幻影坦克生成器"
-    __usage__ = "在群中发送 `幻影 [显示图] [隐藏图]` 即可"
-
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        message_text = "".join([plain.text for plain in message.get(Plain)]).strip()
-        if message_text == "幻影" or message_text == "彩色幻影":
-            await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            if len(message.get(Image)) != 2:
-                return MessageItem(
-                    MessageChain.create([Plain(text="非预期图片数！请按照 `显示图 隐藏图` 顺序发送，一共两张图片")]),
-                    QuoteSource()
-                )
-            else:
-                display_img = message[Image][0]
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url=display_img.url) as resp:
-                        display_img = IMG.open(BytesIO(await resp.read()))
-
-                hide_img = message[Image][1]
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url=hide_img.url) as resp:
-                        hide_img = IMG.open(BytesIO(await resp.read()))
-
-                return await PhantomTank.get_phantom_message(group, member, display_img, hide_img) \
-                    if message_text == "幻影" else \
-                    await PhantomTank.get_colorful_phantom_message(group, member, display_img, hide_img)
-        else:
-            return None
-
-    @staticmethod
-    @frequency_limit_require_weight_free(2)
-    async def get_phantom_message(group: Group, member: Member, display_img: IMG, hide_img: IMG):
-        return MessageItem(
-            MessageChain.create([Image(data_bytes=await PhantomTank.make_tank(display_img, hide_img))]),
-            QuoteSource()
-        )
-
-    @staticmethod
-    @frequency_limit_require_weight_free(2)
-    async def get_colorful_phantom_message(group: Group, member: Member, display_img: IMG, hide_img: IMG):
-        return MessageItem(
-            MessageChain.create([Image(data_bytes=await PhantomTank.colorful_tank(display_img, hide_img))]),
-            QuoteSource()
-        )
+class PhantomTank(object):
 
     @staticmethod
     def get_max_size(a, b):
         return a if a[0] * a[1] >= b[0] * b[1] else b
 
     @staticmethod
-    async def make_tank(im_1: IMG, im_2: IMG) -> bytes:
+    async def make_tank(im_1: PIL.Image, im_2: PIL.Image) -> bytes:
         im_1 = im_1.convert("L")
         im_2 = im_2.convert("L")
         max_size = PhantomTank.get_max_size(im_1.size, im_2.size)
@@ -107,13 +84,13 @@ class PhantomTank(AbstractHandler):
         if arr_new.shape[0] == 3:
             arr_new = (np.transpose(arr_new, (1, 2, 0)) + 1) / 2.0 * 255.0
         bytesIO = BytesIO()
-        IMG.fromarray(arr_new).save(bytesIO, format='PNG')
+        PIL.Image.fromarray(arr_new).save(bytesIO, format='PNG')
         return bytesIO.getvalue()
 
     @staticmethod
     async def colorful_tank(
-            wimg: IMG.Image,
-            bimg: IMG.Image,
+            wimg: PIL.Image.Image,
+            bimg: PIL.Image.Image,
             wlight: float = 1.0,
             blight: float = 0.18,
             wcolor: float = 0.5,
@@ -168,6 +145,6 @@ class PhantomTank(AbstractHandler):
         colors[colors > 255] = 255
 
         bytesIO = BytesIO()
-        IMG.fromarray(colors.astype("uint8")).convert("RGBA").save(bytesIO, format='PNG')
+        PIL.Image.fromarray(colors.astype("uint8")).convert("RGBA").save(bytesIO, format='PNG')
 
         return bytesIO.getvalue()

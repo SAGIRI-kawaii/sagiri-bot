@@ -11,18 +11,14 @@ from PIL.ImageFont import FreeTypeFont
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.message import Group, GroupMessage
+from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.twilight import RegexMatch, UnionMatch
+from graia.ariadne.message.parser.twilight import RegexMatch, UnionMatch, RegexResult
 
 from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.message_sender.strategy import QuoteSource
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -46,91 +42,72 @@ BREAK_LINE_MSG = '文字长度过长，请手动换行或适当缩减'
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                Sparkle(
-                    {
-                        "prefix": UnionMatch(
-                            "nokia", "鲁迅说", "王境泽", "喜报", "记仇", "狂爱", "狂粉", "低语", "别说了", "一巴掌", "为所欲为",
-                            "馋身子", "切格瓦拉", "谁反对", "连连看", "压力大爷", "你好骚啊", "食屎啦你", "五年", "滚屏"
-                        ),
-                        "content": RegexMatch(r"[\s\S]+")
-                    }
-                )
-            )
+            Twilight([
+                UnionMatch(
+                    "nokia", "鲁迅说", "王境泽", "喜报", "记仇", "狂爱", "狂粉", "低语", "别说了", "一巴掌", "为所欲为",
+                    "馋身子", "切格瓦拉", "谁反对", "连连看", "压力大爷", "你好骚啊", "食屎啦你", "五年", "滚屏"
+                ) @ "prefix",
+                RegexMatch(r"[\s\S]+") @ "content"
+            ])
+        ],
+        decorators=[
+            FrequencyLimit.require("memes", 2),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]
     )
 )
 async def memes(
-        app: Ariadne,
-        message: MessageChain,
-        group: Group,
-        member: Member,
-        prefix: UnionMatch,
-        content: RegexMatch
+    app: Ariadne,
+    message: MessageChain,
+    group: Group,
+    prefix: RegexResult,
+    content: RegexResult
 ):
-    if result := await Memes.handle(app, message, group, member, prefix, content):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+    prefix = prefix.result.asDisplay().strip()
+    content = [content.result.asDisplay()]
+    result = None
+    if prefix == "nokia":
+        result = await Memes.make_nokia(content)
+    elif prefix == "鲁迅说":
+        result = await Memes.make_luxunsay(content)
+    elif prefix == "喜报":
+        result = await Memes.make_goodnews(content)
+    elif prefix == "记仇":
+        result = await Memes.make_jichou(content)
+    elif prefix in ("狂爱", "狂粉"):
+        result = await Memes.make_fanatic(content)
+    elif prefix == "低语":
+        result = await Memes.make_diyu(content)
+    elif prefix == "别说了":
+        result = await Memes.make_shutup(content)
+    elif prefix == "一巴掌":
+        result = await Memes.make_slap(content)
+    elif prefix == "滚屏":
+        result = await Memes.make_scroll(content)
+    else:
+        content = shlex.split(content[0])
+        for key in gif_subtitle_memes.keys():
+            if prefix in gif_subtitle_memes[key]["aliases"]:
+                if len(content) != len(gif_subtitle_memes[key]["pieces"]):
+                    await app.sendGroupMessage(
+                        group,
+                        MessageChain(f"参数数量不符，需要输入{len(gif_subtitle_memes[key]['pieces'])}段文字，若包含空格请加引号"),
+                        quote=message.getFirst(Source)
+                    )
+                    return
+                else:
+                    result = await Memes.gif_func(gif_subtitle_memes[key], content)
+    if result:
+        await app.sendGroupMessage(
+            group,
+            MessageChain([Image(data_bytes=result.getvalue()) if isinstance(result, BytesIO) else Plain(text=result)]),
+            quote=message.getFirst(Source)
+        )
 
 
-class Memes(AbstractHandler):
-    __name__ = "Memes"
-    __description__ = "一个生成趣味表情包的插件"
-    __usage__ = "在群中发送 `我(有一?个)?朋友(想问问|说|让我问问|想问|让我问|想知道|让我帮他问问|让我帮他问|让我帮忙问|让我帮忙问问|问) 内容 [@目标]` 即可"
-    __origin__ = "https://github.com/MeetWq/nonebot-plugin-memes"
-
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(
-        app: Ariadne,
-        message: MessageChain,
-        group: Group,
-        member: Member,
-        prefix: UnionMatch,
-        content: RegexMatch
-    ):
-        prefix = prefix.result.asDisplay().strip()
-        content = [content.result.asDisplay()]
-        result = None
-        if prefix == "nokia":
-            result = await Memes.make_nokia(content)
-        elif prefix == "鲁迅说":
-            result = await Memes.make_luxunsay(content)
-        elif prefix == "喜报":
-            result = await Memes.make_goodnews(content)
-        elif prefix == "记仇":
-            result = await Memes.make_jichou(content)
-        elif prefix in ("狂爱", "狂粉"):
-            result = await Memes.make_fanatic(content)
-        elif prefix == "低语":
-            result = await Memes.make_diyu(content)
-        elif prefix == "别说了":
-            result = await Memes.make_shutup(content)
-        elif prefix == "一巴掌":
-            result = await Memes.make_slap(content)
-        elif prefix == "滚屏":
-            result = await Memes.make_scroll(content)
-        else:
-            content = shlex.split(content[0])
-            for key in gif_subtitle_memes.keys():
-                if prefix in gif_subtitle_memes[key]["aliases"]:
-                    if len(content) != len(gif_subtitle_memes[key]["pieces"]):
-                        return MessageItem(
-                            MessageChain.create([
-                                Plain(text=f"参数数量不符，需要输入{len(gif_subtitle_memes[key]['pieces'])}段文字，若包含空格请加引号")
-                            ]),
-                            QuoteSource()
-                        )
-                    else:
-                        result = await Memes.gif_func(gif_subtitle_memes[key], content)
-        if result:
-            return MessageItem(
-                MessageChain.create([
-                    Image(data_bytes=result.getvalue()) if isinstance(result, BytesIO) else Plain(text=result)
-                ]),
-                QuoteSource()
-            )
-        return None
+class Memes(object):
 
     @staticmethod
     async def make_luxunsay(texts: List[str]) -> Union[str, BytesIO]:

@@ -21,7 +21,7 @@ from sagiri_bot.message_sender.strategy import QuoteSource
 from sagiri_bot.message_sender.message_item import MessageItem
 from sagiri_bot.message_sender.message_sender import MessageSender
 
-saya_init()
+# saya_init()
 
 saya = Saya.current()
 channel = Channel.current()

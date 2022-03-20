@@ -15,8 +15,10 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import At, Image
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.parser.twilight import RegexMatch, ElementMatch, RegexResult, ElementResult
 
 from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.message_sender.strategy import Normal
@@ -55,9 +57,34 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个可以生成头像相关趣味图的插件，在群中发送 `[摸|亲|贴|撕|丢|爬|精神支柱|吞] [@目标|目标qq|目标图片]` 即可")
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def avatar_fun_pic(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await AvatarFunPic.handle(app, message, group, member):
+@channel.use(ListenerSchema(
+    listening_events=[GroupMessage],
+    inline_dispatchers=[
+        Twilight([
+            RegexMatch("(摸|亲|贴|撕|丢|爬|精神支柱|吞)") @ "cmd",
+            ElementMatch(At, optional=True) @ "at1",
+            ElementMatch(At, optional=True) @ "at2",
+            RegexMatch(r"[0-9]+", optional=True) @ "qq1",
+            RegexMatch(r"[0-9]+", optional=True) @ "qq2",
+            ElementMatch(Image, optional=True) @ "img1",
+            ElementMatch(Image, optional=True) @ "img2"
+        ])
+    ]
+))
+async def avatar_fun_pic(
+    app: Ariadne,
+    message: MessageChain,
+    group: Group,
+    member: Member,
+    cmd: RegexResult,
+    at1: ElementResult,
+    at2: ElementResult,
+    qq1: RegexResult,
+    qq2: RegexResult,
+    img1: ElementResult,
+    img2: ElementResult
+):
+    if result := await AvatarFunPic.handle(app, message, group, member, cmd, at1, at2, qq1, qq2, img1, img2):
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
@@ -73,7 +100,22 @@ class AvatarFunPic(AbstractHandler):
     @staticmethod
     @switch()
     @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
+    async def handle(
+        app: Ariadne,
+        message: MessageChain,
+        group: Group,
+        member: Member,
+        cmd: RegexResult,
+        at1: ElementResult,
+        at2: ElementResult,
+        qq1: RegexResult,
+        qq2: RegexResult,
+        img1: ElementResult,
+        img2: ElementResult
+    ):
+        if not any([at1.matched, at2.matched, qq1.matched, qq2.matched, img1.matched, img2.matched]):
+            return None
+        await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
         message_text = message.asDisplay()
         if message_text.startswith("摸"):
             match_elements = AvatarFunPic.get_match_element(message)

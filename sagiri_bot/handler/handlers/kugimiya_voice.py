@@ -5,16 +5,12 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Voice
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.parser.twilight import FullMatch
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
 
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.message_sender.strategy import Normal
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -27,23 +23,17 @@ channel.description("一个钉宫语音包插件，发送 `来点钉宫` 即可"
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([FullMatch("来点钉宫")]))]
+        inline_dispatchers=[Twilight([FullMatch("来点钉宫")])],
+        decorators=[
+            FrequencyLimit.require("kugimiya_voice", 1),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
     )
 )
-async def kugimiya_voice(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await KugimiyaVoice.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+async def kugimiya_voice(app: Ariadne, group: Group):
+    base_path = f"{os.getcwd()}/statics/voice/kugimiya/"
+    path = base_path + random.sample(os.listdir(base_path), 1)[0]
+    await app.sendGroupMessage(group, MessageChain([Voice(path=path)]))
 
-
-class KugimiyaVoice(AbstractHandler):
-    __name__ = "KugimiyaVoice"
-    __description__ = "一个钉宫语音包插件"
-    __usage__ = "发送 `来点钉宫` 即可"
-
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        base_path = f"{os.getcwd()}/statics/voice/kugimiya/"
-        path = base_path + random.sample(os.listdir(base_path), 1)[0]
-        return MessageItem(MessageChain.create([Voice(path=path)]), Normal())

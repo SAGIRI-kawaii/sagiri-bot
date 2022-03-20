@@ -8,9 +8,9 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.model import Friend
 from graia.scheduler.timers import crontabify
+from graia.ariadne.message.element import Image
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import FriendMessage
-from graia.ariadne.message.element import Plain, Image
 from graia.scheduler.saya.schema import SchedulerSchema
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch
@@ -36,7 +36,7 @@ async def something_scheduled(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight({"head": FullMatch("发送早报")})],
+        inline_dispatchers=[Twilight([FullMatch("发送早报")])]
     )
 )
 async def main(app: Ariadne, friend: Friend):

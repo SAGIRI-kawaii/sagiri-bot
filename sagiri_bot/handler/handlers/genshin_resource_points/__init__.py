@@ -1,23 +1,17 @@
-from typing import Optional
-
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch
+from graia.ariadne.message.element import Source, Image
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
+from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, RegexResult
 
-from sagiri_bot.utils import MessageChainUtils
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.message_sender.strategy import QuoteSource
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
-from sagiri_bot.decorators import frequency_limit_require_weight_free
+from utils.text_engine.adapter import GraiaAdapter
+from utils.text_engine.text_engine import TextEngine
 from .query_resource import get_resource_type_list, query_resource, init, check_resource_exists
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 
 saya = Saya.current()
@@ -39,15 +33,16 @@ channel.description(
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                Sparkle(
-                    [FullMatch("原神"), RegexMatch(r"哪里?有", optional=True)],
-                    {
-                        "resource_name": RegexMatch(r".+"),
-                        "where": RegexMatch(r"在哪里?")
-                    }
-                )
-            )
+            Twilight([
+                FullMatch("原神"), RegexMatch(r"哪里?有", optional=True),
+                RegexMatch(r"[^\s]+") @ "resource_name", RegexMatch(r"在哪里?")
+            ])
+        ],
+        decorators=[
+            FrequencyLimit.require("genshin_resource_points", 4),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]
     )
 )
@@ -55,54 +50,37 @@ async def genshin_resource_points(
     app: Ariadne,
     message: MessageChain,
     group: Group,
-    member: Member,
-    resource_name: RegexMatch
+    resource_name: RegexResult
 ):
-    if result := await GenshinResourcePoints.handle(app, message, group, member, resource_name):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+    resource_name = resource_name.result.asDisplay().strip()
+    if check_resource_exists(resource_name):
+        await get_resource_list()
+        await app.sendGroupMessage(group, MessageChain("正在生成位置...."))
+        await app.sendGroupMessage(group, await query_resource(resource_name), quote=message.getFirst(Source))
+    else:
+        await app.sendGroupMessage(
+            group,
+            MessageChain(f"未查找到 {resource_name} 资源，可通过 “原神资源列表” 获取全部资源名称.."),
+            quote=message.getFirst(Source)
+        )
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([FullMatch("原神资源列表")]))]
+        inline_dispatchers=[Twilight([FullMatch("原神资源列表")])],
+        decorators=[
+            FrequencyLimit.require("genshin_resource_point_list", 3),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
     )
 )
 async def genshin_resource_point_list(app: Ariadne, group: Group):
-    await app.sendMessage(group, await GenshinResourcePoints.get_resource_list())
+    await app.sendMessage(group, await get_resource_list())
 
 
-class GenshinResourcePoints(AbstractHandler):
-    __name__ = "GenshinResourcePoints"
-    __description__ = "一个获取原神资源的插件"
-    __usage__ = "在群中发送 `{resource_name} 在哪里? | 哪里?有 {resource_name}` 即可查看资源地图\n" \
-                "在群中发送 `原神资源列表` 即可查看资源列表"
-
-    processing = False
-
-    @staticmethod
-    @switch()
-    @blacklist()
-    @frequency_limit_require_weight_free(4)
-    async def handle(
-        app: Ariadne,
-        message: MessageChain,
-        group: Group,
-        member: Member,
-        resource_name: RegexMatch
-    ) -> Optional[MessageItem]:
-        resource_name = resource_name.result.asDisplay().strip()
-        if check_resource_exists(resource_name):
-            await GenshinResourcePoints.get_resource_list()
-            await app.sendMessage(group, MessageChain.create([Plain(text="正在生成位置....")]))
-            return MessageItem(await query_resource(resource_name), QuoteSource())
-        else:
-            return MessageItem(
-                MessageChain.create([Plain(text=f"未查找到 {resource_name} 资源，可通过 “原神资源列表” 获取全部资源名称..")]),
-                QuoteSource()
-            )
-
-    @staticmethod
-    async def get_resource_list():
-        content = get_resource_type_list()
-        return await MessageChainUtils.messagechain_to_img(MessageChain.create([Plain(text=content)]))
+async def get_resource_list() -> MessageChain:
+    content = get_resource_type_list()
+    return MessageChain([Image(data_bytes=TextEngine([GraiaAdapter(MessageChain(content))]).draw())])

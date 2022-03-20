@@ -1,19 +1,15 @@
-import re
 import random
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
 
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
-from sagiri_bot.message_sender.strategy import QuoteSource, Normal
 from statics.jokes import jokes, soviet_jokes, america_jokes, french_jokes
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -29,30 +25,21 @@ joke_non_replace = {
 }
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def joke(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await Joke.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
-
-
-class Joke(AbstractHandler):
-    __name__ = "Joke"
-    __description__ = "一个生成笑话的插件"
-    __usage__ = "在群中发送 `来点{keyword|法国|苏联|美国}笑话`"
-
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        if re.match(r"来点.+笑话", message.asDisplay()):
-            keyword = message.asDisplay()[2:-2]
-            if keyword in joke_non_replace.keys():
-                return MessageItem(
-                    MessageChain.create([Plain(text=random.choice(joke_non_replace[keyword]))]),
-                    Normal()
-                )
-            else:
-                return MessageItem(
-                    MessageChain.create([Plain(text=random.choice(jokes).replace("%name%", keyword))]),
-                    QuoteSource()
-                )
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("来点"), RegexMatch(r"[^/s]+") @ "keyword", FullMatch("笑话")])],
+        decorators=[
+            FrequencyLimit.require("joke", 1),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
+    )
+)
+async def joke(app: Ariadne, group: Group, keyword: RegexResult):
+    keyword = keyword.result.asDisplay()
+    if keyword in joke_non_replace.keys():
+        await app.sendGroupMessage(group, MessageChain(random.choice(joke_non_replace[keyword])))
+    else:
+        await app.sendGroupMessage(group, MessageChain(random.choice(jokes).replace("%name%", keyword)))

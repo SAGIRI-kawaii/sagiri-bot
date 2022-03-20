@@ -6,10 +6,10 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.element import Plain, Source
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.twilight import RegexMatch, UnionMatch, FullMatch
+from graia.ariadne.message.parser.twilight import RegexMatch, UnionMatch, FullMatch, RegexResult
 
 from .pool_data import init_pool_list
 from sagiri_bot.decorators import switch, blacklist
@@ -17,6 +17,7 @@ from sagiri_bot.utils import user_permission_require
 from .gacha import gacha_info, FILE_PATH, Gacha, POOL
 from utils.daily_number_limiter import DailyNumberLimiter
 from sagiri_bot.decorators import frequency_limit_require_weight_free
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -48,8 +49,8 @@ daily_limiter_180 = DailyNumberLimiter(Gacha180Limit)
 
 
 def save_group_pool():
-    with open(os.path.join(FILE_PATH, 'gid_pool.json'), 'w', encoding='UTF-8') as f:
-        json.dump(group_pool, f, ensure_ascii=False)
+    with open(os.path.join(FILE_PATH, 'gid_pool.json'), 'w', encoding='UTF-8') as w:
+        json.dump(group_pool, w, ensure_ascii=False)
 
 
 # 检查gid_pool.json是否存在，没有创建空的
@@ -65,19 +66,14 @@ with open(os.path.join(FILE_PATH, 'gid_pool.json'), 'r', encoding='UTF-8') as f:
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                Sparkle(
-                    [RegexMatch(r"原神")],
-                    {"count": RegexMatch(r"(10|90|180)"), "suffix": RegexMatch(r"连?抽?")}
-                )
-            )
+            Twilight([RegexMatch(r"原神"), RegexMatch(r"(10|90|180)") @ "count", RegexMatch(r"连?抽?") @ "suffix"])
         ]
     )
 )
 @switch()
 @blacklist()
 @frequency_limit_require_weight_free(1)
-async def gacha_(app: Ariadne, group: Group, message: MessageChain, member: Member, count: RegexMatch):
+async def gacha_(app: Ariadne, group: Group, message: MessageChain, member: Member, count: RegexResult):
     gid = group.id
     user_id = member.id
     count = int(count.result.asDisplay())
@@ -108,11 +104,15 @@ async def gacha_(app: Ariadne, group: Group, message: MessageChain, member: Memb
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([RegexMatch(r"原神(卡池|up|UP)(信息)?$")]))])
+        inline_dispatchers=[Twilight([RegexMatch(r"原神(卡池|up|UP)(信息)?$")])],
+        decorators=[
+            FrequencyLimit.require("gacha", 1),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
+    )
 )
-@switch()
-@blacklist()
-@frequency_limit_require_weight_free(1)
 async def gacha_(app: Ariadne, group: Group):
     gid = group.id
 
@@ -127,11 +127,14 @@ async def gacha_(app: Ariadne, group: Group):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([UnionMatch("原神卡池切换", "原神切换卡池")], {"pool_name": RegexMatch(r".+")}))])
+        inline_dispatchers=[Twilight([UnionMatch("原神卡池切换", "原神切换卡池"), RegexMatch(r".+") @ "pool_name"])],
+        decorators=[
+            Function.require(channel.module),
+            BlackListControl.enable()
+        ]
+    )
 )
-@switch()
-@blacklist()
-async def set_pool(app: Ariadne, group: Group, message: MessageChain, member: Member, pool_name: RegexMatch):
+async def set_pool(app: Ariadne, group: Group, message: MessageChain, member: Member, pool_name: RegexResult):
     if not await user_permission_require(group, member, 2):
         await app.sendMessage(group, MessageChain('只有群管理才能切换卡池'), quote=message.getFirst(Source))
         return
@@ -157,11 +160,13 @@ async def set_pool(app: Ariadne, group: Group, message: MessageChain, member: Me
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([FullMatch("更新原神卡池")]))]
+        inline_dispatchers=[Twilight([FullMatch("更新原神卡池")])],
+        decorators=[
+            Function.require(channel.module),
+            BlackListControl.enable()
+        ]
     )
 )
-@switch()
-@blacklist()
 async def up_pool_(app: Ariadne, group: Group, member: Member, message: MessageChain):
     if not await user_permission_require(group, member, 3):
         await app.sendMessage(group, MessageChain('只有群管理才能更新卡池'), quote=message.getFirst(Source))

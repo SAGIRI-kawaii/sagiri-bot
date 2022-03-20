@@ -8,11 +8,11 @@ from graia.ariadne.exception import AccountMuted
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.twilight import FullMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Source, Plain, At, Image
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.twilight import FullMatch, ElementMatch
 
 from sagiri_bot.utils import group_setting
 from sagiri_bot.core.app_core import AppCore
@@ -40,7 +40,7 @@ proxy = config.proxy if config.proxy != "proxy" else ''
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight(Sparkle([FullMatch("搜图")]))]
+        inline_dispatchers=[Twilight([FullMatch("搜图")])]
     )
 )
 async def image_searcher(app: Ariadne, message: MessageChain, group: Group, member: Member):

@@ -103,9 +103,9 @@ class SayaData:
     """
 
     def __init__(
-            self,
-            permission: Dict[str, Dict[int, int]] = None,
-            switch: Dict[str, Dict[str, Dict[str, bool]]] = None
+        self,
+        permission: Dict[str, Dict[int, int]] = None,
+        switch: Dict[str, Dict[str, Dict[str, bool]]] = None
     ):
         self.permission = permission if permission else {}
         self.switch = switch if switch else {}

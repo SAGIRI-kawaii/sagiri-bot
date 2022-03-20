@@ -1,7 +1,6 @@
 import json
 import uuid
 import base64
-import aiohttp
 import asyncio
 import traceback
 from typing import Union
@@ -11,26 +10,25 @@ from sqlalchemy import select
 from graiax import silkcoder
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne import get_running
+from graia.ariadne.adapter import Adapter
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, Voice
+from graia.ariadne.message.element import Voice, Source
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
-
-from sagiri_bot.orm.async_orm import orm
-from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.utils import update_user_call_count_plus
-from sagiri_bot.orm.async_orm import Setting, UserCalledCount
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.strategy import Normal, QuoteSource
-from sagiri_bot.message_sender.message_sender import MessageSender
+from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
 
 from tencentcloud.common import credential
 from tencentcloud.tts.v20190823 import tts_client, models
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
+
+from sagiri_bot.orm.async_orm import orm
+from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.orm.async_orm import Setting
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 
 saya = Saya.current()
@@ -44,29 +42,28 @@ core = AppCore.get_core_instance()
 config = core.get_config()
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def speak(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await Speak.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("说"), RegexMatch(r"[^\s]+") @ "content"])],
+        decorators=[
+            FrequencyLimit.require("speak", 1),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
+    )
+)
+async def speak(app: Ariadne, message: MessageChain, group: Group, content: RegexResult):
+    text = content.result.asDisplay()
+    if voice := await Speak.get_voice(group.id, text):
+        if isinstance(voice, str):
+            await app.sendGroupMessage(group, MessageChain(voice), quote=message.getFirst(Source))
+        elif isinstance(voice, bytes):
+            await app.sendGroupMessage(group, MessageChain([Voice(data_bytes=await silkcoder.encode(voice))]))
 
 
-class Speak(AbstractHandler):
-    __name__ = "Speak"
-    __description__ = "语音合成插件"
-    __usage__ = "在群中发送 `说 {content}` 即可"
-
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        if message.asDisplay().startswith("说 "):
-            text = ''.join([plain.text for plain in message.get(Plain)])[2:].replace(" ", '，')
-            await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            if voice := await Speak.get_voice(group.id, text):
-                if isinstance(voice, str):
-                    return MessageItem(MessageChain.create([Plain(text=voice)]), QuoteSource())
-                elif isinstance(voice, bytes):
-                    return MessageItem(MessageChain.create([Voice(data_bytes=await silkcoder.encode(voice))]), Normal())
+class Speak(object):
 
     @staticmethod
     async def get_voice(group_id: int, text: str) -> Union[str, bytes, None]:
@@ -133,10 +130,9 @@ class Speak(AbstractHandler):
                 elif status["Data"]["Status"] == 2:
                     url = status["Data"]["ResultUrl"]
                     break
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url=url) as resp:
-                    voice = await resp.read()
-                    return voice
+            async with get_running(Adapter).session.get(url=url) as resp:
+                voice = await resp.read()
+                return voice
         except TencentCloudSDKException as err:
             logger.error(traceback.format_exc())
             return str(err)

@@ -8,11 +8,11 @@ from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import Twilight, Sparkle
-from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, RegexMatch
+from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, RegexMatch, RegexResult, ArgResult
 
 from sagiri_bot.core.app_core import AppCore
 from .wordle import Wordle, word_list, word_dics
@@ -51,12 +51,11 @@ class WordleWaiter(Waiter.create([GroupMessage])):
         self.member = (member if isinstance(member, int) else member.id) if member else None
         self.member_list = set()
 
-    async def detected_event(self, group: Group, member: Member, message: MessageChain):
+    async def detected_event(self, app: Ariadne, group: Group, member: Member, message: MessageChain):
         word = message.asDisplay().strip()
         message_source = message.getFirst(Source)
         if self.group == group.id and (self.member == member.id or not self.member):
             if message.asDisplay().strip() in ("/wordle -giveup", "/wordle -g"):
-                app = Ariadne.get_running()
                 dic = group_word_dic[group.id]
                 word_data = word_list[dic][len(self.wordle.word)][self.wordle.word]
                 explain = '\n'.join([f"【{key}】：{word_data[key]}" for key in word_data])
@@ -80,7 +79,6 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 return True
             if message.asDisplay().strip() == "/wordle -hint":
                 await update_member_statistic(group, member, StatisticType.hint)
-                app = Ariadne.get_running()
                 hint = self.wordle.get_hint()
                 if not hint:
                     await app.sendGroupMessage(
@@ -93,7 +91,6 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 return False
             if len(word) == self.wordle.length and word.encode('utf-8').isalpha():
                 self.member_list.add(member.id)
-                app = Ariadne.get_running()
                 await self.wordle.draw_mutex.acquire()
                 result = self.wordle.guess(word)
                 self.wordle.draw_mutex.release()
@@ -144,19 +141,16 @@ class WordleWaiter(Waiter.create([GroupMessage])):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                Sparkle([
-                    FullMatch("/wordle")
-                ], {
-                    "single_game": ArgumentMatch("-single", action="store_true", optional=True),
-                    "group_game": ArgumentMatch("-group", action="store_true", optional=True),
-                    "length": RegexMatch(r"-(l|length)=[0-9]+", optional=True),
-                    "dic": RegexMatch(r"-(d|dic)=\w+", optional=True),
-                    "help": ArgumentMatch("-help", "-h", action="store_true", optional=True),
-                    "give_up": ArgumentMatch("-giveup", "-g", action="store_true", optional=True),
-                    "statistic": ArgumentMatch("-s", "-statistic", action="store_true", optional=True)
-                })
-            )
+            Twilight([
+                FullMatch("/wordle"),
+                ArgumentMatch("-single", action="store_true", optional=True) @ "single_game",
+                ArgumentMatch("-group", action="store_true", optional=True) @ "group_game",
+                RegexMatch(r"-(l|length)=[0-9]+", optional=True) @ "length",
+                RegexMatch(r"-(d|dic)=\w+", optional=True) @ "dic",
+                ArgumentMatch("-help", "-h", action="store_true", optional=True) @ "help",
+                ArgumentMatch("-giveup", "-g", action="store_true", optional=True) @ "give_up",
+                ArgumentMatch("-s", "-statistic", action="store_true", optional=True) @ "statistic"
+            ])
         ]
     )
 )
@@ -165,12 +159,12 @@ async def wordle(
     message: MessageChain,
     group: Group,
     member: Member,
-    single_game: ArgumentMatch,
-    dic: RegexMatch,
-    length: ArgumentMatch,
-    help: ArgumentMatch,
-    give_up: ArgumentMatch,
-    statistic: ArgumentMatch
+    single_game: ArgResult,
+    dic: RegexResult,
+    length: ArgResult,
+    help: ArgResult,
+    give_up: ArgResult,
+    statistic: ArgResult
 ) -> NoReturn:
     if help.matched:
         await app.sendGroupMessage(

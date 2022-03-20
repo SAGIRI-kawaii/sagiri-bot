@@ -5,16 +5,13 @@ from pathlib import Path
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.message import Group, GroupMessage
+from graia.ariadne.message.parser.twilight import FullMatch
+from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
 
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.message_sender.strategy import QuoteSource
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
-from sagiri_bot.utils import update_user_call_count_plus, UserCalledCount
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -24,29 +21,26 @@ channel.author("SAGIRI-kawaii")
 channel.description("可以抽塔罗牌的插件，在群中发送 `塔罗牌` 即可")
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def tarot(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await Tarot.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("塔罗牌")])],
+        decorators=[
+            FrequencyLimit.require("tarot", 1),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
+    )
+)
+async def tarot(app: Ariadne, message: MessageChain, group: Group):
+    await app.sendGroupMessage(group, Tarot.get_tarot(), quote=message.getFirst(Source))
 
 
-class Tarot(AbstractHandler):
-    __name__ = "Tarot"
-    __description__ = "可以抽塔罗牌的插件"
-    __usage__ = "在群中发送 `塔罗牌` 即可"
-
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        if message.asDisplay() == "塔罗牌":
-            await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await Tarot.get_tarot()
-        else:
-            return None
+class Tarot(object):
 
     @staticmethod
-    async def get_tarot():
+    def get_tarot() -> MessageChain:
         card, filename = Tarot.get_random_tarot()
         dir = random.choice(['normal', 'reverse'])
         type = '正位' if dir == 'normal' else '逆位'
@@ -56,11 +50,11 @@ class Tarot(AbstractHandler):
         if filename and os.path.exists(img_path):
             elements.append(Image(path=img_path))
         elements.append(Plain(text=content))
-        return MessageItem(MessageChain.create(elements), QuoteSource())
+        return MessageChain(elements)
 
     @staticmethod
     def get_random_tarot():
-        path = f"{os.getcwd()}/statics/tarot/tarot.json"
+        path = Path(os.getcwd()) / "statics" / "tarot" / "tarot.json"
         with open(path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
         kinds = ['major', 'pentacles', 'wands', 'cups', 'swords']
