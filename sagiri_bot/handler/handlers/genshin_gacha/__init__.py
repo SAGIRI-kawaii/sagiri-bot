@@ -67,13 +67,19 @@ with open(os.path.join(FILE_PATH, 'gid_pool.json'), 'r', encoding='UTF-8') as f:
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([RegexMatch(r"原神"), RegexMatch(r"(10|90|180)") @ "count", RegexMatch(r"连?抽?") @ "suffix"])
+        ],
+        decorators=[
+            FrequencyLimit.require("gacha", 1),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]
     )
 )
 @switch()
 @blacklist()
 @frequency_limit_require_weight_free(1)
-async def gacha_(app: Ariadne, group: Group, message: MessageChain, member: Member, count: RegexResult):
+async def gacha(app: Ariadne, group: Group, message: MessageChain, member: Member, count: RegexResult):
     gid = group.id
     user_id = member.id
     count = int(count.result.asDisplay())
@@ -104,16 +110,10 @@ async def gacha_(app: Ariadne, group: Group, message: MessageChain, member: Memb
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([RegexMatch(r"原神(卡池|up|UP)(信息)?$")])],
-        decorators=[
-            FrequencyLimit.require("gacha", 1),
-            Function.require(channel.module),
-            BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+        inline_dispatchers=[Twilight([RegexMatch(r"原神(卡池|up|UP)(信息)?$")])]
     )
 )
-async def gacha_(app: Ariadne, group: Group):
+async def get_gacha_info(app: Ariadne, group: Group):
     gid = group.id
 
     if gid in group_pool:

@@ -92,7 +92,7 @@ async def get_steam_game_search(keyword: str) -> MessageChain:
         description = await get_steam_game_description(result["app_id"])
         return MessageChain([
             Plain(text="\n搜索到以下信息：\n"),
-            Plain(text=f"游戏：result['name'] (result['name_cn'])\n"),
+            Plain(text=f"游戏：{result['name']} ({result['name_cn']})\n"),
             Plain(text=f"游戏id：{result['app_id']}\n"),
             Image(data_bytes=img_content),
             Plain(text=f"游戏描述：{description}\n"),

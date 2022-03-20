@@ -22,9 +22,7 @@ from sagiri_bot.utils import group_setting, user_permission_require, update_user
 
 
 class Permission(object):
-    """
-    用于管理权限的类，不应被实例化
-    """
+    """ 用于管理权限的类，不应被实例化 """
 
     MASTER = 4
     SUPER_ADMIN = 3
@@ -167,9 +165,7 @@ class BlackListControl(object):
 
 
 class Interval(object):
-    """
-    用于冷却管理的类，不应被实例化
-    """
+    """ 用于冷却管理的类，不应被实例化 """
 
     last_exec: DefaultDict[int, Tuple[int, float]] = defaultdict(lambda: (1, 0.0))
     sent_alert: Set[int] = set()

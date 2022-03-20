@@ -61,7 +61,7 @@ async def github_info(app: Ariadne, message: MessageChain, group: Group, image: 
         language = result["language"]
         forks = result["forks"]
         issues = result["open_issues"]
-        license = result["license"]["key"] if result["license"] else "无"
+        repo_license = result["license"]["key"] if result["license"] else "无"
         msg = MessageChain([
             Plain(text=f"名称：{name}\n"),
             Plain(text=f"作者：{owner}\n"),
@@ -72,7 +72,7 @@ async def github_info(app: Ariadne, message: MessageChain, group: Group, image: 
             Plain(text=f"forks：{forks}\n"),
             Plain(text=f"issues：{issues}\n"),
             Plain(text=f"language：{language}\n"),
-            Plain(text=f"license：{license}")
+            Plain(text=f"license：{repo_license}")
         ])
         try:
             await app.sendGroupMessage(group, msg, quote=message.getFirst(Source))

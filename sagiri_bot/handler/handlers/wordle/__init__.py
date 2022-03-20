@@ -162,11 +162,11 @@ async def wordle(
     single_game: ArgResult,
     dic: RegexResult,
     length: ArgResult,
-    help: ArgResult,
+    get_help: ArgResult,
     give_up: ArgResult,
     statistic: ArgResult
 ) -> NoReturn:
-    if help.matched:
+    if get_help.matched:
         await app.sendGroupMessage(
             group,
             MessageChain(
