@@ -4,7 +4,7 @@ from PIL import ImageFont
 from typing import Union, Optional
 from PIL.ImageFont import FreeTypeFont
 
-DEFAULT_FONT_NAME = Path(os.getcwd()) / "statics" / "fonts" / "STKAITI.TTF"
+DEFAULT_FONT_NAME = str(Path(os.getcwd()) / "statics" / "fonts" / "STKAITI.TTF")
 DEFAULT_FONT = ImageFont.truetype(DEFAULT_FONT_NAME, 40)
 
 fonts = {DEFAULT_FONT_NAME: {40: DEFAULT_FONT}}
