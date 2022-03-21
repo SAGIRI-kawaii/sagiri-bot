@@ -42,11 +42,11 @@ class Tarot(object):
     @staticmethod
     def get_tarot() -> MessageChain:
         card, filename = Tarot.get_random_tarot()
-        dir = random.choice(['normal', 'reverse'])
-        type = '正位' if dir == 'normal' else '逆位'
-        content = f"{card['name']} ({card['name-en']}) {type}\n牌意：{card['meaning'][dir]}"
+        card_dir = random.choice(['normal', 'reverse'])
+        card_type = '正位' if card_dir == 'normal' else '逆位'
+        content = f"{card['name']} ({card['name-en']}) {card_type}\n牌意：{card['meaning'][card_dir]}"
         elements = []
-        img_path = f"{os.getcwd()}/statics/tarot/{dir}/{filename + '.jpg'}"
+        img_path = f"{os.getcwd()}/statics/tarot/{card_dir}/{filename + '.jpg'}"
         if filename and os.path.exists(img_path):
             elements.append(Image(path=img_path))
         elements.append(Plain(text=content))

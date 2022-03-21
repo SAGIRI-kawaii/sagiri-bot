@@ -154,79 +154,12 @@
                     3
                 ],
                 "is_all_area": false
-            }
-        ],
-        "activity_page_label": 0,
-        "area_page_label": [],
-        "is_all_area": false
-    },
-    "4": {
-        "id": 4,
-        "name": "神瞳",
-        "icon": "",
-        "parent_id": 0,
-        "depth": 1,
-        "node_type": 1,
-        "jump_type": 0,
-        "jump_target_id": 0,
-        "display_priority": 0,
-        "children": [
-            {
-                "id": 5,
-                "name": "风神瞳",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/10/75276545/9d3ded0ae2ac20aab3758cc475f9f65b_6769403721373052094.png",
-                "parent_id": 4,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    1
-                ],
-                "is_all_area": false
             },
             {
-                "id": 6,
-                "name": "岩神瞳",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/10/75276545/2868bba96b4e4fccab2667b65676cc26_3366803659083755673.png",
-                "parent_id": 4,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 141,
-                "name": "绯红玉髓",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/08/75276545/d564ff58c9b0cabb7ca22c3dd54b7458_2879418302062023946.png",
-                "parent_id": 4,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    4
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 182,
-                "name": "回声海螺",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/10/16314655/59f478fa51c4921bca9271ac48aa1360_698379360797429355.png",
-                "parent_id": 4,
+                "id": 340,
+                "name": "御使雕像",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/01/30/75379475/2388063657283ce95b543dadc54ca23d_3607198266411979813.png",
+                "parent_id": 1,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -236,98 +169,6 @@
                 "activity_page_label": 0,
                 "area_page_label": [],
                 "is_all_area": false
-            },
-            {
-                "id": 194,
-                "name": "雷神瞳",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/3e1660deb2a0636d7aca3ddb41ecfce1_4819883852816063834.png",
-                "parent_id": 4,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 10,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 320,
-                "name": "键纹Ⅰ",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/ddd2dc96f243547f0fd3a15c5d712efc_2654094039110376569.png",
-                "parent_id": 4,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": true
-            },
-            {
-                "id": 325,
-                "name": "键纹Ⅱ",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/20/75379475/91fa09da2a38b968ff86d9d9d589edcb_657893017913539284.png",
-                "parent_id": 4,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": false
-            },
-            {
-                "id": 326,
-                "name": "键纹Ⅲ",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/9f2f244ef9eb24e6d89236411b8e6df5_4587229791652196245.png",
-                "parent_id": 4,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": false
-            },
-            {
-                "id": 327,
-                "name": "键纹Ⅳ",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/3d7cef1f80607527693e4dc8fa38f1b9_5841782470736252325.png",
-                "parent_id": 4,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": false
-            },
-            {
-                "id": 328,
-                "name": "键纹Ⅴ",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/4b3fa022a826fc7ba6b66dc85a16ef47_6966141869328567696.png",
-                "parent_id": 4,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": true
             }
         ],
         "activity_page_label": 0,
@@ -410,447 +251,6 @@
                 "name": "奇馈宝箱",
                 "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/09/16/75379475/a883a243fe84f9f7be605b713ece1273_7582172183824672745.png",
                 "parent_id": 13,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 10,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            }
-        ],
-        "activity_page_label": 0,
-        "area_page_label": [],
-        "is_all_area": false
-    },
-    "10": {
-        "id": 10,
-        "name": "区域特产",
-        "icon": "",
-        "parent_id": 0,
-        "depth": 1,
-        "node_type": 1,
-        "jump_type": 0,
-        "jump_target_id": 0,
-        "display_priority": 0,
-        "children": [
-            {
-                "id": 29,
-                "name": "落落莓",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/7f5bc37c3574dfa608dd423d3855f92a_75362034087454100.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 747,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 30,
-                "name": "绝云椒椒",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/df7a61223ea4313ed63fc9691f932bd3_4925794327803709245.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 749,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 31,
-                "name": "嘟嘟莲",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/a6f1bd260353cd0dd05fc579ba7629c9_3072127796732483493.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 761,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 32,
-                "name": "清心",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/0c8225a89322df69733b62234eff546a_5573906858635297503.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 751,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 33,
-                "name": "小灯草",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/b043bdf1fa278c1133382946facd4bfd_1109548125966368267.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 743,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 34,
-                "name": "琉璃袋",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/7b77d55a6bb4fb86952c461c2cabc96c_8109218846101342870.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 753,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 35,
-                "name": "塞西莉亚花",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/949c049703b25e48d44f10b0d54b18e8_2016192383263616602.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 746,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 36,
-                "name": "霓裳花",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/c1de910e1820469e794944ba33bb89ae_4335239219072420295.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 750,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 37,
-                "name": "蒲公英籽",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/70436d7222c58143f04e7c4c7787b43d_7905547638982774118.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 744,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 38,
-                "name": "琉璃百合",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/98282bd9cda9c167702216285bc841cd_4998299768885098182.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 756,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 39,
-                "name": "慕风蘑菇",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/c6e5a6d0fd9f73e0b716463d1ae2d60e_3118451947706292312.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 745,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 40,
-                "name": "石珀",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/7e4c2ba659e2cbb09d1e466a5802f420_3756978506289510540.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 754,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 41,
-                "name": "钩钩果",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/3a5384ac4251c193f642af367235dd86_6745549244100568777.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 748,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 42,
-                "name": "夜泊石",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/f7f2ebb4ce20b9729578435ff70bfa50_9037585527228488046.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 752,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 43,
-                "name": "风车菊",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/33cbf21075c22bc4cb77a4f9538721cd_7036897896353552957.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 742,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 78,
-                "name": "星螺",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/d1e33c9e6607ee32779618bfdb3dc719_4584440559350948910.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 755,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 185,
-                "name": "海灵芝",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/93263cf3ea17f1cf6921f7c16194d0cd_1121745296339257675.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 10,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 196,
-                "name": "鬼兜虫",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/332c864890886bc00e354cdd61c02c47_5205171672274107090.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 197,
-                "name": "鸣草",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/9d9f6ce89c821ea9aec34ee05e14489f_6904408485220253083.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 198,
-                "name": "血斛",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/6b49bd2414c9e194b4eb31d754351ed5_727978745745109106.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 199,
-                "name": "绯樱绣球",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/29/75276545/678db2982ec6ec4a6b1b218b5a66fd2f_7607694575039582116.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 211,
-                "name": "晶化骨髓",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/07/75276545/9d09e681cc4409e84a883177a18f27e4_1933260267132351165.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 227,
-                "name": "珊瑚真珠",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/28/75379475/58ff5b695da772c331b7273998e531fc_692372653778779380.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 228,
-                "name": "天云草实",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/28/75379475/8930ad79749f51735d5588ef97f32872_3955574742465159371.png",
-                "parent_id": 10,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 266,
-                "name": "幽灯蕈",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/09/15/75379475/d0e3567f41bf6daefe493724529ecd1f_594766281249010203.png",
-                "parent_id": 10,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -1450,15 +850,60 @@
                 "activity_page_label": 0,
                 "area_page_label": [],
                 "is_all_area": true
+            },
+            {
+                "id": 341,
+                "name": "导光之仪",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/01/30/75379475/1fa35c9e1e0188b84f786235dfae4f4d_7577766319731843581.png",
+                "parent_id": 14,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": false
+            },
+            {
+                "id": 346,
+                "name": "千灯试炼",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/01/30/75379475/582605f870fe1d1b1440cb342123f3e4_8168774589356549309.png",
+                "parent_id": 14,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": false
+            },
+            {
+                "id": 349,
+                "name": "破损的石板",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/01/30/75379475/7cc17f81b5f5786fde471d1ccf63f34e_2674421572115347113.png",
+                "parent_id": 14,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": false
             }
         ],
         "activity_page_label": 0,
         "area_page_label": [],
         "is_all_area": false
     },
-    "143": {
-        "id": 143,
-        "name": "指引",
+    "4": {
+        "id": 4,
+        "name": "神瞳",
         "icon": "",
         "parent_id": 0,
         "depth": 1,
@@ -1468,10 +913,76 @@
         "display_priority": 0,
         "children": [
             {
-                "id": 208,
-                "name": "雷种子",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/21/75379475/75bb96260b0b67faa0e4b80c604f7171_9105289406361821567.png",
-                "parent_id": 143,
+                "id": 5,
+                "name": "风神瞳",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/10/75276545/9d3ded0ae2ac20aab3758cc475f9f65b_6769403721373052094.png",
+                "parent_id": 4,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 6,
+                "name": "岩神瞳",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/10/75276545/2868bba96b4e4fccab2667b65676cc26_3366803659083755673.png",
+                "parent_id": 4,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 141,
+                "name": "绯红玉髓",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/08/75276545/d564ff58c9b0cabb7ca22c3dd54b7458_2879418302062023946.png",
+                "parent_id": 4,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    4
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 182,
+                "name": "回声海螺",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/10/16314655/59f478fa51c4921bca9271ac48aa1360_698379360797429355.png",
+                "parent_id": 4,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": false
+            },
+            {
+                "id": 194,
+                "name": "雷神瞳",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/3e1660deb2a0636d7aca3ddb41ecfce1_4819883852816063834.png",
+                "parent_id": 4,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -1485,44 +996,10 @@
                 "is_all_area": false
             },
             {
-                "id": 253,
-                "name": "相位之门",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/29/75379475/ceb4d2664f91c10fc9bbeb22ec31615c_4846146240010439039.png",
-                "parent_id": 143,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 267,
-                "name": "雷石",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/09/15/75379475/677b7eb8840bc25833d5a653118f52ec_2406823361073162076.png",
-                "parent_id": 143,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 10,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 268,
-                "name": "神秘的刻像",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/10/08/75379475/122816b9348379fd7d0abffd13e6819a_8837230147314091951.png",
-                "parent_id": 143,
+                "id": 320,
+                "name": "键纹Ⅰ",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/ddd2dc96f243547f0fd3a15c5d712efc_2654094039110376569.png",
+                "parent_id": 4,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -1531,15 +1008,15 @@
                 "children": [],
                 "activity_page_label": 0,
                 "area_page_label": [
-                    8
+                    14
                 ],
                 "is_all_area": false
             },
             {
-                "id": 144,
-                "name": "锅",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/22/9918847/4538e2ca083797eb48785426e80ef189_7042825244123805664.png",
-                "parent_id": 143,
+                "id": 325,
+                "name": "键纹Ⅱ",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/20/75379475/91fa09da2a38b968ff86d9d9d589edcb_657893017913539284.png",
+                "parent_id": 4,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -1548,15 +1025,15 @@
                 "children": [],
                 "activity_page_label": 0,
                 "area_page_label": [
-                    4
+                    14
                 ],
                 "is_all_area": false
             },
             {
-                "id": 145,
-                "name": "篝火/火把",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/23/9918847/92112a39652724c6ae55ce1461cbcee2_4374283950207047779.png",
-                "parent_id": 143,
+                "id": 326,
+                "name": "键纹Ⅲ",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/9f2f244ef9eb24e6d89236411b8e6df5_4587229791652196245.png",
+                "parent_id": 4,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -1565,15 +1042,15 @@
                 "children": [],
                 "activity_page_label": 0,
                 "area_page_label": [
-                    4
+                    14
                 ],
                 "is_all_area": false
             },
             {
-                "id": 146,
-                "name": "遗迹之烛",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/22/9918847/9301c03cc5c170e9c6c8aa273759cde4_2995457238950097945.png",
-                "parent_id": 143,
+                "id": 327,
+                "name": "键纹Ⅳ",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/3d7cef1f80607527693e4dc8fa38f1b9_5841782470736252325.png",
+                "parent_id": 4,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -1582,15 +1059,15 @@
                 "children": [],
                 "activity_page_label": 0,
                 "area_page_label": [
-                    4
+                    14
                 ],
                 "is_all_area": false
             },
             {
-                "id": 147,
-                "name": "仙灵之庭",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/24/9918847/129a17158bfb304f621cadb9823bc8cb_1093300982033335835.png",
-                "parent_id": 143,
+                "id": 328,
+                "name": "键纹Ⅴ",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/4b3fa022a826fc7ba6b66dc85a16ef47_6966141869328567696.png",
+                "parent_id": 4,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -1599,69 +1076,9 @@
                 "children": [],
                 "activity_page_label": 0,
                 "area_page_label": [
-                    4
+                    14
                 ],
                 "is_all_area": false
-            },
-            {
-                "id": 322,
-                "name": "蛇回捷径",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/03/75379475/5c4906479ba578b9024c3b4f6d919537_2882520554065055742.png",
-                "parent_id": 143,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": true
-            },
-            {
-                "id": 323,
-                "name": "「昼夜」转换机关",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/6086175ff40ba76dc1c5da0a3cb057f4_6779894124285088614.png",
-                "parent_id": 143,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": true
-            },
-            {
-                "id": 324,
-                "name": "精华拜受处",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/521af451abe9c600a4c1d4abe2d05b13_3236490812017359902.png",
-                "parent_id": 143,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": true
-            },
-            {
-                "id": 334,
-                "name": "三角机关",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/06/75379475/39d1e832c513b51accb1079f03dafd5d_5415104183670776001.png",
-                "parent_id": 143,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": true
             }
         ],
         "activity_page_label": 0,
@@ -1852,6 +1269,21 @@
                     8
                 ],
                 "is_all_area": false
+            },
+            {
+                "id": 345,
+                "name": "落武者",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/02/07/75379475/f8e2276ea1cb31cc8465c89edf2e621e_9013515314633009445.png",
+                "parent_id": 50,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
             }
         ],
         "activity_page_label": 0,
@@ -2295,6 +1727,21 @@
                     8
                 ],
                 "is_all_area": false
+            },
+            {
+                "id": 344,
+                "name": "黯色空壳",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/01/30/75379475/1d9c7154a354efd5c37d635619820b20_1895337279536858608.png",
+                "parent_id": 12,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
             }
         ],
         "activity_page_label": 0,
@@ -2568,6 +2015,1286 @@
                 "name": "深海龙蜥之群",
                 "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/06/75379475/0d7fe8f319459a12e082eb96ab06060e_5630470111967973966.png",
                 "parent_id": 131,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
+            }
+        ],
+        "activity_page_label": 0,
+        "area_page_label": [],
+        "is_all_area": false
+    },
+    "10": {
+        "id": 10,
+        "name": "区域特产",
+        "icon": "",
+        "parent_id": 0,
+        "depth": 1,
+        "node_type": 1,
+        "jump_type": 0,
+        "jump_target_id": 0,
+        "display_priority": 0,
+        "children": [
+            {
+                "id": 29,
+                "name": "落落莓",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/7f5bc37c3574dfa608dd423d3855f92a_75362034087454100.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 747,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 30,
+                "name": "绝云椒椒",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/df7a61223ea4313ed63fc9691f932bd3_4925794327803709245.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 749,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 31,
+                "name": "嘟嘟莲",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/a6f1bd260353cd0dd05fc579ba7629c9_3072127796732483493.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 761,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 32,
+                "name": "清心",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/0c8225a89322df69733b62234eff546a_5573906858635297503.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 751,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 33,
+                "name": "小灯草",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/b043bdf1fa278c1133382946facd4bfd_1109548125966368267.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 743,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 34,
+                "name": "琉璃袋",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/7b77d55a6bb4fb86952c461c2cabc96c_8109218846101342870.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 753,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 35,
+                "name": "塞西莉亚花",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/949c049703b25e48d44f10b0d54b18e8_2016192383263616602.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 746,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 36,
+                "name": "霓裳花",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/c1de910e1820469e794944ba33bb89ae_4335239219072420295.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 750,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 37,
+                "name": "蒲公英籽",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/70436d7222c58143f04e7c4c7787b43d_7905547638982774118.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 744,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 38,
+                "name": "琉璃百合",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/98282bd9cda9c167702216285bc841cd_4998299768885098182.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 756,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 39,
+                "name": "慕风蘑菇",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/c6e5a6d0fd9f73e0b716463d1ae2d60e_3118451947706292312.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 745,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 40,
+                "name": "石珀",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/7e4c2ba659e2cbb09d1e466a5802f420_3756978506289510540.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 754,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 41,
+                "name": "钩钩果",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/3a5384ac4251c193f642af367235dd86_6745549244100568777.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 748,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 42,
+                "name": "夜泊石",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/f7f2ebb4ce20b9729578435ff70bfa50_9037585527228488046.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 752,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 43,
+                "name": "风车菊",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/33cbf21075c22bc4cb77a4f9538721cd_7036897896353552957.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 742,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 78,
+                "name": "星螺",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/d1e33c9e6607ee32779618bfdb3dc719_4584440559350948910.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 755,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 185,
+                "name": "海灵芝",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/93263cf3ea17f1cf6921f7c16194d0cd_1121745296339257675.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 10,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 196,
+                "name": "鬼兜虫",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/332c864890886bc00e354cdd61c02c47_5205171672274107090.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 197,
+                "name": "鸣草",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/9d9f6ce89c821ea9aec34ee05e14489f_6904408485220253083.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 198,
+                "name": "血斛",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/28/75276545/6b49bd2414c9e194b4eb31d754351ed5_727978745745109106.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 199,
+                "name": "绯樱绣球",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/29/75276545/678db2982ec6ec4a6b1b218b5a66fd2f_7607694575039582116.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 211,
+                "name": "晶化骨髓",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/07/75276545/9d09e681cc4409e84a883177a18f27e4_1933260267132351165.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 227,
+                "name": "珊瑚真珠",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/28/75379475/58ff5b695da772c331b7273998e531fc_692372653778779380.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 228,
+                "name": "天云草实",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/28/75379475/8930ad79749f51735d5588ef97f32872_3955574742465159371.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 266,
+                "name": "幽灯蕈",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/09/15/75379475/d0e3567f41bf6daefe493724529ecd1f_594766281249010203.png",
+                "parent_id": 10,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 10,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            }
+        ],
+        "activity_page_label": 0,
+        "area_page_label": [],
+        "is_all_area": false
+    },
+    "143": {
+        "id": 143,
+        "name": "指引",
+        "icon": "",
+        "parent_id": 0,
+        "depth": 1,
+        "node_type": 1,
+        "jump_type": 0,
+        "jump_target_id": 0,
+        "display_priority": 0,
+        "children": [
+            {
+                "id": 208,
+                "name": "雷种子",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/21/75379475/75bb96260b0b67faa0e4b80c604f7171_9105289406361821567.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 10,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 253,
+                "name": "相位之门",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/29/75379475/ceb4d2664f91c10fc9bbeb22ec31615c_4846146240010439039.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 267,
+                "name": "雷石",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/09/15/75379475/677b7eb8840bc25833d5a653118f52ec_2406823361073162076.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 10,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 268,
+                "name": "神秘的刻像",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/10/08/75379475/122816b9348379fd7d0abffd13e6819a_8837230147314091951.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 144,
+                "name": "锅",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/22/9918847/4538e2ca083797eb48785426e80ef189_7042825244123805664.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    4
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 145,
+                "name": "篝火/火把",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/23/9918847/92112a39652724c6ae55ce1461cbcee2_4374283950207047779.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    4
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 146,
+                "name": "遗迹之烛",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/22/9918847/9301c03cc5c170e9c6c8aa273759cde4_2995457238950097945.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    4
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 147,
+                "name": "仙灵之庭",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/24/9918847/129a17158bfb304f621cadb9823bc8cb_1093300982033335835.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    4
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 322,
+                "name": "蛇回捷径",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/03/75379475/5c4906479ba578b9024c3b4f6d919537_2882520554065055742.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 323,
+                "name": "「昼夜」转换机关",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/6086175ff40ba76dc1c5da0a3cb057f4_6779894124285088614.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 324,
+                "name": "精华拜受处",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/01/75379475/521af451abe9c600a4c1d4abe2d05b13_3236490812017359902.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 334,
+                "name": "三角机关",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/12/06/75379475/39d1e832c513b51accb1079f03dafd5d_5415104183670776001.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 347,
+                "name": "能量点",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/01/30/75379475/3eb35c91b7c132ffb724c1e384e0191e_209632404691197945.png",
+                "parent_id": 143,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
+            }
+        ],
+        "activity_page_label": 0,
+        "area_page_label": [],
+        "is_all_area": false
+    },
+    "60": {
+        "id": 60,
+        "name": "材料",
+        "icon": "",
+        "parent_id": 0,
+        "depth": 1,
+        "node_type": 1,
+        "jump_type": 0,
+        "jump_target_id": 0,
+        "display_priority": 0,
+        "children": [
+            {
+                "id": 61,
+                "name": "冰雾花花朵",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/379f3acf5091d5c9bab5d238398ed74b_1299253059491585322.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 62,
+                "name": "烈焰花花蕊",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/a04fa1f0d9619196297357a33127095c_7827399238932095762.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 63,
+                "name": "电气水晶",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/723d15046c4bd70a5b319d81a0032428_8204759773213807472.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 740,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 81,
+                "name": "竹笋",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/10/75276545/d46910e7cdebb011cc107aa088a3df69_887321789543977894.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 1316,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 82,
+                "name": "鳅鳅宝玉",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/10/75276545/3a732937101a7e419b4b1c5a29de6d34_819661314868702771.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 90,
+                "name": "晶核",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/621ef976ab2ea278ad1a9371ad845eea_2155132189350895110.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 10,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 91,
+                "name": "蝴蝶",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/afb17f6ad50d8b33cd503e1390527ce8_6283032796221356535.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 92,
+                "name": "金鱼草",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/5cb9b715be7356eddae0d8aa197d4673_5925617248491431715.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 93,
+                "name": "马尾",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/11f060b9411797f623057a93598998a7_1129068969993264323.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 94,
+                "name": "青蛙",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/2100d4b4cc447908da0119057bc17ba6_9022240694827521309.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 115,
+                "name": "蜥蜴尾巴",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/b99807ea1b34d21c3fa4fa74f57a25e3_1998878996251730722.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 116,
+                "name": "螃蟹",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/11307a34068f026989b56c0539fad37f_2196812100248598086.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 121,
+                "name": "兽肉",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/1a7294c6581ef00d0eb0c9cf7929f288_3896004683166534424.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 122,
+                "name": "鱼肉",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/e01bf2dd86cd24121b1f09285f7304d8_2830373650601356948.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    3,
+                    1,
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 123,
+                "name": "禽肉",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/61e2b712ded55ed5dd1d438a87e52efb_381487749068331365.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 124,
+                "name": "松茸",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/7c072e0281e39ca93198c7e8461c3ebd_9100116309988175626.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 125,
+                "name": "松果",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/d8374d19da0b808d6349dd4e7e614cb3_1238085734338144926.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 126,
+                "name": "鸟蛋",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/3774818f576e9ac0b0c22db53db06236_3117052274833919637.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 140,
+                "name": "奇异的「牙齿」",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/08/75276545/5da3e49853b5d2188ff4bd6b302ecaa1_4526547052916822390.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    4
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 153,
+                "name": "「冷鲜肉」",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/08/75276545/83194f444f9bdb03090bfeb8cbad2177_193823876063594258.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 1391,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [
+                    4
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 160,
+                "name": "甜甜花",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/fe24f3f4a006b643db66d94ab6699292_7138432858176083519.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 10,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 161,
+                "name": "薄荷",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/aa83f2e70bcc0a0d69998f52b97b07d4_6511257378598580635.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 762,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 162,
+                "name": "蘑菇",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/1c4dd7692a34154dca818014931903d2_3268659946357391207.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 767,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 163,
+                "name": "树莓",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/0dac79cd68e374c60be673fef82e0804_172650782223650192.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 769,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 164,
+                "name": "日落果",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/b71fabe5cae6c8e8e1412121b4c28c89_1413246670718980593.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 660,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 165,
+                "name": "苹果",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/d652bfddea0f3d250e6a6f54731ad579_2692331837360997427.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 643,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 166,
+                "name": "莲蓬",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/e1cf72c72c13c9e0d69e90acb8fa424b_4901939395745895580.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 1052,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 167,
+                "name": "胡萝卜",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/11/9918847/7200f7e1f2125fbd514594a932a7e4e4_5919526869501196996.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 765,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 168,
+                "name": "白萝卜",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/11/9918847/2d2a228c04dbdd7d3b544f1acd2ecc08_8249547580628994674.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 1,
+                "jump_target_id": 760,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 2,
+                "area_page_label": [
+                    3,
+                    1
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 195,
+                "name": "发光髓",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/29/75276545/86fc768c90691a768b983487ee8fd27d_2443134744517808602.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": false
+            },
+            {
+                "id": 200,
+                "name": "堇瓜",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/29/75276545/03b3f3e56463d505ce3f8758eda55ea4_8721088142785889797.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 9,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 201,
+                "name": "海草",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/29/75276545/f3b15facf0ff4c766216f772c564be91_9076563853093542978.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 10,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 254,
+                "name": "鳗肉",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/31/75379475/069ad351743be8c58f332abd1cfce529_1026967221339384983.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 10,
+                "area_page_label": [
+                    8
+                ],
+                "is_all_area": false
+            },
+            {
+                "id": 342,
+                "name": "常世之荚",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/01/30/75379475/7eba0e0891dc95c799e3be994c977970_2619847463849569143.png",
+                "parent_id": 60,
+                "depth": 2,
+                "node_type": 2,
+                "jump_type": 0,
+                "jump_target_id": 0,
+                "display_priority": 0,
+                "children": [],
+                "activity_page_label": 0,
+                "area_page_label": [],
+                "is_all_area": true
+            },
+            {
+                "id": 343,
+                "name": "渊海髓矿",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/01/30/75379475/da6930ede1fe9c3e450371fcf6d3c9f1_88679623226482390.png",
+                "parent_id": 60,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -3237,239 +3964,13 @@
                 "children": [],
                 "activity_page_label": 0,
                 "area_page_label": [],
-                "is_all_area": false
-            }
-        ],
-        "activity_page_label": 0,
-        "area_page_label": [],
-        "is_all_area": false
-    },
-    "60": {
-        "id": 60,
-        "name": "材料",
-        "icon": "",
-        "parent_id": 0,
-        "depth": 1,
-        "node_type": 1,
-        "jump_type": 0,
-        "jump_target_id": 0,
-        "display_priority": 0,
-        "children": [
-            {
-                "id": 61,
-                "name": "冰雾花花朵",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/379f3acf5091d5c9bab5d238398ed74b_1299253059491585322.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 62,
-                "name": "烈焰花花蕊",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/a04fa1f0d9619196297357a33127095c_7827399238932095762.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 63,
-                "name": "电气水晶",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/02/75276545/723d15046c4bd70a5b319d81a0032428_8204759773213807472.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 740,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 81,
-                "name": "竹笋",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/10/75276545/d46910e7cdebb011cc107aa088a3df69_887321789543977894.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 1316,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 82,
-                "name": "鳅鳅宝玉",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/10/75276545/3a732937101a7e419b4b1c5a29de6d34_819661314868702771.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 90,
-                "name": "晶核",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/621ef976ab2ea278ad1a9371ad845eea_2155132189350895110.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 10,
-                "area_page_label": [],
                 "is_all_area": true
             },
             {
-                "id": 91,
-                "name": "蝴蝶",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/afb17f6ad50d8b33cd503e1390527ce8_6283032796221356535.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 92,
-                "name": "金鱼草",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/5cb9b715be7356eddae0d8aa197d4673_5925617248491431715.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 93,
-                "name": "马尾",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/11f060b9411797f623057a93598998a7_1129068969993264323.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 94,
-                "name": "青蛙",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/2100d4b4cc447908da0119057bc17ba6_9022240694827521309.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 115,
-                "name": "蜥蜴尾巴",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/b99807ea1b34d21c3fa4fa74f57a25e3_1998878996251730722.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 116,
-                "name": "螃蟹",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/19/75276545/11307a34068f026989b56c0539fad37f_2196812100248598086.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 121,
-                "name": "兽肉",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/1a7294c6581ef00d0eb0c9cf7929f288_3896004683166534424.png",
-                "parent_id": 60,
+                "id": 348,
+                "name": "珊瑚蝶",
+                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2022/02/15/75379475/0152ffedb1580e0a32b43be9624ab521_8056331831615142293.png",
+                "parent_id": 273,
                 "depth": 2,
                 "node_type": 2,
                 "jump_type": 0,
@@ -3478,347 +3979,6 @@
                 "children": [],
                 "activity_page_label": 0,
                 "area_page_label": [],
-                "is_all_area": true
-            },
-            {
-                "id": 122,
-                "name": "鱼肉",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/e01bf2dd86cd24121b1f09285f7304d8_2830373650601356948.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    3,
-                    1,
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 123,
-                "name": "禽肉",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/61e2b712ded55ed5dd1d438a87e52efb_381487749068331365.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [],
-                "is_all_area": true
-            },
-            {
-                "id": 124,
-                "name": "松茸",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/7c072e0281e39ca93198c7e8461c3ebd_9100116309988175626.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 125,
-                "name": "松果",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/d8374d19da0b808d6349dd4e7e614cb3_1238085734338144926.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [],
-                "is_all_area": true
-            },
-            {
-                "id": 126,
-                "name": "鸟蛋",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/11/20/75276545/3774818f576e9ac0b0c22db53db06236_3117052274833919637.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 140,
-                "name": "奇异的「牙齿」",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/08/75276545/5da3e49853b5d2188ff4bd6b302ecaa1_4526547052916822390.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    4
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 153,
-                "name": "「冷鲜肉」",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2020/12/08/75276545/83194f444f9bdb03090bfeb8cbad2177_193823876063594258.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 1391,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [
-                    4
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 160,
-                "name": "甜甜花",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/fe24f3f4a006b643db66d94ab6699292_7138432858176083519.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 10,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 161,
-                "name": "薄荷",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/aa83f2e70bcc0a0d69998f52b97b07d4_6511257378598580635.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 762,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [],
-                "is_all_area": true
-            },
-            {
-                "id": 162,
-                "name": "蘑菇",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/1c4dd7692a34154dca818014931903d2_3268659946357391207.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 767,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [],
-                "is_all_area": true
-            },
-            {
-                "id": 163,
-                "name": "树莓",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/0dac79cd68e374c60be673fef82e0804_172650782223650192.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 769,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 164,
-                "name": "日落果",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/b71fabe5cae6c8e8e1412121b4c28c89_1413246670718980593.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 660,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 165,
-                "name": "苹果",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/d652bfddea0f3d250e6a6f54731ad579_2692331837360997427.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 643,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 166,
-                "name": "莲蓬",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/08/75276545/e1cf72c72c13c9e0d69e90acb8fa424b_4901939395745895580.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 1052,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 167,
-                "name": "胡萝卜",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/11/9918847/7200f7e1f2125fbd514594a932a7e4e4_5919526869501196996.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 765,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 168,
-                "name": "白萝卜",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/01/11/9918847/2d2a228c04dbdd7d3b544f1acd2ecc08_8249547580628994674.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 1,
-                "jump_target_id": 760,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 2,
-                "area_page_label": [
-                    3,
-                    1
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 195,
-                "name": "发光髓",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/29/75276545/86fc768c90691a768b983487ee8fd27d_2443134744517808602.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 0,
-                "area_page_label": [],
-                "is_all_area": false
-            },
-            {
-                "id": 200,
-                "name": "堇瓜",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/29/75276545/03b3f3e56463d505ce3f8758eda55ea4_8721088142785889797.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 9,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 201,
-                "name": "海草",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/06/29/75276545/f3b15facf0ff4c766216f772c564be91_9076563853093542978.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 10,
-                "area_page_label": [
-                    8
-                ],
-                "is_all_area": false
-            },
-            {
-                "id": 254,
-                "name": "鳗肉",
-                "icon": "https://uploadstatic.mihoyo.com/ys-obc/2021/07/31/75379475/069ad351743be8c58f332abd1cfce529_1026967221339384983.png",
-                "parent_id": 60,
-                "depth": 2,
-                "node_type": 2,
-                "jump_type": 0,
-                "jump_target_id": 0,
-                "display_priority": 0,
-                "children": [],
-                "activity_page_label": 10,
-                "area_page_label": [
-                    8
-                ],
                 "is_all_area": false
             }
         ],

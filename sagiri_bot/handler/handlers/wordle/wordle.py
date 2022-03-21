@@ -123,7 +123,9 @@ class Wordle(object):
         return length + 1
 
     def guess(self, word: str) -> Optional[Tuple[bool, bool, bool, bool, PIL.Image.Image]]:
+
         """ game_end: bool, win: bool, legal: bool, duplicate: bool, board: PIL.Image.Image """
+
         if self.current_row >= self.row:
             return None
         if not self.legal_word(word):

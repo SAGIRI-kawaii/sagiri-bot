@@ -1,11 +1,10 @@
-from PIL import Image as IMG
 from io import BytesIO
 from .pool_data import POOL
+from PIL import Image as IMG
 
 import os
-import random
 import math
-import base64
+import random
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image
 

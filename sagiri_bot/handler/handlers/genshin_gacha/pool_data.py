@@ -12,7 +12,7 @@ from sagiri_bot.core.app_core import AppCore
 
 FILE_PATH = os.path.dirname(__file__)
 ICON_PATH = os.path.join(FILE_PATH, 'icon')
-FONT_PATH = os.path.join(FILE_PATH, 'artifact_collect', "zh-cn.ttf")
+FONT_PATH = os.path.join(FILE_PATH, "zh-cn.ttf")
 AUTO_UPDATE = True
 
 POOL_API = "https://webstatic.mihoyo.com/hk4e/gacha_info/cn_gf01/gacha/list.json"

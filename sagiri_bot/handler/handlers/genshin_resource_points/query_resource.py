@@ -12,7 +12,6 @@ from PIL.Image import UnidentifiedImageError
 
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
-from graia.ariadne.event.lifecycle import ApplicationLaunched
 
 from .map import Map
 from sagiri_bot.utils import BuildImage

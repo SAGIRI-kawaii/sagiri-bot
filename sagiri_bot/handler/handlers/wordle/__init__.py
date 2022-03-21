@@ -34,6 +34,7 @@ DEFAULT_DIC = "CET4"
 
 
 class TimeWaiter(Waiter.create([GroupMessage])):
+
     """ 超时Waiter """
 
     def __init__(self, wordle_instance: Wordle, group: Union[Group, int], member: Optional[Union[Member, int]] = None):
@@ -43,6 +44,7 @@ class TimeWaiter(Waiter.create([GroupMessage])):
 
 
 class WordleWaiter(Waiter.create([GroupMessage])):
+
     """ wordle Waiter """
 
     def __init__(self, wordle_instance: Wordle, group: Union[Group, int], member: Optional[Union[Member, int]] = None):
@@ -147,7 +149,7 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 ArgumentMatch("-group", action="store_true", optional=True) @ "group_game",
                 RegexMatch(r"-(l|length)=[0-9]+", optional=True) @ "length",
                 RegexMatch(r"-(d|dic)=\w+", optional=True) @ "dic",
-                ArgumentMatch("-help", "-h", action="store_true", optional=True) @ "help",
+                ArgumentMatch("-help", "-h", action="store_true", optional=True) @ "get_help",
                 ArgumentMatch("-giveup", "-g", action="store_true", optional=True) @ "give_up",
                 ArgumentMatch("-s", "-statistic", action="store_true", optional=True) @ "statistic"
             ])
