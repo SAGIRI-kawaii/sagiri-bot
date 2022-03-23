@@ -1,6 +1,8 @@
 import random
 import aiohttp
 import asyncio
+
+from graia.ariadne.exception import AccountMuted
 from loguru import logger
 
 from graia.saya import Saya, Channel
@@ -59,5 +61,8 @@ async def send_newspaper(app: Ariadne):
     for group in await app.getGroupList():
         if not await group_setting.get_setting(group, Setting.daily_newspaper):
             continue
-        await app.sendMessage(group, MessageChain.create(Image(data_bytes=image_content)))
+        try:
+            await app.sendMessage(group, MessageChain.create(Image(data_bytes=image_content)))
+        except AccountMuted:
+            continue
         await asyncio.sleep(random.randint(3, 6))
