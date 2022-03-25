@@ -23,7 +23,10 @@ channel.description("一个获取英文缩写意思的插件，在群中发送 `
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([FullMatch("缩"), FullMatch(" ", optional=True), RegexMatch(r"[A-Za-z0-9]+") @ "content"])
+            Twilight([
+                FullMatch("缩"),
+                RegexMatch(r"[A-Za-z0-9]+").help("要缩写的内容") @ "content"]
+            )
         ],
         decorators=[
             FrequencyLimit.require("abbreviated_prediction", 1),

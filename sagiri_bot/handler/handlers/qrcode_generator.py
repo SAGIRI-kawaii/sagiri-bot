@@ -24,7 +24,7 @@ channel.description("一个生成二维码的插件，在群中发送 `qrcode �
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("qrcode"), RegexMatch(r"[^/s]+$") @ "content"])],
+        inline_dispatchers=[Twilight([FullMatch("qrcode"), RegexMatch(r"[^\s]+$") @ "content"])],
         decorators=[
             FrequencyLimit.require("qrcode_generator", 1),
             Function.require(channel.module),

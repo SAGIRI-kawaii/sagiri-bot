@@ -38,7 +38,7 @@ data_cache = config.data_related.get("lolicon_data_cache")
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("来点"), RegexMatch(r"[^/s]+") @ "keyword", RegexMatch(r"[色涩瑟]图$")])],
+        inline_dispatchers=[Twilight([FullMatch("来点"), RegexMatch(r"[^\s]+") @ "keyword", RegexMatch(r"[色涩瑟]图$")])],
         decorators=[
             FrequencyLimit.require("lolicon_keyword_searcher", 2),
             Function.require(channel.module),

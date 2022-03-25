@@ -25,7 +25,7 @@ channel.description("一个可以查询热门词的插件，在群中发送 `{ke
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([RegexMatch(r"[^/s]+") @ "keyword", FullMatch("是什么梗")])],
+        inline_dispatchers=[Twilight([RegexMatch(r"[^\s]+") @ "keyword", FullMatch("是什么梗")])],
         decorators=[
             FrequencyLimit.require("hot_words_explainer", 2),
             Function.require(channel.module),

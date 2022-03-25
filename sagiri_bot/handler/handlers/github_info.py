@@ -19,14 +19,18 @@ channel = Channel.current()
 
 channel.name("GithubInfo")
 channel.author("SAGIRI-kawaii")
-channel.description("可以搜索Github项目信息的插件，在群中发送 `github [-i] {项目名}`")
+channel.description("可以搜索Github项目信息的插件，在群中发送 `/github [-i] {项目名}`")
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([FullMatch("github"), ArgumentMatch("-i", "-image") @ "image", RegexMatch(r".+") @ "keyword"])
+            Twilight([
+                FullMatch("/github"),
+                ArgumentMatch("-i", "-image", action="store_true", optional=True) @ "image",
+                RegexMatch(r"[^\s]+") @ "keyword"
+            ])
         ],
         decorators=[
             FrequencyLimit.require("github_info", 2),

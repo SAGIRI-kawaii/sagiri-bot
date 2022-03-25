@@ -30,7 +30,7 @@ proxy = config.proxy if config.proxy != "proxy" else ''
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("pdf"), RegexMatch(r"[^/s]+$")])],
+        inline_dispatchers=[Twilight([FullMatch("pdf"), RegexMatch(r"[^\s]+$")])],
         decorators=[
             FrequencyLimit.require("pdf_searcher", 4),
             Function.require(channel.module),

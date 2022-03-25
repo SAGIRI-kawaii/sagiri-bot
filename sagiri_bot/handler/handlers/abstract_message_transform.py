@@ -29,7 +29,12 @@ channel.description("一个普通话转抽象话的插件，在群中发送 `/�
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("/抽象 "), RegexMatch(r".*") @ "content"])],
+        inline_dispatchers=[
+            Twilight([
+                FullMatch("/抽象 "),
+                RegexMatch(r".*").help("要转抽象的内容") @ "content"
+            ])
+        ],
         decorators=[
             FrequencyLimit.require("abstract_message_transformer", 1),
             Function.require(channel.module),

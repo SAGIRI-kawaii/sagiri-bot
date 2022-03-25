@@ -23,9 +23,9 @@ channel.description("一个营销号内容生成器插件，在群中发送 `营
         inline_dispatchers=[
             Twilight([
                 FullMatch("营销号#"),
-                RegexMatch(r"[^/s]+") @ "somebody", FullMatch("#"),
-                RegexMatch(r"[^/s]+") @ "something", FullMatch("#"),
-                RegexMatch(r"[^/s]+") @ "other_word"
+                RegexMatch(r"[^\s]+") @ "somebody", FullMatch("#"),
+                RegexMatch(r"[^\s]+") @ "something", FullMatch("#"),
+                RegexMatch(r"[^\s]+") @ "other_word"
             ])
         ],
         decorators=[

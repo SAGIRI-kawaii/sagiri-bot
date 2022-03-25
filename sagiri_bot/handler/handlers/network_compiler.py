@@ -26,7 +26,7 @@ channel.description("一个网络编译器插件，在群中发送 `super langua
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("super"), RegexMatch(r"[^/s]+") @ "language", FullMatch(r"[/s]+", optional=True),
+                FullMatch("super"), RegexMatch(r"[^\s]+") @ "language", RegexMatch(r"[\s]+", optional=True),
                 RegexMatch(r"[\s\S]+") @ "code"
             ])
         ],

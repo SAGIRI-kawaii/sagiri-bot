@@ -30,6 +30,7 @@ class Permission(object):
     GROUP_ADMIN = 2
     USER = 1
     BANNED = 0
+    GLOBAL_BANNED = -1
     DEFAULT = USER
 
     @classmethod

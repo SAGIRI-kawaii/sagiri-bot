@@ -75,10 +75,10 @@ async def bangumi_info_searcher(app: Ariadne, message: MessageChain, group: Grou
     await app.sendGroupMessage(
         group,
         MessageChain(
-            [Image(
-                data_bytes=TextEngine([
+            [
+                Image(data_bytes=TextEngine([
                     GraiaAdapter(
-                        MessageChain.create([
+                        MessageChain([
                             Plain(text="查询到以下信息：\n"),
                             Image(data_bytes=img_content),
                             Plain(text=f"名字:{name}\n\n中文名字:{cn_name}\n\n"),
@@ -86,10 +86,10 @@ async def bangumi_info_searcher(app: Ariadne, message: MessageChain, group: Grou
                             Plain(text=f"bangumi评分:{score}(参与评分{rating_total}人)"),
                             Plain(text=f"\n\nbangumi排名:{rank}" if rank else "")
                         ])
-                    )],
-                    min_width=1080
-                ).draw()
-            )]
+                    )], min_width=1080
+                    ).draw()
+                )
+            ]
         ),
         quote=message.getFirst(Source)
     )

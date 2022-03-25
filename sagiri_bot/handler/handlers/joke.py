@@ -28,7 +28,7 @@ joke_non_replace = {
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("来点"), RegexMatch(r"[^/s]+") @ "keyword", FullMatch("笑话")])],
+        inline_dispatchers=[Twilight([FullMatch("来点"), RegexMatch(r"[^\s]+") @ "keyword", FullMatch("笑话")])],
         decorators=[
             FrequencyLimit.require("joke", 1),
             Function.require(channel.module),
