@@ -46,6 +46,7 @@ class GraiaAdapter(AbstractAdapter):
         center: bool = False,
         end: str = ''
     ):
+        self.data = []
         if not isinstance(elements, list):
             elements = [elements]
         if text_type:

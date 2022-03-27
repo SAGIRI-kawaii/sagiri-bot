@@ -234,8 +234,8 @@ def get_image_save_number() -> int:
     return data["imageSaveNumber"]
 
 
-def load_config() -> GlobalConfig:
-    with open(f"{os.getcwd()}/config.yaml", "r", encoding='utf-8') as f:
+def load_config(path: str = f"{os.getcwd()}/config.yaml") -> GlobalConfig:
+    with open(path, "r", encoding='utf-8') as f:
         configs = yaml.load(f.read(), Loader=yaml.BaseLoader)
         return GlobalConfig(**configs)
 

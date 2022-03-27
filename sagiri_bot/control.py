@@ -44,12 +44,12 @@ class Permission(object):
         member = member.id if isinstance(member, Member) else member
         group = group.id if isinstance(group, Group) else group
         if result := await orm.fetchone(
-                select(
-                    UserPermission.level
-                ).where(
-                    UserPermission.group_id == group,
-                    UserPermission.member_id == member
-                )
+            select(
+                UserPermission.level
+            ).where(
+                UserPermission.group_id == group,
+                UserPermission.member_id == member
+            )
         ):
             return result[0]
         else:
