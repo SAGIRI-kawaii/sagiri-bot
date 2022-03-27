@@ -54,7 +54,7 @@ class TextEngine(object):
         image_adaption: bool = True,
         image_mode: Literal["1", "L", "P", "RGB", "RGBA", "CMYK", "YCbCr", "I", "F"] = "RGBA",
         font: Optional[Union[str, Path, FreeTypeFont]] = "STKAITI.TTF",
-        bg_color: Optional[Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]] = None,
+        bg_color: Optional[Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]] = (255, 255, 255, 255),
         sep: str = '\n'
     ):
         self.elements = []
