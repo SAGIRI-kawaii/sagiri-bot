@@ -1,7 +1,9 @@
+import os
 import psutil
 import asyncio
 import uvicorn
 import datetime
+import aiofiles
 from typing import Union
 from loguru import logger
 from sqlalchemy import select
@@ -77,6 +79,33 @@ async def login(user: User, nonce: str):
         return GeneralResponse(
             code=401,
             message="user does not exist!"
+        )
+
+
+@app.get("/saya/source")
+async def get_saya_source(module: str, token: bool = Depends(certify_token)):
+    if token:
+        path = module.replace('.', '/')
+        if os.path.exists(f"{path}.py"):
+            async with aiofiles.open(f"{path}.py", "r", encoding="utf-8") as fp:
+                content = await fp.read()
+        elif os.path.exists(path):
+            async with aiofiles.open(f"{path}/__init__.py", "r", encoding="utf-8") as fp:
+                content = await fp.read()
+        else:
+            return GeneralResponse(
+                code=402,
+                message="invalid token!"
+            )
+        return GeneralResponse(
+            data={
+                "source": content
+            }
+        )
+    else:
+        return GeneralResponse(
+            code=401,
+            message=f"Module: {module} not found"
         )
 
 
