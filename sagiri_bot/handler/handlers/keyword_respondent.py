@@ -152,8 +152,7 @@ async def delete_keyword(
         select(
             KeywordReply.reply_type, KeywordReply.reply, KeywordReply.reply_md5
         ).where(
-            KeywordReply.keyword == keyword,
-            KeywordReply.reply_type == op_type
+            KeywordReply.keyword == keyword
         )
     ):
         replies = list()
@@ -195,6 +194,17 @@ async def delete_keyword(
                     KeywordReply.group == (group.id if group_only.matched else -1)
                 ]
             )
+            temp_list = []
+            global regex_list
+            for i in regex_list:
+                if all([
+                    i[0] == keyword if op_type == "regex" else f"(.*){keyword}(.*)",
+                    i[1] == replies[number - 1][2],
+                    i[2] == (-1 if group_only.matched else group.id)
+                ]):
+                    continue
+                temp_list.append(i)
+            regex_list = temp_list
             await app.sendGroupMessage(group, MessageChain("删除成功"), quote=message.getFirst(Source))
         else:
             await app.sendGroupMessage(group, MessageChain("非预期回复，进程退出"), quote=message.getFirst(Source))
