@@ -1,7 +1,6 @@
 import re
 import random
 import hashlib
-from loguru import logger
 from sqlalchemy import select
 
 from graia.saya import Saya, Channel
@@ -20,6 +19,7 @@ from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.orm.async_orm import KeywordReply
 from sagiri_bot.utils import user_permission_require
+from sagiri_bot.control import BlackListControl, Function
 
 saya = Saya.current()
 channel = Channel.current()
@@ -63,16 +63,27 @@ class ConfirmWaiter(Waiter.create([GroupMessage])):
             return True if re.match(r"[是否]", message.asDisplay()) else False
 
 
+add_keyword_twilight = Twilight([
+    FullMatch(r"添加"), FullMatch("群组", optional=True) @ "group_only",
+    RegexMatch(r"(模糊|正则)", optional=True)  @ "op_type",
+    FullMatch("回复关键词#"), RegexMatch(r"[^\s]+") @ "keyword", FullMatch("#"),
+    WildcardMatch().flags(re.DOTALL) @ "response"
+])
+
+delete_keyword_twilight = Twilight([
+    FullMatch(r"删除"), FullMatch("群组", optional=True) @ "group_only",
+    RegexMatch(r"(模糊|正则)", optional=True)  @ "op_type",
+    FullMatch("回复关键词#"), RegexMatch(r"[^\s]+") @ "keyword"
+])
+
+
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight([
-                FullMatch(r"添加"), FullMatch("群组", optional=True) @ "group_only",
-                RegexMatch(r"(模糊|正则)", optional=True)  @ "op_type",
-                FullMatch("回复关键词#"), RegexMatch(r"[^\s]+") @ "keyword", FullMatch("#"),
-                WildcardMatch().flags(re.DOTALL) @ "response"
-            ])
+        inline_dispatchers=[add_keyword_twilight],
+        decorators=[
+            BlackListControl.enable(),
+            Function.require("keyword_respondent", response_administrator=True, log=False)
         ]
     )
 )
@@ -125,12 +136,10 @@ async def add_keyword(
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight([
-                FullMatch(r"删除"), FullMatch("群组", optional=True) @ "group_only",
-                RegexMatch(r"(模糊|正则)", optional=True)  @ "op_type",
-                FullMatch("回复关键词#"), RegexMatch(r"[^\s]+") @ "keyword"
-            ])
+        inline_dispatchers=[delete_keyword_twilight],
+        decorators=[
+            BlackListControl.enable(),
+            Function.require("keyword_respondent", response_administrator=True, log=False)
         ]
     )
 )
@@ -212,29 +221,41 @@ async def delete_keyword(
         await app.sendGroupMessage(group, MessageChain("未检测到此关键词数据"), quote=message.getFirst(Source))
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        decorators=[
+            BlackListControl.enable(),
+            Function.require("keyword_respondent", log=False)
+        ]
+    )
+)
 async def keyword_detect(app: Ariadne, message: MessageChain, group: Group):
-    if result := list(await orm.fetchall(
-        select(
-            KeywordReply.reply
-        ).where(
-            KeywordReply.keyword == message.asDisplay(),
-            KeywordReply.group.in_((-1, group.id))
-        )
-    )):
-        reply = random.choice(result)
-        await app.sendGroupMessage(group, json_to_message_chain(str(reply[0])))
-    else:
-        response_md5 = [i[1] for i in regex_list if re.match(i[0], message.asDisplay()) and i[2] in (-1, group.id)]
-        if response_md5:
-            await app.sendGroupMessage(
-                group,
-                json_to_message_chain(
-                    (await orm.fetchone(
-                        select(KeywordReply.reply).where(KeywordReply.reply_md5 == random.choice(response_md5))
-                    ))[0]
-                )
+    try:
+        add_keyword_twilight.generate(message)
+        delete_keyword_twilight.generate(message)
+    except ValueError:
+        if result := list(await orm.fetchall(
+            select(
+                KeywordReply.reply
+            ).where(
+                KeywordReply.keyword == message.asDisplay(),
+                KeywordReply.group.in_((-1, group.id))
             )
+        )):
+            reply = random.choice(result)
+            await app.sendGroupMessage(group, json_to_message_chain(str(reply[0])))
+        else:
+            response_md5 = [i[1] for i in regex_list if re.match(i[0], message.asDisplay()) and i[2] in (-1, group.id)]
+            if response_md5:
+                await app.sendGroupMessage(
+                    group,
+                    json_to_message_chain(
+                        (await orm.fetchone(
+                            select(KeywordReply.reply).where(KeywordReply.reply_md5 == random.choice(response_md5))
+                        ))[0]
+                    )
+                )
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))

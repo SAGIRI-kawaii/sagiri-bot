@@ -95,7 +95,7 @@ async def get_saya_source(module: str, token: bool = Depends(certify_token)):
         else:
             return GeneralResponse(
                 code=402,
-                message="invalid token!"
+                message=f"Module: {module} not found"
             )
         return GeneralResponse(
             data={
@@ -105,7 +105,7 @@ async def get_saya_source(module: str, token: bool = Depends(certify_token)):
     else:
         return GeneralResponse(
             code=401,
-            message=f"Module: {module} not found"
+            message="invalid token!"
         )
 
 
