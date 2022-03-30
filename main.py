@@ -50,26 +50,26 @@ core.load_saya_modules()
 
 @bcc.receiver("GroupMessage")
 async def group_message_handler(message: MessageChain, group: Group, member: Member):
-    message_text_log = message.asDisplay().replace("\n", "\\n")
-    logger.info(f"收到来自群 <{group.name}> 中成员 <{member.name}> 的消息：{message_text_log}")
+    message_text_log = message.asDisplay().replace("\n", "\\n").strip()
+    logger.info(f"收到来自群 <{group.name.strip()}> 中成员 <{member.name.strip()}> 的消息：{message_text_log}")
 
 
 @bcc.receiver("FriendMessage")
 async def friend_message_listener(friend: Friend, message: MessageChain):
-    message_text_log = message.asDisplay().replace("\n", "\\n")
-    logger.info(f"收到来自好友 <{friend.nickname}> 的消息：{message_text_log}")
+    message_text_log = message.asDisplay().replace("\n", "\\n").strip()
+    logger.info(f"收到来自好友 <{friend.nickname.strip()}> 的消息：{message_text_log}")
 
 
 @bcc.receiver("ActiveGroupMessage")
 async def send_group_message_handler(event: ActiveGroupMessage):
-    message_text_log = event.messageChain.asDisplay().replace("\n", "\\n")
-    logger.info(f"成功向群 <{event.subject.name}> 发送消息：{message_text_log}")
+    message_text_log = event.messageChain.asDisplay().replace("\n", "\\n").strip()
+    logger.info(f"成功向群 <{event.subject.name.strip()}> 发送消息：{message_text_log}")
 
 
 @bcc.receiver("ActiveFriendMessage")
 async def send_group_message_handler(event: ActiveFriendMessage):
-    message_text_log = event.messageChain.asDisplay().replace("\n", "\\n")
-    logger.info(f"成功向好友 <{event.subject.nickname}> 发送消息：{message_text_log}")
+    message_text_log = event.messageChain.asDisplay().replace("\n", "\\n").strip()
+    logger.info(f"成功向好友 <{event.subject.nickname.strip()}> 发送消息：{message_text_log}")
 
 
 @logger.catch

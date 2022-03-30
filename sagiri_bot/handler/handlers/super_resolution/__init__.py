@@ -32,6 +32,7 @@ from sagiri_bot.message_sender.message_item import MessageItem
 from sagiri_bot.message_sender.message_sender import MessageSender
 from sagiri_bot.decorators import frequency_limit_require_weight_free
 
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -74,6 +75,12 @@ mutex = Semaphore(1)
                 FullMatch("\n", optional=True) @ "enter",
                 ElementMatch(Image, optional=True) @ "image"
             ])
+        ],
+        decorators=[
+            FrequencyLimit.require("super_resolution", 5),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]
     )
 )

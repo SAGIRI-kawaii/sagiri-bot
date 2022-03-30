@@ -246,7 +246,6 @@ class UserCalledCountControl(object):
     def add(data_type: tuple, value: int = 1) -> Depend:
         async def update(event: GroupMessage) -> NoReturn:
             await update_user_call_count_plus(event.sender.group, event.sender, data_type[1], data_type[0], value)
-
         return Depend(update)
 
 
@@ -260,7 +259,9 @@ class Function(object):
         return cls.saya_data
 
     @classmethod
-    def require(cls, name: str, response_administrator: bool = False) -> Optional[Depend]:
+    def require(
+        cls, name: str, response_administrator: bool = False, log: bool = True, notice: bool = False
+    ) -> Optional[Depend]:
         async def judge(event: GroupMessage) -> NoReturn:
             member = event.sender
             group = member.group
@@ -268,9 +269,10 @@ class Function(object):
                 saya_data.add_saya(name)
             if group.id not in saya_data.switch[name]:
                 saya_data.add_group(group)
-            print(name, saya_data.is_turned_on(name, group))
+            if log:
+                print(name, saya_data.is_turned_on(name, group))
             if not saya_data.is_turned_on(name, group):
-                if saya_data.is_notice_on(name, group):
+                if saya_data.is_notice_on(name, group) or notice:
                     await ariadne_ctx.get().sendMessage(
                         group, MessageChain.create([Plain(text=f"{name}插件已关闭，请联系管理员")])
                     )

@@ -1,3 +1,5 @@
+import re
+
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -22,7 +24,7 @@ channel.description("将收到的消息合并为图片，在群中发送 `/merge
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("/merge"), WildcardMatch() @ "msg_to_merge"])],
+        inline_dispatchers=[Twilight([FullMatch("/merge"), WildcardMatch().flags(re.S) @ "msg_to_merge"])],
         decorators=[
             FrequencyLimit.require("message_merger", 2),
             Function.require(channel.module),
@@ -35,7 +37,7 @@ async def message_merger(app: Ariadne, message: MessageChain, group: Group, msg_
     await app.sendGroupMessage(
         group,
         MessageChain([Image(
-            data_bytes=TextEngine([GraiaAdapter(msg_to_merge.result)]).draw()
+            data_bytes=TextEngine([GraiaAdapter(msg_to_merge.result)], min_width=1080).draw()
         )]),
         quote=message.getFirst(Source)
     )
