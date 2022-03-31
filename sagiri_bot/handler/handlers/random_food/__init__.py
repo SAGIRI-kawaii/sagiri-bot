@@ -80,6 +80,7 @@ async def random_meal(app: Ariadne, message: MessageChain, group: Group, option:
     )
 )
 async def random_tea(app: Ariadne, message: MessageChain, group: Group, option: MatchResult):
+    option = option.result.asDisplay()
     if randrange(101) < 5:
         return "没得喝！"
     body = random.choice(food[option]["body"])
