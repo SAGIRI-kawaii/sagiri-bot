@@ -268,36 +268,22 @@ class FunctionCalledRecord(Base):
     result = Column(Boolean, default=True)
 
 
-class LoliconData(Base):
-    """ lolicon api数据 """
-    __tablename__ = "lolicon_data"
+class USTCAccountInfo(Base):
+    """ 中国科学技术大学疫情打卡数据 """
+    __tablename__ = "ustc_account_info"
 
-    pid = Column(BIGINT, primary_key=True)
-    p = Column(Integer, primary_key=True)
-    uid = Column(BIGINT, nullable=False)
-    title = Column(String(length=200), nullable=False)
-    author = Column(String(length=200), nullable=False)
-    r18 = Column(Boolean, nullable=False)
-    width = Column(Integer, nullable=False)
-    height = Column(Integer, nullable=False)
-    tags = Column(String(length=1000), nullable=False)
-    ext = Column(String(length=20), nullable=False)
-    upload_date = Column(DateTime, nullable=False)
-    original_url = Column(String(length=200), nullable=False)
-
-
-class WordleStatistic(Base):
-    """ wordle 游戏数据 """
-    __tablename__ = "wordle_statistic"
-
-    group_id = Column(BIGINT, primary_key=True)
-    member_id = Column(BIGINT, primary_key=True)
-    game_count = Column(BIGINT, default=0)
-    win_count = Column(BIGINT, default=0)
-    lose_count = Column(BIGINT, default=0)
-    correct_count = Column(BIGINT, default=0)
-    wrong_count = Column(BIGINT, default=0)
-    hint_count = Column(BIGINT, default=0)
+    qq = Column(BIGINT, primary_key=True)
+    account = Column(String(length=20), nullable=True)
+    passwd = Column(String(length=50), nullable=True)
+    juzhudi = Column(String(length=50), nullable=True)
+    dorm_building = Column(String(length=20), nullable=True)
+    dorm = Column(String(length=20), nullable=True)
+    jinji_lxr = Column(String(length=50), nullable=True)
+    jinji_guanxi = Column(String(length=50), nullable=True)
+    jiji_mobile = Column(String(length=20), nullable=True)
+    ischuxiao = Column(String(length=20), nullable=True)
+    return_college = Column(String(length=50), nullable=True)
+    scheduled = Column(Boolean, default=False)
 
 
 # class SchedulerTasks(Base):
