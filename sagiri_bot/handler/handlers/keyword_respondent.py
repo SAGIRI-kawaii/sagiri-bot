@@ -1,32 +1,25 @@
 import re
 import random
-import base64
-import aiohttp
 import hashlib
-import traceback
-from loguru import logger
 from sqlalchemy import select
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.exception import AccountMuted
+from graia.ariadne.message.element import Source
 from graia.broadcast.interrupt.waiter import Waiter
-from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.lifecycle import ApplicationLaunched
+from graia.ariadne.event.message import Group, GroupMessage, Member
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, WildcardMatch, RegexResult
 
-
+from utils.message_chain import *
 from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.orm.async_orm import KeywordReply
-from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.utils import user_permission_require
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
-from sagiri_bot.message_sender.strategy import Normal, QuoteSource
+from sagiri_bot.control import BlackListControl, Function
 
 saya = Saya.current()
 channel = Channel.current()
@@ -39,203 +32,246 @@ channel.description(
     "在群中发送 `删除回复关键词#{keyword}` 可删除关键词"
 )
 
-
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def keyword_respondent(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await KeywordRespondent.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
+inc = InterruptControl(AppCore.get_core_instance().get_bcc())
+regex_list = []
 
 
-class KeywordRespondent(AbstractHandler):
-    __name__ = "KeywordRespondent"
-    __description__ = "一个关键字回复插件"
-    __usage__ = "在群中发送已添加关键词可自动回复\n" \
-                "在群中发送 `添加回复关键词#{keyword}#{reply}` 可添加关键词\n" \
-                "在群中发送 `删除回复关键词#{keyword}` 可删除关键词"
+class NumberWaiter(Waiter.create([GroupMessage])):
 
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        message_serialization = message.asPersistentString()
-        if re.match(r"添加回复关键词#[\s\S]*#[\s\S]*", message_serialization):
-            if await user_permission_require(group, member, 2):
-                return await KeywordRespondent.update_keyword(message, message_serialization)
-            else:
-                return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource())
-        elif re.match(r"删除回复关键词#[\s\S]*", message_serialization):
-            if await user_permission_require(group, member, 2):
-                return await KeywordRespondent.delete_keyword(app, message_serialization, group, member)
-            else:
-                return MessageItem(MessageChain.create([Plain(text="权限不足，爬")]), QuoteSource())
-        elif result := await KeywordRespondent.keyword_detect(message_serialization):
-            return result
+    """ 超时Waiter """
+
+    def __init__(self, group: Union[int, Group], member: Union[int, Member], max_length: int):
+        self.group = group if isinstance(group, int) else group.id
+        self.member = (member if isinstance(member, int) else member.id) if member else None
+        self.max_length = max_length
+
+    async def detected_event(self, app: Ariadne, group: Group, member: Member, message: MessageChain):
+        if group.id == self.group and member.id == self.member:
+            return int(message.asDisplay()) if message.asDisplay().isnumeric() and 0 < int(message.asDisplay()) <= self.max_length else -1
+
+
+class ConfirmWaiter(Waiter.create([GroupMessage])):
+
+    """ 超时Waiter """
+
+    def __init__(self, group: Union[int, Group], member: Union[int, Member]):
+        self.group = group if isinstance(group, int) else group.id
+        self.member = (member if isinstance(member, int) else member.id) if member else None
+
+    async def detected_event(self, app: Ariadne, group: Group, member: Member, message: MessageChain):
+        if group.id == self.group and member.id == self.member:
+            return True if re.match(r"[是否]", message.asDisplay()) else False
+
+
+add_keyword_twilight = Twilight([
+    FullMatch(r"添加"), FullMatch("群组", optional=True) @ "group_only",
+    RegexMatch(r"(模糊|正则)", optional=True)  @ "op_type",
+    FullMatch("回复关键词#"), RegexMatch(r"[^\s]+") @ "keyword", FullMatch("#"),
+    WildcardMatch().flags(re.DOTALL) @ "response"
+])
+
+delete_keyword_twilight = Twilight([
+    FullMatch(r"删除"), FullMatch("群组", optional=True) @ "group_only",
+    RegexMatch(r"(模糊|正则)", optional=True)  @ "op_type",
+    FullMatch("回复关键词#"), RegexMatch(r"[^\s]+") @ "keyword"
+])
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[add_keyword_twilight],
+        decorators=[
+            BlackListControl.enable(),
+            Function.require("keyword_respondent", response_administrator=True, log=False)
+        ]
+    )
+)
+async def add_keyword(
+    app: Ariadne,
+    message: MessageChain,
+    group: Group,
+    member: Member,
+    group_only: RegexResult,
+    op_type: RegexResult,
+    keyword: RegexResult,
+    response: RegexResult
+):
+    if not await user_permission_require(group, member, 2):
+        await app.sendGroupMessage(group, MessageChain("权限不足，爬！"), quote=message.getFirst(Source))
+        return
+    op_type = ("regex" if op_type.result.asDisplay() == "正则" else "fuzzy") if op_type.matched else "fullmatch"
+    response = await message_chain_to_json(response.result)
+    keyword = keyword.result.asDisplay()
+    reply_md5 = get_md5(response)
+    if await orm.fetchone(
+        select(
+            KeywordReply
+        ).where(
+            KeywordReply.keyword == keyword.strip(),
+            KeywordReply.reply_type == op_type,
+            KeywordReply.reply_md5 == reply_md5,
+            KeywordReply.group == (group.id if group_only.matched else -1)
+        )
+    ):
+        await app.sendGroupMessage(group, MessageChain("重复添加关键词！进程退出"), quote=message.getFirst(Source))
+        return
+    await orm.add(
+        KeywordReply,
+        {
+            "keyword": keyword,
+            "group": group.id if group_only.matched else -1,
+            "reply_type": op_type,
+            "reply": response,
+            "reply_md5": reply_md5
+        }
+    )
+    if op_type != "fullmatch":
+        regex_list.append(
+            (keyword if op_type == "regex" else f"(.*){keyword}(.*)", reply_md5, group.id if group_only else -1)
+        )
+    await app.sendGroupMessage(group, MessageChain("关键词添加成功！"), quote=message.getFirst(Source))
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[delete_keyword_twilight],
+        decorators=[
+            BlackListControl.enable(),
+            Function.require("keyword_respondent", response_administrator=True, log=False)
+        ]
+    )
+)
+async def delete_keyword(
+    app: Ariadne,
+    message: MessageChain,
+    group: Group,
+    member: Member,
+    group_only: RegexResult,
+    op_type: RegexResult,
+    keyword: RegexResult
+):
+    if not await user_permission_require(group, member, 2):
+        await app.sendGroupMessage(group, MessageChain("权限不足，爬！"), quote=message.getFirst(Source))
+        return
+    op_type = ("regex" if op_type.result.asDisplay() == "正则" else "fuzzy") if op_type.matched else "fullmatch"
+    keyword = keyword.result.asDisplay()
+    if results := await orm.fetchall(
+        select(
+            KeywordReply.reply_type, KeywordReply.reply, KeywordReply.reply_md5
+        ).where(
+            KeywordReply.keyword == keyword
+        )
+    ):
+        replies = list()
+        for result in results:
+            content_type = result[0]
+            content = result[1]
+            content_md5 = result[2]
+            replies.append([content_type, content, content_md5])
+
+        msg = [Plain(text=f"关键词{keyword}目前有以下数据：\n")]
+        for i in range(len(replies)):
+            msg.append(Plain(f"{i + 1}. "))
+            msg.append(("正则" if replies[i][0] == "regex" else "模糊") if replies[i][0] != "fullmatch" else "全匹配")
+            msg.append("匹配\n")
+            msg.extend(json_to_message_chain(replies[i][1]).__root__)
+            msg.append(Plain("\n"))
+        msg.append(Plain(text="请发送你要删除的回复编号"))
+        await app.sendGroupMessage(group, MessageChain.create(msg))
+
+        number = await inc.wait(NumberWaiter(group, member, len(replies)), timeout=30)
+        if number == -1:
+            await app.sendGroupMessage(group, MessageChain("非预期回复，进程退出"), quote=message.getFirst(Source))
+            return
+        await app.sendGroupMessage(
+            group,
+            MessageChain([
+                Plain(text="你确定要删除下列回复吗(是/否)：\n"),
+                Plain(keyword),
+                Plain(text="\n->\n")
+            ]).extend(json_to_message_chain(replies[number - 1][1]))
+        )
+        if await inc.wait(ConfirmWaiter(group, member), timeout=30):
+            await orm.delete(
+                KeywordReply,
+                [
+                    KeywordReply.keyword == keyword,
+                    KeywordReply.reply_md5 == replies[number - 1][2],
+                    KeywordReply.reply_type == replies[number - 1][0],
+                    KeywordReply.group == (group.id if group_only.matched else -1)
+                ]
+            )
+            temp_list = []
+            global regex_list
+            for i in regex_list:
+                if all([
+                    i[0] == keyword if op_type == "regex" else f"(.*){keyword}(.*)",
+                    i[1] == replies[number - 1][2],
+                    i[2] == (-1 if group_only.matched else group.id)
+                ]):
+                    continue
+                temp_list.append(i)
+            regex_list = temp_list
+            await app.sendGroupMessage(group, MessageChain("删除成功"), quote=message.getFirst(Source))
         else:
-            return None
+            await app.sendGroupMessage(group, MessageChain("非预期回复，进程退出"), quote=message.getFirst(Source))
+    else:
+        await app.sendGroupMessage(group, MessageChain("未检测到此关键词数据"), quote=message.getFirst(Source))
 
-    @staticmethod
-    async def keyword_detect(keyword: str):
-        if re.match(r"\[mirai:Image:{\"imageId\": \"{.*}\..*]", keyword):
-            keyword = re.findall(r"\[mirai:Image:{\"imageId\": \"{(.*)}\..*]", keyword, re.S)[0]
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        decorators=[
+            BlackListControl.enable(),
+            Function.require("keyword_respondent", log=False)
+        ]
+    )
+)
+async def keyword_detect(app: Ariadne, message: MessageChain, group: Group):
+    try:
+        add_keyword_twilight.generate(message)
+        delete_keyword_twilight.generate(message)
+    except ValueError:
         if result := list(await orm.fetchall(
-                select(
-                    KeywordReply.reply, KeywordReply.reply_type
-                ).where(
-                    KeywordReply.keyword == keyword
-                )
-        )):
-            reply, reply_type = random.choice(result)
-            return MessageItem(
-                MessageChain.create([
-                    Plain(text=reply) if reply_type == "text" else Image(data_bytes=base64.b64decode(reply))
-                ]),
-                Normal()
-            )
-        else:
-            return None
-
-    @staticmethod
-    async def update_keyword(message: MessageChain, message_serialization: str) -> MessageItem:
-        _, keyword, reply = message_serialization.split("#")
-        keyword = keyword.strip()
-        keyword_type = "text"
-        reply_type = "text"
-        if re.match(r"\[mirai:Image:{\"imageId\": \"{.*}\..*]", keyword):
-            keyword = re.findall(r"\[mirai:Image:{\"imageId\": \"{(.*)}\..*]", keyword, re.S)[0]
-            keyword_type = "img"
-
-        if re.match(r"\[mirai:Image:{\"imageId\": \"{.*}\..*]", reply):
-            reply_type = "img"
-            image: Image = message[Image][0] if keyword_type == "text" else message[Image][1]
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url=image.url) as resp:
-                    content = await resp.read()
-            reply = base64.b64encode(content)
-        else:
-            reply = reply.encode("utf-8")
-
-        m = hashlib.md5()
-        m.update(reply)
-        reply_md5 = m.hexdigest()
-
-        try:
-            if result := await orm.fetchone(select(KeywordReply).where(KeywordReply.keyword == keyword, KeywordReply.reply_type == reply_type, KeywordReply.reply_md5 == reply_md5)):
-                print(result)
-                return MessageItem(MessageChain.create([Plain(text=f"重复添加关键词！进程退出")]), Normal())
-            else:
-                await orm.add(
-                    KeywordReply,
-                    {"keyword": keyword, "reply": reply, "reply_type": reply_type, "reply_md5": reply_md5}
-                )
-                return MessageItem(MessageChain.create([Plain(text=f"关键词添加成功！")]), Normal())
-        except:
-            logger.error(traceback.format_exc())
-            return MessageItem(MessageChain.create([Plain(text="发生错误！请查看日志！")]), Normal())
-
-    @staticmethod
-    async def delete_keyword(app: Ariadne, message_serialization: str, group: Group, member: Member):
-        try:
-            _, keyword = message_serialization.split("#")
-        except ValueError:
-            return MessageItem(
-                MessageChain.create([
-                    Plain(text="设置格式：\n添加关键词#关键词/图片#回复文本/图片\n"),
-                    Plain(text="注：目前不支持文本中含有#！")
-                ]),
-                QuoteSource()
-            )
-        keyword = keyword.strip()
-        if re.match(r"\[mirai:Image:{\"imageId\": \"{.*}\..*]", keyword):
-            keyword = re.findall(r"\[mirai:Image:{\"imageId\": \"{(.*)}\..*]", keyword, re.S)[0]
-
-        if results := await orm.fetchall(
             select(
-                KeywordReply.reply_type, KeywordReply.reply, KeywordReply.reply_md5
+                KeywordReply.reply
             ).where(
-                KeywordReply.keyword == keyword
+                KeywordReply.keyword == message.asDisplay(),
+                KeywordReply.group.in_((-1, group.id))
             )
-        ):
-            replies = list()
-            for result in results:
-                content_type = result[0]
-                content = result[1]
-                content_md5 = result[2]
-                replies.append([content_type, content, content_md5])
-
-            msg = [Plain(text=f"关键词{keyword}目前有以下数据：\n")]
-            for i in range(len(replies)):
-                msg.append(Plain(text=f"{i + 1}. "))
-                msg.append(Plain(text=replies[i][1]) if replies[i][0] == "text" else Image(data_bytes=base64.b64decode(replies[i][1])))
-                msg.append(Plain(text="\n"))
-            msg.append(Plain(text="请发送你要删除的回复编号"))
-            try:
-                await app.sendGroupMessage(group, MessageChain.create(msg))
-            except AccountMuted:
-                return None
-
-            inc = InterruptControl(AppCore.get_core_instance().get_bcc())
-
-            @Waiter.create_using_function([GroupMessage])
-            def number_waiter(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
-                if all([
-                    waiter_group.id == group.id,
-                    waiter_member.id == member.id,
-                    waiter_message.asDisplay().isnumeric() and 0 < int(waiter_message.asDisplay()) <= len(replies)
-                ]):
-                    return int(waiter_message.asDisplay())
-                elif all([
-                    waiter_group.id == group.id,
-                    waiter_member.id == member.id
-                ]):
-                    return -1
-
-            number = await inc.wait(number_waiter)
-            if number == -1:
-                return MessageItem(MessageChain.create([Plain(text="非预期回复，进程退出")]), Normal())
-            elif 1 <= number <= len(replies):
-                try:
-                    await app.sendGroupMessage(
-                        group,
-                        MessageChain.create([
-                            Plain(text="你确定要删除下列回复吗(是/否)：\n"),
-                            Plain(text=keyword),
-                            Plain(text="\n->\n"),
-                            Plain(text=replies[number - 1][1]) if replies[number - 1][0] == "text" else Image(data_bytes=base64.b64decode(replies[number - 1][1]))
-                        ])
-                    )
-                except AccountMuted:
-                    return None
-
-            @Waiter.create_using_function([GroupMessage])
-            def confirm_waiter(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
-                if all([
-                    waiter_group.id == group.id,
-                    waiter_member.id == member.id
-                ]):
-                    if re.match(r"[是否]", waiter_message.asDisplay()):
-                        return waiter_message.asDisplay()
-                    else:
-                        return ""
-
-            result = await inc.wait(confirm_waiter)
-            if not result:
-                return MessageItem(MessageChain.create([Plain(text="非预期回复，进程退出")]), Normal())
-            elif result == "是":
-                try:
-                    await orm.delete(
-                        KeywordReply,
-                        [
-                            KeywordReply.keyword == keyword,
-                            KeywordReply.reply_md5 == replies[number - 1][2],
-                            KeywordReply.reply_type == replies[number - 1][0]
-                        ]
-                    )
-                    return MessageItem(MessageChain.create([Plain(text=f"删除成功")]), Normal())
-                except Exception as e:
-                    logger.error(traceback.format_exc())
-                    return MessageItem(MessageChain.create([Plain(text=str(e))]), Normal())
-            else:
-                return MessageItem(MessageChain.create([Plain(text="进程退出")]), Normal())
-
+        )):
+            reply = random.choice(result)
+            await app.sendGroupMessage(group, json_to_message_chain(str(reply[0])))
         else:
-            return MessageItem(MessageChain.create([Plain(text="未检测到此关键词数据！")]), QuoteSource())
+            response_md5 = [i[1] for i in regex_list if re.match(i[0], message.asDisplay()) and i[2] in (-1, group.id)]
+            if response_md5:
+                await app.sendGroupMessage(
+                    group,
+                    json_to_message_chain(
+                        (await orm.fetchone(
+                            select(KeywordReply.reply).where(KeywordReply.reply_md5 == random.choice(response_md5))
+                        ))[0]
+                    )
+                )
+
+
+@channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
+async def regex_init():
+    if result := await orm.fetchall(
+        select(
+            KeywordReply.keyword, KeywordReply.reply_md5, KeywordReply.reply_type, KeywordReply.group
+        ).where(
+            KeywordReply.reply_type.in_(("regex", "fuzzy"))
+        )
+    ):
+        regex_list.extend(list([(i[0] if i[2] == "regex" else f"(.*){i[0]}(.*)", i[1], i[3]) for i in result]))
+
+
+def get_md5(data: str) -> str:
+    m = hashlib.md5()
+    m.update(data.encode("utf-8"))
+    reply_md5 = m.hexdigest()
+    return reply_md5

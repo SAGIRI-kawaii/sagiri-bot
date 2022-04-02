@@ -252,7 +252,7 @@ async def pica_function(
             except Exception as e:
                 logger.error(e)
                 continue
-        await app.sendGroupMessage(group, MessageChain(Forward(nodeList=forward_nodes)))
+        await app.sendGroupMessage(group, MessageChain([Forward(nodeList=forward_nodes)]))
 
     elif operation.result.asDisplay() == "rank":
         rank_time = rank_time.result.asDisplay() if rank_time.matched else "-H24"

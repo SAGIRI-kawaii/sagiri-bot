@@ -1,3 +1,4 @@
+import re
 import json
 import uuid
 import base64
@@ -17,7 +18,7 @@ from graia.ariadne.message.element import Voice, Source
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import FullMatch, WildcardMatch, RegexResult
 
 from tencentcloud.common import credential
 from tencentcloud.tts.v20190823 import tts_client, models
@@ -45,7 +46,7 @@ config = core.get_config()
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("说"), RegexMatch(r"[^\s]+") @ "content"])],
+        inline_dispatchers=[Twilight([FullMatch("说"), WildcardMatch().flags(re.DOTALL) @ "content"])],
         decorators=[
             FrequencyLimit.require("speak", 1),
             Function.require(channel.module),
@@ -60,7 +61,7 @@ async def speak(app: Ariadne, message: MessageChain, group: Group, content: Rege
         if isinstance(voice, str):
             await app.sendGroupMessage(group, MessageChain(voice), quote=message.getFirst(Source))
         elif isinstance(voice, bytes):
-            await app.sendGroupMessage(group, MessageChain([Voice(data_bytes=await silkcoder.encode(voice))]))
+            await app.sendGroupMessage(group, MessageChain([Voice(data_bytes=await silkcoder.async_encode(voice))]))
 
 
 class Speak(object):
@@ -116,7 +117,7 @@ class Speak(object):
                 "ModelType": 1,
                 "VoiceType": int(voice_type),
                 "Volume": 10,
-                "Codec": "wav"
+                # "Codec": "wav"
             }
             req.from_json_string(json.dumps(params))
             resp = client.CreateTtsTask(req)

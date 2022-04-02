@@ -242,8 +242,9 @@ class KeywordReply(Base):
     __tablename__ = "keyword_reply"
 
     keyword = Column(String(length=200), primary_key=True)
+    group = Column(BIGINT, default=-1)
     reply_type = Column(String(length=10), nullable=False)
-    reply = Column(BLOB, nullable=False)
+    reply = Column(Text, nullable=False)
     reply_md5 = Column(String(length=32), primary_key=True)
 
 

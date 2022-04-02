@@ -62,7 +62,7 @@ class Pica:
         self.password = password
         self.header = header.copy()
         self.header["nonce"] = uuid_s
-        loop.run_until_complete(self.check())
+        asyncio.run_coroutine_threadsafe(self.check(), loop)
 
     async def check(self):
         try:
