@@ -3,7 +3,7 @@ beautifulsoup4==4.10.0
 graia-scheduler==0.0.6
 graia-ariadne==0.6.10
 graia-saya==0.0.15
-graiax-silkcoder==0.1.2
+graiax-silkcoder==0.2.0
 fastapi==0.70.1
 imageio==2.13.5
 jieba==0.42.1
@@ -11,7 +11,7 @@ loguru==0.6.0
 matplotlib==3.5.1
 moviepy==1.0.3
 numpy==1.22.0
-Pillow==9.0.1
+Pillow==8.4.0
 pydantic==1.8.2
 python_dateutil==2.8.2
 PyYAML==6.0
@@ -28,3 +28,4 @@ psutil==5.9.0
 pyzipper==0.3.5
 python-dateutil==2.8.2
 bs4==0.0.1
+aiofiles==0.8.0
