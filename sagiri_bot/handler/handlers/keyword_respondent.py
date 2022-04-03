@@ -103,7 +103,7 @@ async def add_keyword(
     op_type = ("regex" if op_type.result.asDisplay() == "正则" else "fuzzy") if op_type.matched else "fullmatch"
     response = await message_chain_to_json(response.result)
     keyword = keyword.result.asDisplay()
-    reply_md5 = get_md5(response)
+    reply_md5 = get_md5(response + str(group.id))
     if await orm.fetchone(
         select(
             KeywordReply
