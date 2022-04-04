@@ -48,7 +48,7 @@ config = core.get_config()
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight([FullMatch("说"), WildcardMatch().flags(re.DOTALL) @ "content"])],
         decorators=[
-            FrequencyLimit.require("speak", 1),
+            FrequencyLimit.require("speak", 2),
             Function.require(channel.module),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
