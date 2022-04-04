@@ -147,7 +147,7 @@ async def pica_function(
             senderId=bot_qq,
             time=time_base + timedelta(seconds=time_count),
             senderName="纱雾酱",
-            messageChain=MessageChain.create(Plain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！"))
+            messageChain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！")
         )]
         for path in image_list:
             node_count += 1
@@ -157,24 +157,24 @@ async def pica_function(
                     senderId=bot_qq,
                     time=time_base + timedelta(seconds=time_count),
                     senderName="纱雾酱",
-                    messageChain=MessageChain.create(
+                    messageChain=MessageChain([
                         Image(path=path),
                         Plain(f"\n{path.replace(info[0], '')}\n{time_base + timedelta(seconds=time_count)}")
-                    )
+                    ])
                 )
             )
             if node_count == 20:
-                await app.sendMessage(group, MessageChain.create(Forward(nodeList=forward_nodes)))
+                await app.sendMessage(group, MessageChain([Forward(nodeList=forward_nodes)]))
                 forward_nodes = [
                     ForwardNode(
                         senderId=bot_qq,
                         time=time_base + timedelta(seconds=time_count),
                         senderName="纱雾酱",
-                        messageChain=MessageChain.create(Plain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！"))
+                        messageChain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！")
                     )
                 ]
                 node_count = 0
-        await app.sendGroupMessage(group, MessageChain(Forward(nodeList=forward_nodes)))
+        await app.sendGroupMessage(group, MessageChain([Forward(nodeList=forward_nodes)]))
 
     elif operation.result.asDisplay() == "download" and message_type.matched and content.matched:
         comic_id = content.result.asDisplay()
@@ -281,7 +281,7 @@ async def pica_function(
                         messageChain=MessageChain([
                             Image(data_bytes=TextEngine(
                                 [GraiaAdapter(
-                                    MessageChain.create([
+                                    MessageChain([
                                         await get_thumb(comic_info),
                                         Plain(text=f"\n排名：{rank}\n"),
                                         Plain(text=f"名称：{comic_info['title']}\n"),
@@ -306,7 +306,7 @@ async def pica_function(
             except Exception as e:
                 logger.error(e)
                 continue
-        await app.sendGroupMessage(group, MessageChain(Forward(nodeList=forward_nodes)))
+        await app.sendGroupMessage(group, MessageChain([Forward(nodeList=forward_nodes)]))
 
 
 async def get_thumb(comic_info: dict) -> Image:
