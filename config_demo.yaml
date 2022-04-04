@@ -2,7 +2,7 @@
 bot_qq: bot_qq
 host_qq: host_qq
 mirai_host: http://localhost:23456
-verify_key: verify_key
+verify_key: !!str 1234567890
 db_link: sqlite+aiosqlite:///data.db
 web_manager_api: true
 web_manager_auto_boot: true

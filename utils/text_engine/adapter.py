@@ -1,3 +1,4 @@
+import os
 import requests
 from abc import ABC
 from pathlib import Path
@@ -11,7 +12,7 @@ from graia.ariadne.message.element import Plain, At, AtAll, Element
 from .elements import Text, Image, TextType
 from .util import get_font
 
-DEFAULT_FONT = "STKAITI.TTF"
+DEFAULT_FONT = str(Path(os.getcwd()) / "statics" / "fonts" / "STKAITI.TTF")
 
 
 class AbstractAdapter(ABC):
