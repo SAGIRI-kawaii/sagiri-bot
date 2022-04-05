@@ -9,9 +9,8 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from sagiri_bot.orm.async_orm import orm
+from sagiri_bot.orm.async_orm import ChatRecord
 from sagiri_bot.control import UserCalledCountControl
-from sagiri_bot.utils import update_user_call_count_plus
-from sagiri_bot.orm.async_orm import UserCalledCount, ChatRecord
 
 saya = Saya.current()
 channel = Channel.current()
