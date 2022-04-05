@@ -1,0 +1,60 @@
+# 必要数据及设置
+bot_qq: bot_qq
+host_qq: host_qq
+mirai_host: http://localhost:8080
+verify_key: !!str 1234567890
+db_link: sqlite+aiosqlite:///data.db
+web_manager_api: true
+web_manager_auto_boot: true
+proxy: proxy
+
+# 路径相关
+image_path:
+  setu: setu
+  setu18: setu18
+  real: real
+  real_highq: real_highq
+  bizhi: bizhi
+  sketch: sketch
+
+# 功能相关
+functions:
+  tencent:
+    secret_id: secret_id
+    secret_key: secret_key
+  saucenao_api_key: saucenao_api_key
+  wolfram_alpha_key: wolfram_alpha_key
+  shadiao_app_name: shadiao_app_name
+  github:
+    username: username
+    token: token
+  pica:
+    username: username
+    password: password
+    download_cache: true
+    search_cache: true
+    daily_download_limit: 1
+    daily_search_limit: 1
+    daily_random_limit: 1
+    daily_rank_limit: 1
+    compress_password: i_luv_sagiri
+
+# 日志相关
+log_related:
+  error_retention: 14
+  common_retention: 7
+
+# 数据相关
+data_related:
+  lolicon_image_cache: true
+  lolicon_data_cache: true
+  network_data_cache: true
+  automatic_update: false
+  data_retention: true
+
+# 数据库相关
+database_related:
+  mysql:
+    disable_pooling: false
+    pool_size: 40
+    max_overflow: 60

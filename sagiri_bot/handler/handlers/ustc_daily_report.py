@@ -84,7 +84,7 @@ class USTCDailyReport:
                 Plain(text="查看个人信息：发送 “我的信息” 即可\n\n"),
                 Plain(text="更改个人信息：发送 “更改属性 属性名 属性值” 即可\n\n"),
                 Plain(text="如：更改属性 学号 PB19060000 \n"),
-                Plain(text="合法属性如下：学号、密码、现居地、宿舍楼、宿舍号、紧急联系人、与本人关系、联系人电话、是否出校报备、目的地\n\n"),
+                Plain(text="合法属性如下：学号、密码、现居地、宿舍楼、宿舍号、紧急联系人、与本人关系、联系人电话、是否出校报备、目的地、跨校区原因\n\n"),
                 Plain(text="开启自动打卡：发送 “添加任务” 即可\n\n"),
                 Plain(text="停止自动打卡：发送 “移除任务” 即可\n\n"),
                 Plain(text="清空个人数据：发送 “删除信息” 即可\n\n"),
@@ -93,7 +93,7 @@ class USTCDailyReport:
 
     @staticmethod
     async def data_empty_check(friend: Union[int, Friend]) -> Union[MessageChain, None]:
-        attr_name = ("学号", "密码", "现居地","宿舍楼", "宿舍号", "紧急联系人", "与本人关系", "联系人电话", "是否出校报备", "目的地")
+        attr_name = ("学号", "密码", "现居地","宿舍楼", "宿舍号", "紧急联系人", "与本人关系", "联系人电话", "是否出校报备", "目的地", "跨校区原因")
         friend = friend if isinstance(friend, int) else friend.id
         if res := await orm.fetchone(
             select(
@@ -106,12 +106,13 @@ class USTCDailyReport:
                 USTCAccountInfo.jinji_guanxi,
                 USTCAccountInfo.jiji_mobile,
                 USTCAccountInfo.ischuxiao,
-                USTCAccountInfo.return_college
+                USTCAccountInfo.return_college,
+                USTCAccountInfo.reason
             ).where(
                 USTCAccountInfo.qq == friend
             )
         ):
-            empty_list = [attr_name[i] for i in range(10) if not res[i]]
+            empty_list = [attr_name[i] for i in range(11) if not res[i]]
             if empty_list:
                 return MessageChain.create([
                     Plain(text=f"您的信息不全，请补充下列信息：{'、'.join(empty_list)}\n"),
@@ -135,7 +136,7 @@ class USTCDailyReport:
 
     @staticmethod
     async def show_account_info(friend: Union[int, Friend]) -> MessageChain:
-        attr_name = ("学号", "密码", "现居地", "宿舍楼", "宿舍号", "紧急联系人", "与本人关系", "联系人电话", "是否出校报备", "目的地")
+        attr_name = ("学号", "密码", "现居地", "宿舍楼", "宿舍号", "紧急联系人", "与本人关系", "联系人电话", "是否出校报备", "目的地", "跨校区原因")
         friend = friend if isinstance(friend, int) else friend.id
         result = await orm.fetchone(
             select(
@@ -148,14 +149,15 @@ class USTCDailyReport:
                 USTCAccountInfo.jinji_guanxi,
                 USTCAccountInfo.jiji_mobile,
                 USTCAccountInfo.ischuxiao,
-                USTCAccountInfo.return_college
+                USTCAccountInfo.return_college,
+                USTCAccountInfo.reason
             ).where(
                 USTCAccountInfo.qq == friend
             )
         )
         return MessageChain.create([
             Plain(text="您的信息如下\n"),
-            Plain(text='\n'.join([f"{attr_name[i]}：{result[i] if result[i] else 'None'}" for i in range(10)])),
+            Plain(text='\n'.join([f"{attr_name[i]}：{result[i] if result[i] else 'None'}" for i in range(11)])),
             Plain(text="\n若想更改请使用以下命令：\n更改属性 属性名 属性值\n"),
             Plain(text="如：更改属性 学号 PB19060000\n"),
             Plain(text="注：请仔细检查信息，错误信息会导致打卡失效！")
@@ -176,7 +178,8 @@ class USTCDailyReport:
                 USTCAccountInfo.jinji_guanxi,
                 USTCAccountInfo.jiji_mobile,
                 USTCAccountInfo.ischuxiao,
-                USTCAccountInfo.return_college
+                USTCAccountInfo.return_college,
+                USTCAccountInfo.reason
             ).where(
                 USTCAccountInfo.qq == friend
             )
@@ -191,8 +194,9 @@ class USTCDailyReport:
             "jinji_lxr": result[5],
             "jinji_guanxi": result[6],
             "jiji_mobile": result[7],
-            "ischuxiao":result[8],
-            "return_college":result[9]
+            "ischuxiao": result[8],
+            "return_college": result[9],
+            "reason": result[10]
         }
 
     @staticmethod
@@ -207,7 +211,8 @@ class USTCDailyReport:
             "与本人关系": "jinji_guanxi",
             "联系人电话": "jiji_mobile",
             "是否出校报备": "ischuxiao",
-            "目的地": "return_college"
+            "目的地": "return_college",
+            "跨校区原因": "reason"
         }
         if attribute not in attr_name_tbname.keys():
             return MessageChain.create([Plain(text=f"非法属性名!\n合法属性名：{'、'.join(attr_name_tbname.keys())}")])
@@ -339,7 +344,7 @@ def report_health(response: requests.Response, user_data: dict, session: request
 
     if user_data['ischuxiao'] == '是':
         now = datetime.datetime.now()
-        if int(now.strftime("H")) > 12:
+        if int(now.strftime("%H")) >= 20:
             x = re.search(r"""<input.*?name="_token".*?>""", response.text).group(0)
             token = re.search(r'value="(\w*)"', x).group(1)
 
@@ -350,7 +355,8 @@ def report_health(response: requests.Response, user_data: dict, session: request
                 "start_date": start_date,
                 "end_date": end_date,
                 "return_college[]": user_data['return_college'].split(),
-                "t": "3",
+                "reason": user_data['reason'],
+                "t": "3"
             }
             response = session.post("https://weixine.ustc.edu.cn/2020/apply/daliy/post", data=payload)
             if response.status_code != 200:
@@ -367,7 +373,7 @@ def one() -> str:
     """
     url = "https://v1.hitokoto.cn/"
     res = requests.get(url).json()
-    return res["hitokoto"] + "\n    ----" + res["from"]
+    return res["hitokoto"] + "\n----" + res["from"]
 
 
 def report_task(user_data: dict):

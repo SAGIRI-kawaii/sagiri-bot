@@ -37,7 +37,7 @@ loop = core.get_loop()
 config = core.get_config()
 proxy = config.proxy if config.proxy != "proxy" else ''
 
-channel.name("self")
+channel.name("GithubWatcher")
 channel.author("nullqwertyuiop")
 channel.description("/github-watch enable [3级权限]\n"
                     "/github-watch disable [3级权限]\n"
