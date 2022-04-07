@@ -41,6 +41,7 @@ channel.description("一个网络编译器插件，在群中发送 `super langua
 async def network_compiler(app: Ariadne, message: MessageChain, group: Group, language: RegexResult, code: RegexResult):
     if not await group_setting.get_setting(group.id, Setting.compile):
         await app.sendGroupMessage(group, MessageChain("网络编译器功能关闭了呐~去联系管理员开启吧~"))
+        return
     language = language.result.asDisplay()
     code = code.result.asDisplay()
     result = await get_result(language, code)
