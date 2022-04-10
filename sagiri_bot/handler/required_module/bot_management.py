@@ -1,7 +1,8 @@
 import re
 
 from graia.saya import Saya, Channel
-from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.chain import MessageChain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
@@ -27,17 +28,18 @@ channel.description("bot管理插件，必要插件，请勿卸载！否则会�
         ]
     )
 )
-async def bot_manager_handler(message: MessageChain, group: Group, member: Member):
+async def bot_manager_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     message_text = message.asDisplay()
     if message_text.startswith("setting -set "):
-        return await execute_setting_update(group, member, message_text)
+        msg = await execute_setting_update(group, member, message_text)
     elif re.match(r"user -grant @[1-9][0-9]{4,14} .*", message_text):
-        return await execute_grant_permission(group, member, message_text)
+        msg = await execute_grant_permission(group, member, message_text)
     elif re.match(r"blacklist -add @[1-9][0-9]{4,14}", message_text):
-        return await execute_blacklist_append(int(message_text[16:]), group, member)
+        msg = await execute_blacklist_append(int(message_text[16:]), group, member)
     elif re.match(r"blacklist -add -all @[1-9][0-9]{4,14}", message_text):
-        return await execute_blacklist_append(int(message_text[16:]), group, member)
+        msg = await execute_blacklist_append(int(message_text[16:]), group, member)
     elif re.match(r"blacklist -remove @[1-9][0-9]{4,14}", message_text):
-        return await execute_blacklist_remove(int(message_text[19:]), group, member)
+        msg = await execute_blacklist_remove(int(message_text[19:]), group, member)
     else:
         return None
+    await app.sendGroupMessage(group, msg, quote=message.getFirst(Source))

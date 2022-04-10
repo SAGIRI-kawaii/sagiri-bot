@@ -4,7 +4,6 @@ from typing import Union
 from loguru import logger
 from sqlalchemy import select
 
-from graia.ariadne.message.element import Plain
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import Group, Member
 
@@ -12,8 +11,6 @@ from .commands import *
 from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.utils import group_setting
 from sagiri_bot.utils import user_permission_require
-from sagiri_bot.message_sender.message_sender import MessageItem
-from sagiri_bot.message_sender.strategy import Normal, QuoteSource
 from sagiri_bot.orm.async_orm import Setting, UserPermission, BlackList
 
 
@@ -35,7 +32,7 @@ def camel_to_underscore(s: str) -> str:
     return result.lower()
 
 
-async def execute_setting_update(group: Group, member: Member, command: str) -> MessageItem:
+async def execute_setting_update(group: Group, member: Member, command: str) -> MessageChain:
     """
         setting -set setu=True real=True
         多命令执行
@@ -79,33 +76,33 @@ async def execute_setting_update(group: Group, member: Member, command: str) -> 
         response_text += "\n\n失败命令："
         for i in error_commands:
             response_text += f"\n{i[0]} | {i[1]}"
-    return MessageItem(MessageChain.create([Plain(text=response_text)]), Normal())
+    return MessageChain(response_text)
 
 
-async def execute_grant_permission(group: Group, member: Member, message_text: str) -> MessageItem:
+async def execute_grant_permission(group: Group, member: Member, message_text: str) -> MessageChain:
     if await user_permission_require(group, member, 3):
         message_text = message_text[13:]
         try:
             target, level = message_text.split(" ")
         except ValueError:
-            return MessageItem(MessageChain.create([Plain("格式错误！使用方法：user -grant @user level[1-3]")]), QuoteSource())
+            return MessageChain("格式错误！使用方法：user -grant @user level[1-3]")
         target = int(target)
         if level.isdigit():
             level = int(level)
             if member.id == target and level != 4 and await user_permission_require(group, member, 4):
-                return MessageItem(MessageChain.create([Plain(text="怎么有master想给自己改权限欸？纱雾很关心你呢~快去脑科看看吧！")]), QuoteSource())
+                return MessageChain("怎么有master想给自己改权限欸？纱雾很关心你呢~快去脑科看看吧！")
             if 1 <= level <= 2:
                 if result := await orm.fetchone(select(UserPermission.level).where(UserPermission.group_id == group.id, UserPermission.member_id == target)):
                     if result[0] == 4:
                         if await user_permission_require(group, member, 4):
-                            return MessageItem(MessageChain.create([Plain(text="就算是master也不能修改master哦！（怎么会有两个master，怪耶）")]),QuoteSource())
+                            return MessageChain("就算是master也不能修改master哦！（怎么会有两个master，怪耶）")
                         else:
-                            return MessageItem(MessageChain.create([Plain(text="master level 不可更改！若想进行修改请直接修改数据库！")]), QuoteSource())
+                            return MessageChain("master level 不可更改！若想进行修改请直接修改数据库！")
                     if result[0] == 3:
                         if await user_permission_require(group, member, 4):
                             return await grant_permission_process(group.id, target, level)
                         else:
-                            return MessageItem(MessageChain.create([Plain(text="权限不足，你必须达到权限等级4(master level)才可对超级管理员权限进行修改！")]), QuoteSource())
+                            return MessageChain("权限不足，你必须达到权限等级4(master level)才可对超级管理员权限进行修改！")
                     else:
                         return await grant_permission_process(group.id, target, level)
                 else:
@@ -114,20 +111,20 @@ async def execute_grant_permission(group: Group, member: Member, message_text: s
                 if await user_permission_require(group, member, 4):
                     return await grant_permission_process(group.id, target, level)
                 else:
-                    return MessageItem(MessageChain.create([Plain(text="格式错误！权限不足，你必须达到权限等级4(master level)才可对超级管理员进行授权！")]), Normal())
+                    return MessageChain("格式错误！权限不足，你必须达到权限等级4(master level)才可对超级管理员进行授权！")
             else:
-                return MessageItem(MessageChain.create([Plain("level值非法！合法level值：1-3\n1: user\n2: administrator\n3: super administrator")]), QuoteSource())
+                return MessageChain("level值非法！合法level值：1-3\n1: user\n2: administrator\n3: super administrator")
         else:
-            return MessageItem(MessageChain.create([Plain("格式错误！使用方法：user -grant @user level[1-3]")]), QuoteSource())
+            return MessageChain("格式错误！使用方法：user -grant @user level[1-3]")
     else:
-        return MessageItem(MessageChain.create([Plain(text="权限不足，爬!")]), QuoteSource())
+        return MessageChain("权限不足，爬!")
 
 
-async def grant_permission_process(group_id: int, member_id: int, new_level: int) -> MessageItem:
+async def grant_permission_process(group_id: int, member_id: int, new_level: int) -> MessageChain:
     if await grant_permission(group_id, member_id, new_level):
-        return MessageItem(MessageChain.create([Plain(text=f"修改成功！\n{member_id} permission level: {new_level}")]), Normal())
+        return MessageChain(f"修改成功！\n{member_id} permission level: {new_level}")
     else:
-        return MessageItem(MessageChain.create([Plain(text="出现错误，请查看日志！")]), QuoteSource())
+        return MessageChain("出现错误，请查看日志！")
 
 
 async def grant_permission(group_id: int, member_id: int, new_level: int) -> bool:
@@ -143,15 +140,12 @@ async def grant_permission(group_id: int, member_id: int, new_level: int) -> boo
         return False
 
 
-async def execute_blacklist_append(member_id: int, group: Group, operator: Member) -> MessageItem:
+async def execute_blacklist_append(member_id: int, group: Group, operator: Member) -> MessageChain:
     try:
         if not await user_permission_require(group, operator, 2):
-            return MessageItem(MessageChain.create([Plain(text="权限不足，爬！")]), QuoteSource())
+            return MessageChain("权限不足，爬！")
         if await check_admin(member_id, group):
-            return MessageItem(
-                MessageChain.create([Plain(text="用户权限等级>=2的用户无法被加入黑名单！若想将其加入黑名单请先将其权限等级将为1！")]),
-                QuoteSource()
-            )
+            return MessageChain("用户权限等级>=2的用户无法被加入黑名单！若想将其加入黑名单请先将其权限等级将为1！")
         if await orm.fetchone(
             select(
                 BlackList.member_id, BlackList.group_id
@@ -160,22 +154,22 @@ async def execute_blacklist_append(member_id: int, group: Group, operator: Membe
                 BlackList.group_id == group.id
             )
         ):
-            return MessageItem(MessageChain.create([Plain(text=f"{member_id} 已经在本群黑名单中了！")]), QuoteSource())
+            return MessageChain(f"{member_id} 已经在本群黑名单中了！")
         await orm.insert_or_ignore(
             BlackList,
             [BlackList.member_id == member_id, BlackList.group_id == group.id],
             {"member_id": member_id, "group_id": group.id}
         )
-        return MessageItem(MessageChain.create([Plain(text=f"{member_id} 添加本群黑名单成功")]), QuoteSource())
+        return MessageChain(f"{member_id} 添加本群黑名单成功")
     except Exception as e:
         logger.error(traceback.format_exc())
-        return MessageItem(MessageChain.create([Plain(text=str(e))]), QuoteSource())
+        return MessageChain(str(e))
 
 
-async def execute_blacklist_remove(member_id: int, group: Group, operator: Member) -> MessageItem:
+async def execute_blacklist_remove(member_id: int, group: Group, operator: Member) -> MessageChain:
     try:
         if not await user_permission_require(group, operator, 2):
-            return MessageItem(MessageChain.create([Plain(text="权限不足，爬！")]), QuoteSource())
+            return MessageChain("权限不足，爬！")
         if not await orm.fetchone(
             select(
                 BlackList.member_id, BlackList.group_id
@@ -184,15 +178,15 @@ async def execute_blacklist_remove(member_id: int, group: Group, operator: Membe
                 BlackList.group_id == group.id
             )
         ):
-            return MessageItem(MessageChain.create([Plain(text=f"{member_id} 不在本群黑名单中！")]), QuoteSource())
+            return MessageChain(f"{member_id} 不在本群黑名单中！")
         await orm.delete(
             BlackList,
             [BlackList.member_id == member_id, BlackList.group_id == group.id]
         )
-        return MessageItem(MessageChain.create([Plain(text=f"{member_id} 移除本群黑名单成功")]), QuoteSource())
+        return MessageChain(f"{member_id} 移除本群黑名单成功")
     except Exception as e:
         logger.error(traceback.format_exc())
-        return MessageItem(MessageChain.create([Plain(text=str(e))]), QuoteSource())
+        return MessageChain(str(e))
 
 
 async def check_admin(member: Union[int, Member], group: Union[int, Group]) -> bool:
