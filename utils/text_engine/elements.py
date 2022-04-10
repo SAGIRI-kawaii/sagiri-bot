@@ -1,3 +1,4 @@
+import os
 import PIL.Image
 from io import BytesIO
 from pathlib import Path
@@ -10,7 +11,7 @@ from typing import Optional, Union, Tuple, List, Any
 from .util import get_font
 from .model import TextType
 
-DEFAULT_FONT = "STKAITI.TTF"
+DEFAULT_FONT = str(Path(os.getcwd()) / "statics" / "fonts" / "STKAITI.TTF")
 
 
 class AbstractElement(ABC):

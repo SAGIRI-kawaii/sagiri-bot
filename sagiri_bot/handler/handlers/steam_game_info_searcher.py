@@ -9,7 +9,7 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import FullMatch, WildcardMatch, RegexResult
 
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
@@ -29,7 +29,7 @@ proxy = config.proxy if config.proxy != "proxy" else ''
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("steam"), RegexMatch(r"[^\s]+") @ "keyword"])],
+        inline_dispatchers=[Twilight([FullMatch("steam"), WildcardMatch().flags(re.DOTALL) @ "keyword"])],
         decorators=[
             FrequencyLimit.require("steam_game_info_searcher", 2),
             Function.require(channel.module),

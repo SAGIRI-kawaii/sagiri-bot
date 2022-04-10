@@ -130,10 +130,10 @@ class Wordle(object):
             return None
         if not self.legal_word(word):
             return False, False, False, False, self.board
-        elif word in self.guess_word:
+        elif word.lower() in self.guess_word:
             return False, False, True, True, self.board
         else:
-            self.guess_word.append(word)
+            self.guess_word.append(word.lower())
             self.draw(word)
             return self.current_row == self.row or self.correct_word(word), self.correct_word(word), True, False, self.board
 
