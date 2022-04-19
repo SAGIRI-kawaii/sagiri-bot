@@ -29,7 +29,7 @@ channel = Channel.current()
 
 channel.name("ColorCard")
 channel.author("SAGIRI-kawaii")
-channel.description("一个获取图片色卡的插件，在群中发送 `/色卡 [-s={size}] [-m=(below|center|pure)] 图片` 即可")
+channel.description("一个获取图片色卡的插件，在群中发送 `/色卡 -s={size} -m={mode} -t {图片/@成员/qq号/回复有图片的消息}` 即可")
 
 loop = AppCore.get_core_instance().get_loop()
 bcc = saya.broadcast
@@ -43,13 +43,14 @@ inc = InterruptControl(bcc)
             Twilight([
                 RegexMatch(r"/?色卡"),
                 ArgumentMatch("-h", "-help", optional=True, action="store_true") @ "help",
-                RegexMatch(r"-(s|size)=[1-9][0-9]+", optional=True) @ "size",
+                RegexMatch(r"-(s|size)=[0-9]+", optional=True) @ "size",
                 RegexMatch(r"-(m|mode)=\w+", optional=True) @ "mode",
                 RegexMatch(r"-(t|text)", optional=True) @ "text",
                 RegexMatch(r"[\n\r]?", optional=True),
                 ElementMatch(Image, optional=True) @ "image",
                 ElementMatch(At, optional=True) @ "at",
-                RegexMatch(r"[1-9][0-9]+", optional=True) @ "qq"
+                RegexMatch(r"[1-9][0-9]+", optional=True) @ "qq",
+                RegexMatch(r"[\n\r]?", optional=True)
             ])
         ],
         decorators=[
@@ -93,6 +94,9 @@ async def color_card(
         )
         return
     size = int(size.result.asDisplay().split('=')[1].strip()) if size.matched else 5
+    if size == 0:
+        await app.sendGroupMessage(group, MessageChain("蛤？size为0我还给你什么色卡阿，爪巴巴！"), quote=source)
+        return
     if mode.matched:
         mode = mode.result.asDisplay().split('=')[1].strip().lower()
         if mode == "center":
