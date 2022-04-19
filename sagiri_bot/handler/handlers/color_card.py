@@ -16,8 +16,8 @@ from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Image, Source, Plain, At
 from graia.ariadne.event.message import Group, GroupMessage, Member
+from graia.ariadne.message.element import Image, Source, Plain, At, Quote
 from graia.ariadne.message.parser.twilight import ElementMatch, RegexMatch, ElementResult, RegexResult, ArgumentMatch
 
 from sagiri_bot.core.app_core import AppCore
@@ -79,15 +79,15 @@ async def color_card(
             group,
             MessageChain(
                 "ColorCard色卡插件\n"
-                "在群中发送 `/色卡 {图片/@成员/qq号}` 即可\n"
+                "在群中发送 `/色卡 {图片/@成员/qq号/回复有图片的消息}` 即可\n"
                 "可选参数：\n"
-                "   -s/-size：色卡颜色个数，在群中发送 `/色卡 -s={size} {图片/@成员/qq号}` 即可\n"
-                "   -m/-mode：色卡形式，在群中发送 `/色卡 -s={size} {图片/@成员/qq号}` 即可，默认值为center，可选值及说明如下：\n"
+                "   -s/-size：色卡颜色个数，在群中发送 `/色卡 -s={size} {图片/@成员/qq号/回复有图片的消息}` 即可，默认值为5\n"
+                "   -m/-mode：色卡形式，在群中发送 `/色卡 -s={size} {图片/@成员/qq号/回复有图片的消息}` 即可，默认值为center，可选值及说明如下：\n"
                 "       pure：纯颜色\n"
                 "       below：在下方添加方形色块\n"
                 "       center：在图片中央添加圆形色块\n"
-                "   -t/-text：是否在下方附加色块RGB即十六进制值文本，在群中发送 `/色卡 -t {图片/@成员/qq号}` 即可\n"
-                "上述参数可同步使用，并按照 -s、-m、-t的顺序添加，如 `/色卡 -s=10 -m=pure -t {图片/@成员/qq号}`"
+                "   -t/-text：是否在下方附加色块RGB即十六进制值文本，在群中发送 `/色卡 -t {图片/@成员/qq号/回复有图片的消息}` 即可\n"
+                "上述参数可同步使用，并按照 -s、-m、-t的顺序添加，如 `/色卡 -s=10 -m=pure -t {图片/@成员/qq号/回复有图片的消息}`"
             ),
             quote=source
         )
@@ -123,6 +123,8 @@ async def color_card(
         url = f'http://q1.qlogo.cn/g?b=qq&nk={at.result.target if at.matched else qq.result.asDisplay().strip()}&s=640'
         async with get_running(Adapter).session.get(url=url) as resp:
             image_bytes = await resp.read()
+    elif message.getFirst(Quote) and (await app.getMessageFromId(message.getFirst(Quote).id)).messageChain.get(Image):
+        image_bytes = await (await app.getMessageFromId(message.getFirst(Quote).id)).messageChain.getFirst(Image).get_bytes()
     else:
         try:
             await app.sendMessage(group, MessageChain("请在30s内发送要处理的图片"), quote=source)
