@@ -77,7 +77,7 @@ async def member_unmute_event(app: Ariadne, group: Group, event: MemberUnmuteEve
             return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
-                Plain(text="啊嘞嘞？%s被放出来了呢~" % event.member.name)
+                Plain(text=f"啊嘞嘞？{event.member.name}被放出来了呢~")
             ])
         )
     except AccountMuted:
@@ -212,8 +212,8 @@ async def member_card_change_event(app: Ariadne, group: Group, event: MemberCard
                 await app.sendMessage(
                     group, MessageChain.create([
                         Plain(
-                            f"啊嘞嘞？{event.member.name}的群名片被{event.operator.name}"
-                            f"从{event.origin}改为{event.current}了呢！"
+                            f"啊嘞嘞？{event.origin}的群名片被{event.operator.name}"
+                            f"改为{event.current}了呢！"
                         )
                     ])
                 )
@@ -223,7 +223,7 @@ async def member_card_change_event(app: Ariadne, group: Group, event: MemberCard
             else:
                 await app.sendMessage(
                     group, MessageChain.create([
-                        Plain(text=f"啊嘞嘞？{event.member.name}的群名片从{event.origin}改为{event.current}了呢！")
+                        Plain(text=f"啊嘞嘞？{event.origin}的群名片改为{event.current}了呢！")
                     ])
                 )
     except AccountMuted:
