@@ -29,7 +29,7 @@ channel = Channel.current()
 
 channel.name("ColorCard")
 channel.author("SAGIRI-kawaii")
-channel.description("一个获取图片色卡的插件，在群中发送 `/色卡 -s={size} -m={mode} -t {图片/@成员/qq号/回复有图片的消息}` 即可")
+channel.description("一个获取图片色卡的插件，在群中发送 `/色卡 -s={size} -m={mode} -t {图片/@成员/qq号/回复有图片的消息}` 即可，发送 `/色卡 -h` 查看帮助")
 
 loop = AppCore.get_core_instance().get_loop()
 bcc = saya.broadcast
@@ -87,7 +87,9 @@ async def color_card(
                 "   -m/-mode：色卡形式，在群中发送 `/色卡 -s={size} {图片/@成员/qq号/回复有图片的消息}` 即可，默认值为center，可选值及说明如下：\n"
                 "       pure：纯颜色\n"
                 "       below：在下方添加方形色块\n"
-                "       center：在图片中央添加圆形色块\n"
+                "       center：在图片中央添加圆形色块（自适应，若图片长>宽则为center_horizon，反之则为center_vertical）\n"
+                "       center_horizon：在图片中央水平添加圆形色块\n"
+                "       center_vertical：在图片中央垂直添加圆形色块\n"
                 "   -t/-text：是否在下方附加色块RGB即十六进制值文本，在群中发送 `/色卡 -t {图片/@成员/qq号/回复有图片的消息}` 即可\n"
                 "上述参数可同步使用，并按照 -s、-m、-t的顺序添加，如 `/色卡 -s=10 -m=pure -t {图片/@成员/qq号/回复有图片的消息}`"
             ),
@@ -103,14 +105,20 @@ async def color_card(
         return
     if mode.matched:
         mode = mode.result.asDisplay().split('=')[1].strip().lower()
-        if mode == "center":
-            mode = CardType.CENTER
+        if mode == "center_vertical":
+            mode = CardType.CENTER_VERTICAL
+        elif mode == "center_horizon":
+            mode = CardType.CENTER_HORIZON
         elif mode == "pure":
             mode = CardType.PURE
         elif mode == "below":
             mode = CardType.BELOW_BLOCK
         else:
-            await app.sendGroupMessage(group, MessageChain("mode参数错误！合法的参数如下：center、pure、below"), quote=source)
+            await app.sendGroupMessage(
+                group,
+                MessageChain("mode参数错误！合法的参数如下：center_vertical、center_horizon、center、pure、below"),
+                quote=source
+            )
             return
     else:
         mode = CardType.CENTER
@@ -165,8 +173,9 @@ class CardType(Enum):
     PURE = "纯色卡"
     BELOW_BLOCK = "在下方添加方块"
     BELOW_LINE = "在下方添加横行"
-    CENTER = "图片中央垂直添加圆形色块"
+    CENTER = "图片中央垂直添加圆形色块(自动更改)"
     CENTER_HORIZON = "图片中央水平添加圆形色块"
+    CENTER_VERTICAL = "图片中央垂直添加圆形色块"
 
 
 def draw_ellipse(image, bounds, width=1, antialias=4):
@@ -247,6 +256,8 @@ def draw(
         image = image.resize((100, 100))
     image = image.convert("RGBA")
     colors = get_dominant_colors(image, color_size)
+    if card_type == CardType.CENTER:
+        card_type = CardType.CENTER_HORIZON if image.size[0] > image.size[1] else CardType.CENTER_VERTICAL
     if card_type == CardType.PURE:
         height = 100
         width = 100 * len(colors)
@@ -266,16 +277,20 @@ def draw(
             canvas.paste(block, (i * block_width, height))
             if i == len(colors) - 1:
                 canvas.paste(block, ((i + 1) * block_width, height))
-    elif card_type == CardType.CENTER:
+    elif card_type == CardType.CENTER_HORIZON or card_type == CardType.CENTER_VERTICAL:
         width, height = image.size
         canvas = PIL.Image.new("RGBA", image.size)
-        draw_height = int(height * 0.7)
-        padding = int(height * 0.02)
-        block_height = int((draw_height - (color_size - 1) * padding) / color_size)
-        x = int(width / 2 - block_height / 2)
+        draw_size = int(width * 0.7) if card_type == CardType.CENTER_HORIZON else int(height * 0.7)
+        padding = int(width * 0.02) if card_type == CardType.CENTER_HORIZON else int(height * 0.02)
+        block_size = int((draw_size - (color_size - 1) * padding) / color_size)
+        stable_x = int((height if card_type == CardType.CENTER_HORIZON else width) / 2 - block_size / 2)
+        print(image.size, stable_x)
         for i in range(len(colors)):
-            block = get_circle_color(colors[i], (block_height, block_height))
-            canvas.paste(block, (x, int(height * 0.15) + i * (block_height + padding)))
+            block = get_circle_color(colors[i], (block_size, block_size))
+            if card_type == CardType.CENTER_HORIZON:
+                canvas.paste(block, (int(width * 0.15) + i * (block_size + padding), stable_x))
+            else:
+                canvas.paste(block, (stable_x, int(height * 0.15) + i * (block_size + padding)))
         canvas = PIL.Image.alpha_composite(image, canvas)
     if show:
         canvas.show()
