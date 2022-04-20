@@ -41,6 +41,7 @@ inc = InterruptControl(bcc)
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
+                ElementMatch(At, optional=True),
                 RegexMatch(r"/?色卡"),
                 ArgumentMatch("-h", "-help", optional=True, action="store_true") @ "help",
                 RegexMatch(r"-(s|size)=[0-9]+", optional=True) @ "size",
@@ -94,8 +95,11 @@ async def color_card(
         )
         return
     size = int(size.result.asDisplay().split('=')[1].strip()) if size.matched else 5
-    if size == 0:
-        await app.sendGroupMessage(group, MessageChain("蛤？size为0我还给你什么色卡阿，爪巴巴！"), quote=source)
+    if size <= 0:
+        await app.sendGroupMessage(group, MessageChain(f"蛤？size为{size}我还给你什么色卡阿，爪巴巴！"), quote=source)
+        return
+    elif size > 30:
+        await app.sendGroupMessage(group, MessageChain(f"太多了啦，要溢出了！"), quote=source)
         return
     if mode.matched:
         mode = mode.result.asDisplay().split('=')[1].strip().lower()
@@ -161,7 +165,8 @@ class CardType(Enum):
     PURE = "纯色卡"
     BELOW_BLOCK = "在下方添加方块"
     BELOW_LINE = "在下方添加横行"
-    CENTER = "在中间添加（圆形）"
+    CENTER = "图片中央垂直添加圆形色块"
+    CENTER_HORIZON = "图片中央水平添加圆形色块"
 
 
 def draw_ellipse(image, bounds, width=1, antialias=4):
