@@ -30,7 +30,7 @@ proxy = config.proxy if config.proxy != "proxy" else ''
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("pdf"), RegexMatch(r"[^\s]+$")])],
+        inline_dispatchers=[Twilight([FullMatch("pdf"), RegexMatch(r".+") @ "keyword"])],
         decorators=[
             FrequencyLimit.require("pdf_searcher", 4),
             Function.require(channel.module),
@@ -41,7 +41,7 @@ proxy = config.proxy if config.proxy != "proxy" else ''
 )
 async def pdf_searcher(app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult):
     base_url = "https://zh.sa1lib.org"
-    keyword = keyword.result.asDisplay()
+    keyword = keyword.result.asDisplay().strip()
     url = f"{base_url}/s/?q={keyword}"
     async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
         async with session.get(url=url, proxy=proxy) as resp:
