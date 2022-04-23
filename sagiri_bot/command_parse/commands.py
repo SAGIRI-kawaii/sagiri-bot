@@ -119,7 +119,7 @@ class R18Process(StringCommand):
 
 
 class SpeakMode(StringCommand):
-    valid_values = ["normal", "zuanLow", "zuanHigh", "rainbow", "chat"]
+    valid_values = ["normal", "rainbow", "chat"]
     __name__ = "speak_mode"
     level = 3
 
