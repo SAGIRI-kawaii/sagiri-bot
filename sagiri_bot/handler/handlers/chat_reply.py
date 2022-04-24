@@ -64,18 +64,8 @@ async def chat_reply(
         content = "".join(plain.text for plain in message.get(Plain)).strip().replace(" ", "，")
         mode_now = await group_setting.get_setting(group, Setting.speak_mode)
 
-        if mode_now == "normal":
-            text = None
-
-        elif mode_now == "zuanLow":
-            url = f"https://nmsl.shadiao.app/api.php?level=min&from={config.functions['shadiao_app_name']}"
-            async with get_running(Adapter).session.get(url) as resp:
-                text = await resp.text()
-
-        elif mode_now == "zuanHigh":
-            url = f"https://nmsl.shadiao.app/api.php?from={config.functions['shadiao_app_name']}"
-            async with get_running(Adapter).session.get(url) as resp:
-                text = await resp.text()
+        if mode_now in ("normal", "zuanLow", "zuanLow"):
+            return
 
         elif mode_now == "rainbow":
             async with get_running(Adapter).session.get("https://api.shadiao.app/chp") as resp:
