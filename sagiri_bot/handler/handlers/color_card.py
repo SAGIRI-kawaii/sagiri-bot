@@ -141,18 +141,22 @@ async def color_card(
         url = f'http://q1.qlogo.cn/g?b=qq&nk={at.result.target if at.matched else qq.result.asDisplay().strip()}&s=640'
         async with get_running(Adapter).session.get(url=url) as resp:
             image_bytes = await resp.read()
-    elif message.getFirst(Quote) and (await app.getMessageFromId(message.getFirst(Quote).id)).messageChain.get(Image):
-        image_bytes = await (await app.getMessageFromId(message.getFirst(Quote).id)).messageChain.getFirst(Image).get_bytes()
     else:
         try:
-            await app.sendMessage(group, MessageChain("请在30s内发送要处理的图片"), quote=source)
-            image_bytes = await asyncio.wait_for(inc.wait(image_waiter), 30)
-            if not image_bytes:
-                await app.sendGroupMessage(group, MessageChain("未检测到图片，请重新发送，进程退出"), quote=source)
+            if message.getFirst(Quote) and (await app.getMessageFromId(message.getFirst(Quote).id)).messageChain.get(Image):
+                image_bytes = await (await app.getMessageFromId(message.getFirst(Quote).id)).messageChain.getFirst(Image).get_bytes()
+            else:
+                raise AttributeError()
+        except (IndexError, AttributeError):
+            try:
+                await app.sendMessage(group, MessageChain("请在30s内发送要处理的图片"), quote=source)
+                image_bytes = await asyncio.wait_for(inc.wait(image_waiter), 30)
+                if not image_bytes:
+                    await app.sendGroupMessage(group, MessageChain("未检测到图片，请重新发送，进程退出"), quote=source)
+                    return
+            except asyncio.TimeoutError:
+                await app.sendGroupMessage(group, MessageChain("图片等待超时，进程退出"), quote=source)
                 return
-        except asyncio.TimeoutError:
-            await app.sendGroupMessage(group, MessageChain("图片等待超时，进程退出"), quote=source)
-            return
 
     result = await loop.run_in_executor(None, draw, image_bytes, mode, size)
     bytes_io = BytesIO()
