@@ -40,7 +40,7 @@ proxy = config.proxy if config.proxy != "proxy" else ''
     )
 )
 async def pdf_searcher(app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult):
-    base_url = "https://zh.sa1lib.org"
+    base_url = "https://zh.sg1lib.org"
     keyword = keyword.result.asDisplay().strip()
     url = f"{base_url}/s/?q={keyword}"
     async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
