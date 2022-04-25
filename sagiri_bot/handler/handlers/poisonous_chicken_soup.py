@@ -35,7 +35,7 @@ config = core.get_config()
     )
 )
 async def poisonous_chicken_soup(app: Ariadne, group: Group):
-    url = f"https://du.shadiao.app/api.php?from={config.functions.get('shadiao_app_name')}"
+    url = f"https://api.shadiao.app/du"
     async with get_running(Adapter).session.get(url=url) as resp:
-        text = await resp.text()
+        text = (await resp.json())["data"].get("text", "未找到数据")
     await app.sendGroupMessage(group, MessageChain(text))
