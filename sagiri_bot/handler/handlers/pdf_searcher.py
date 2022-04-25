@@ -47,11 +47,15 @@ async def pdf_searcher(app: Ariadne, message: MessageChain, group: Group, keywor
         async with session.get(url=url, proxy=proxy) as resp:
             html = await resp.read()
     soup = BeautifulSoup(html, "html.parser")
-    divs = soup.find(
-        "div", {"id": "searchResultBox"}
-    ).find_all(
-        "div", {"class": "resItemBox resItemBoxBooks exactMatch"}
-    )
+    try:
+        divs = soup.find(
+            "div", {"id": "searchResultBox"}
+        ).find_all(
+            "div", {"class": "resItemBox resItemBoxBooks exactMatch"}
+        )
+    except AttributeError:
+        await app.sendGroupMessage(group, MessageChain(f"请检查{base_url}是否可以正常访问！若不可以请检查代理是否正常，若代理正常可能为域名更换，请向仓库提出PR"))
+        return
     count = 0
     books = []
     text = "搜索到以下结果：\n\n"
