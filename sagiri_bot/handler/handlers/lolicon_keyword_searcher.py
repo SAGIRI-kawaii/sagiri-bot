@@ -53,8 +53,11 @@ async def lolicon_keyword_searcher(app: Ariadne, message: MessageChain, group: G
 
 
 async def get_image(group: Group, keyword: str) -> MessageChain:
+    word_filter = ("&", "r18", "&r18", "%26r18")
     r18 = await group_setting.get_setting(group.id, Setting.r18)
-    url = f"https://api.lolicon.app/setu/v2?keyword={keyword}&r18={1 if r18 else 0}"
+    if any([i in keyword for i in word_filter]):
+        return MessageChain("你注个寄吧")
+    url = f"https://api.lolicon.app/setu/v2?r18={1 if r18 else 0}&keyword={keyword}"
     async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
         async with session.get(url=url, proxy=proxy) as resp:
             result = await resp.json()
