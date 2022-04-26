@@ -2,6 +2,7 @@
 import os
 import threading
 from loguru import logger
+from datetime import datetime
 
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.ariadne.event.message import Group, Member, MessageChain, Friend
@@ -18,14 +19,17 @@ bcc = core.get_bcc()
 saya = core.get_saya()
 config = core.get_config()
 
+if not os.path.exists(f"{os.getcwd()}/log/{datetime.now().strftime('%Y-%m-%d')}"):
+    os.mkdir(f"{os.getcwd()}/log/{datetime.now().strftime('%Y-%m-%d')}")
+
 logger.add(
-    f"{os.getcwd()}/log/common.log",
+    f"{os.getcwd()}/log/{datetime.now().strftime('%Y-%m-%d')}/common.log",
     level="INFO",
     retention=f"{config.log_related['common_retention']} days",
     encoding="utf-8"
 )
 logger.add(
-    f"{os.getcwd()}/log/error.log",
+    f"{os.getcwd()}/log/{datetime.now().strftime('%Y-%m-%d')}/error.log",
     level="ERROR",
     retention=f"{config.log_related['error_retention']} days",
     encoding="utf-8"
