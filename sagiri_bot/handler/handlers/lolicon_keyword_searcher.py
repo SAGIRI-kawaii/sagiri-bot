@@ -1,3 +1,4 @@
+import asyncio
 import os
 import aiohttp
 import PIL.Image
@@ -49,7 +50,19 @@ data_cache = config.data_related.get("lolicon_data_cache")
 )
 async def lolicon_keyword_searcher(app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult):
     keyword = keyword.result.asDisplay()
-    await app.sendGroupMessage(group, await get_image(group, keyword), quote=message.getFirst(Source))
+    msg_chain = await get_image(group, keyword)
+    if msg_chain.onlyContains(Plain):
+        await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
+    mode = await group_setting.get_setting(group, Setting.r18_process)
+    if mode == "revoke":
+        msg = await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
+        await asyncio.sleep(5)
+        await app.recallMessage(msg)
+    elif mode == "flashImage":
+        await app.sendGroupMessage(group, msg_chain.exclude(Image), quote=message.getFirst(Source))
+        await app.sendGroupMessage(group, MessageChain.create([msg_chain.getFirst(Image).toFlashImage()]))
+    else:
+        await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
 
 
 async def get_image(group: Group, keyword: str) -> MessageChain:
