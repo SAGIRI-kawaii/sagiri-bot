@@ -1,3 +1,5 @@
+import os
+import yaml
 from loguru import logger
 from dateutil.relativedelta import relativedelta
 
@@ -16,6 +18,9 @@ from sagiri_bot.frequency_limit_module import GlobalFrequencyLimitDict
 core: AppCore = AppCore.get_core_instance()
 config = core.get_config()
 
+with open(str(Path(os.path.dirname(__file__)) / "event_config.yaml"), "r", encoding='utf-8') as f:
+    event_config = yaml.load(f.read(), Loader=yaml.BaseLoader)
+
 
 async def member_join_event(app: Ariadne, group: Group, event: MemberJoinEvent):
     try:
@@ -24,24 +29,24 @@ async def member_join_event(app: Ariadne, group: Group, event: MemberJoinEvent):
         await app.sendMessage(
             event.member.group, MessageChain.create([
                 At(target=event.member.id),
-                Plain(text="我是本群小可爱纱雾哟~欢迎呐~一起快活鸭~")
+                Plain(text=event_config["member_join_event"].get(str(group.id), event_config["member_join_event"].get("default")).replace("\\n", "\n").format(group_name=group.name))
             ])
         )
     except AccountMuted:
         pass
 
 
-async def member_leave_event_quit(app: Ariadne, group: Group, event: MemberLeaveEventQuit):
-    try:
-        if not await group_setting.get_setting(group, Setting.switch):
-            return None
-        await app.sendMessage(
-            event.member.group, MessageChain.create([
-                Plain(text=f"{event.member.name}怎么走了呐~是因为偷袭了69岁的老同志吗嘤嘤嘤")
-            ])
-        )
-    except AccountMuted:
-        pass
+# async def member_leave_event_quit(app: Ariadne, group: Group, event: MemberLeaveEventQuit):
+#     try:
+#         if not await group_setting.get_setting(group, Setting.switch):
+#             return None
+#         await app.sendMessage(
+#             event.member.group, MessageChain.create([
+#                 Plain(text=f"{event.member.name}怎么走了呐~是因为偷袭了69岁的老同志吗嘤嘤嘤")
+#             ])
+#         )
+#     except AccountMuted:
+#         pass
 
 
 async def member_mute_event(app: Ariadne, group: Group, event: MemberMuteEvent):
@@ -90,7 +95,7 @@ async def member_leave_event_kick(app: Ariadne, group: Group, event: MemberLeave
             return None
         await app.sendMessage(
             event.member.group, MessageChain.create([
-                Plain(text=f"{event.member.name}滚蛋了呐~")
+                Plain(text=f"<{event.member.name}> 被 <{event.operator.name}> 🐏辣~")
             ])
         )
     except AccountMuted:
