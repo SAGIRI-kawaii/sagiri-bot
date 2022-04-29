@@ -5,13 +5,13 @@ from sqlalchemy import select
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.message.element import Source
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.lifecycle import ApplicationLaunched
-from graia.ariadne.event.message import Group, GroupMessage, Member
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.element import Source, MultimediaElement
+from graia.ariadne.event.message import Group, GroupMessage, Member
 from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, WildcardMatch, RegexResult
 
 from utils.message_chain import *
@@ -34,6 +34,9 @@ channel.description(
 
 inc = InterruptControl(AppCore.get_core_instance().get_bcc())
 regex_list = []
+parse_big_bracket = "\\{"
+parse_mid_bracket = "\\["
+parse_bracket = "\\("
 
 
 class NumberWaiter(Waiter.create([GroupMessage])):
@@ -102,7 +105,11 @@ async def add_keyword(
         return
     op_type = ("regex" if op_type.result.asDisplay() == "正则" else "fuzzy") if op_type.matched else "fullmatch"
     response = await message_chain_to_json(response.result)
-    keyword = keyword.result.asDisplay()
+    keyword = keyword.result
+    for i in keyword.__root__:
+        if isinstance(i, MultimediaElement):
+            i.url = ''
+    keyword = keyword.asPersistentString()
     reply_md5 = get_md5(response + str(group.id))
     if await orm.fetchone(
         select(
@@ -128,7 +135,11 @@ async def add_keyword(
     )
     if op_type != "fullmatch":
         regex_list.append(
-            (keyword if op_type == "regex" else f"(.*){keyword}(.*)", reply_md5, group.id if group_only else -1)
+            (
+                keyword if op_type == "regex" else f"(.*){keyword.replace('[', parse_mid_bracket).replace('{', parse_big_bracket).replace('(', parse_bracket)}(.*)",
+                reply_md5,
+                group.id if group_only else -1
+            )
         )
     await app.sendGroupMessage(group, MessageChain("关键词添加成功！"), quote=message.getFirst(Source))
 
@@ -156,7 +167,11 @@ async def delete_keyword(
         await app.sendGroupMessage(group, MessageChain("权限不足，爬！"), quote=message.getFirst(Source))
         return
     op_type = ("regex" if op_type.result.asDisplay() == "正则" else "fuzzy") if op_type.matched else "fullmatch"
-    keyword = keyword.result.asDisplay()
+    keyword = keyword.result
+    for i in keyword.__root__:
+        if isinstance(i, MultimediaElement):
+            i.url = ''
+    keyword = keyword.asPersistentString()
     if results := await orm.fetchall(
         select(
             KeywordReply.reply_type, KeywordReply.reply, KeywordReply.reply_md5
@@ -207,7 +222,7 @@ async def delete_keyword(
             global regex_list
             for i in regex_list:
                 if all([
-                    i[0] == keyword if op_type == "regex" else f"(.*){keyword}(.*)",
+                    i[0] == keyword if op_type == "regex" else f"(.*){keyword.replace('[', parse_mid_bracket).replace('{', parse_big_bracket).replace('(', parse_bracket)}(.*)",
                     i[1] == replies[number - 1][2],
                     i[2] == (-1 if group_only.matched else group.id)
                 ]):
@@ -233,29 +248,34 @@ async def delete_keyword(
 async def keyword_detect(app: Ariadne, message: MessageChain, group: Group):
     try:
         add_keyword_twilight.generate(message)
-        delete_keyword_twilight.generate(message)
     except ValueError:
-        if result := list(await orm.fetchall(
-            select(
-                KeywordReply.reply
-            ).where(
-                KeywordReply.keyword == message.asDisplay(),
-                KeywordReply.group.in_((-1, group.id))
-            )
-        )):
-            reply = random.choice(result)
-            await app.sendGroupMessage(group, json_to_message_chain(str(reply[0])))
-        else:
-            response_md5 = [i[1] for i in regex_list if re.match(i[0], message.asDisplay()) and i[2] in (-1, group.id)]
-            if response_md5:
-                await app.sendGroupMessage(
-                    group,
-                    json_to_message_chain(
-                        (await orm.fetchone(
-                            select(KeywordReply.reply).where(KeywordReply.reply_md5 == random.choice(response_md5))
-                        ))[0]
-                    )
+        try:
+            delete_keyword_twilight.generate(message)
+        except ValueError:
+            for i in message.__root__:
+                if isinstance(i, MultimediaElement):
+                    i.url = ''
+            if result := list(await orm.fetchall(
+                select(
+                    KeywordReply.reply
+                ).where(
+                    KeywordReply.keyword == message.asPersistentString(),
+                    KeywordReply.group.in_((-1, group.id))
                 )
+            )):
+                reply = random.choice(result)
+                await app.sendGroupMessage(group, json_to_message_chain(str(reply[0])))
+            else:
+                response_md5 = [i[1] for i in regex_list if (re.match(i[0], message.asPersistentString()) and i[2] in (-1, group.id))]
+                if response_md5:
+                    await app.sendGroupMessage(
+                        group,
+                        json_to_message_chain(
+                            (await orm.fetchone(
+                                select(KeywordReply.reply).where(KeywordReply.reply_md5 == random.choice(response_md5))
+                            ))[0]
+                        )
+                    )
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
@@ -267,7 +287,17 @@ async def regex_init():
             KeywordReply.reply_type.in_(("regex", "fuzzy"))
         )
     ):
-        regex_list.extend(list([(i[0] if i[2] == "regex" else f"(.*){i[0]}(.*)", i[1], i[3]) for i in result]))
+        regex_list.extend(
+            list(
+                [(
+                    i[0] if i[2] == "regex" else
+                    f"(.*){i[0].replace('[', parse_mid_bracket).replace('{', parse_big_bracket).replace('(', parse_bracket)}(.*)",
+                    i[1],
+                    i[3]
+                ) for i in result]
+            )
+        )
+    print(regex_list)
 
 
 def get_md5(data: str) -> str:
