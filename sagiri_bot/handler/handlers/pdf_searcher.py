@@ -10,7 +10,7 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult, SpacePolicy
 
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
@@ -30,7 +30,7 @@ proxy = config.proxy if config.proxy != "proxy" else ''
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("pdf"), RegexMatch(r".+") @ "keyword"])],
+        inline_dispatchers=[Twilight([FullMatch("pdf").space(SpacePolicy.FORCE), RegexMatch(r".+") @ "keyword"])],
         decorators=[
             FrequencyLimit.require("pdf_searcher", 4),
             Function.require(channel.module),
