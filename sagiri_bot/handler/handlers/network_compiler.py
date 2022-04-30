@@ -1,8 +1,11 @@
+from asyncio.exceptions import TimeoutError
+
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne import get_running
 from graia.ariadne.adapter import Adapter
 from graia.ariadne.message.element import Source
+from graia.ariadne.exception import MessageTooLong
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
@@ -48,11 +51,18 @@ async def network_compiler(app: Ariadne, message: MessageChain, group: Group, la
     if isinstance(result, str):
         await app.sendGroupMessage(group, MessageChain(result), quote=message.getFirst(Source))
     else:
-        await app.sendGroupMessage(
-            group,
-            MessageChain(result["output"] if result["output"] else result["errors"]),
-            quote=message.getFirst(Source)
-        )
+        try:
+            await app.sendGroupMessage(
+                group,
+                MessageChain(result["output"] if result["output"] else result["errors"]),
+                quote=message.getFirst(Source)
+            )
+        except MessageTooLong:
+            await app.sendGroupMessage(
+                group,
+                MessageChain("MessageTooLong"),
+                quote=message.getFirst(Source)
+            )
 
 
 async def get_result(language: str, code: str):
@@ -94,8 +104,14 @@ async def get_result(language: str, code: str):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/87.0.4280.141 Safari/537.36 "
     }
-    async with get_running(Adapter).session.post(url=url, headers=headers, data=payload) as resp:
-        res = await resp.json()
+    try:
+        async with get_running(Adapter).session.post(url=url, headers=headers, data=payload, timeout=3) as resp:
+            res = await resp.json()
+    except TimeoutError:
+        return {
+            "output": "",
+            "errors": "Network Time Limit Exceeded"
+        }
     return {
         "output": res["output"],
         "errors": res["errors"]
