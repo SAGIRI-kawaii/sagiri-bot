@@ -48,6 +48,3 @@ except Exception as e:
     else:
         logger.error(f"Chromium 初始化失败 {str(e)}，未知错误")
         exit(1)
-except Exception as e:
-    logger.error(f"Chromium 初始化失败 {type(e)} {str(e)}，未知错误")
-    exit(1)
