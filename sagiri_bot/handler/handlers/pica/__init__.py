@@ -109,6 +109,7 @@ async def pica_function(
         await app.sendGroupMessage(
             group, MessageChain(limit_text[str(operation.result.asDisplay())]), quote=message.getFirst(Source)
         )
+        return
 
     if operation.result.asDisplay() == "download":
         DAILY_DOWNLOAD_LIMITER.increase(member.id)
