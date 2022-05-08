@@ -20,7 +20,12 @@ from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.utils import group_setting
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.orm.async_orm import Setting, LoliconData
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -39,28 +44,46 @@ data_cache = config.data_related.get("lolicon_data_cache")
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("来点"), RegexMatch(r"[^\s]+") @ "keyword", RegexMatch(r"[色涩瑟]图$")])],
+        inline_dispatchers=[
+            Twilight(
+                [
+                    FullMatch("来点"),
+                    RegexMatch(r"[^\s]+") @ "keyword",
+                    RegexMatch(r"[色涩瑟]图$"),
+                ]
+            )
+        ],
         decorators=[
             FrequencyLimit.require("lolicon_keyword_searcher", 2),
             Function.require(channel.module),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.SETU)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.SETU),
+        ],
     )
 )
-async def lolicon_keyword_searcher(app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult):
+async def lolicon_keyword_searcher(
+    app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult
+):
     keyword = keyword.result.asDisplay()
     msg_chain = await get_image(group, keyword)
     if msg_chain.onlyContains(Plain):
-        return await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
+        return await app.sendGroupMessage(
+            group, msg_chain, quote=message.getFirst(Source)
+        )
     mode = await group_setting.get_setting(group, Setting.r18_process)
     if mode == "revoke":
-        msg = await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
+        msg = await app.sendGroupMessage(
+            group, msg_chain, quote=message.getFirst(Source)
+        )
         await asyncio.sleep(5)
         await app.recallMessage(msg)
     elif mode == "flashImage":
-        await app.sendGroupMessage(group, msg_chain.exclude(Image), quote=message.getFirst(Source))
-        await app.sendGroupMessage(group, MessageChain.create([msg_chain.getFirst(Image).toFlashImage()]))
+        await app.sendGroupMessage(
+            group, msg_chain.exclude(Image), quote=message.getFirst(Source)
+        )
+        await app.sendGroupMessage(
+            group, MessageChain.create([msg_chain.getFirst(Image).toFlashImage()])
+        )
     else:
         await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
 
@@ -71,7 +94,9 @@ async def get_image(group: Group, keyword: str) -> MessageChain:
     if any([i in keyword for i in word_filter]):
         return MessageChain("你注个寄吧")
     url = f"https://api.lolicon.app/setu/v2?r18={1 if r18 else 0}&keyword={keyword}"
-    async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
+    async with aiohttp.ClientSession(
+        connector=TCPConnector(verify_ssl=False)
+    ) as session:
         async with session.get(url=url, proxy=proxy) as resp:
             result = await resp.json()
     logger.info(result)
@@ -85,10 +110,7 @@ async def get_image(group: Group, keyword: str) -> MessageChain:
     if data_cache:
         await orm.insert_or_update(
             LoliconData,
-            [
-                LoliconData.pid == result["pid"],
-                LoliconData.p == result["p"]
-            ],
+            [LoliconData.pid == result["pid"], LoliconData.p == result["p"]],
             {
                 "pid": result["pid"],
                 "p": result["p"],
@@ -98,33 +120,43 @@ async def get_image(group: Group, keyword: str) -> MessageChain:
                 "r18": result["r18"],
                 "width": result["width"],
                 "height": result["height"],
-                "tags": '|'.join(result["tags"]),
+                "tags": "|".join(result["tags"]),
                 "ext": result["ext"],
-                "upload_date": datetime.utcfromtimestamp(int(result["uploadDate"]) / 1000),
-                "original_url": result["urls"]["original"]
-            }
+                "upload_date": datetime.utcfromtimestamp(
+                    int(result["uploadDate"]) / 1000
+                ),
+                "original_url": result["urls"]["original"],
+            },
         )
 
     info = f"title: {result['title']}\nauthor: {result['author']}\nurl: {result['urls']['original']}"
-    file_name = result["urls"]["original"].split('/').pop()
-    local_path = config.image_path.get("setu18") if r18 else config.image_path.get("setu")
+    file_name = result["urls"]["original"].split("/").pop()
+    local_path = (
+        config.image_path.get("setu18") if r18 else config.image_path.get("setu")
+    )
     file_path = os.path.join(local_path, file_name)
 
     if os.path.exists(file_path):
-        return MessageChain([
-            Plain(text=f"你要的{keyword}涩图来辣！\n"),
-            Image(path=file_path),
-            Plain(text=f"\n{info}")
-        ])
+        return MessageChain(
+            [
+                Plain(text=f"你要的{keyword}涩图来辣！\n"),
+                Image(path=file_path),
+                Plain(text=f"\n{info}"),
+            ]
+        )
     else:
-        async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
+        async with aiohttp.ClientSession(
+            connector=TCPConnector(verify_ssl=False)
+        ) as session:
             async with session.get(url=result["urls"]["original"], proxy=proxy) as resp:
                 img_content = await resp.read()
         if image_cache:
             image = PIL.Image.open(BytesIO(img_content))
             image.save(file_path)
-        return MessageChain([
-            Plain(text=f"你要的{keyword}涩图来辣！\n"),
-            Image(data_bytes=img_content),
-            Plain(text=f"\n{info}")
-        ])
+        return MessageChain(
+            [
+                Plain(text=f"你要的{keyword}涩图来辣！\n"),
+                Image(data_bytes=img_content),
+                Plain(text=f"\n{info}"),
+            ]
+        )
