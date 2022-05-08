@@ -52,7 +52,7 @@ async def lolicon_keyword_searcher(app: Ariadne, message: MessageChain, group: G
     keyword = keyword.result.asDisplay()
     msg_chain = await get_image(group, keyword)
     if msg_chain.onlyContains(Plain):
-        await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
+        return await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
     mode = await group_setting.get_setting(group, Setting.r18_process)
     if mode == "revoke":
         msg = await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
