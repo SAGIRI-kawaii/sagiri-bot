@@ -138,9 +138,9 @@ class GroupWordCloudGenerator:
             path = random.sample(path_dir, 1)[0]
             return base_path + path
 
-        mask = np.array(IMG.open(random_pic(f"statics/wordcloud/")))
+        mask = np.array(IMG.open(random_pic(f"{os.getcwd()}/statics/wordcloud/")))
         wc = WordCloud(
-            font_path=f"statics/fonts/STKAITI.TTF",
+            font_path=f"{os.getcwd()}/statics/fonts/STKAITI.TTF",
             background_color="white",
             max_font_size=100,
             width=1920,
