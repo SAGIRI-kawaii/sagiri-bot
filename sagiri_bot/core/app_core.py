@@ -69,7 +69,7 @@ class AppCore(object):
                     ping=False,
                     mirai_session=MiraiSession(
                         host=config.mirai_host,
-                        verify_key=config.verify_key,
+                        verify_key=str(config.verify_key),
                         account=config.bot_qq
                     ),
                 )
