@@ -1,5 +1,5 @@
-import asyncio
 import os
+import asyncio
 import aiohttp
 import PIL.Image
 from io import BytesIO
@@ -71,13 +71,14 @@ async def lolicon_keyword_searcher(
             group, msg_chain, quote=message.getFirst(Source)
         )
     mode = await group_setting.get_setting(group, Setting.r18_process)
-    if mode == "revoke":
+    r18 = await group_setting.get_setting(group, Setting.r18)
+    if mode == "revoke" and r18:
         msg = await app.sendGroupMessage(
             group, msg_chain, quote=message.getFirst(Source)
         )
         await asyncio.sleep(5)
         await app.recallMessage(msg)
-    elif mode == "flashImage":
+    elif mode == "flashImage" and r18:
         await app.sendGroupMessage(
             group, msg_chain.exclude(Image), quote=message.getFirst(Source)
         )
