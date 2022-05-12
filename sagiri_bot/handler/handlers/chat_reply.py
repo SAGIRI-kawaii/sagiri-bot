@@ -44,7 +44,6 @@ config = AppCore.get_core_instance().get_config()
             )
         ],
         decorators=[
-            Interval.require(5),
             FrequencyLimit.require("chat_reply", 2),
             Function.require(channel.module),
             BlackListControl.enable(),
