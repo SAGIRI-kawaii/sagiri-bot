@@ -76,7 +76,7 @@ async def lolicon_keyword_searcher(
         msg = await app.sendGroupMessage(
             group, msg_chain, quote=message.getFirst(Source)
         )
-        await asyncio.sleep(5)
+        await asyncio.sleep(20)
         await app.recallMessage(msg)
     elif mode == "flashImage" and r18:
         await app.sendGroupMessage(

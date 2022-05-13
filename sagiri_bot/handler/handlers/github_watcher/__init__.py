@@ -1,28 +1,26 @@
-import asyncio
 import json
-from datetime import datetime, timedelta
-from json import JSONDecodeError
+import asyncio
 from pathlib import Path
+from json import JSONDecodeError
+from datetime import datetime, timedelta
 
 import aiohttp
-from aiohttp import BasicAuth
-from graia.ariadne.app import Ariadne, Friend
-from graia.ariadne.event.message import Group, Member, FriendMessage, GroupMessage
-from graia.ariadne.exception import UnknownTarget, AccountMuted
-from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Plain
-# from graia.ariadne.message.element import ForwardNode, Forward
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, UnionMatch, WildcardMatch
-from graia.ariadne.model import MemberPerm
-from graia.saya import Saya, Channel
-from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.scheduler import timers
-from graia.scheduler.saya import SchedulerSchema
 from loguru import logger
+from aiohttp import BasicAuth
+from graia.scheduler import timers
+from graia.saya import Saya, Channel
+from graia.ariadne.model import MemberPerm
+from graia.ariadne.app import Ariadne, Friend
+from graia.ariadne.message.element import Plain
+from graia.scheduler.saya import SchedulerSchema
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.exception import UnknownTarget, AccountMuted
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.event.message import Group, Member, FriendMessage, GroupMessage
+from graia.ariadne.message.parser.twilight import Twilight, FullMatch, UnionMatch, WildcardMatch
 
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.message_item import MessageItem
 from sagiri_bot.message_sender.message_sender import MessageSender
 from sagiri_bot.message_sender.strategy import QuoteSource, Normal
@@ -39,15 +37,17 @@ proxy = config.proxy if config.proxy != "proxy" else ''
 
 channel.name("GithubWatcher")
 channel.author("nullqwertyuiop")
-channel.description("/github-watch enable [3级权限]\n"
-                    "/github-watch disable [3级权限]\n"
-                    "/github-watch add {repo} [repo]+ [2级或管理员权限]\n"
-                    "/github-watch remove {repo} [repo]+ [2级或管理员权限]\n"
-                    "/github-watch check [任何人]\n"
-                    "/github-watch cache {update/store} [2级或管理员权限]\n")
+channel.description(
+    "/github-watch enable [3级权限]\n"
+    "/github-watch disable [3级权限]\n"
+    "/github-watch add {repo} [repo]+ [2级或管理员权限]\n"
+    "/github-watch remove {repo} [repo]+ [2级或管理员权限]\n"
+    "/github-watch check [任何人]\n"
+    "/github-watch cache {update/store} [2级或管理员权限]\n"
+)
 
 
-class GithubWatcher(AbstractHandler):
+class GithubWatcher(object):
     __name__ = "GithubWatcher"
     __description__ = "Github 订阅 Handler"
     __usage__ = "None"
@@ -68,12 +68,6 @@ class GithubWatcher(AbstractHandler):
     __events_url = "/repos/{owner}/{repo}/events"
     __is_running = False
     initialize = False
-
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        pass
 
     @switch()
     @blacklist()

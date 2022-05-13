@@ -44,8 +44,8 @@ class TextEngine(object):
     def __init__(
         self,
         elements: List[Union[AbstractAdapter, str, bytes, BytesIO, PIL.Image.Image, Text, Image]],
-        max_width: int = 1080,
-        min_width: int = 720,
+        max_width: int = 4096,
+        min_width: int = 1080,
         font_size: int = 40,
         spacing: int = 15,
         padding_x: int = 20,

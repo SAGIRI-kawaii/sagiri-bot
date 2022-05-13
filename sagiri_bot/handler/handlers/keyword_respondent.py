@@ -105,7 +105,7 @@ async def add_keyword(
         return
     op_type = ("regex" if op_type.result.asDisplay() == "正则" else "fuzzy") if op_type.matched else "fullmatch"
     response = await message_chain_to_json(response.result)
-    keyword = keyword.result
+    keyword = keyword.result.copy()
     for i in keyword.__root__:
         if isinstance(i, MultimediaElement):
             i.url = ''
@@ -167,7 +167,7 @@ async def delete_keyword(
         await app.sendGroupMessage(group, MessageChain("权限不足，爬！"), quote=message.getFirst(Source))
         return
     op_type = ("regex" if op_type.result.asDisplay() == "正则" else "fuzzy") if op_type.matched else "fullmatch"
-    keyword = keyword.result
+    keyword = keyword.result.copy()
     for i in keyword.__root__:
         if isinstance(i, MultimediaElement):
             i.url = ''
@@ -252,21 +252,22 @@ async def keyword_detect(app: Ariadne, message: MessageChain, group: Group):
         try:
             delete_keyword_twilight.generate(message)
         except ValueError:
-            for i in message.__root__:
+            copied_msg = message.copy()
+            for i in copied_msg.__root__:
                 if isinstance(i, MultimediaElement):
                     i.url = ''
             if result := list(await orm.fetchall(
                 select(
                     KeywordReply.reply
                 ).where(
-                    KeywordReply.keyword == message.asPersistentString(),
+                    KeywordReply.keyword == copied_msg.asPersistentString(),
                     KeywordReply.group.in_((-1, group.id))
                 )
             )):
                 reply = random.choice(result)
                 await app.sendGroupMessage(group, json_to_message_chain(str(reply[0])))
             else:
-                response_md5 = [i[1] for i in regex_list if (re.match(i[0], message.asPersistentString()) and i[2] in (-1, group.id))]
+                response_md5 = [i[1] for i in regex_list if (re.match(i[0], copied_msg.asPersistentString()) and i[2] in (-1, group.id))]
                 if response_md5:
                     await app.sendGroupMessage(
                         group,

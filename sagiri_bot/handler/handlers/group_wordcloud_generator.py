@@ -1,37 +1,38 @@
 import os
 import random
-from datetime import datetime
-from io import BytesIO
-
-import jieba.analyse
-import matplotlib.pyplot as plt
 import numpy as np
+import jieba.analyse
+from io import BytesIO
+from typing import Optional
 from PIL import Image as IMG
+from datetime import datetime
+import matplotlib.pyplot as plt
+from sqlalchemy import select, func
 from dateutil.relativedelta import relativedelta
+from wordcloud import WordCloud, ImageColorGenerator
+
+from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne import get_running
+from graia.ariadne.adapter import Adapter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image, Source
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import (
     Twilight,
     UnionMatch,
     FullMatch,
+    RegexMatch,
     MatchResult,
+    ElementMatch,
+    ElementResult
 )
-from graia.saya import Saya, Channel
-from graia.saya.builtins.broadcast.schema import ListenerSchema
-from sqlalchemy import select, func
-from wordcloud import WordCloud, ImageColorGenerator
 
-from sagiri_bot.control import (
-    FrequencyLimit,
-    Function,
-    BlackListControl,
-    UserCalledCountControl,
-)
-from sagiri_bot.orm.async_orm import ChatRecord
 from sagiri_bot.orm.async_orm import orm
+from sagiri_bot.orm.async_orm import ChatRecord
 from sagiri_bot.utils import user_permission_require
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -50,6 +51,10 @@ channel.description("群词云生成器，" "在群中发送 `[我的|本群][�
                     UnionMatch("我的", "本群") @ "scope",
                     UnionMatch("年内", "月内", "日内") @ "period",
                     FullMatch("总结"),
+                    RegexMatch(r"[0-9]+", optional=True) @ "topK",
+                    RegexMatch(r"[\s]", optional=True),
+                    ElementMatch(Image, optional=True) @ "mask",
+                    RegexMatch(r"[\s]", optional=True)
                 ]
             )
         ],
@@ -68,6 +73,8 @@ async def group_wordcloud_generator(
     member: Member,
     scope: MatchResult,
     period: MatchResult,
+    topK: MatchResult,
+    mask: ElementResult
 ):
     scope = "group" if scope.result.asDisplay() == "本群" else "member"
     if scope == "group" and not await user_permission_require(group, member, 2):
@@ -78,9 +85,10 @@ async def group_wordcloud_generator(
         )
 
     period = period.result.asDisplay()
+    topK = min(int(topK.result.asDisplay()), 100000) if topK.matched else 1000
     await app.sendGroupMessage(
         group,
-        await GroupWordCloudGenerator.get_review(group, member, period, scope),
+        await GroupWordCloudGenerator.get_review(group, member, period, scope, topK, mask.result),
         quote=message.getFirst(Source),
     )
 
@@ -132,13 +140,13 @@ class GroupWordCloudGenerator:
         return result
 
     @staticmethod
-    async def draw_word_cloud(read_name) -> bytes:
+    async def draw_word_cloud(read_name, mask: Optional[IMG.Image]) -> bytes:
         def random_pic(base_path: str) -> str:
             path_dir = os.listdir(base_path)
             path = random.sample(path_dir, 1)[0]
             return base_path + path
 
-        mask = np.array(IMG.open(random_pic(f"{os.getcwd()}/statics/wordcloud/")))
+        mask = np.array(mask if mask else IMG.open(random_pic(f"{os.getcwd()}/statics/wordcloud/")))
         wc = WordCloud(
             font_path=f"{os.getcwd()}/statics/fonts/STKAITI.TTF",
             background_color="white",
@@ -167,7 +175,7 @@ class GroupWordCloudGenerator:
 
     @staticmethod
     async def get_review(
-        group: Group, member: Member, review_type: str, target: str
+        group: Group, member: Member, review_type: str, target: str, topK: int, mask: Optional[Image]
     ) -> MessageChain:
         group_id = group.id
         member_id = member.id
@@ -197,7 +205,7 @@ class GroupWordCloudGenerator:
         )
 
         if not (res := list(await orm.fetchall(sql))):
-            return MessageChain.create([Plain(text="没有你的发言记录呐~")])
+            return MessageChain("没有你的发言记录呐~")
         texts = []
         for i in res:
             if i[4]:
@@ -213,10 +221,13 @@ class GroupWordCloudGenerator:
             )
         )
         if not (res := list(await orm.fetchone(sql))):
-            return MessageChain.create([Plain(text="没有你的发言记录呐~")])
+            return MessageChain("没有你的发言记录呐~")
 
         times = res[0]
-        return MessageChain.create(
+        if mask:
+            async with get_running(Adapter).session.get(url=mask.url) as resp:
+                mask = IMG.open(BytesIO(await resp.read()))
+        return MessageChain(
             [
                 Plain(text="记录时间：\n"),
                 Plain(text=f"{time_left}"),
@@ -232,8 +243,8 @@ class GroupWordCloudGenerator:
                 Image(
                     data_bytes=await GroupWordCloudGenerator.draw_word_cloud(
                         jieba.analyse.extract_tags(
-                            " ".join(texts), topK=1000, withWeight=True, allowPOS=()
-                        )
+                            " ".join(texts), topK=topK, withWeight=True, allowPOS=()
+                        ), mask
                     )
                 ),
             ]
