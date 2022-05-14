@@ -1,8 +1,7 @@
-import os
-
 from loguru import logger
-from typing import Optional
-from playwright.async_api import Browser, async_playwright
+from typing import Optional, AsyncIterator
+from contextlib import asynccontextmanager
+from playwright.async_api import Page, Browser, async_playwright, Playwright
 
 
 path_to_extension = "./utils/browser/extension/ad"
@@ -10,41 +9,54 @@ user_data_dir = "./utils/browser/data"
 
 
 _browser: Optional[Browser] = None
+_playwright: Optional[Playwright] = None
 
 
-async def init() -> Browser:
+async def init(**kwargs) -> Browser:
     global _browser
-    # async with async_playwright() as p:
-    #     _browser = await p.chromium.launch()
-    #     print(_browser)
-    browser = await async_playwright().start()
-    _browser = await browser.chromium.launch_persistent_context(
-        user_data_dir,
-        headless=True,
-        args=[
-            f"--disable-extensions-except={path_to_extension}",
-            f"--load-extension={path_to_extension}",
-        ]
-    )
+    global _playwright
+    _playwright = await async_playwright().start()
+    # _browser = await _playwright.chromium.launch_persistent_context(
+    #     user_data_dir,
+    #     headless=True,
+    #     args=[
+    #         f"--disable-extensions-except={path_to_extension}",
+    #         f"--load-extension={path_to_extension}",
+    #     ]
+    # )
+    _browser = await launch_browser(**kwargs)
     return _browser
 
 
-async def get_browser() -> Browser:
-    return _browser or await init()
+async def get_browser(**kwargs) -> Browser:
+    return _browser or await init(**kwargs)
 
 
-try:
-    get_browser()
-    logger.info("Chromium Browser initialized")
-except Exception as e:
-    if str(e).startswith("Extension doesn't exist at"):
-        logger.warning("未找到适应版本的 Chromium，正在自动安装...")
-        os.system("playwright install chromium")
-        try:
-            get_browser()
-        except Exception as e:
-            logger.error(f"Chromium 安装失败 {str(e)}，请手动执行 playwright install chromium 安装")
-            exit(1)
-    else:
-        logger.error(f"Chromium 初始化失败 {str(e)}，未知错误")
-        exit(1)
+async def launch_browser(**kwargs) -> Browser:
+    return await _playwright.chromium.launch(**kwargs)
+
+
+@asynccontextmanager
+async def get_new_page(**kwargs) -> AsyncIterator[Page]:
+    browser = await get_browser()
+    page = await browser.new_page(**kwargs)
+    try:
+        yield page
+    finally:
+        await page.close()
+
+
+async def shutdown_browser():
+    await _browser.close()
+    await _playwright.stop()
+
+
+async def install_browser():
+    logger.info("正在安装 chromium")
+    import sys
+    from playwright.__main__ import main
+    sys.argv = ['', 'install', 'chromium']
+    try:
+        main()
+    except SystemExit:
+        pass

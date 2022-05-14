@@ -1,0 +1,189 @@
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0;
+        zoom: 200%;
+      }
+      .image {
+        display: flex;
+        flex-direction: column;
+        margin: 10px;
+        width: max-content;
+        overflow: scroll;
+      }
+      .info-box {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      .face {
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        overflow: hidden;
+      }
+      .face img {
+        max-width: 100%;
+        height: auto;
+        object-fit: cover;
+        object-position: center;
+      }
+      .info {
+        margin-left: 10px;
+        margin-right: 10px;
+        display: flex;
+        flex-direction: column;
+        min-width: 170px;
+        align-items: center;
+      }
+      .name-bar {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      .name {
+        font-size: larger;
+        font-weight: bold;
+      }
+      .uid {
+        font-size: small;
+        background-color: #dddddd;
+        padding-left: 4px;
+        padding-right: 4px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        border-radius: 5px;
+        margin-left: 10px;
+      }
+      .fans-bar {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-top: 5px;
+      }
+      .follows {
+        margin-left: 10px;
+      }
+      .data-bar {
+        margin-top: 5px;
+        font-weight: bold;
+      }
+      .list {
+        margin-top: 10px;
+        margin-right: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: top;
+      }
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+        height: min-content;
+        border: 1px solid #ddd;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 5px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        white-space: nowrap;
+      }
+      td {
+        height: 22px;
+      }
+      tr:nth-child(even) {
+        background-color: #f5f5f5;
+      }
+      .up-uid {
+        font-size: x-small;
+        background-color: #dddddd;
+        padding-left: 4px;
+        padding-right: 4px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        border-radius: 5px;
+        margin-left: 5px;
+      }
+      .medal-box {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-left: 10px;
+      }
+      .medal-name {
+        height: 14px;
+        display: flex;
+        align-items: center;
+        color: rgb(255, 255, 255);
+        border-style: solid;
+        border-width: 1px;
+        border-right: 0px;
+      }
+      .medal-level {
+        height: 14px;
+        display: flex;
+        align-items: center;
+        padding-left: 1px;
+        padding-right: 1px;
+        border-style: solid;
+        border-width: 1px;
+        border-left: 0px;
+        background-color: rgb(255, 255, 255);
+      }
+      .tiny {
+        font-size: x-small;
+        margin-left: 3px;
+        margin-right: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="image">
+      <div class="info-box">
+        <div class="face">
+          <img src="{{ info['face'] }}">
+        </div>
+        <div class="info">
+          <div class="name-bar">
+            <div class="name">{{ info['name'] }}</div>
+            <div class="uid">{{ info['uid'] }}</div>
+          </div>
+          <div class="fans-bar">
+            <div class="fans"><b>粉丝：</b>{{ info['fans'] }}</div>
+            <div class="follows"><b>关注：</b>{{ info['follows'] }}</div>
+          </div>
+          <div class="data-bar">{{ info['percent'] }}</div>
+        </div>
+      </div>
+      <div class="list">
+        {% for i in range(0, (info['vtbs'] | length), 100) %}
+        <table>
+          {% for vtb in info['vtbs'][i: i + 100] %}
+          <tr>
+            <td>
+              <div class="up-name">{{ vtb['name'] }}</div>
+              <div class="up-uid">{{ vtb['uid'] }}</div>
+              {% if vtb.get('medal') %}
+              {% set medal = vtb['medal'] %}
+              <div class="medal-box">
+                <div class="medal-name" style="border-color: {{ medal['color_border'] }}; background-image: linear-gradient(45deg,{{ medal['color_start'] }},{{ medal['color_end'] }});">
+                  <div class="tiny">{{ medal['name'] }}</div>
+                </div>
+                <div class="medal-level" style="border-color: {{ medal['color_border'] }}; color: {{ medal['color_border'] }};">
+                  <div class="tiny">{{ medal['level'] }}</div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
