@@ -12,7 +12,7 @@ from graia.ariadne.message.element import Image, Source
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult, SpacePolicy
 
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
@@ -41,7 +41,7 @@ channel.description("一个可以生成不同风格图片的插件，在群中�
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([RegexMatch("(5000兆|ph|yt)") @ "logo_type", RegexMatch(r"[^\s]+"), RegexMatch(r"[^\s]+")])
+            Twilight([RegexMatch("(5000兆|ph|yt)").space(SpacePolicy.FORCE) @ "logo_type", RegexMatch(r"[^\s]+"), RegexMatch(r"[^\s]+")])
         ],
         decorators=[
             FrequencyLimit.require("style_picture_generator", 1),

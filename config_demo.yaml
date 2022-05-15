@@ -38,6 +38,8 @@ functions:
     daily_random_limit: 1
     daily_rank_limit: 1
     compress_password: i_luv_sagiri
+  bilibili:
+    cookie: cookie
 
 # 日志相关
 log_related:

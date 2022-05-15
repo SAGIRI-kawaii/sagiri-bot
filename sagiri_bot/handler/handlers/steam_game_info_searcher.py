@@ -5,14 +5,19 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne import get_running
 from graia.ariadne.adapter import Adapter
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.twilight import Twilight, SpacePolicy
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, WildcardMatch, RegexResult
 
 from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -23,24 +28,35 @@ channel.description("一个可以搜索steam游戏信息的插件，在群中发
 
 core = AppCore.get_core_instance()
 config = core.get_config()
-proxy = config.proxy if config.proxy != "proxy" else ''
+proxy = config.proxy if config.proxy != "proxy" else ""
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("steam"), WildcardMatch().flags(re.DOTALL) @ "keyword"])],
+        inline_dispatchers=[
+            Twilight(
+                [
+                    FullMatch("steam").space(SpacePolicy.FORCE),
+                    WildcardMatch().flags(re.DOTALL) @ "keyword",
+                ]
+            )
+        ],
         decorators=[
             FrequencyLimit.require("steam_game_info_searcher", 2),
             Function.require(channel.module),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.SEARCH)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.SEARCH),
+        ],
     )
 )
-async def steam_game_info_searcher(app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult):
+async def steam_game_info_searcher(
+    app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult
+):
     keyword = keyword.result.asDisplay()
-    await app.sendGroupMessage(group, await get_steam_game_search(keyword), quote=message.getFirst(Source))
+    await app.sendGroupMessage(
+        group, await get_steam_game_search(keyword), quote=message.getFirst(Source)
+    )
 
 
 async def get_steam_game_description(game_id: int) -> str:
@@ -59,7 +75,9 @@ async def get_steam_game_description(game_id: int) -> str:
     url = f"https://store.steampowered.com/app/{game_id}/"
     async with get_running(Adapter).session.get(url=url, proxy=proxy) as resp:
         html = await resp.text()
-    description = re.findall(r'<div class="game_description_snippet">(.*?)</div>', html, re.S)
+    description = re.findall(
+        r'<div class="game_description_snippet">(.*?)</div>', html, re.S
+    )
     if len(description) == 0:
         return "none"
     return description[0].strip()
@@ -77,7 +95,7 @@ async def get_steam_game_search(keyword: str) -> MessageChain:
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-origin",
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/85.0.4183.121 Safari/537.36 "
+        "Chrome/85.0.4183.121 Safari/537.36 ",
     }
 
     async with get_running(Adapter).session.get(url=url, headers=headers) as resp:
@@ -90,11 +108,15 @@ async def get_steam_game_search(keyword: str) -> MessageChain:
         async with get_running(Adapter).session.get(url=result["avatar"]) as resp:
             img_content = await resp.read()
         description = await get_steam_game_description(result["app_id"])
-        return MessageChain([
-            Plain(text="\n搜索到以下信息：\n"),
-            Plain(text=f"游戏：{result['name']} ({result['name_cn']})\n"),
-            Plain(text=f"游戏id：{result['app_id']}\n"),
-            Image(data_bytes=img_content),
-            Plain(text=f"游戏描述：{description}\n"),
-            Plain(text=f"\nSteamUrl:https://store.steampowered.com/app/{result['app_id']}/")
-        ])
+        return MessageChain(
+            [
+                Plain(text="\n搜索到以下信息：\n"),
+                Plain(text=f"游戏：{result['name']} ({result['name_cn']})\n"),
+                Plain(text=f"游戏id：{result['app_id']}\n"),
+                Image(data_bytes=img_content),
+                Plain(text=f"游戏描述：{description}\n"),
+                Plain(
+                    text=f"\nSteamUrl:https://store.steampowered.com/app/{result['app_id']}/"
+                ),
+            ]
+        )

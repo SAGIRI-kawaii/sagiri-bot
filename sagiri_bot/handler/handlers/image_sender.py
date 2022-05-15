@@ -150,24 +150,26 @@ class ImageSender(AbstractHandler):
                         user_called_name_index[tfunc],
                         image_count
                     )
-                if tfunc == "setu":
+                if tfunc == "setu" or tfunc == "setu18":
                     if await group_setting.get_setting(group.id, Setting.setu):
                         if await group_setting.get_setting(group.id, Setting.r18):
                             return await ImageSender.get_image_message(app, group, member, "setu18", image_count)
-                        else:
+                        elif tfunc == "setu":
                             return await ImageSender.get_image_message(app, group, member, tfunc, image_count)
+                        else:
+                            return MessageItem(MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"), Normal())
                     else:
-                        return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal())
+                        return MessageItem(MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"), Normal())
                 elif tfunc == "real_highq":
                     if await group_setting.get_setting(group.id, Setting.real) and await group_setting.get_setting(group.id, Setting.real_high_quality):
                         return await ImageSender.get_image_message(app, group, member, tfunc, image_count)
                     else:
-                        return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal())
+                        return MessageItem(MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"), Normal())
                 else:
                     if tfunc not in setting_column_index or await group_setting.get_setting(group.id, setting_column_index[tfunc]):
                         return await ImageSender.get_image_message(app, group, member, tfunc, image_count)
                     else:
-                        return MessageItem(MessageChain.create([Plain(text="这是正规群哦~没有那种东西的呢！lsp爬！")]), Normal())
+                        return MessageItem(MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"), Normal())
         else:
             return None
 

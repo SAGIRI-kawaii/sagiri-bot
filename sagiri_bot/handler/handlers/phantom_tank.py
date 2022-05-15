@@ -12,7 +12,7 @@ from graia.ariadne.message.element import Image, Source
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, ElementMatch, RegexResult, ElementResult
+from graia.ariadne.message.parser.twilight import FullMatch, ElementMatch, RegexResult, ElementResult, RegexMatch
 
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
@@ -31,7 +31,8 @@ channel.description("一个幻影坦克生成器，在群中发送 `幻影 [显�
         inline_dispatchers=[
             Twilight([
                 FullMatch("彩色", optional=True) @ "colorful", FullMatch("幻影"),
-                ElementMatch(Image) @ "img1", ElementMatch(Image) @ "img2"
+                RegexMatch(r'[\s]?', optional=True),
+                ElementMatch(Image) @ "img1", RegexMatch(r'[\s]?', optional=True), ElementMatch(Image) @ "img2"
             ])
         ],
         decorators=[
@@ -55,8 +56,10 @@ async def phantom_tank(
     async with get_running(Adapter).session.get(url=img2.result.url) as resp:
         hide_img = PIL.Image.open(BytesIO(await resp.read()))
     if colorful.matched:
-        message = MessageChain([Image(data_bytes=await PhantomTank.colorful_tank(display_img, hide_img))])
-    await app.sendGroupMessage(group, message, quote=message.getFirst(Source))
+        msg = MessageChain([Image(data_bytes=await PhantomTank.colorful_tank(display_img, hide_img))])
+    else:
+        msg = MessageChain([Image(data_bytes=await PhantomTank.make_tank(display_img, hide_img))])
+    await app.sendGroupMessage(group, msg, quote=message.getFirst(Source))
 
 
 class PhantomTank(object):
