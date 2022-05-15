@@ -191,36 +191,46 @@ class ImageSender(object):
                 ImageSender.paths[image_type]
             ):
                 path = ImageSender.paths[image_type].split('$')[0].split(':')[1].split('.')
-                async with get_running(Adapter).session.get(ImageSender.paths[image_type].split('$')[-1]) as resp:
-                    res = await resp.json()
-                for p in path:
-                    try:
-                        if p[0] == '|' and p[1:].isnumeric():
-                            res = res[int(p[1:])]
-                        else:
-                            res = res.get(p)
-                    except TypeError:
-                        logger.error("json解析失败！")
-                        return "json解析失败！请查看配置路径是否正确或API是否有变动！"
-                async with get_running(Adapter).session.get(res) as resp:
-                    return [Image(data_bytes=await resp.read())]
+                result = []
+                for _ in range(image_count):
+                    async with get_running(Adapter).session.get(ImageSender.paths[image_type].split('$')[-1]) as resp:
+                        res = await resp.json()
+                    for p in path:
+                        try:
+                            if p[0] == '|' and p[1:].isnumeric():
+                                res = res[int(p[1:])]
+                            else:
+                                res = res.get(p)
+                        except TypeError:
+                            logger.error("json解析失败！")
+                            return "json解析失败！请查看配置路径是否正确或API是否有变动！"
+                    async with get_running(Adapter).session.get(res) as resp:
+                        result.append(Image(data_bytes=await resp.read()))
+                return result
             elif re.match(url_pattern, ImageSender.paths[image_type]):
-                async with get_running(Adapter).session.get(ImageSender.paths[image_type]) as resp:
-                    return [Image(data_bytes=await resp.read())]
+                result = []
+                for _ in range(image_count):
+                    async with get_running(Adapter).session.get(ImageSender.paths[image_type]) as resp:
+                        result.append(Image(data_bytes=await resp.read()))
+                return result
             else:
                 return [Image(path=f"{os.getcwd()}/statics/error/path_not_exists.png")]
         else:
             raise ValueError(f"Invalid image_type: {image_type}")
 
     @staticmethod
-    async def get_message_item(app: Ariadne, group: Group, images: List[Image], image_count: int, strategy: Strategy):
+    async def get_message_item(app: Ariadne, group: Group, images: Union[List[Image], str], image_count: int, strategy: Strategy):
+        if isinstance(images, str):
+            return MessageItem(
+                message=MessageChain(images),
+                strategy=strategy
+            )
         if image_count == 1:
             return MessageItem(
                 message=MessageChain([images[0]]),
                 strategy=strategy
             )
         else:
-            # sender_name = (await app.getMember(group, config.bot_qq)).name
             node_list = [
                 ForwardNode(
                     senderId=config.bot_qq,
