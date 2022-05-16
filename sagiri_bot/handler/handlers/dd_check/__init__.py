@@ -46,6 +46,6 @@ async def dd_check(app: Ariadne, group: Group, message: MessageChain, username: 
     )
 
 
-@channel.use(SchedulerSchema(timer=timers.croniter("0 */3 * * *")))
+@channel.use(SchedulerSchema(timer=timers.every_custom_hours(3)))
 async def dd_check_schedule():
     await update_vtb_list()
