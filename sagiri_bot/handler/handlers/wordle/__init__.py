@@ -94,7 +94,10 @@ class WordleWaiter(Waiter.create([GroupMessage])):
             if len(word) == self.wordle.length and word.encode('utf-8').isalpha():
                 self.member_list.add(member.id)
                 await self.wordle.draw_mutex.acquire()
+                print("required")
                 result = self.wordle.guess(word)
+                print(result)
+                print("released")
                 self.wordle.draw_mutex.release()
                 if not result:
                     return True

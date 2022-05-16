@@ -57,6 +57,8 @@ class Wordle(object):
 
     draw_mutex: Semaphore   # 绘图信号量
 
+    game_end: bool = False  # 一局游戏是否结束
+
     def __init__(
         self,
         length: int,
@@ -94,6 +96,7 @@ class Wordle(object):
         self.hint_set = set()
         self.guess_word = []
         self.draw_mutex = Semaphore(1)
+        self.game_end = False
         self.row = self.get_retry_times(self.length)
         board_side_width = 2 * padding + (self.length - 1) * block_padding + self.length * block_side_length
         board_side_height = 2 * padding + (self.row - 1) * block_padding + self.row * block_side_length
@@ -126,7 +129,7 @@ class Wordle(object):
 
         """ game_end: bool, win: bool, legal: bool, duplicate: bool, board: PIL.Image.Image """
 
-        if self.current_row >= self.row:
+        if self.current_row >= self.row or self.game_end:
             return None
         if not self.legal_word(word):
             return False, False, False, False, self.board
@@ -135,6 +138,7 @@ class Wordle(object):
         else:
             self.guess_word.append(word.lower())
             self.draw(word)
+            self.game_end = (self.current_row == self.row or self.correct_word(word))
             return self.current_row == self.row or self.correct_word(word), self.correct_word(word), True, False, self.board
 
     @staticmethod

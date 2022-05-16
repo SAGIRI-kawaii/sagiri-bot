@@ -2,13 +2,15 @@ import re
 import os
 import random
 import traceback
-from typing import List
 from loguru import logger
 from datetime import datetime
 from sqlalchemy import select
+from typing import List, Union
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
+from graia.ariadne import get_running
+from graia.ariadne.adapter import Adapter
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
@@ -19,7 +21,6 @@ from graia.ariadne.message.element import Plain, Image, FlashImage, Forward, For
 
 from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.strategy import Strategy
 from sagiri_bot.utils import update_user_call_count_plus
 from sagiri_bot.message_sender.message_item import MessageItem
@@ -52,6 +53,7 @@ user_called_name_index = {
     "bizhi": "bizhi",
     "sketch": "setu"
 }
+url_pattern = r"((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?"
 
 saya = Saya.current()
 channel = Channel.current()
@@ -89,7 +91,7 @@ async def image_sender(app: Ariadne, message: MessageChain, group: Group, member
         await MessageSender(result.strategy).send(app, result.message, message, group, member)
 
 
-class ImageSender(AbstractHandler):
+class ImageSender(object):
     __name__ = "ImageSender"
     __description__ = "一个可以发送图片的插件"
     __usage__ = "在群中发送设置好的关键词即可"
@@ -180,34 +182,65 @@ class ImageSender(AbstractHandler):
         return base_path + path
 
     @staticmethod
-    def get_pic(image_type: str, image_count: int) -> List[Image]:
+    async def get_pic(image_type: str, image_count: int) -> Union[List[Image], str]:
         if image_type in ImageSender.functions:
-            if not os.path.exists(ImageSender.paths[image_type]):
-                return [Image(path=f"{os.getcwd()}/statics/error/path_not_exists.png")]
-            else:
+            if os.path.exists(ImageSender.paths[image_type]):
                 return [Image(path=ImageSender.random_pic(ImageSender.paths[image_type])) for _ in range(image_count)]
+            elif re.match(
+                r"json:([\w\W]+\.)+([\w\W]+)\$" + url_pattern,
+                ImageSender.paths[image_type]
+            ):
+                path = ImageSender.paths[image_type].split('$')[0].split(':')[1].split('.')
+                result = []
+                for _ in range(image_count):
+                    async with get_running(Adapter).session.get(ImageSender.paths[image_type].split('$')[-1]) as resp:
+                        res = await resp.json()
+                    for p in path:
+                        try:
+                            if p[0] == '|' and p[1:].isnumeric():
+                                res = res[int(p[1:])]
+                            else:
+                                res = res.get(p)
+                        except TypeError:
+                            logger.error("json解析失败！")
+                            return "json解析失败！请查看配置路径是否正确或API是否有变动！"
+                    async with get_running(Adapter).session.get(res) as resp:
+                        result.append(Image(data_bytes=await resp.read()))
+                return result
+            elif re.match(url_pattern, ImageSender.paths[image_type]):
+                result = []
+                for _ in range(image_count):
+                    async with get_running(Adapter).session.get(ImageSender.paths[image_type]) as resp:
+                        result.append(Image(data_bytes=await resp.read()))
+                return result
+            else:
+                return [Image(path=f"{os.getcwd()}/statics/error/path_not_exists.png")]
         else:
             raise ValueError(f"Invalid image_type: {image_type}")
 
     @staticmethod
-    async def get_message_item(app: Ariadne, group: Group, images: List[Image], image_count: int, strategy: Strategy):
+    async def get_message_item(app: Ariadne, group: Group, images: Union[List[Image], str], image_count: int, strategy: Strategy):
+        if isinstance(images, str):
+            return MessageItem(
+                message=MessageChain(images),
+                strategy=strategy
+            )
         if image_count == 1:
             return MessageItem(
-                message=MessageChain.create([images[0]]),
+                message=MessageChain([images[0]]),
                 strategy=strategy
             )
         else:
-            # sender_name = (await app.getMember(group, config.bot_qq)).name
             node_list = [
                 ForwardNode(
                     senderId=config.bot_qq,
                     time=datetime.now(),
                     senderName="SAGIRI BOT",
-                    messageChain=MessageChain.create([image]),
+                    messageChain=MessageChain([image]),
                 ) for image in images
             ]
             return MessageItem(
-                message=MessageChain.create([Forward(node_list)]),
+                message=MessageChain([Forward(node_list)]),
                 strategy=strategy
             )
 
@@ -222,26 +255,26 @@ class ImageSender(AbstractHandler):
             r18_process = await group_setting.get_setting(group.id, Setting.r18_process)
             if r18_process == "revoke":
                 return await ImageSender.get_message_item(
-                    app, group, ImageSender.get_pic(func, image_count), image_count, Revoke()
+                    app, group, await ImageSender.get_pic(func, image_count), image_count, Revoke()
                 )
             elif r18_process == "flashImage":
                 return await ImageSender.get_message_item(
                     app=app,
                     group=group,
-                    images=[FlashImage.fromImage(image) for image in ImageSender.get_pic(func, image_count)],
+                    images=[FlashImage.fromImage(image) for image in await ImageSender.get_pic(func, image_count)],
                     image_count=image_count,
                     strategy=Normal()
                 )
             elif r18_process == "noProcess":
                 return await ImageSender.get_message_item(
-                    app, group, ImageSender.get_pic(func, image_count), image_count, Normal()
+                    app, group, await ImageSender.get_pic(func, image_count), image_count, Normal()
                 )
             else:
                 return await ImageSender.get_message_item(
-                    app, group, ImageSender.get_pic(func, image_count), image_count, Normal()
+                    app, group, await ImageSender.get_pic(func, image_count), image_count, Normal()
                 )
         return await ImageSender.get_message_item(
-            app, group, ImageSender.get_pic(func, image_count), image_count, Normal()
+            app, group, await ImageSender.get_pic(func, image_count), image_count, Normal()
         )
 
     @staticmethod
@@ -296,18 +329,18 @@ class ImageSender(AbstractHandler):
             result = await inc.wait(confirm_waiter)
 
             if not result:
-                return MessageItem(MessageChain.create([Plain(text="非预期回复，进程退出")]), Normal())
+                return MessageItem(MessageChain([Plain(text="非预期回复，进程退出")]), Normal())
             elif result == "是":
                 try:
                     await orm.delete(TriggerKeyword, [TriggerKeyword.keyword == keyword])
                 except:
                     logger.error(traceback.format_exc())
-                    return MessageItem(MessageChain.create([Plain(text="发生错误！请查看日志！")]), QuoteSource())
-                return MessageItem(MessageChain.create([Plain(text=f"关键词 {keyword} 删除成功")]), Normal())
+                    return MessageItem(MessageChain([Plain(text="发生错误！请查看日志！")]), QuoteSource())
+                return MessageItem(MessageChain([Plain(text=f"关键词 {keyword} 删除成功")]), Normal())
             else:
-                return MessageItem(MessageChain.create([Plain(text="进程退出")]), Normal())
+                return MessageItem(MessageChain([Plain(text="进程退出")]), Normal())
         else:
-            return MessageItem(MessageChain.create([Plain(text="未找到关键词数据！请检查输入！")]), QuoteSource())
+            return MessageItem(MessageChain([Plain(text="未找到关键词数据！请检查输入！")]), QuoteSource())
 
     @staticmethod
     async def show_keywords(function: str) -> MessageItem:
