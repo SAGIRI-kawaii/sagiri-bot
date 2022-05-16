@@ -30,6 +30,7 @@ from graia.ariadne.message.parser.twilight import (
 )
 
 from sagiri_bot.orm.async_orm import orm
+from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.orm.async_orm import ChatRecord
 from sagiri_bot.utils import user_permission_require
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
@@ -40,6 +41,8 @@ channel = Channel.current()
 channel.name("GroupWordCloudGenerator")
 channel.author("SAGIRI-kawaii")
 channel.description("群词云生成器，" "在群中发送 `[我的|本群][日|月|年]内总结` 即可查看个人/群 月/年词云（群词云需要权限等级2）")
+
+loop = AppCore.get_core_instance().get_loop()
 
 
 @channel.use(
@@ -94,17 +97,6 @@ async def group_wordcloud_generator(
 
 
 class GroupWordCloudGenerator:
-    @staticmethod
-    async def count_words(sp, n):
-        w = {}
-        for i in sp:
-            if i not in w:
-                w[i] = 1
-            else:
-                w[i] += 1
-        top = sorted(w.items(), key=lambda item: (-item[1], item[0]))
-        top_n = top[:n]
-        return top_n
 
     @staticmethod
     async def filter_label(label_list: list) -> list:
@@ -140,7 +132,7 @@ class GroupWordCloudGenerator:
         return result
 
     @staticmethod
-    async def draw_word_cloud(read_name, mask: Optional[IMG.Image]) -> bytes:
+    def draw_word_cloud(read_name, mask: Optional[IMG.Image]) -> bytes:
         def random_pic(base_path: str) -> str:
             path_dir = os.listdir(base_path)
             path = random.sample(path_dir, 1)[0]
@@ -241,10 +233,13 @@ class GroupWordCloudGenerator:
                     f"{review_type}词云:\n"
                 ),
                 Image(
-                    data_bytes=await GroupWordCloudGenerator.draw_word_cloud(
+                    data_bytes=await loop.run_in_executor(
+                        None,
+                        GroupWordCloudGenerator.draw_word_cloud,
                         jieba.analyse.extract_tags(
                             " ".join(texts), topK=topK, withWeight=True, allowPOS=()
-                        ), mask
+                        ),
+                        mask
                     )
                 ),
             ]
