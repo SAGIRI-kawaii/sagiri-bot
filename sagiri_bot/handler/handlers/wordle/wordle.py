@@ -138,7 +138,7 @@ class Wordle(object):
         else:
             self.guess_word.append(word.lower())
             self.draw(word)
-            self.game_end = True
+            self.game_end = self.current_row == self.row or self.correct_word(word)
             return self.current_row == self.row or self.correct_word(word), self.correct_word(word), True, False, self.board
 
     @staticmethod
