@@ -29,6 +29,7 @@ inc = InterruptControl(AppCore.get_core_instance().get_bcc())
 mutex = Semaphore(1)
 
 group_running = {}
+group_semaphore = {}
 group_word_dic = {}
 DEFAULT_DIC = "CET4"
 
@@ -94,7 +95,10 @@ class WordleWaiter(Waiter.create([GroupMessage])):
             if len(word) == self.wordle.length and word.encode('utf-8').isalpha():
                 self.member_list.add(member.id)
                 await self.wordle.draw_mutex.acquire()
+                print("required")
                 result = self.wordle.guess(word)
+                print(result)
+                print("released")
                 self.wordle.draw_mutex.release()
                 if not result:
                     return True
@@ -244,8 +248,15 @@ async def wordle(
     )
     game_end = False
     try:
+        smutex = Semaphore(1)
         while not game_end:
+            await smutex.acquire()
+            if group.id not in group_semaphore:
+                group_semaphore[group.id] = Semaphore(1)
+            smutex.release()
+            await group_semaphore[group.id].acquire()
             game_end = await inc.wait(WordleWaiter(wordle_instance, group, member if single else None), timeout=300)
+            group_semaphore[group.id].release()
     except asyncio.exceptions.TimeoutError:
         await app.sendGroupMessage(group, MessageChain("游戏超时，进程结束"), quote=message.getFirst(Source))
         await mutex.acquire()
