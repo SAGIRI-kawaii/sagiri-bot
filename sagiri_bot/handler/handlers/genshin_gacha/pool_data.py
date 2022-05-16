@@ -236,4 +236,4 @@ async def init_pool_list():
 
 
 loop = AppCore.get_core_instance().get_loop()
-loop.run_until_complete(init_pool_list()) if AUTO_UPDATE else None
+loop.run_in_executor(None, init_pool_list) if AUTO_UPDATE else None

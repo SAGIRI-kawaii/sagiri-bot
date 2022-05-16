@@ -283,4 +283,4 @@ async def init(flag: bool = False):
         logger.warning('原神资源查询信息初始化超时....')
 
 
-loop.run_until_complete(init(True))
+loop.run_in_executor(None, init, True)
