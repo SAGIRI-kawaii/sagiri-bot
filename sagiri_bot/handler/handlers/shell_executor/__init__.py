@@ -1,3 +1,15 @@
+"""
+Shell Executor 终端执行器
+
+Usage:      @Bot shell> [Shell]
+Example:    @Bot shell> pwd
+
+执行历史将被保存至同文件夹下的 history.txt 中
+记录结构为
+%Y-%m-%d %H:%M:%S    QQ号    执行的 Shell 语句
+"""
+
+
 import asyncio
 import os
 from datetime import datetime
