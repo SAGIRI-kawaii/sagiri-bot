@@ -52,8 +52,8 @@ loop = AppCore.get_core_instance().get_loop()
             Twilight(
                 [
                     UnionMatch("我的", "本群") @ "scope",
-                    UnionMatch("年内", "月内", "日内") @ "period",
-                    FullMatch("总结"),
+                    UnionMatch("年内", "月内", "日内", "今日", "本月", "本年", "年度", "月度") @ "period",
+                    UnionMatch("总结", "词云"),
                     RegexMatch(r"[0-9]+", optional=True) @ "topK",
                     RegexMatch(r"[\s]", optional=True),
                     ElementMatch(Image, optional=True) @ "mask",
@@ -62,7 +62,7 @@ loop = AppCore.get_core_instance().get_loop()
             )
         ],
         decorators=[
-            FrequencyLimit.require(channel.meta["name"], 3),
+            FrequencyLimit.require(channel.meta["name"], 2),
             Function.require(channel.module),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
@@ -173,10 +173,10 @@ class GroupWordCloudGenerator:
         member_id = member.id
         time = datetime.now()
         time_right = time.strftime("%Y-%m-%d %H:%M:%S")
-        if review_type == "年内":
+        if review_type in ("年内", "今年", "年度"):
             timep = time - relativedelta(years=1)
             time_left = (time - relativedelta(years=1)).strftime("%Y-%m-%d %H:%M:%S")
-        elif review_type == "月内":
+        elif review_type == ("月内", "本月", "月度"):
             timep = time - relativedelta(months=1)
             time_left = (time - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S")
         else:
