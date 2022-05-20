@@ -28,7 +28,7 @@ async def saucenao_search(
         resp = resp.raw[0]
         return MessageChain([
             Plain("SAUCENAO搜索到以下结果：\n"),
-            Image(data_bytes=await get_thumb(resp.thumbnail)),
+            Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
             Plain(f"\n标题：{resp.title}\n"),
             Plain(f"相似度：{resp.similarity}%\n"),
             Plain(f"作者：{resp.author}\n"),

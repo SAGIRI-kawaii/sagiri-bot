@@ -28,7 +28,7 @@ async def ascii2d_search(
         resp = resp.raw[1]
         return MessageChain([
             Plain("ASCII2D搜索到以下结果：\n"),
-            Image(data_bytes=await get_thumb(resp.thumbnail)),
+            Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
             Plain(f"\n标题：{resp.title}\n"),
             Plain(f"作者：{resp.author}\n"),
             Plain(f"图像详情：{resp.detail}\n"),

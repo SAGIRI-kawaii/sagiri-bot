@@ -26,7 +26,7 @@ async def baidu_search(
         resp = resp.raw[2]
         return MessageChain([
             Plain("BAIDU搜索到以下结果：\n"),
-            Image(data_bytes=await get_thumb(resp.image_src)),
+            Image(data_bytes=await get_thumb(resp.image_src, '')),
             Plain(f"\n标题：{resp.title}\n"),
             Plain(f"摘要：{resp.abstract}\n"),
             Plain(f"链接：{resp.url}")

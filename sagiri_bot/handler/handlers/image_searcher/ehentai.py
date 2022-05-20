@@ -30,7 +30,7 @@ async def ehentai_search(
         resp = resp.raw[0]
         return MessageChain([
             Plain("EHentai搜索到以下结果：\n"),
-            Image(data_bytes=await get_thumb(resp.thumbnail)),
+            Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
             Plain(f"\n标题：{resp.title}\n"),
             Plain(f"类别：{resp.type}\n"),
             Plain(f"上传日期：{resp.date}\n"),

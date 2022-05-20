@@ -26,7 +26,7 @@ async def google_search(
         resp = resp.raw[2]
         return MessageChain([
             Plain("GOOGLE搜索到以下结果：\n"),
-            Image(data_bytes=await get_thumb(resp.thumbnail)),
+            Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
             Plain(f"\n标题：{resp.title}\n"),
             Plain(f"链接：{resp.url}")
         ])

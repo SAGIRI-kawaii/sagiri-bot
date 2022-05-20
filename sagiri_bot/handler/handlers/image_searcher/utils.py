@@ -5,8 +5,8 @@ from graia.ariadne.adapter import Adapter
 from graia.ariadne.message.chain import MessageChain
 
 
-async def get_thumb(url: str) -> bytes:
-    async with get_running(Adapter).session.get(url, proxy="http://localhost:7890") as resp:
+async def get_thumb(url: str, proxy: str) -> bytes:
+    async with get_running(Adapter).session.get(url, proxy=proxy) as resp:
         return await resp.read()
 
 
