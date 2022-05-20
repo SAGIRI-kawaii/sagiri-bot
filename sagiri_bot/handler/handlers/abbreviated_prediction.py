@@ -19,23 +19,6 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个获取英文缩写意思的插件，在群中发送 `缩 内容` 即可")
 
 
-@channel.use(
-    ListenerSchema(
-        listening_events=[GroupMessage],
-        inline_dispatchers=[
-            Twilight([
-                FullMatch("缩"),
-                RegexMatch(r"[A-Za-z0-9]+").help("要缩写的内容") @ "content"]
-            )
-        ],
-        decorators=[
-            FrequencyLimit.require("abbreviated_prediction", 1),
-            Function.require(channel.module),
-            BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
-    )
-)
 async def abbreviated_prediction(app: Ariadne, group: Group, message: MessageChain, content: RegexResult):
     url = "https://lab.magiconch.com/api/nbnhhsh/guess"
     headers = {"referer": "https://lab.magiconch.com/nbnhhsh/"}
@@ -47,17 +30,13 @@ async def abbreviated_prediction(app: Ariadne, group: Group, message: MessageCha
     result = "可能的结果:\n\n"
     has_result = False
     for i in res:
-        if "trans" in i:
-            if i["trans"]:
-                has_result = True
-                result += f"{i['name']} => {'，'.join(i['trans'])}\n\n"
-            else:
-                result += f"{i['name']} => 没找到结果！\n\n"
+        if "trans" in i and i["trans"]:
+            has_result = True
+            result += f"{i['name']} => {'，'.join(i['trans'])}\n\n"
+        elif "trans" in i or not i["inputting"]:
+            result += f"{i['name']} => 没找到结果！\n\n"
         else:
-            if i["inputting"]:
-                has_result = True
-                result += f"{i['name']} => {'，'.join(i['inputting'])}\n\n"
-            else:
-                result += f"{i['name']} => 没找到结果！\n\n"
+            has_result = True
+            result += f"{i['name']} => {'，'.join(i['inputting'])}\n\n"
     result = result if has_result else "没有找到结果哦~"
     await app.sendGroupMessage(group, MessageChain(result), quote=message.getFirst(Source))

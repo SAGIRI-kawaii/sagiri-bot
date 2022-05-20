@@ -22,7 +22,7 @@ channel = Channel.current()
 
 channel.name("XsList")
 channel.author("SAGIRI-kawaii")
-channel.description("一个简单的投骰子插件，发送 `{times}d{range}` 即可")
+channel.description("一个简查老师的插件，发送 `/查老师 {作品名/老师名/图片}` 即可")
 
 
 @channel.use(

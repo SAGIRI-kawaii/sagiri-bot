@@ -274,7 +274,7 @@ class Function(object):
             if not saya_data.is_turned_on(name, group):
                 if saya_data.is_notice_on(name, group) or notice:
                     await ariadne_ctx.get().sendMessage(
-                        group, MessageChain.create([Plain(text=f"{name}插件已关闭，请联系管理员")])
+                        group, MessageChain(f"{name}插件已关闭，请联系管理员")
                     )
                 raise ExecutionStop()
             if not await group_setting.get_setting(group, Setting.switch):
