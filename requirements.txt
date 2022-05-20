@@ -33,3 +33,4 @@ jinja2==3.0.3
 markdown==3.3.6
 requests==2.26.0
 scipy==1.8.0
+PicImageSearch==3.3.2
