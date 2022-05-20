@@ -52,6 +52,7 @@ class WordleWaiter(Waiter.create([GroupMessage])):
         self.group = group if isinstance(group, int) else group.id
         self.member = (member if isinstance(member, int) else member.id) if member else None
         self.member_list = set()
+        self.member_list_mutex = Semaphore(1)
 
     async def detected_event(self, app: Ariadne, group: Group, member: Member, message: MessageChain):
         word = message.asDisplay().strip()
@@ -72,9 +73,11 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     ]),
                     quote=message_source
                 )
+                await self.member_list_mutex.acquire()
                 for member in self.member_list:
                     await update_member_statistic(group, member, StatisticType.lose)
                     await update_member_statistic(group, member, StatisticType.game)
+                self.member_list_mutex.release()
                 await mutex.acquire()
                 group_running[group.id] = False
                 mutex.release()
@@ -92,7 +95,9 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     )
                 return False
             if len(word) == self.wordle.length and word.encode('utf-8').isalpha():
+                await self.member_list_mutex.acquire()
                 self.member_list.add(member.id)
+                self.member_list_mutex.release()
                 await self.wordle.draw_mutex.acquire()
                 print("required")
                 result = self.wordle.guess(word)
@@ -105,11 +110,13 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     await update_member_statistic(
                         group, member, StatisticType.correct if result[1] else StatisticType.wrong
                     )
+                    await self.member_list_mutex.acquire()
                     for member in self.member_list:
                         await update_member_statistic(
                             group, member, StatisticType.win if result[1] else StatisticType.lose
                         )
                         await update_member_statistic(group, member, StatisticType.game)
+                    self.member_list_mutex.release()
                     dic = group_word_dic[group.id]
                     word_data = word_list[dic][len(self.wordle.word)][self.wordle.word]
                     explain = '\n'.join([f"【{key}】：{word_data[key]}" for key in word_data])
