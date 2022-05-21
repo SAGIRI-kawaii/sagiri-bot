@@ -19,6 +19,23 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个获取英文缩写意思的插件，在群中发送 `缩 内容` 即可")
 
 
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight([
+                FullMatch("缩"),
+                RegexMatch(r"[A-Za-z0-9]+").help("要缩写的内容") @ "content"]
+            )
+        ],
+        decorators=[
+            FrequencyLimit.require("abbreviated_prediction", 1),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
+    )
+)
 async def abbreviated_prediction(app: Ariadne, group: Group, message: MessageChain, content: RegexResult):
     url = "https://lab.magiconch.com/api/nbnhhsh/guess"
     headers = {"referer": "https://lab.magiconch.com/nbnhhsh/"}

@@ -210,12 +210,14 @@ async def pica_function(
 
     elif operation.result.asDisplay() in ("search", "random"):
         search = operation.result.asDisplay() == "search"
-        keyword = content.result.asDisplay() if content.matched else ''
+        keyword = content.result.asDisplay().strip() if content.matched else ''
         if search and content.matched:
             await app.sendMessage(group, MessageChain(f"收到请求，正在搜索{keyword}..."))
         data = (await pica.search(keyword))[:10] \
             if search else (await pica.random())[:10]
         forward_nodes = []
+        if not data:
+            return await app.sendGroupMessage(group, MessageChain("没有搜索到捏"))
         for comic in data:
             comic_info = await pica.comic_info(comic["id"]) if operation.result.asDisplay() == "search" else comic
             try:
