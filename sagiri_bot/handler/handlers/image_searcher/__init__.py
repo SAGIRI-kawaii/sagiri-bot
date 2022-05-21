@@ -32,7 +32,7 @@ channel.description("一个可以以图搜图的插件，在群中发送 `搜图
 core = AppCore.get_core_instance()
 bcc = core.get_bcc()
 config = core.get_config()
-proxy = config.proxy if config.proxy != "proxy" else ''
+proxy = config.proxy if config.proxy != "proxy" else None
 SAUCENAO_API_KEY = config.functions.get("saucenao_api_key", None)
 
 
@@ -69,7 +69,7 @@ async def image_searcher(app: Ariadne, message: MessageChain, group: Group, memb
     if not image.matched:
         try:
             await app.sendMessage(
-                group, MessageChain.create("请在30s内发送要处理的图片"), quote=message[Source][0]
+                group, MessageChain("请在30s内发送要处理的图片"), quote=message[Source][0]
             )
             image = await asyncio.wait_for(inc.wait(image_waiter), 30)
             if not image:
