@@ -48,7 +48,7 @@ data_cache = config.data_related.get("lolicon_data_cache")
             Twilight(
                 [
                     FullMatch("来点"),
-                    RegexMatch(r"[^\s]+") @ "keyword",
+                    RegexMatch(r"[^\s]+", optional=True) @ "keyword",
                     RegexMatch(r"[色涩瑟]图$"),
                 ]
             )
@@ -64,7 +64,9 @@ data_cache = config.data_related.get("lolicon_data_cache")
 async def lolicon_keyword_searcher(
     app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult
 ):
-    keyword = keyword.result.asDisplay()
+    has_keyword = keyword.matched
+    keyword = keyword.result.asDisplay() if has_keyword else ""
+    logger.info(keyword if has_keyword else "随机")
     msg_chain = await get_image(group, keyword)
     if msg_chain.onlyContains(Plain):
         return await app.sendGroupMessage(
