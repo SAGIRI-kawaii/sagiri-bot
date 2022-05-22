@@ -68,7 +68,7 @@ class GraiaAdapter(AbstractAdapter):
             if isinstance(element, MessageChain):
                 messagechain_elements = element.asSendable().__root__
                 self.parse(messagechain_elements)
-            elif any([isinstance(element, el_type) for el_type in (Plain, At, AtAll)]):
+            elif any(isinstance(element, el_type) for el_type in (Plain, At, AtAll)):
                 self.data.append(
                     Text(
                         element.asDisplay(), self.font, self.color, self.size, self.spacing, None, self.center, self.end
@@ -78,7 +78,7 @@ class GraiaAdapter(AbstractAdapter):
                 if element.base64:
                     self.data.append(Image(base64=element.base64, center=self.center))
                 elif element.url:
-                    self.data.append(Image(data_bytes=requests.get(element.url).content, center=self.center))
+                    self.data.append(Image(data_bytes=requests.get(element.url, verify=False).content, center=self.center))
                 else:
                     raise ValueError("Can't init Image without url or base64!")
             else:
