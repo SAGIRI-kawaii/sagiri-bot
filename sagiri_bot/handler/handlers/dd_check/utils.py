@@ -22,7 +22,7 @@ env = jinja2.Environment(
 
 
 async def update_vtb_list():
-    vtb_list = load_vtb_list()
+    vtb_list = []
     urls = [
         "https://api.vtbs.moe/v1/short",
         "https://api.tokyo.vtbs.moe/v1/short",
@@ -34,9 +34,9 @@ async def update_vtb_list():
                 result = await resp.json()
             if not result:
                 continue
-            vtb_list += result
-            uid_list = list(set((info["mid"] for info in vtb_list)))
-            vtb_list = list(filter(lambda info: info["mid"] in uid_list, vtb_list))
+            for info in result:
+                if info.get("mid", None) and info.get("uname", None):
+                    vtb_list.append(info)
             break
         except asyncio.TimeoutError:
             logger.warning(f"Get {url} timeout")
