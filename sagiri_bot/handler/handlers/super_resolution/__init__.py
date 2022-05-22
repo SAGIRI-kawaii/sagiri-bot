@@ -1,10 +1,12 @@
 import time
 import asyncio
+import imageio
 import numpy as np
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
 from PIL import Image as IMG
+from PIL import ImageSequence
 from asyncio import Semaphore
 
 try:
@@ -55,7 +57,7 @@ upsampler = RealESRGANer(
         num_grow_ch=32,
         scale=4,
     ),
-    tile=0,
+    tile=100,
     tile_pad=10,
     pre_pad=0,
     half=False,
@@ -122,20 +124,20 @@ class SuperResolution(AbstractHandler):
         ):
             if waiter_group.id == group.id and waiter_member.id == member.id:
                 if waiter_message.has(Image):
-                    return await waiter_message.getFirst(Image).get_bytes()
+                    return waiter_message.getFirst(Image)
                 else:
                     return False
         if not enable:
             return MessageItem(MessageChain.create([Plain(text="功能未开启！")]), QuoteSource())
         if image.matched:
-            image_data = await image.result.get_bytes()
+            image = image.result
         else:
             try:
                 await app.sendMessage(
                     group, MessageChain.create("请在30s内发送要处理的图片"), quote=message[Source][0]
                 )
-                image_data = await asyncio.wait_for(inc.wait(image_waiter), 30)
-                if not image_data:
+                image = await asyncio.wait_for(inc.wait(image_waiter), 30)
+                if not image:
                     return MessageItem(MessageChain.create([Plain(text="未检测到图片，请重新发送，进程退出")]), QuoteSource())
             except asyncio.TimeoutError:
                 return MessageItem(MessageChain.create([Plain(text="图片等待超时，进程退出")]), QuoteSource())
@@ -150,7 +152,7 @@ class SuperResolution(AbstractHandler):
             quote=message[Source][0]
         )
         try:
-            return await SuperResolution.super_resolution(image_data, resize.matched)
+            return await SuperResolution.super_resolution(await image.get_bytes(), resize.matched, '.gif' in image.id)
         except RuntimeError as e:
             await mutex.acquire()
             SuperResolution.processing = False
@@ -158,7 +160,7 @@ class SuperResolution(AbstractHandler):
             return MessageItem(MessageChain.create([Plain(text=str(e))]), QuoteSource())
 
     @staticmethod
-    async def super_resolution(image_data: bytes, resize: bool = False) -> MessageItem:
+    async def super_resolution(image_data: bytes, resize: bool = False, is_gif: bool = False) -> MessageItem:
         start = time.time()
         image = IMG.open(BytesIO(image_data))
         image_size = image.size[0] * image.size[1]
@@ -182,11 +184,22 @@ class SuperResolution(AbstractHandler):
                     break
             magnification = round(max_size / image_size, length + 1)
             image = image.resize((round(image.size[0] * magnification), round(image.size[1] * magnification)))
-        image_array: np.ndarray = image.__array__()
-        output, _ = await loop.run_in_executor(None, upsampler.enhance, image_array, 2)
+        outputs = []
+        output = None
         result = BytesIO()
-        img = IMG.fromarray(output)
-        img.save(result, format='PNG')  # format: PNG / JPEG
+        if is_gif:
+            for i in ImageSequence.Iterator(image):
+                image_array: np.ndarray = i.__array__()
+                output, _ = await loop.run_in_executor(None, upsampler.enhance, image_array, 2)
+                outputs.append(output)
+        else:
+            image_array: np.ndarray = image.__array__()
+            output, _ = await loop.run_in_executor(None, upsampler.enhance, image_array, 2)
+        if is_gif:
+            imageio.mimsave(result, outputs[1:], format='gif', duration=0.05)
+        else:
+            img = IMG.fromarray(output)
+            img.save(result, format='PNG')  # format: PNG / JPEG
         end = time.time()
         use_time = round(end - start, 2)
         await mutex.acquire()
