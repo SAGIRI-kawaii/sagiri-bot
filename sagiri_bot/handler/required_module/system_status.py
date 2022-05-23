@@ -72,10 +72,7 @@ async def system_status(app: Ariadne, group: Group, system: ArgResult, info: Arg
     #    '\n        '.join([*[f"{path_name}: {round(sum([os.path.getsize(path + file) for file in os.listdir(path)]) / (1024 ** 3), 2)}GB" if os.path.exists(path) else f"{path_name}: 路径不存在" for path_name, path in image_path.items()]])
     battery_power_connected = psutil.sensors_battery().power_plugged  # 获取电脑是否连接了电
     battery_power_power = psutil.sensors_battery().percent  # 获取电池的电量
-    if battery_power_connected:
-        ret_power_connected = '正在充电'
-    else:
-        ret_power_connected = '正在放电'
+    ret_power_connected = '正在充电' if battery_power_connected else '正在放电'
     battery_message = MessageChain(
         "电池相关: \n" +
         f"    电池电量: {battery_power_power}%\n"
@@ -91,5 +88,5 @@ async def system_status(app: Ariadne, group: Group, system: ArgResult, info: Arg
         await app.sendGroupMessage(group, memory_message)
     elif cpu.matched:
         await app.sendGroupMessage(group, cpu_message)
-    elif battery.matched:
+    else:
         await app.sendGroupMessage(group, battery_message)
