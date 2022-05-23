@@ -17,7 +17,9 @@ from .google import google_search
 from .ascii2d import ascii2d_search
 from .ehentai import ehentai_search
 from .saucenao import saucenao_search
+from sagiri_bot.utils import group_setting
 from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -65,11 +67,12 @@ async def image_searcher(app: Ariadne, message: MessageChain, group: Group, memb
                 return waiter_message.getFirst(Image).url
             else:
                 return False
-
+    if not await group_setting.get_setting(group, Setting.img_search):
+        return await app.sendGroupMessage(group, MessageChain("搜图功能已经关闭了，请联系管理员哦~"))
     if not image.matched:
         try:
             await app.sendMessage(
-                group, MessageChain("请在30s内发送要处理的图片"), quote=message[Source][0]
+                group, MessageChain("请在30s内发送要处理的图片"), quote=message.getFirst(Source)
             )
             image = await asyncio.wait_for(inc.wait(image_waiter), 30)
             if not image:
