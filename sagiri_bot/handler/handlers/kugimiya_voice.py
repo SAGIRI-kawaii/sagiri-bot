@@ -36,4 +36,4 @@ channel.description("一个钉宫语音包插件，发送 `来点钉宫` 即可"
 async def kugimiya_voice(app: Ariadne, group: Group):
     base_path = f"{os.getcwd()}/statics/voice/kugimiya/"
     path = base_path + random.sample(os.listdir(base_path), 1)[0]
-    await app.sendGroupMessage(group, MessageChain([Voice(data_bytes=await silkcoder.async_encode(path))]))
+    await app.sendGroupMessage(group, MessageChain([Voice(data_bytes=await silkcoder.async_encode(path, rate=24000))]))

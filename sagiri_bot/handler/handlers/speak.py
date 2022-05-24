@@ -71,7 +71,9 @@ async def speak(app: Ariadne, message: MessageChain, group: Group, voice_type: A
         if isinstance(voice, str):
             await app.sendGroupMessage(group, MessageChain(voice), quote=message.getFirst(Source))
         elif isinstance(voice, bytes):
-            await app.sendGroupMessage(group, MessageChain([Voice(data_bytes=await silkcoder.async_encode(voice))]))
+            await app.sendGroupMessage(
+                group, MessageChain([Voice(data_bytes=await silkcoder.async_encode(voice, rate=24000))])
+            )
 
 
 class Speak(object):
@@ -96,11 +98,10 @@ class Speak(object):
             if err.get_code() == "UnsupportedOperation.TextTooLong":
                 return Speak.get_voice(text, voice_type, is_long=True)
             return -1, str(err)
-        if not is_long:
-            voice = json.loads(resp.to_json_string())["Audio"]
-            return 0, base64.b64decode(voice)
-        else:
+        if is_long:
             return 1, json.loads(resp.to_json_string())["Data"]["TaskId"]
+        voice = json.loads(resp.to_json_string())["Audio"]
+        return 0, base64.b64decode(voice)
 
     @staticmethod
     async def aget_voice(text: str, voice_type: int) -> Union[str, bytes]:
