@@ -59,8 +59,6 @@ xxxx-xx-xx xx:xx:xx I/main: mirai-console started successfully.
 >
 ```
 
-- 此时输入 `/autoLogin add <你的QQ号> <你的QQ密码>` 并回车，应该会显示 已成功添加 '<你的QQ号>'
-
 - 点击右上角 `X` 退出 `mirai-console`
 
 ### 自行安装
@@ -167,6 +165,24 @@ url:http://xxx.xxx.xxx
     - 完成滑动验证，此时在 `DevTool` 界面中应会出现新的请求，找到其中名为 `cap_union_new_verify` 选项卡，点击其中的 `Preview` 选项卡，在其中找到 `ticket` 的值填入 `mcl` 并回车
     - gif演示：![浏览器获取ticket演示](https://sagiri-kawaii.github.io/sagiri-bot/asserts/txcaptcha.gif)
 
+### 配置自动登录
+
+在登录完成后，输入 `/autoLogin add <你的QQ号> <你的QQ密码>` 并回车，应该会显示 `已成功添加 '<你的QQ号>'`
+
+!!!note "如何实现手机和 mirai 同时在线？"
+
+    可通过更改登录协议实现，操作如下：
+
+    在已配置自动登录后，输入 `/autoLogin setConfig <你的QQ号> protocol IPAD`
+
+    指令中的 `IPAD` 可更换为其他登录协议，如 `ANDROID_PAD` `ANDROID_WATCH` 等，推荐使用 `IPAD` 登录协议以防止出现部分功能无法使用的情况
+
+    注意：更改协议后需要重启 `mcl` 才可生效
+
+    > 什么？你想手机平板手表电脑和 mirai 同时在线？
+
+    > 我的建议是，为什么不问问万能的神奇海螺呢？
+
 ## 安装python
 
 ### 使用 Anaconda
@@ -224,12 +240,62 @@ url:http://xxx.xxx.xxx
 - 按文件中注释更改
 - 将文件更名为 `config.yaml`
 
+!!!note "不知道怎么改数据库链接？"
+
+    **大部分情况下保持不变即可。**
+
+    如需要指定使用的数据库或使用 MySQL 等，则需要更改至相应链接，格式如下：
+
+    - SQLite
+
+        > `sqlite+aiosqlite:///data.db`
+
+        > 使用该链接将使用 SAGIRI-BOT 部署目录下的 `data.db`
+
+    - MySQL
+
+        > `mysql+aiomysql://username:password@ip:port/database`
+
+        > 使用该链接将以 `username` 为用户名，`password` 为密码连接至位于 `ip:port` 的 `database` 数据库
+
+    - 其他数据库
+
+        > 不知道捏，自己探索吧
+
+        > 可查阅 SQLAlchemy 使用文档填写合适的链接
+
+    **如果你看不懂上述文本的话保持不变即可。**
+
 ## 配置 `alembic`
 
 - 首先启动 `mcl`
 - 运行一次bot ( `python main.py` )，bot应会自动退出
 - 在目录下寻找 `alembic.ini` 文件并打开
 - 将其中 `sqlalchemy.url` 项更换为自己的连接（不需注明引擎否则会报错）（如 `sqlite:///data.db`）
+
+!!!note "不知道什么是引擎？"
+
+    **如果你在上一步保持不变，这一步跳过即可。**
+
+    - SQLite
+
+        > 假设你在上一步配置的链接为 `sqlite+aiosqlite:///data.db`
+
+        > 则你在这一步配置的链接应为 `sqlite:///data.db`
+
+    - MySQL
+
+        > 假设你在上一步配置的链接为 `mysql+aiomysql://username:password@ip:port/database`
+
+        > 则你在这一步配置的链接应为 `mysql://username:password@ip:port/database`
+
+    - 其他数据库
+
+        > 不知道捏，自己探索吧
+
+        > 可查阅 SQLAlchemy 使用文档填写合适的链接
+
+    **如果你看不懂上述文本的话，看这个区块的第一行**
 
 ## 启动机器人
 
