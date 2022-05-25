@@ -82,6 +82,7 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 5. 查看 `config.yaml` 中 `mirai_host` 项是否正确配置并与 `mah` 中配置相同
 6. 查看是否在 `mirai-concole-loader(mcl)` 中登录了帐号
 7. 若在 `mirai-concole-loader(mcl)` 中出现类似 `W/net.mamoe.mirai-api-http: USING INITIAL KEY, please edit the key` 的信息，请更换新的 `verifyKey` 后重启尝试
+8. 查看是否同时启动了多个 `mirai-console-loader(mcl)`
 
 > ## yamlDecodingException
 
@@ -91,6 +92,12 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 ```
 
 请尝试重新粘贴配置，或更换端口，可能是有不可见字符混入配置文件
+
+> ## Address in use
+
+1. 检查是否开启了多个 `mirai-console-loader(mcl)`
+2. 检查 `mirai-api-http(mah)` 使用的端口是否为常用端口，如 `80` `443` `8080` `8000` 等，该情况下请更换为非常用端口，如 `11451` `14514` 等
+3. 检查 `mirai-api-http(mah)` 使用的端口是否被其他软件占用
 
 > ## 内存占用问题
 
@@ -128,6 +135,20 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 查看 [mcl-installer #35](https://github.com/iTXTech/mcl-installer/issues/35)
     
 使用命令 `curl -LJO https://ghproxy.com/github.com/iTXTech/mcl-installer/releases/download/f7ee211/mcl-installer-f7ee211-linux-amd64-musl`
+
+> ## sqlalchemy.exc.ProgrammingError: (pymysql.err.ProgrammingError) (1146, "Table 'sagiri_bot.keyword_reply' doesn't exist")
+
+该错误通常仅在首次启动或更换数据库时出现，并不会影响实际的功能使用。
+
+相关 Issue：[#247](https://github.com/SAGIRI-kawaii/sagiri-bot/issues/247#issuecomment-1133041028)
+
+> ## sqlalchemy.exc.DataError: (pymysql.err.DataError) (1366, "Incorrect string value: '\\xF0\\x9F\\x91\\x91' for column 'group_name' at row 1")
+
+出现该错误的原因通常为使用非 `utf8mb4` 字符集的 `MySQL` 数据库。将数据库字符集更改为 `utf8mb4` 可解决该问题。
+
+如在字符集已为 `utf8mb4` 的情况下出现该错误，请尝试在数据库链接后添加 `?charset=utf8mb4`，如 `mysql+aiomysql://user:pass@ip:port/sagiri_bot?charset=utf8mb4`
+
+相关 Issue：[#40](https://github.com/SAGIRI-kawaii/sagiri-bot/issues/40) [#247](https://github.com/SAGIRI-kawaii/sagiri-bot/issues/247#issuecomment-1133041028)
 
 > ## 下载速度问题
 
