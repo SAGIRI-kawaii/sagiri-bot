@@ -6,6 +6,8 @@
 
 - 由于本文中所有的装饰器返回的都是 `Depend(func)` 形式，所以你只能在 `broadcast / saya` 中使用
 
+- 注意，在二次开发时请勿将修饰器实例化，以修饰器 `Permission` 为例，使用时格式应类似于 `Permission.require(...)`，而非 `Permission().require(...)`
+
 - 关于 `Depend` 依赖注入，请查看 [Ariadne文档](https://graia.readthedocs.io/advance/broadcast/depend/)
 
 - broadcast:

@@ -2,7 +2,7 @@
 
 > ## 前置知识
 
-要进行二次开发，你需要有以下语音/框架的基础
+要进行二次开发，你需要有以下语言/框架的基础
 
 ### python基础
 - [python官方文档](https://docs.python.org/zh-cn/3/contents.html)

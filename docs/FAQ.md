@@ -164,6 +164,18 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 
 - 使用示例：`pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple`
 
+> ## sqlalchemy.exc.InternalError: (pymysql.err.InternalError) (1054, "Unknown column 'setting.avatar_func' in 'field list'")
+
+请检查 `alembic.ini` 是否已正确配置
+
+> ## iTXTech Soyuz 未安装 / SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+
+不会对正常使用造成影响，可忽略。
+
+> ## playwright install-deps 失败
+
+详见 [#229](https://github.com/SAGIRI-kawaii/sagiri-bot/issues/229) 与 [brillout/vite-plugin-ssr #283](https://github.com/brillout/vite-plugin-ssr/issues/283)
+
 > ## 代理相关
 
 由于某些原因，此文档中不会涉及到代理的搭建、部署、使用等教程，请自行寻找教程
