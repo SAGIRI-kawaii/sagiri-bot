@@ -183,7 +183,31 @@ url:http://xxx.xxx.xxx
 
 ### 配置自动登录
 
-在登录完成后，输入 `/autoLogin add <你的QQ号> <你的QQ密码>` 并回车，应该会显示 `已成功添加 '<你的QQ号>'`
+!!!warning "注意"
+
+    为防止因填入不当数据导致无法启动 mirai-console-loader (MCL) 的问题，**建议在部署时通过 mirai-console-loader (MCL) 内建的 `autoLogin` 指令配置自动登录**，而非直接修改 Console 配置文件
+
+#### 使用 /autoLogin 配置自动登录（推荐）
+
+在 mirai-console-loader (MCL) 登录完成后，输入 `/autoLogin add <你的QQ号> <你的QQ密码>` 并回车，应该会显示 `已成功添加 '<你的QQ号>'`
+
+#### 修改 Console 配置文件实现自动登录（不推荐）
+
+!!!warning "仅可在 mirai-console-loader (MCL) 已关闭的情况下更改配置文件"
+
+使用合适的编辑器打开位于 mirai-console-loader (MCL) 安装目录下的 `config/Console/AutoLogin.yml` 文件，应类似于如下内容：
+
+```yaml
+accounts: 
+    account: 123456    # 需要自动登录的 QQ 号
+    password:     # 这行不填！！！这行不填！！！这行不填！！！
+      kind: PLAIN    #       # 密码种类, 可选 PLAIN 或 MD5，看不懂保持默认即可
+      value: pwd    # QQ 号对应的登录密码，PLAIN 时为密码文本, MD5 时为 16 进制
+    configuration: 
+      protocol: ANDROID_PHONE    # 登录协议，看不懂保持默认即可，可选 "ANDROID_PHONE" / "ANDROID_PAD" / "ANDROID_WATCH" /"MAC" / "IPAD"
+```
+
+修改 `account` `kind` `value` `protocol` 的值并保存即可完成自动登录的配置
 
 !!!note "如何实现手机和 mirai 同时在线？"
 
@@ -394,3 +418,7 @@ Saya version: 0.0.13
 其中 `...` 为省略的类似内容
 
 现在，来试一试你的机器人吧！
+
+## 后台运行
+
+可使用 `bg` `screen` `tmux` `nohup` 等方法实现后台运行，此处不作过多阐述。
