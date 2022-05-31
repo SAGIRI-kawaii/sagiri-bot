@@ -7,16 +7,15 @@ from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.element import Plain, Source
 from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import RegexMatch, UnionMatch, FullMatch, RegexResult
 
 from .pool_data import init_pool_list
-from sagiri_bot.decorators import switch, blacklist
 from sagiri_bot.utils import user_permission_require
 from .gacha import gacha_info, FILE_PATH, Gacha, POOL
 from utils.daily_number_limiter import DailyNumberLimiter
-from sagiri_bot.decorators import frequency_limit_require_weight_free
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -76,9 +75,6 @@ with open(os.path.join(FILE_PATH, 'gid_pool.json'), 'r', encoding='UTF-8') as f:
         ]
     )
 )
-@switch()
-@blacklist()
-@frequency_limit_require_weight_free(1)
 async def gacha(app: Ariadne, group: Group, message: MessageChain, member: Member, count: RegexResult):
     gid = group.id
     user_id = member.id
@@ -115,12 +111,7 @@ async def gacha(app: Ariadne, group: Group, message: MessageChain, member: Membe
 )
 async def get_gacha_info(app: Ariadne, group: Group):
     gid = group.id
-
-    if gid in group_pool:
-        info = gacha_info(group_pool[gid])
-    else:
-        info = gacha_info()
-
+    info = gacha_info(group_pool[gid]) if gid in group_pool else gacha_info()
     await app.sendMessage(group, info)
 
 
@@ -174,3 +165,8 @@ async def up_pool_(app: Ariadne, group: Group, member: Member, message: MessageC
     await app.sendMessage(group, MessageChain('正在更新卡池'))
     _ = await init_pool_list()
     await app.sendMessage(group, MessageChain('更新卡池完成'))
+
+
+@channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
+async def update_pool():
+    await init_pool_list()

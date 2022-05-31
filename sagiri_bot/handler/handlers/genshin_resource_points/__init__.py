@@ -5,6 +5,7 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.element import Source, Image
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
+from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, RegexResult
 
@@ -81,6 +82,11 @@ async def genshin_resource_point_list(app: Ariadne, group: Group):
     await app.sendMessage(group, await get_resource_list())
 
 
+@channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))
+async def resource_init():
+    await init()
+
+
 async def get_resource_list() -> MessageChain:
     content = get_resource_type_list()
-    return MessageChain([Image(data_bytes=TextEngine([GraiaAdapter(MessageChain(content))]).draw())])
+    return MessageChain([Image(data_bytes=TextEngine([GraiaAdapter(MessageChain(content))], min_width=4096).draw())])

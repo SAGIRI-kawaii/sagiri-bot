@@ -8,8 +8,6 @@ from io import BytesIO
 from loguru import logger
 from PIL import Image, ImageFont, ImageDraw, ImageMath
 
-from sagiri_bot.core.app_core import AppCore
-
 FILE_PATH = os.path.dirname(__file__)
 ICON_PATH = os.path.join(FILE_PATH, 'icon')
 FONT_PATH = os.path.join(FILE_PATH, "zh-cn.ttf")
@@ -60,11 +58,10 @@ async def get_role_en_name(ch_name):
     pattern = ".{80}" + str(ch_name)
     for html in ROLES_HTML_LIST:
         txt = re.search(pattern, html)
-        if txt == None:
+        if txt is None:
             continue
         txt = re.search('"/db/char/.+/\?lang=CHS"', txt.group()).group()
-        en_name = txt[10:-11]
-        return en_name
+        return txt[10:-11]
     raise NameError(f"没有找到角色 {ch_name} 的图标名")
 
 
@@ -223,17 +220,10 @@ async def init_pool_list():
                 item_star = str(i["rank"])
                 key = ''
                 key += item_star
-                if str(i["is_up"]) == "1":
-                    key += "_star_UP"
-                else:
-                    key += "_star_not_UP"
+                key += "_star_UP" if str(i["is_up"]) == "1" else "_star_not_UP"
                 POOL[pool_name][key].append(item_name)
 
                 if item_type == '角色':
                     await up_role_icon(name=item_name, star=item_star)
                 else:
                     await up_arm_icon(name=item_name, star=item_star)
-
-
-loop = AppCore.get_core_instance().get_loop()
-loop.run_in_executor(None, init_pool_list) if AUTO_UPDATE else None
