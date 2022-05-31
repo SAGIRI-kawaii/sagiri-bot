@@ -2,7 +2,7 @@
 import os
 import threading
 from loguru import logger
-from datetime import datetime
+from datetime import time
 from pathlib import Path
 
 from graia.ariadne.event.lifecycle import ApplicationLaunched
@@ -20,20 +20,19 @@ bcc = core.get_bcc()
 saya = core.get_saya()
 config = core.get_config()
 
-if not os.path.exists(Path(os.getcwd()) / "log" / datetime.now().strftime('%Y-%m-%d')):
-    os.makedirs(Path(os.getcwd()) / "log" / datetime.now().strftime('%Y-%m-%d'))
-
 logger.add(
-    str(Path(os.getcwd()) / "log" / datetime.now().strftime('%Y-%m-%d') / "common.log"),
+    Path(os.getcwd()) / "log" / "{time:YYYY-MM-DD}" / "common.log",
     level="INFO",
     retention=f"{config.log_related['common_retention']} days",
-    encoding="utf-8"
+    encoding="utf-8",
+    rotation=time(),
 )
 logger.add(
-    str(Path(os.getcwd()) / "log" / datetime.now().strftime('%Y-%m-%d') / "error.log"),
+    Path(os.getcwd()) / "log" / "{time:YYYY-MM-DD}" / "error.log",
     level="ERROR",
     retention=f"{config.log_related['error_retention']} days",
-    encoding="utf-8"
+    encoding="utf-8",
+    rotation=time(),
 )
 logger.add(set_log)
 
@@ -56,7 +55,9 @@ core.load_saya_modules()
 @bcc.receiver("GroupMessage")
 async def group_message_handler(message: MessageChain, group: Group, member: Member):
     message_text_log = message.asDisplay().replace("\n", "\\n").strip()
-    logger.info(f"收到来自群 <{group.name.strip()}> 中成员 <{member.name.strip()}> 的消息：{message_text_log}")
+    logger.info(
+        f"收到来自群 <{group.name.strip()}> 中成员 <{member.name.strip()}> 的消息：{message_text_log}"
+    )
 
 
 @bcc.receiver("FriendMessage")
