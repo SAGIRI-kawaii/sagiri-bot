@@ -1,0 +1,55 @@
+[tool.poetry]
+name = "SAGIRI-BOT"
+version = "3.2.1"
+description = "基于Graia Ariadne和Mirai的QQ机器人 SAGIRI-BOT"
+authors = ["SAGIRI-kawaii"]
+license = "AGPL-3.0 license"
+
+[tool.poetry.dependencies]
+python = ">=3.8, <3.10"
+aiohttp = "^3.8.1"
+beautifulsoup4 = "^4.11.1"
+graia-scheduler = "^0.0.7"
+graia-ariadne = "^0.6.16"
+graia-saya = "^0.0.15"
+graiax-silkcoder = "^0.2.6"
+fastapi = "^0.78.0"
+imageio = "^2.19.3"
+jieba = "^0.42.1"
+loguru = "^0.6.0"
+matplotlib = "^3.5.2"
+moviepy = "^1.0.3"
+pyyaml = "^6.0"
+qrcode = "^7.3.1"
+sqlalchemy = "^1.4.36"
+tencentcloud-sdk-python = "^3.0.645"
+uvicorn = "^0.17.6"
+wordcloud = "^1.8.1"
+aiosqlite = "^0.17.0"
+alembic = "^1.7.7"
+playwright = "^1.22.0"
+pytz = "^2022.1"
+psutil = "^5.9.1"
+pyzipper = "^0.3.5"
+bs4 = "^0.0.1"
+aiofiles = "^0.8.0"
+jinja2 = "^3.1.2"
+markdown = "^3.3.7"
+requests = "^2.27.1"
+picimagesearch = "^3.3.2"
+scipy = "^1.8.1"
+
+[tool.poetry.dev-dependencies]
+numpy = "^1.22.4"
+Pillow-PIL = "^0.1dev"
+pydantic = "^1.9.1"
+python-dateutil = "^2.8.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"
+default = true  # 添加一个 default 参数, 使 poetry 的默认回调行为都调用到这个清华镜像上.
