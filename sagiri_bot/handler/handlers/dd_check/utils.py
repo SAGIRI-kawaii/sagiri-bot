@@ -91,7 +91,8 @@ async def get_user_info(uid: int) -> dict:
         url = "https://account.bilibili.com/api/member/getCardByMid"
         params = {"mid": uid}
         async with get_running(Adapter).session.get(url, params=params, timeout=10) as resp:
-            result = await resp.json()
+            result = await resp.text()
+        result = json.loads(result)
         return result["card"]
     except (KeyError, IndexError, asyncio.TimeoutError) as e:
         logger.warning(f"Error in get_user_info({uid}): {e}")
@@ -136,10 +137,7 @@ def format_vtb_info(info: dict, medal_dict: dict) -> dict:
 
 
 async def get_reply(name: str) -> Union[str, bytes]:
-    if name.isdigit():
-        uid = int(name)
-    else:
-        uid = await get_uid_by_name(name)
+    uid = int(name) if name.isdigit() else await get_uid_by_name(name)
     user_info = await get_user_info(uid)
     if not user_info:
         return "获取用户信息失败，请检查名称或稍后再试"
