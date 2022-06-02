@@ -277,7 +277,7 @@ class SayaManager(AbstractHandler):
         loaded_channels = SayaManager.get_loaded_channels()
         channels_to_unload = {module: loaded_channels[module] for module in modules if module in loaded_channels}
         with saya.module_context():
-            for channel in channels_to_unload.keys():
+            for channel in channels_to_unload:
                 try:
                     saya.uninstall_channel(channels_to_unload[channel])
                 except Exception as e:
@@ -292,7 +292,7 @@ class SayaManager(AbstractHandler):
         loaded_channels = SayaManager.get_loaded_channels()
         channels_to_reload = {module: loaded_channels[module] for module in modules if module in loaded_channels}
         with saya.module_context():
-            for channel in channels_to_reload.keys():
+            for channel in channels_to_reload:
                 try:
                     saya.reload_channel(channels_to_reload[channel])
                 except Exception as e:
