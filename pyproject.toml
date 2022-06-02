@@ -38,6 +38,7 @@ markdown = "^3.3.7"
 requests = "^2.27.1"
 picimagesearch = "^3.3.2"
 scipy = "^1.8.1"
+pypinyin = "^0.46.0"
 
 [tool.poetry.dev-dependencies]
 numpy = "^1.22.4"

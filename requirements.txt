@@ -34,3 +34,4 @@ markdown
 requests
 scipy
 PicImageSearch
+pypinyin

@@ -1037,6 +1037,19 @@ url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "pypinyin"
+version = "0.46.0"
+description = "汉字拼音转换模块/工具."
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, <4"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "pyquery"
 version = "1.4.3"
 description = "A jquery-like library for python"
@@ -1496,7 +1509,7 @@ reference = "tsinghua"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "90a06d377633d50efb0706cbc17ac074a4081dc6233f6e318730f3e8a1202ee1"
+content-hash = "8e6fe243033966a0399dd59f483653206a6f1c217e64443e81d6a360c4ebaad5"
 
 [metadata.files]
 aiofiles = [
@@ -2320,6 +2333,10 @@ pyee = [
 pyparsing = [
     {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
     {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
+]
+pypinyin = [
+    {file = "pypinyin-0.46.0-py2.py3-none-any.whl", hash = "sha256:7251f4fa0b1e43ad91f6121d9a842e8acd72a6a34deea5e87d2a97621eadc11f"},
+    {file = "pypinyin-0.46.0.tar.gz", hash = "sha256:0d2e41e95dbc20a232c0f5d3850654eebbfcba303d96358d2c46592725bb989c"},
 ]
 pyquery = [
     {file = "pyquery-1.4.3-py3-none-any.whl", hash = "sha256:1fc33b7699455ed25c75282bc8f80ace1ac078b0dda5a933dacbd8b1c1f83963"},
