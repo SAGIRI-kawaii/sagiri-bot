@@ -154,14 +154,14 @@ class WordleWaiter(Waiter.create([GroupMessage])):
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("/wordle"),
-                ArgumentMatch("-single", action="store_true", optional=True) @ "single_game",
-                ArgumentMatch("-group", action="store_true", optional=True) @ "group_game",
-                RegexMatch(r"-(l|length)=[0-9]+", optional=True) @ "length",
-                RegexMatch(r"-(d|dic)=\w+", optional=True) @ "dic",
-                ArgumentMatch("-help", "-h", action="store_true", optional=True) @ "get_help",
-                ArgumentMatch("-giveup", "-g", action="store_true", optional=True) @ "give_up",
-                ArgumentMatch("-s", "-statistic", action="store_true", optional=True) @ "statistic"
+                FullMatch("/wordle").help("匹配 /wordle 开头的消息，开始游戏"),
+                ArgumentMatch("-single", action="store_true", optional=True).help("单人游戏") @ "single_game",
+                ArgumentMatch("-group", action="store_true", optional=True).help("群组游戏") @ "group_game",
+                RegexMatch(r"-(l|length)=[0-9]+", optional=True).help("单词长度，格式为\"-l=数字\"") @ "length",
+                RegexMatch(r"-(d|dic)=\w+", optional=True).help("词典名称") @ "dic",
+                ArgumentMatch("-help", "-h", action="store_true", optional=True).help("显示详细帮助页") @ "get_help",
+                ArgumentMatch("-giveup", "-g", action="store_true", optional=True).help("放弃本局游戏") @ "give_up",
+                ArgumentMatch("-s", "-statistic", action="store_true", optional=True).help("查询游玩数据") @ "statistic"
             ])
         ]
     )
