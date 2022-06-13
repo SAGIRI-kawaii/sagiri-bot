@@ -65,6 +65,8 @@ async def lolicon_keyword_searcher(
     app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult
 ):
     keyword = keyword.result.asDisplay()
+    if not await group_setting.get_setting(group, Setting.setu):
+        return await app.sendGroupMessage(group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"))
     msg_chain = await get_image(group, keyword)
     if msg_chain.onlyContains(Plain):
         return await app.sendGroupMessage(
