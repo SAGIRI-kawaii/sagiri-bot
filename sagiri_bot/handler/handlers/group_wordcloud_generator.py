@@ -176,7 +176,7 @@ class GroupWordCloudGenerator:
         if review_type in ("年内", "今年", "年度"):
             timep = time - relativedelta(years=1)
             time_left = (time - relativedelta(years=1)).strftime("%Y-%m-%d %H:%M:%S")
-        elif review_type == ("月内", "本月", "月度"):
+        elif review_type in ("月内", "本月", "月度"):
             timep = time - relativedelta(months=1)
             time_left = (time - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S")
         else:
