@@ -84,14 +84,13 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 return True
             if message.asDisplay().strip() == "/wordle -hint":
                 await update_member_statistic(group, member, StatisticType.hint)
-                hint = self.wordle.get_hint()
-                if not hint:
+                if hint := self.wordle.get_hint():
                     await app.sendGroupMessage(
-                        group, MessageChain("你还没有猜对过一个字母哦~再猜猜吧~"), quote=message.getFirst(Source)
+                        group, MessageChain([Image(data_bytes=self.wordle.draw_hint())]), quote=message.getFirst(Source)
                     )
                 else:
                     await app.sendGroupMessage(
-                        group, MessageChain([Image(data_bytes=self.wordle.draw_hint())]), quote=message.getFirst(Source)
+                        group, MessageChain("你还没有猜对过一个字母哦~再猜猜吧~"), quote=message.getFirst(Source)
                     )
                 return False
             if len(word) == self.wordle.length and word.encode('utf-8').isalpha():
