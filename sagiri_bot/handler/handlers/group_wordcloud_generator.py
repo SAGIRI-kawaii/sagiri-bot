@@ -1,39 +1,38 @@
 import os
 import random
-import numpy as np
-import jieba.analyse
+from datetime import datetime
 from io import BytesIO
 from typing import Optional
-from PIL import Image as IMG
-from datetime import datetime
-import matplotlib.pyplot as plt
-from sqlalchemy import select, func
-from dateutil.relativedelta import relativedelta
-from wordcloud import WordCloud, ImageColorGenerator
 
-from graia.saya import Saya, Channel
-from graia.ariadne.app import Ariadne
+import jieba.analyse
+import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image as IMG
+from dateutil.relativedelta import relativedelta
 from graia.ariadne import get_running
 from graia.ariadne.adapter import Adapter
+from graia.ariadne.app import Ariadne
+from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image, Source
-from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import (
     Twilight,
     UnionMatch,
-    FullMatch,
     RegexMatch,
     MatchResult,
     ElementMatch,
     ElementResult
 )
+from graia.saya import Saya, Channel
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from sqlalchemy import select, func
+from wordcloud import WordCloud, ImageColorGenerator
 
-from sagiri_bot.orm.async_orm import orm
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.orm.async_orm import ChatRecord
+from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.utils import user_permission_require
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -123,7 +122,7 @@ class GroupWordCloudGenerator:
                 continue
             if i.isdigit():
                 continue
-            if any([word in i for word in filter_list]):
+            if any(word in i for word in filter_list):
                 continue
             elif i in not_filter:
                 result.append(i)
@@ -173,10 +172,10 @@ class GroupWordCloudGenerator:
         member_id = member.id
         time = datetime.now()
         time_right = time.strftime("%Y-%m-%d %H:%M:%S")
-        if review_type in ("年内", "今年", "年度"):
+        if review_type in {"年内", "今年", "年度"}:
             timep = time - relativedelta(years=1)
             time_left = (time - relativedelta(years=1)).strftime("%Y-%m-%d %H:%M:%S")
-        elif review_type == ("月内", "本月", "月度"):
+        elif review_type in {"月内", "本月", "月度"}:
             timep = time - relativedelta(months=1)
             time_left = (time - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S")
         else:
