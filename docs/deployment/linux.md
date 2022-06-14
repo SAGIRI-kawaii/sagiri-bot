@@ -158,29 +158,6 @@ adapterSettings:
     reservedSyncId: -1 # 确保为 -1, 否则 WebsocketAdapter(Experimental) 没法正常工作.
 ```
 
-## 登录QQ
-
-执行 `./mcl` 启动 `mirai-console`
-
-如果直接显示 `Event: BotOnlineEvent(bot=Bot(<你的QQ号>))`，并有收到新消息，那么恭喜你，你已经完成了 `mirai` 方面的配置了
-
-若显示如下输出或出现有如下内容的弹窗：
-
-```text
-需要滑动验证码，完成后请输入ticket
-url:http://xxx.xxx.xxx
-```
-
-- 有弹窗，并且使用的是 `Android` 系统手机（或使用电脑模拟器）
-    - 点击 `Open with TxCaptchaHelper`，下载 [TxCaptchaHelper](https://maupdate.rainchan.win/txcaptcha.apk) 并安装
-    - 输入弹窗中的4位请求码并完成滑动验证，随后在电脑端点击确定
-
-- 没弹窗（如 Linux NoGUI 用户）或者使用的 `IOS` 系统手机/其他不能运行 `apk` 程序系统的手机
-    - 在电脑上打开浏览器，输入程序提供的url，应当会出现滑动认证的画面，此时先不要进行认证
-    - 单击 `F12` 键，会出现一个 `DevTool`，找到上方选项卡，点击 `Network` 选项，再点击下方的 `Fetch/XHR` 选项
-    - 完成滑动验证，此时在 `DevTool` 界面中应会出现新的请求，找到其中名为 `cap_union_new_verify` 选项卡，点击其中的 `Preview` 选项卡，在其中找到 `ticket` 的值填入 `mcl` 并回车
-    - gif演示：![浏览器获取ticket演示](https://sagiri-kawaii.github.io/sagiri-bot/asserts/txcaptcha.gif)
-
 ### 配置自动登录
 
 !!!warning "注意"
@@ -222,6 +199,29 @@ accounts:
     > 什么？你想手机平板手表电脑和 mirai 同时在线？
 
     > 我的建议是，为什么不问问万能的神奇海螺呢？
+
+## 登录QQ
+
+执行 `./mcl` 启动 `mirai-console`
+
+如果直接显示 `Event: BotOnlineEvent(bot=Bot(<你的QQ号>))`，并有收到新消息，那么恭喜你，你已经完成了 `mirai` 方面的配置了
+
+若显示如下输出或出现有如下内容的弹窗：
+
+```text
+需要滑动验证码，完成后请输入ticket
+url:http://xxx.xxx.xxx
+```
+
+- 有弹窗，并且使用的是 `Android` 系统手机（或使用电脑模拟器）
+    - 点击 `Open with TxCaptchaHelper`，下载 [TxCaptchaHelper](https://maupdate.rainchan.win/txcaptcha.apk) 并安装
+    - 输入弹窗中的4位请求码并完成滑动验证，随后在电脑端点击确定
+
+- 没弹窗（如 Linux NoGUI 用户）或者使用的 `IOS` 系统手机/其他不能运行 `apk` 程序系统的手机
+    - 在电脑上打开浏览器，输入程序提供的url，应当会出现滑动认证的画面，此时先不要进行认证
+    - 单击 `F12` 键，会出现一个 `DevTool`，找到上方选项卡，点击 `Network` 选项，再点击下方的 `Fetch/XHR` 选项
+    - 完成滑动验证，此时在 `DevTool` 界面中应会出现新的请求，找到其中名为 `cap_union_new_verify` 选项卡，点击其中的 `Preview` 选项卡，在其中找到 `ticket` 的值填入 `mcl` 并回车
+    - gif演示：![浏览器获取ticket演示](https://sagiri-kawaii.github.io/sagiri-bot/asserts/txcaptcha.gif)
 
 ## 安装python
 
