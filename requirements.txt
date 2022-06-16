@@ -1,7 +1,7 @@
 aiohttp
 beautifulsoup4
 graia-scheduler
-graia-ariadne
+graia-ariadne==0.6.16
 graia-saya
 graiax-silkcoder
 fastapi
