@@ -55,14 +55,18 @@ class SayaManager(AbstractHandler):
             keys.sort()
             return MessageItem(
                 await MessageChainUtils.messagechain_to_img(
-                    MessageChain.create([
-                        Plain(text="目前加载插件：\n")
-                    ] + [
-                        Plain(text=f"{i + 1}. {loaded_channels[keys[i]]._name}\n")
-                        for i in range(len(keys))
-                    ] + [
-                        Plain(text="发送 `插件详情 [编号|名称]` 可查看插件详情")
-                    ])
+                    MessageChain.create(
+                        [
+                            Plain(text="目前加载插件：\n")
+                        ] + [
+                            Plain(
+                                text=f"{i + 1}. {_channel.meta['name'] or _channel.module.split('.')[-1]}\n"
+                            )
+                            for i in range(len(keys))
+                            if (_channel := loaded_channels[keys[i]])
+                        ] + [
+                            Plain(text="发送 `插件详情 [编号|名称]` 可查看插件详情")
+                        ])
                 ),
                 QuoteSource()
             )
