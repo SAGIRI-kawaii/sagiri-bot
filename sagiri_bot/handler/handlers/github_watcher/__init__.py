@@ -127,7 +127,7 @@ class GithubWatcher(object):
             args = message.asDisplay().split(" ", maxsplit=1)
             if len(args) == 1:
                 msg = [Plain(text="缺少参数\n\n")]
-                for func in commands.keys():
+                for func in commands:
                     msg.append(Plain(text=(f"/github-watch {func}\n"
                                            f"    描述：{commands[func]['description']}\n"
                                            f"    用法：{commands[func]['manual']}\n"
@@ -143,8 +143,10 @@ class GithubWatcher(object):
                 return MessageItem(MessageChain.create([Plain(text=f"未知指令：{arg}")]), QuoteSource())
             if member and group:
                 permission = commands[name]['permission']
-                if not await user_permission_require(group, member, permission[0]) \
-                        and not (member.permission in permission[1]):
+                if (
+                    not await user_permission_require(group, member, permission[0])
+                    and member.permission not in permission[1]
+                ):
                     return MessageItem(MessageChain.create([Plain(
                         text=f"权限不足，你需要 {permission[0]} 级权限"
                              f"{('或来自 ' + str(permission[1][0]) + ' 的权限') if permission[1] else ''}")]), QuoteSource())
@@ -357,12 +359,14 @@ class GithubWatcher(object):
             return MessageChain.create([
                 Plain(text=f"无法获取 Group 或 Friend 实例")
             ])
-        watched = []
-        target = group if group else friend
+        target = group or friend
         field = 'group' if group else 'friend'
-        for repo in self.__cached.keys():
-            if target.id in self.__cached[repo][field]:
-                watched.append(f"{repo[0]}/{repo[1]}")
+        watched = [
+            f"{repo[0]}/{repo[1]}"
+            for repo in self.__cached.keys()
+            if target.id in self.__cached[repo][field]
+        ]
+
         res = [Plain(text=f"{'本群' if group else '你'}订阅的仓库有：\n"
                           f"{' '.join(watched)}")]
         return MessageChain.create(res)
@@ -467,9 +471,11 @@ class GithubWatcher(object):
                                   f"时间：{event_time}\n"
                                   f"链接：{link}\n")
         elif event['type'] == 'PushEvent':
-            commits = []
-            for commit in event['payload']['commits']:
-                commits.append(f"· [{commit['author']['name']}] {commit['message']}")
+            commits = [
+                f"· [{commit['author']['name']}] {commit['message']}"
+                for commit in event['payload']['commits']
+            ]
+
             resp = Plain(text=f"----------\n"
                               f"[新 Push]\n"
                               + "\n".join(commits) +
@@ -491,7 +497,7 @@ class GithubWatcher(object):
                               f"发布人：{actor}\n"
                               f"时间：{event_time}\n"
                               f"链接：{link}\n")
-        return resp if resp else None
+        return resp or None
 
     async def github_schedule(self, **kwargs):
         if not self.initialize:
