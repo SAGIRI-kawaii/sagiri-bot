@@ -7,6 +7,7 @@ from pathlib import Path
 from PIL import Image as IMG
 from PIL import ImageSequence
 from asyncio import Semaphore
+from aiohttp.client_exceptions import ClientResponseError
 
 try:
     from realesrgan import RealESRGANer
@@ -75,7 +76,7 @@ async def super_resolution(
 
     @Waiter.create_using_function(listening_events=[GroupMessage])
     async def image_waiter(
-            waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
+        waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
     ):
         if waiter_group.id == group.id and waiter_member.id == member.id:
             if waiter_message.has(Image):
@@ -84,19 +85,24 @@ async def super_resolution(
                 return False
 
     if not enable:
-        return await app.sendGroupMessage(group, MessageChain("超分功能未开启！"))
+        return await app.sendGroupMessage(group, MessageChain("超分功能未开启！"), quote=source)
+    if processing:
+        return await app.sendGroupMessage(group, MessageChain("有任务正在处理中，请稍后重试"), quote=source)
     if image.matched:
         image = image.result
     else:
         try:
-            await app.sendMessage(
-                group, MessageChain.create("请在30s内发送要处理的图片"), quote=message[Source][0]
-            )
+            await app.sendMessage(group, MessageChain.create("请在30s内发送要处理的图片"), quote=source)
             image = await asyncio.wait_for(inc.wait(image_waiter), 30)
             if not image:
                 return await app.sendGroupMessage(group, MessageChain("未检测到图片，请重新发送，进程退出"), quote=source)
         except asyncio.TimeoutError:
             return await app.sendGroupMessage(group, MessageChain("图片等待超时，进程退出"), quote=source)
+        except ClientResponseError:
+            await mutex.acquire()
+            processing = False
+            mutex.release()
+            return await app.sendGroupMessage(group, MessageChain("图片获取错误，进程退出"), quote=source)
     if processing:
         return await app.sendGroupMessage(group, MessageChain("有任务正在处理中，请稍后重试"), quote=source)
     await mutex.acquire()
@@ -125,6 +131,12 @@ async def do_super_resolution(image_data: bytes, resize: bool = False, is_gif: b
     start = time.time()
     image = IMG.open(BytesIO(image_data))
     image_size = image.size[0] * image.size[1]
+
+    # if len(image_data) >= 4 * (1024 ** 2):
+    #     await mutex.acquire()
+    #     processing = False
+    #     mutex.release()
+    #     return MessageChain("鉴于QQ对图片文件最大约20M的限制，对图片进行默认超分后预期大小将超过此限制，请尝试缩小图片后再超分")
 
     upsampler = RealESRGANer(
         scale=4,
@@ -172,7 +184,7 @@ async def do_super_resolution(image_data: bytes, resize: bool = False, is_gif: b
         image_array: np.ndarray = image.__array__()
         output, _ = await loop.run_in_executor(None, upsampler.enhance, image_array, 2)
     if is_gif:
-        imageio.mimsave(result, outputs[1:], format='gif', duration=0.05)
+        imageio.mimsave(result, outputs[1:], format='gif', duration=image.info["duration"] / 1000)
     else:
         img = IMG.fromarray(output)
         img.save(result, format='PNG')  # format: PNG / JPEG

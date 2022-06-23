@@ -106,10 +106,9 @@ async def pica_function(
         operation.result.asDisplay() == "random" and not DAILY_RANDOM_LIMITER.check(member.id),
         operation.result.asDisplay() == "rank" and not DAILY_RANK_LIMITER.check(member.id)
     ]):
-        await app.sendGroupMessage(
+        return await app.sendGroupMessage(
             group, MessageChain(limit_text[str(operation.result.asDisplay())]), quote=message.getFirst(Source)
         )
-        return
 
     if operation.result.asDisplay() == "download":
         DAILY_DOWNLOAD_LIMITER.increase(member.id)
@@ -184,7 +183,7 @@ async def pica_function(
         image_list = []
         for root, _, files in os.walk(info[0]):
             for file in files:
-                if not file[-3:] == "zip":
+                if file[-3:] != "zip":
                     image_list.append(os.path.join(root, file))
         await app.sendGroupMessage(group, MessageChain([Image(path=path) for path in image_list]))
 

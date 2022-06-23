@@ -20,7 +20,7 @@ channel = Channel.current()
 
 channel.name("BTSearcher")
 channel.author("SAGIRI-kawaii")
-channel.description("一个可以搜索bt的插件")
+channel.description("一个可以搜索bt的插件，在群中发送 `/bt + 想搜索的内容` 即可")
 
 config = AppCore.get_core_instance().get_config()
 base_url = "http://www.eclzz.win"

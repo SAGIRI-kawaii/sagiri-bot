@@ -38,7 +38,7 @@ proxy = config.proxy if config.proxy != "proxy" else ''
         inline_dispatchers=[Twilight([UnionMatch("微博热搜", "知乎热搜", "github热搜") @ "trending_type"])],
         decorators=[
             FrequencyLimit.require("trending", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]
@@ -63,9 +63,7 @@ class Trending(object):
             data = await resp.json()
         data = data["data"]
         text_list = [f"随机数:{random.randint(0, 10000)}", "\n微博实时热榜:"]
-        index = 0
-        for i in data:
-            index += 1
+        for index, i in enumerate(data, start=1):
             text_list.append(f"\n{index}. {i['word'].strip()}")
         text = "".join(text_list).replace("#", "")
         return MessageChain(text)
@@ -77,9 +75,7 @@ class Trending(object):
             data = await resp.json()
         data = data["data"]
         text_list = [f"随机数:{random.randint(0, 10000)}", "\n知乎实时热榜:"]
-        index = 0
-        for i in data:
-            index += 1
+        for index, i in enumerate(data, start=1):
             text_list.append(f"\n{index}. {i['target']['title'].strip()}")
         text = "".join(text_list).replace("#", "")
         return MessageChain(text)

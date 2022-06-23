@@ -59,9 +59,8 @@ async def register(user: User):
             code=401,
             message="user_name already exist!"
         )
-    else:
-        user_data.add_user(user)
-        return GeneralResponse()
+    user_data.add_user(user)
+    return GeneralResponse()
 
 
 @app.post("/login")
@@ -84,170 +83,163 @@ async def login(user: User, nonce: str):
 
 @app.get("/saya/source")
 async def get_saya_source(module: str, token: bool = Depends(certify_token)):
-    if token:
-        path = module.replace('.', '/')
-        if os.path.exists(f"{path}.py"):
-            async with aiofiles.open(f"{path}.py", "r", encoding="utf-8") as fp:
-                content = await fp.read()
-        elif os.path.exists(path):
-            async with aiofiles.open(f"{path}/__init__.py", "r", encoding="utf-8") as fp:
-                content = await fp.read()
-        else:
-            return GeneralResponse(
-                code=402,
-                message=f"Module: {module} not found"
-            )
-        return GeneralResponse(
-            data={
-                "source": content
-            }
-        )
-    else:
+    if not token:
         return GeneralResponse(
             code=401,
             message="invalid token!"
         )
+    path = module.replace('.', '/')
+    if os.path.exists(f"{path}.py"):
+        async with aiofiles.open(f"{path}.py", "r", encoding="utf-8") as fp:
+            content = await fp.read()
+    elif os.path.exists(path):
+        async with aiofiles.open(f"{path}/__init__.py", "r", encoding="utf-8") as fp:
+            content = await fp.read()
+    else:
+        return GeneralResponse(
+            code=402,
+            message=f"Module: {module} not found"
+        )
+    return GeneralResponse(
+        data={
+            "source": content
+        }
+    )
 
 
 @app.get("/saya/installed_channels")
 async def installed_channels(token: bool = Depends(certify_token)):
-    if token:
-        channels = AppCore.get_core_instance().get_saya_channels()
-        modules = list(channels.keys())
-        modules.sort()
-        return GeneralResponse(
-            data={
-                module: {
-                    "name": channels[module]._name,
-                    "author": channels[module]._author,
-                    "description": channels[module]._description
-                }
-                for module in modules
-            }
-        )
-    else:
+    if not token:
         return GeneralResponse(
             code=401,
             message="invalid token!"
         )
+    channels = AppCore.get_core_instance().get_saya_channels()
+    modules = list(channels.keys())
+    modules.sort()
+    return GeneralResponse(
+        data={
+            module: {
+                "name": channels[module]._name,
+                "author": channels[module]._author,
+                "description": channels[module]._description
+            }
+            for module in modules
+        }
+    )
 
 
 @app.get("/saya/not_installed_channels")
 async def not_installed_channels(token: bool = Depends(certify_token)):
-    if token:
-        modules = get_not_installed_channels()
-        modules.sort()
-        return GeneralResponse(data=[modules])
-    else:
+    if not token:
         return GeneralResponse(
             code=401,
             message="invalid token!"
         )
+    modules = get_not_installed_channels()
+    modules.sort()
+    return GeneralResponse(data=[modules])
 
 
 @app.get("/saya/install")
 async def install_channel(channel: str, token: bool = Depends(certify_token)):
-    if token:
-        saya = AppCore.get_core_instance().get_saya()
-        ignore = ["__init__.py", "__pycache__"]
-        with saya.module_context():
-            if channel in ignore:
-                return GeneralResponse(
-                    code=202,
-                    message=f"module {channel} is on the ignore list"
-                )
-            try:
-                saya.require(channel)
-            except Exception as e:
-                return GeneralResponse(
-                    code=500,
-                    data={"error": e},
-                    message=f"Module {channel} installation error"
-                )
-        return GeneralResponse()
-    else:
+    if not token:
         return GeneralResponse(
             code=401,
             message="invalid token!"
         )
+    saya = AppCore.get_core_instance().get_saya()
+    ignore = ["__init__.py", "__pycache__"]
+    with saya.module_context():
+        if channel in ignore:
+            return GeneralResponse(
+                code=202,
+                message=f"module {channel} is on the ignore list"
+            )
+        try:
+            saya.require(channel)
+        except Exception as e:
+            return GeneralResponse(
+                code=500,
+                data={"error": e},
+                message=f"Module {channel} installation error"
+            )
+    return GeneralResponse()
 
 
 @app.get("/saya/uninstall")
 async def uninstall_channel(channel: str, token: bool = Depends(certify_token)):
-    if token:
-        saya = AppCore.get_core_instance().get_saya()
-        loaded_channels = get_installed_channels()
-        if channel not in loaded_channels:
-            return GeneralResponse(
-                code=402,
-                message=f"module {channel} does not exist!"
-            )
-        with saya.module_context():
-            try:
-                saya.uninstall_channel(loaded_channels[channel])
-            except Exception as e:
-                return GeneralResponse(
-                    code=500,
-                    data={"error": e},
-                    message=f"Module {channel} uninstall error"
-                )
-        return GeneralResponse()
-    else:
+    if not token:
         return GeneralResponse(
             code=401,
             message="invalid token!"
         )
+    saya = AppCore.get_core_instance().get_saya()
+    loaded_channels = get_installed_channels()
+    if channel not in loaded_channels:
+        return GeneralResponse(
+            code=402,
+            message=f"module {channel} does not exist!"
+        )
+    with saya.module_context():
+        try:
+            saya.uninstall_channel(loaded_channels[channel])
+        except Exception as e:
+            return GeneralResponse(
+                code=500,
+                data={"error": e},
+                message=f"Module {channel} uninstall error"
+            )
+    return GeneralResponse()
 
 
 @app.get("/saya/reload")
 async def reload_channel(channel: str, token: bool = Depends(certify_token)):
-    if token:
-        saya = AppCore.get_core_instance().get_saya()
-        exceptions = {}
-        loaded_channels = get_installed_channels()
-        if channel not in loaded_channels:
-            return GeneralResponse(
-                code=403,
-                message=f"module {channel} does not exist!"
-            )
-        with saya.module_context():
-            try:
-                saya.reload_channel(loaded_channels[channel])
-            except Exception as e:
-                return GeneralResponse(
-                    code=500,
-                    data={"error": e},
-                    message=f"Module {channel} reload error"
-                )
-        if not exceptions:
-            return GeneralResponse()
-    else:
+    if not token:
         return GeneralResponse(
             code=401,
             message="invalid token!"
         )
+    saya = AppCore.get_core_instance().get_saya()
+    exceptions = {}
+    loaded_channels = get_installed_channels()
+    if channel not in loaded_channels:
+        return GeneralResponse(
+            code=403,
+            message=f"module {channel} does not exist!"
+        )
+    with saya.module_context():
+        try:
+            saya.reload_channel(loaded_channels[channel])
+        except Exception as e:
+            return GeneralResponse(
+                code=500,
+                data={"error": e},
+                message=f"Module {channel} reload error"
+            )
+    if not exceptions:
+        return GeneralResponse()
 
 
 @app.get("/group/list")
 async def get_group_list(token: bool = Depends(certify_token)):
-    if token:
-        core = AppCore.get_core_instance()
-        ariadne_app = core.get_app()
-        loop = core.get_loop()
-        return GeneralResponse(
-            data={
-                group.id: {
-                    "name": group.name,
-                    "accountPerm": group.accountPerm
-                }
-                for group in (asyncio.run_coroutine_threadsafe(ariadne_app.getGroupList(), loop).result())
-            }
-        )
-    else:
+    if not token:
         return GeneralResponse(
             code=401,
             message="invalid token!"
         )
+    core = AppCore.get_core_instance()
+    ariadne_app = core.get_app()
+    loop = core.get_loop()
+    return GeneralResponse(
+        data={
+            group.id: {
+                "name": group.name,
+                "accountPerm": group.accountPerm
+            }
+            for group in (asyncio.run_coroutine_threadsafe(ariadne_app.getGroupList(), loop).result())
+        }
+    )
 
 
 @app.get("/group/detail")

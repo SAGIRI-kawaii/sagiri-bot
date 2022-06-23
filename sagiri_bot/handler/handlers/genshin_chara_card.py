@@ -35,7 +35,7 @@ characters = {}
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("/原神角色卡 "),
+                FullMatch("/原神角色卡"),
                 RegexMatch(r"[12][0-9]{8}") @ "uid",
                 RegexMatch(r".*") @ "chara"
             ])
@@ -70,11 +70,13 @@ async def genshin_chara_card(app: Ariadne, group: Group, source: Source, uid: Re
         page = await browser.new_page()
         await page.goto(url, wait_until="networkidle", timeout=100000)
         await page.set_viewport_size({"width": 2560, "height": 1080})
-        await page.evaluate("document.getElementsByClassName('Dropdown-list')[0].children[13].dispatchEvent(new Event('click'));")
+        await page.evaluate(
+            "document.getElementsByClassName('Dropdown-list')[0].children[13].dispatchEvent(new Event('click'));"
+        )
         html = await page.inner_html(".CharacterList")
         soup = BeautifulSoup(html, "html.parser")
         styles = [figure["style"] for figure in soup.find_all("figure")]
-        print(styles)
+        # print(styles)
         if all(characters[chara_pinyin] not in style.lower() for style in styles):
             await page.close()
             await browser.close()
@@ -97,11 +99,11 @@ async def genshin_chara_card(app: Ariadne, group: Group, source: Source, uid: Re
             if index == -1 or not chara_src:
                 return await app.sendGroupMessage(group, MessageChain("获取角色头像div失败！"))
             await page.locator(f'div.avatar.svelte-188i0pk >> nth={index}').click()
-            await page.locator('div.Card').wait_for()
+            await page.locator('div.Card.svelte-m3ch8z').wait_for()
             # await page.locator('canvas.svelte-d1gpxk').wait_for()
-            await page.locator('img.WeaponIcon.svelte-gp6viv').wait_for()
+            # await page.locator('img.WeaponIcon.svelte-gp6viv').wait_for()
             # await page.locator('canvas.ArtifactIcon').wait_for()
-            buffer = await page.locator('div.Card').screenshot()
+            buffer = await page.locator('div.Card.svelte-m3ch8z').screenshot()
             await page.close()
             await browser.close()
             await app.sendGroupMessage(
@@ -129,3 +131,9 @@ async def init_chara_list():
         eng_name = a[0]["href"].split('/')[3]
         characters[name] = eng_name.lower()
     print(characters)
+
+
+async def generate_card(uid: int):
+    url = f"https://enka.shinshin.moe/u/{uid}/__data.json"
+    async with get_running(Adapter).session.get(url) as resp:
+        result = await resp.json()

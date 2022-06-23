@@ -67,13 +67,18 @@ class Permission(object):
         :param level: 限制等级
         """
 
-        async def perm_check(event: GroupMessage) -> NoReturn:
+        async def perm_check(event: GroupMessage, group: Group) -> NoReturn:
             if not Permission.DEFAULT <= level <= Permission.MASTER:
                 raise ValueError(f"invalid level: {level}")
             member_level = await cls.get(event.sender.group, event.sender)
             if member_level == cls.MASTER:
                 pass
             elif member_level < level:
+                await ariadne_ctx.get().sendGroupMessage(
+                    group,
+                    MessageChain(f"权限不足，爬！需要达到等级{level}，你的等级是{member_level}"),
+                    quote=event.messageChain.getFirst(Source)
+                )
                 raise ExecutionStop()
 
         return Depend(perm_check)

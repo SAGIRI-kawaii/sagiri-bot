@@ -137,7 +137,7 @@ async def update_user_call_count_plus(
         column_name: str,
         count: int = 1
 ) -> bool:
-    for try_times in range(5):
+    for _ in range(5):
         new_value = await orm.fetchone(
             select(table_column).where(UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id)
         )
@@ -150,7 +150,7 @@ async def update_user_call_count_plus(
             )
             if not res:
                 return False
-            if not column_name == "chat_count":
+            if column_name != "chat_count":
                 await orm.add(
                     FunctionCalledRecord,
                     {
@@ -178,8 +178,7 @@ async def get_admins(group: Group) -> list:
             UserPermission.level > 1
         )
     ))
-    admins = [item[0] for item in admins_res]
-    return admins
+    return [item[0] for item in admins_res]
 
 
 async def online_notice(app: Ariadne):
