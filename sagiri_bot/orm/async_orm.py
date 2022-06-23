@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import select, update, insert, delete, inspect
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, BLOB, BIGINT, Text
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, BIGINT, Text
 
 from .adapter import get_adapter
 
@@ -298,6 +298,16 @@ class WordleStatistic(Base):
     correct_count = Column(BIGINT, default=0)
     wrong_count = Column(BIGINT, default=0)
     hint_count = Column(BIGINT, default=0)
+
+
+class GroupTeam(Base):
+    """ group_team 群小组 """
+    __tablename__ = "group_team"
+
+    creator = Column(BIGINT)
+    group_id = Column(BIGINT, primary_key=True)
+    name = Column(String(length=200), primary_key=True)
+    teammates = Column(Text)
 
 
 # class SchedulerTasks(Base):
