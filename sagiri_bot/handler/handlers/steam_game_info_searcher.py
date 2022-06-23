@@ -35,16 +35,14 @@ proxy = config.proxy if config.proxy != "proxy" else ""
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                [
-                    FullMatch("steam").space(SpacePolicy.FORCE),
-                    WildcardMatch().flags(re.DOTALL) @ "keyword",
-                ]
-            )
+            Twilight([
+                FullMatch("steam").space(SpacePolicy.FORCE),
+                WildcardMatch().flags(re.DOTALL) @ "keyword",
+            ])
         ],
         decorators=[
             FrequencyLimit.require("steam_game_info_searcher", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.SEARCH),
         ],

@@ -38,7 +38,7 @@ IMAGE_PATH = Path.cwd() / "statics" / "genshin" / "material"
         inline_dispatchers=[Twilight([FullMatch("原神今日素材")])],
         decorators=[
             FrequencyLimit.require("genshin_material_remind", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

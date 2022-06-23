@@ -25,7 +25,7 @@ channel.description("生成随机老婆图片的插件，在群中发送 `[来�
         inline_dispatchers=[Twilight([RegexMatch(r"(来个老婆|随机老婆)$")])],
         decorators=[
             FrequencyLimit.require("random_wife", 4),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

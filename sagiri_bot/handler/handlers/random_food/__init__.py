@@ -35,7 +35,7 @@ with open(str(Path(__file__).parent.joinpath("food.json")), "r", encoding="utf-8
         ],
         decorators=[
             FrequencyLimit.require("random_food", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

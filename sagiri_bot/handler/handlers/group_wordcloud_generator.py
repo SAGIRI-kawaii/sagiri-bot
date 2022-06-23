@@ -63,7 +63,7 @@ loop = AppCore.get_core_instance().get_loop()
         ],
         decorators=[
             FrequencyLimit.require(channel.meta["name"], 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
         ],

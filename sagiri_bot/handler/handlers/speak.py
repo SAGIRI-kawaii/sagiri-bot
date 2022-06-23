@@ -56,7 +56,7 @@ client_profile.httpProfile = http_profile
             WildcardMatch().flags(re.DOTALL) @ "content"])],
         decorators=[
             FrequencyLimit.require("speak", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

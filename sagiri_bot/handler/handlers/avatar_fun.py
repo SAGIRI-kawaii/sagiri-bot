@@ -26,6 +26,7 @@ from sagiri_bot.handler.handler import AbstractHandler
 from sagiri_bot.message_sender.message_item import MessageItem
 from sagiri_bot.message_sender.message_sender import MessageSender
 from sagiri_bot.utils import update_user_call_count_plus, UserCalledCount
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 
 frame_spec = [
@@ -69,6 +70,12 @@ channel.description("一个可以生成头像相关趣味图的插件，在群�
             ElementMatch(Image, optional=True) @ "img1",
             ElementMatch(Image, optional=True) @ "img2"
         ])
+    ],
+    decorators=[
+        FrequencyLimit.require("avatar_fun_pic", 1),
+        Function.require(channel.module, notice=True),
+        BlackListControl.enable(),
+        UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
     ]
 ))
 async def avatar_fun_pic(

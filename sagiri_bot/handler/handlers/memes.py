@@ -52,7 +52,7 @@ BREAK_LINE_MSG = '文字长度过长，请手动换行或适当缩减'
         ],
         decorators=[
             FrequencyLimit.require("memes", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

@@ -31,7 +31,7 @@ proxy = AppCore.get_core_instance().get_config().proxy
         inline_dispatchers=[Twilight([FullMatch("番剧"), RegexMatch(r".+") @ "keyword"])],
         decorators=[
             FrequencyLimit.require("bangumi_info_searcher", 3),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

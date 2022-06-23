@@ -26,7 +26,7 @@ channel.description("随机生成人设插件，在群中发送 `随机人设` �
         inline_dispatchers=[Twilight([FullMatch("随机人设")])],
         decorators=[
             FrequencyLimit.require("random_character", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

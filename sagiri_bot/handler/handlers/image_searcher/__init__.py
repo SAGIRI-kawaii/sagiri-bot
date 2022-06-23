@@ -50,7 +50,7 @@ SAUCENAO_API_KEY = config.functions.get("saucenao_api_key", None)
         ],
         decorators=[
             FrequencyLimit.require("image_searcher", 3),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

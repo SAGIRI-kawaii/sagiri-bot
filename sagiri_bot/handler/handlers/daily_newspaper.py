@@ -47,7 +47,7 @@ async def something_scheduled(app: Ariadne):
     )
 )
 async def main(app: Ariadne, friend: Friend):
-    if not friend.id == host_qq:
+    if friend.id != host_qq:
         return None
     await send_newspaper(app)
 

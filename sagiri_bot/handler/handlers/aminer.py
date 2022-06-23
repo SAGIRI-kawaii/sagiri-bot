@@ -41,7 +41,7 @@ config = AppCore.get_core_instance().get_config()
         ],
         decorators=[
             FrequencyLimit.require("aminer", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.SEARCH)
         ]

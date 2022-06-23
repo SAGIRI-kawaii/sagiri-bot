@@ -38,7 +38,7 @@ config = core.get_config()
         ],
         decorators=[
             FrequencyLimit.require("black_white_grass", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

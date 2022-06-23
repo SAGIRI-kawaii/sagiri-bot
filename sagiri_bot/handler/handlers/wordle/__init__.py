@@ -17,6 +17,7 @@ from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, Rege
 from sagiri_bot.core.app_core import AppCore
 from .wordle import Wordle, word_list, word_dics
 from .utils import update_member_statistic, StatisticType, get_member_statistic
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -163,6 +164,12 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 ArgumentMatch("-giveup", "-g", action="store_true", optional=True) @ "give_up",
                 ArgumentMatch("-s", "-statistic", action="store_true", optional=True) @ "statistic"
             ])
+        ],
+        decorators=[
+            FrequencyLimit.require("wordle", 2),
+            Function.require(channel.module, notice=True),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]
     )
 )

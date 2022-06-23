@@ -29,7 +29,7 @@ channel.description("一个可以获取BiliBili7日内新番时间表的插件�
         inline_dispatchers=[Twilight([RegexMatch("[1-7]") @ "days", FullMatch("日内新番")])],
         decorators=[
             FrequencyLimit.require("bilibili_bangumi_scheduler", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

@@ -45,7 +45,7 @@ channel.description("一个可以生成不同风格图片的插件，在群中�
         ],
         decorators=[
             FrequencyLimit.require("style_picture_generator", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

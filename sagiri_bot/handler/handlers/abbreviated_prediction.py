@@ -30,7 +30,7 @@ channel.description("一个获取英文缩写意思的插件，在群中发送 `
         ],
         decorators=[
             FrequencyLimit.require("abbreviated_prediction", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

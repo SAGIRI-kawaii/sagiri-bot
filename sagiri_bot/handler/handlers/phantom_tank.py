@@ -37,7 +37,7 @@ channel.description("一个幻影坦克生成器，在群中发送 `幻影 [显�
         ],
         decorators=[
             FrequencyLimit.require("phantom_tank", 3),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

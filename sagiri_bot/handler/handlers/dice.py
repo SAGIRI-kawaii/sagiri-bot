@@ -27,7 +27,7 @@ channel.description("一个简单的投骰子插件，发送 `{times}d{range}` �
         inline_dispatchers=[Twilight([RegexMatch(r"[0-9]+d[0-9]+$")])],
         decorators=[
             FrequencyLimit.require("dice", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

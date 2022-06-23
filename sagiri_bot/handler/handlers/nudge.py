@@ -38,13 +38,7 @@ nudged_data = {}
 refresh_time = relativedelta(minutes=1)
 
 
-@channel.use(
-    ListenerSchema(
-        listening_events=[
-            NudgeEvent
-        ]
-    )
-)
+@channel.use(ListenerSchema(listening_events=[NudgeEvent]))
 async def nudged(app: Ariadne, event: NudgeEvent):
     if not await group_setting.get_setting(event.group_id, Setting.switch):
         return None

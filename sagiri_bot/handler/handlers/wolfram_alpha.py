@@ -29,7 +29,7 @@ api_key = AppCore.get_core_instance().get_config().functions.get("wolfram_alpha_
     inline_dispatchers=[Twilight([FullMatch("/solve"), RegexMatch(".+") @ "content"])],
     decorators=[
         FrequencyLimit.require("wolfram_alpha", 4),
-        Function.require(channel.module),
+        Function.require(channel.module, notice=True),
         BlackListControl.enable(),
         UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
     ]

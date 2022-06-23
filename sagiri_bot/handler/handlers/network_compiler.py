@@ -35,7 +35,7 @@ channel.description("一个网络编译器插件，在群中发送 `super langua
         ],
         decorators=[
             FrequencyLimit.require("network_compiler", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

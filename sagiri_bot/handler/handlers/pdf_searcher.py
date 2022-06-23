@@ -33,7 +33,7 @@ proxy = config.proxy if config.proxy != "proxy" else ''
         inline_dispatchers=[Twilight([FullMatch("pdf").space(SpacePolicy.FORCE), RegexMatch(r".+") @ "keyword"])],
         decorators=[
             FrequencyLimit.require("pdf_searcher", 4),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.SEARCH)
         ]

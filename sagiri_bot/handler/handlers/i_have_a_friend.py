@@ -47,7 +47,7 @@ config = core.get_config()
         ],
         decorators=[
             FrequencyLimit.require("i_have_a_friend", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

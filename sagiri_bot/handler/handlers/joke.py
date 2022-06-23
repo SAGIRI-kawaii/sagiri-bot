@@ -31,7 +31,7 @@ joke_non_replace = {
         inline_dispatchers=[Twilight([FullMatch("来点"), RegexMatch(r"[^\s]+") @ "keyword", FullMatch("笑话")])],
         decorators=[
             FrequencyLimit.require("joke", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

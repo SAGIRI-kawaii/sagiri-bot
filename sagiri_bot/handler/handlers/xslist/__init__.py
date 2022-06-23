@@ -37,7 +37,7 @@ channel.description("一个查老师的插件，发送 `/查老师 {作品名/�
         ],
         decorators=[
             FrequencyLimit.require("xslist", 3),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

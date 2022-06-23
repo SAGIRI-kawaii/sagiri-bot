@@ -34,7 +34,7 @@ channel.description("可以搜索Github项目信息的插件，在群中发送 `
         ],
         decorators=[
             FrequencyLimit.require("github_info", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

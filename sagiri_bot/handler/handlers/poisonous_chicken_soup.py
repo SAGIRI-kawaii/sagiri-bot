@@ -28,7 +28,7 @@ config = core.get_config()
         inline_dispatchers=[Twilight([RegexMatch(r"(鸡汤|毒鸡汤|来碗鸡汤)$")])],
         decorators=[
             FrequencyLimit.require("poisonous_chicken_soup", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

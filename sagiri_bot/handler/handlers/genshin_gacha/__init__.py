@@ -69,7 +69,7 @@ with open(os.path.join(FILE_PATH, 'gid_pool.json'), 'r', encoding='UTF-8') as f:
         ],
         decorators=[
             FrequencyLimit.require("gacha", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]
@@ -153,7 +153,7 @@ async def set_pool(app: Ariadne, group: Group, message: MessageChain, member: Me
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight([FullMatch("更新原神卡池")])],
         decorators=[
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable()
         ]
     )

@@ -27,7 +27,7 @@ channel.description("可以抽塔罗牌的插件，在群中发送 `塔罗牌` �
         inline_dispatchers=[Twilight([FullMatch("塔罗牌")])],
         decorators=[
             FrequencyLimit.require("tarot", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

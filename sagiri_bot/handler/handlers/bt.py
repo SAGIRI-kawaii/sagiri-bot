@@ -33,7 +33,7 @@ url = base_url + "/s/{keyword}.html"
         inline_dispatchers=[Twilight([FullMatch("/bt"), WildcardMatch() @ "keyword"])],
         decorators=[
             FrequencyLimit.require("bt_searcher", 3),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

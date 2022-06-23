@@ -27,7 +27,7 @@ channel.description("将收到的消息合并为图片，在群中发送 `/merge
         inline_dispatchers=[Twilight([FullMatch("/merge"), WildcardMatch().flags(re.S) @ "msg_to_merge"])],
         decorators=[
             FrequencyLimit.require("message_merger", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

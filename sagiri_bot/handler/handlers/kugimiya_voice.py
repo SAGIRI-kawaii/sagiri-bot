@@ -27,7 +27,7 @@ channel.description("一个钉宫语音包插件，发送 `来点钉宫` 即可"
         inline_dispatchers=[Twilight([FullMatch("来点钉宫")])],
         decorators=[
             FrequencyLimit.require("kugimiya_voice", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

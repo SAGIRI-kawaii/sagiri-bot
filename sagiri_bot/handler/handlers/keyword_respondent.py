@@ -86,7 +86,7 @@ delete_keyword_twilight = Twilight([
         inline_dispatchers=[add_keyword_twilight],
         decorators=[
             BlackListControl.enable(),
-            Function.require("keyword_respondent", response_administrator=True, log=False)
+            Function.require("keyword_respondent", response_administrator=True, log=False, notice=True)
         ]
     )
 )
@@ -150,7 +150,7 @@ async def add_keyword(
         inline_dispatchers=[delete_keyword_twilight],
         decorators=[
             BlackListControl.enable(),
-            Function.require("keyword_respondent", response_administrator=True, log=False)
+            Function.require("keyword_respondent", response_administrator=True, log=False, notice=True)
         ]
     )
 )

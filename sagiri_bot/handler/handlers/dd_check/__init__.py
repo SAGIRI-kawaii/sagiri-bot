@@ -29,7 +29,7 @@ config = AppCore.get_core_instance().get_config()
         inline_dispatchers=[Twilight([FullMatch("/查成分"), WildcardMatch() @ "username"])],
         decorators=[
             FrequencyLimit.require("dd_check", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.SEARCH)
         ]

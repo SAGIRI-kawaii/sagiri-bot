@@ -57,7 +57,7 @@ processing = False
         ],
         decorators=[
             FrequencyLimit.require("super_resolution", 5),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

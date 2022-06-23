@@ -80,7 +80,7 @@ limit_text = {
         ],
         decorators=[
             FrequencyLimit.require("pica_function", 3),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

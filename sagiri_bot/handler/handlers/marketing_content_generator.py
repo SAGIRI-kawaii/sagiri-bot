@@ -30,7 +30,7 @@ channel.description("一个营销号内容生成器插件，在群中发送 `营
         ],
         decorators=[
             FrequencyLimit.require("marketing_content_generator", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

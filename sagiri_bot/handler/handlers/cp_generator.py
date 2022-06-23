@@ -32,7 +32,7 @@ with open(f"{os.getcwd()}/statics/cp_data.json", "r", encoding="utf-8") as r:
         ],
         decorators=[
             FrequencyLimit.require("cp_generator", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

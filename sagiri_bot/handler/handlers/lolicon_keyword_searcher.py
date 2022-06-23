@@ -55,7 +55,7 @@ data_cache = config.data_related.get("lolicon_data_cache")
         ],
         decorators=[
             FrequencyLimit.require("lolicon_keyword_searcher", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.SETU),
         ],

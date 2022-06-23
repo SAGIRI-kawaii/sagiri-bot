@@ -41,7 +41,7 @@ channel.description(
         ],
         decorators=[
             FrequencyLimit.require("genshin_resource_points", 4),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

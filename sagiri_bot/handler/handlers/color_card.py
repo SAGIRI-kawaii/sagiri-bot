@@ -56,7 +56,7 @@ inc = InterruptControl(bcc)
         ],
         decorators=[
             FrequencyLimit.require("color_card", 3),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]

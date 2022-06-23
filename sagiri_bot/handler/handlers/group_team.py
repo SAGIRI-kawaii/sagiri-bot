@@ -44,7 +44,7 @@ channel.description(
         ],
         decorators=[
             FrequencyLimit.require("group_team_new_team", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             Permission.require(Permission.GROUP_ADMIN),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)

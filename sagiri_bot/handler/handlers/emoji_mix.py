@@ -39,7 +39,7 @@ proxy = AppCore.get_core_instance().get_config().proxy
         ],
         decorators=[
             FrequencyLimit.require("emoji_mix", 2),
-            Function.require(channel.module),
+            Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
         ]
