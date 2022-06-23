@@ -69,6 +69,26 @@
 - `/github-watch check` [任何人]
 - `/github-watch cache {update/store}` [2级或管理员权限]
 
+> ## MockingBird
+
+一个可以生成语音的插件
+
+模块位置：`sagiri_bot.handler.handlers.mockingbird`
+
+使用方法：在群中发送 `纱雾说 {content}` 即可
+
+注意：此插件因为模型过大而不在仓库中，需要去交流群手动下载安装，安装前需要安装如下依赖：
+```text
+torch
+scipy
+librosa
+numba
+pypinyin
+webrtcvad
+Unidecode
+inflect
+```
+
 > ## 哔咔漫画
 
 一个接入哔咔漫画的插件，支持搜索关键词，随机漫画，下载漫画，排行榜获取
@@ -90,7 +110,7 @@
 
 使用方法：在群中发送 `/超分 图片` 即可
 
-注意：若需要使用本插件，请运行 `pip install realesrgan basicsr`，若不安装则插件默认不启用
+注意：若需要使用本插件，请运行 `pip install realesrgan basicsr torch`，若想使用 `gpu` 进行运算则还需要安装 `CUDA` 和 `CUDNN`，请上网自行寻找教程，各个库版本都应对应才可以使用 `gpu`，若不安装则插件默认不启用
 
 > ## Wordle
 
@@ -123,6 +143,14 @@ Wordle文字游戏
   ...
 }
 ```
+
+> ## 查老师
+
+一个查老师的插件
+
+模块位置：`sagiri_bot.handler.handlers.xslist`
+
+使用方法：在群中发送 `/查老师 {作品名/老师名/图片}` 即可
 
 > ## 缩写预测
 
@@ -197,6 +225,14 @@ Wordle文字游戏
 模块位置：`sagiri_bot.handler.handlers.black_white_grass`
 
 使用方法：在群中发送 `黑白草?图 内容 图片` 即可
+
+> ## 种子搜索
+
+一个可以搜索种子的插件
+
+模块位置：`sagiri_bot.handler.handlers.bt`
+
+使用方法：在群中发送 `/bt + {keyword}` 即可
 
 > ## 智能回复
 
@@ -289,6 +325,14 @@ Wordle文字游戏
 
 使用方法：自动触发，可通过 `setting -set antiFlashImage(anti_flash_image)=False` 关闭
 
+> ## 原神角色卡
+
+一个原神角色卡查询插件
+
+模块位置：`sagiri_bot.handler.handlers.genshin_chara_card`
+
+使用方法：在群中发送 `/原神角色卡 UID 角色名` 即可
+
 > ## 原神每日可获取素材查询
 
 一个可以查询原神每日可获取素材的插件
@@ -304,6 +348,23 @@ Wordle文字游戏
 模块位置：`sagiri_bot.handler.handlers.github_info`
 
 使用方法：在群中发送 `github (-i)? {项目名}` 即可，其中 `-i` 为可选项，代表图片化输出
+
+注意：可能需要设置代理
+
+> ## 群小组
+
+一个可以将群内组员分为小组进行呼叫的插件
+
+模块位置：`sagiri_bot.handler.handlers.group_team`
+
+使用方法：
+- 发送 `群小组/group_team 添加分组/创建分组/create <小组名> <@要添加的组员>` 即可创建分组
+- 发送 `群小组/group_team 删除分组/解散分组/delete <小组名>` 即可删除分组
+- 发送 `群小组/group_team 添加成员/add <小组名> <@要添加的组员>` 即可在分组中添加成员
+- 发送 `群小组/group_team 移除成员/删除成员/remove <小组名> <@要移除的组员>` 即可在分组中移除成员
+- 发送 `群小组/group_team 通知/呼叫/notice/call <小组名> <要发送的信息>` 即可对小组内成员发送消息
+- 发送 `群小组/group_team 列出/显示/列表/show/list` 即可查看所在群组中所有小组
+- 发送 `群小组/group_team 列出/显示/列表/show/list <小组名>` 即可查看小组内组员
 
 注意：可能需要设置代理
 
