@@ -3,7 +3,7 @@ beautifulsoup4
 graia-scheduler
 graia-ariadne==0.6.16
 graia-saya
-graiax-silkcoder
+graiax-silkcoder==0.2.0
 fastapi
 imageio
 jieba
