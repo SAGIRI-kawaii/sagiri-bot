@@ -136,6 +136,10 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
     
 使用命令 `curl -LJO https://ghproxy.com/github.com/iTXTech/mcl-installer/releases/download/f7ee211/mcl-installer-f7ee211-linux-amd64-musl`
 
+> ## unable to import MiraiSession from graia.ariadne.model
+
+请尝试使用 graia-ariadne < 0.7.0，该问题将在后续更新中解决
+
 > ## sqlalchemy.exc.ProgrammingError: (pymysql.err.ProgrammingError) (1146, "Table 'sagiri_bot.keyword_reply' doesn't exist")
 
 该错误通常仅在首次启动或更换数据库时出现，并不会影响实际的功能使用。
