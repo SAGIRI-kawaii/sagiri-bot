@@ -180,6 +180,26 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 
 详见 [#229](https://github.com/SAGIRI-kawaii/sagiri-bot/issues/229) 与 [brillout/vite-plugin-ssr #283](https://github.com/brillout/vite-plugin-ssr/issues/283)
 
+> ## pydantic.error_wrappers.ValidationError
+
+请检查 config.yaml 是否配置正确。
+
+出错位置应已在报错信息底部打印，比如以下错误代表 `bot_qq` 配置出错：
+
+```text
+bot_qq
+    value is not a valid integer
+(type=type_error.integer)
+```
+
+> ## 安装依赖时提示 ERROR: Could not open requirements.txt
+
+请进入 bot 目录后再进行依赖安装
+
+> ## 日志显示已发送图片，但是QQ无法显示
+
+账号被腾讯风险控制，尝试开关设备锁、重新登录、或者登录满一至两周后再试。
+
 > ## 代理相关
 
 由于某些原因，此文档中不会涉及到代理的搭建、部署、使用等教程，请自行寻找教程
