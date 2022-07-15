@@ -1,9 +1,11 @@
 import asyncio
+import contextlib
 from typing import Union
 from abc import ABC, abstractmethod
 
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import MessageEvent
+from graia.ariadne.exception import UnknownTarget
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Source, At
 from graia.ariadne.model import Friend, Group, Member
@@ -82,7 +84,8 @@ class Revoke(Strategy):
     ):
         message = await app.sendMessage(target, message)
         await asyncio.sleep(self.__delay_second)
-        await app.recallMessage(message)
+        with contextlib.suppress(UnknownTarget):
+            await app.recallMessage(message)
 
 
 class DoNothing(Strategy):
