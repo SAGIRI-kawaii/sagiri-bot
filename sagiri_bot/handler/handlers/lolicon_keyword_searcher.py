@@ -149,19 +149,18 @@ async def get_image(group: Group, keyword: str) -> MessageChain:
                 Plain(text=f"\n{info}"),
             ]
         )
-    else:
-        async with aiohttp.ClientSession(
-            connector=TCPConnector(verify_ssl=False)
-        ) as session:
-            async with session.get(url=result["urls"]["original"], proxy=proxy) as resp:
-                img_content = await resp.read()
-        if image_cache:
-            image = PIL.Image.open(BytesIO(img_content))
-            image.save(file_path)
-        return MessageChain(
-            [
-                Plain(text=f"你要的{keyword}涩图来辣！\n"),
-                Image(data_bytes=img_content),
-                Plain(text=f"\n{info}"),
-            ]
-        )
+    async with aiohttp.ClientSession(
+        connector=TCPConnector(verify_ssl=False)
+    ) as session:
+        async with session.get(url=result["urls"]["original"], proxy=proxy) as resp:
+            img_content = await resp.read()
+    if image_cache:
+        image = PIL.Image.open(BytesIO(img_content))
+        image.save(file_path)
+    return MessageChain(
+        [
+            Plain(text=f"你要的{keyword}涩图来辣！\n"),
+            Image(data_bytes=img_content),
+            Plain(text=f"\n{info}"),
+        ]
+    )
