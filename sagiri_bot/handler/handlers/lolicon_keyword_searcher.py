@@ -3,6 +3,8 @@ import asyncio
 import aiohttp
 import PIL.Image
 from io import BytesIO
+
+from graia.ariadne.exception import UnknownTarget
 from loguru import logger
 from datetime import datetime
 from aiohttp import TCPConnector
@@ -41,6 +43,7 @@ image_cache = config.data_related.get("lolicon_image_cache")
 data_cache = config.data_related.get("lolicon_data_cache")
 
 
+import contextlib
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
@@ -79,7 +82,8 @@ async def lolicon_keyword_searcher(
             group, msg_chain, quote=message.getFirst(Source)
         )
         await asyncio.sleep(20)
-        await app.recallMessage(msg)
+        with contextlib.suppress(UnknownTarget):
+            await app.recallMessage(msg)
     elif mode == "flashImage" and r18:
         await app.sendGroupMessage(
             group, msg_chain.exclude(Image), quote=message.getFirst(Source)
@@ -89,8 +93,6 @@ async def lolicon_keyword_searcher(
         )
     else:
         await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
-
-
 async def get_image(group: Group, keyword: str) -> MessageChain:
     word_filter = ("&", "r18", "&r18", "%26r18")
     r18 = await group_setting.get_setting(group.id, Setting.r18)

@@ -177,11 +177,11 @@ async def do_super_resolution(image_data: bytes, resize: bool = False, is_gif: b
     result = BytesIO()
     if is_gif:
         for i in ImageSequence.Iterator(image):
-            image_array: np.ndarray = i.__array__()
+            image_array: np.ndarray = np.array(i)
             output, _ = await loop.run_in_executor(None, upsampler.enhance, image_array, 2)
             outputs.append(output)
     else:
-        image_array: np.ndarray = image.__array__()
+        image_array: np.ndarray = np.array(image)
         output, _ = await loop.run_in_executor(None, upsampler.enhance, image_array, 2)
     if is_gif:
         imageio.mimsave(result, outputs[1:], format='gif', duration=image.info["duration"] / 1000)
