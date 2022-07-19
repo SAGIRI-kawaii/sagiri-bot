@@ -123,7 +123,7 @@ url:http://xxx.xxx.xxx
     - 在电脑上打开浏览器，输入程序提供的url，应当会出现滑动认证的画面，此时先不要进行认证
     - 单击 `F12` 键，会出现一个 `DevTool`，找到上方选项卡，点击 `Network` 选项，再点击下方的 `Fetch/XHR` 选项
     - 完成滑动验证，此时在 `DevTool` 界面中应会出现新的请求，找到其中名为 `cap_union_new_verify` 选项卡，点击其中的 `Preview` 选项卡，在其中找到 `ticket` 的值填入 `mcl` 并回车
-    - gif演示：![浏览器获取ticket演示](asserts/txcaptcha.gif)
+    - gif演示：![浏览器获取ticket演示](https://sagiri-kawaii.github.io/sagiri-bot/assets/txcaptcha.gif)
 
 ## 配置python环境
 

@@ -221,9 +221,15 @@ url:http://xxx.xxx.xxx
     - 在电脑上打开浏览器，输入程序提供的url，应当会出现滑动认证的画面，此时先不要进行认证
     - 单击 `F12` 键，会出现一个 `DevTool`，找到上方选项卡，点击 `Network` 选项，再点击下方的 `Fetch/XHR` 选项
     - 完成滑动验证，此时在 `DevTool` 界面中应会出现新的请求，找到其中名为 `cap_union_new_verify` 选项卡，点击其中的 `Preview` 选项卡，在其中找到 `ticket` 的值填入 `mcl` 并回车
-    - gif演示：![浏览器获取ticket演示](https://sagiri-kawaii.github.io/sagiri-bot/asserts/txcaptcha.gif)
+    - gif演示：![浏览器获取ticket演示](https://sagiri-kawaii.github.io/sagiri-bot/assets/txcaptcha.gif)
 
 ## 安装python
+
+!!!note "部分主流 linux 发行版已内置python"
+
+    可直接在终端输入 `python` 并按 `tab` 键检查是否已安装 python
+
+    注意，部分系统内置的 python 版本可能低于 sagiri-bot 的最低需求版本(3.8)，如直接运行 `python --version` 时显示的版本低于 3.8，则需要继续进行本区块的安装流程
 
 ### 使用 MiniConda
 
@@ -251,23 +257,57 @@ url:http://xxx.xxx.xxx
 - 打开终端，进入你想要下载的目标文件夹
 - 输入 `git clone https://github.com/SAGIRI-kawaii/sagiri-bot.git`
 - 等待下载完成
-- 什么？你问我太慢怎么办？我的建议是，找一台可以快速链接 `github` 的机器下载再传过来
-- 或者你可以使用代理站：`git clone https://ghproxy.com/github.com/SAGIRI-kawaii/sagiri-bot.git`
 
-## 配置python环境
+!!!note "什么？你问我为什么这个一输进去就报错？"
+
+    <del>不会还有人的 linux 发布版没安装 `git` 吧？</del>可输入 `sudo apt install git` 安装 `git` 命令，然后再运行克隆命令
+
+    `apt` 可替换为其他发行版的安装命令，如 `yum`、`dnf`、`pacman` 等
+
+!!!note "什么？你问我太慢怎么办？"
+    
+    我的建议是，找一台可以快速链接 `github` 的机器下载再传过来
+    
+    或者你可以使用代理站：`git clone https://ghproxy.com/github.com/SAGIRI-kawaii/sagiri-bot.git`
+
+!!!danger "***真的非常不建议***直接从 GitHub 下载仓库的 zip 或 tar 文件"
+
+    大部分情况下，直接使用 zip 或 tar 文件进行安装无法通过 `git pull` 进行更新，即使用该方法，可能无法正常更新且可能有稳定性问题
+
+    <del>如果是因为直接下的 zip 或 tar 文件而且一直没更新导致的问题，就不要跑来群里或者发 issue 问了</del>
+
+## 配置python虚拟环境
+
+!!!question "为什么要配置python虚拟环境？"
+
+    防止出现依赖混乱或冲突等问题，常用的虚拟环境有 `conda` `venv` `poetry` 等
+
+    <del>当然你也可以不配置，但是如果你不配置而且服务器上还有其他的一些python项目，那么你的程序可能会出现一些问题</del>
 
 ### 使用 anaconda
 
-- 若你在安装python时使用的是安装 Anaconda 的方法并且 `自带python版本>=3.8` 或已经配置好虚拟环境可观看此项
+- 若你在安装python时使用的是安装 Anaconda 的方法并且 `自带python版本>=3.8` 或已经配置好虚拟环境可跳过此项
 - 在终端里输入 `conda activate your_env_name` 进入虚拟环境（Anaconda自带版本 >= 3.8可忽略此步骤，但推荐使用虚拟环境以防止出现依赖混乱冲突的情况，若你还没有创建虚拟环境并且自带python版本不符合条件，请查看上方创建虚拟环境）
 - 激活成功后进入bot所在目录，运行 `pip install -r requirements.txt` 即可
 
 
 ### 使用 poetry
 
-暂未引入poetry，敬请期待
+!!!warning "此处将默认你已经安装了 `poetry`"
 
-### 使用 pip
+- 终端中进入bot所在目录，运行 `poetry install` 即可
+
+!!!note "`Resolving dependencies...` 部分耗时过长？"
+    
+    不用慌张！<del>这是技术性调整</del>
+
+    可能是因为你的网络不稳定，或者你的网络环境不符合要求，导致 `poetry install` 失败，请尝试使用 `pip` 安装依赖
+
+    > 大概需要多久安装成功呢？
+
+    > 截至这个区块编写完成，已知的最长用时是 20 分钟。
+
+### 直接使用 pip
 
 - 终端中进入bot所在目录，运行 `pip install -r requirements.txt` 即可
 
