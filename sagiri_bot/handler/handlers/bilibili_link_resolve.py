@@ -11,7 +11,6 @@ from graia.ariadne.message.element import Plain, Image
 from graia.ariadne.message.parser.twilight import Twilight, RegexMatch, WildcardMatch
 from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from loguru import logger
 
 from sagiri_bot.control import (
     FrequencyLimit,
@@ -27,7 +26,7 @@ channel.name("BilibiliLinkResolve")
 channel.author("nullqwertyuiop")
 channel.description("B站链接解析")
 
-CUSTOMIZATION = "%封面%\n【标题】%标题%\n【UP主】%up%\n【播放量】%播放量%\n【点赞量】%点赞量%\n【简介】%简介%"
+CUSTOMIZATION = "【标题】{标题}\n【UP主】{up}\n【播放量】{播放量}\n【点赞量】{点赞量}\n【简介】{简介}"
 
 
 @channel.use(
@@ -116,65 +115,41 @@ class BilibiliLinkResolve:
     @classmethod
     async def generate_messagechain(cls, info: dict) -> MessageChain:
         data = info["data"]
-        chain_list = []
-        try:
-            if "%封面%" in CUSTOMIZATION:
-                first = bool(CUSTOMIZATION.startswith("%封面%"))
-                parsed_config = CUSTOMIZATION.split("%封面%")
-                img_url = data["pic"]
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url=img_url) as resp:
-                        img_content = await resp.read()
-                cover = Image(data_bytes=img_content)
-                chain_list.append(cover if first else Plain(""))
-                chain_list.extend(
-                    Plain(text=cls.replace_variable(item, data))
-                    for item in parsed_config
-                )
-            else:
-                chain_list = [Plain(text=cls.replace_variable(CUSTOMIZATION, data))]
-        except Exception as e:
-            return MessageChain(f"解析失败，请联系机器人管理员。\n{e}")
+        img_url = data["pic"]
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url=img_url) as resp:
+                img_content = await resp.read()
+        cover = Image(data_bytes=img_content)
+        chain_list = [cover, Plain(text=cls.replace_variable(CUSTOMIZATION, data))]
         return MessageChain(chain_list)
 
     @classmethod
     def replace_variable(cls, text: str, data: dict) -> str:
-        try:
-            description = str(data["desc"]).replace("\\n", "\n")
-            if len(description) >= 200:
-                description = f"{description[:200]}..."
-            text = text.replace("%标题%", str(data["title"]))
-            text = text.replace(
-                "%分区%",
-                str(data["tid"]),
-            )
-            text = text.replace("%视频类型%", "原创" if data["copyright"] == 1 else "转载")
-            text = text.replace(
-                "%投稿时间%",
-                str(time.strftime("%Y-%m-%d", time.localtime(int(data["pubdate"])))),
-            )
-            text = text.replace("%视频长度%", str(cls.sec_format(data["duration"])))
-            text = text.replace("%up%", str(data["owner"].get("name", "")))
-            text = text.replace("%播放量%", str(data["stat"].get("view", "")))
-            text = text.replace("%弹幕量%", str(data["stat"].get("danmaku", "")))
-            text = text.replace("%评论量%", str(data["stat"].get("reply", "")))
-            text = text.replace("%点赞量%", str(data["stat"].get("like", "")))
-            text = text.replace("%投币量%", str(data["stat"].get("coin", "")))
-            text = text.replace("%收藏量%", str(data["stat"].get("favorite", "")))
-            text = text.replace("%转发量%", str(data["stat"].get("share", "")))
-            text = text.replace("%简介%", description)
-            text = text.replace("%av号%", "av" + str(data["aid"]))
-            text = text.replace("%bv号%", str(data["bvid"]))
-            text = text.replace(
-                "%链接%", f"https://www.bilibili.com/video/av{str(data['aid'])}"
-            )
-        except Exception as err:
-            logger.error(err)
-        finally:
-            return text
+        description = str(data["desc"]).replace("\\n", "\n")
+        if len(description) >= 200:
+            description = f"{description[:200]}..."
+        return text.format(
+            标题=str(data["title"]),
+            分区=str(data["tid"]),
+            视频类型="原创" if data["copyright"] == 1 else "转载",
+            投稿时间=str(time.strftime("%Y-%m-%d", time.localtime(int(data["pubdate"])))),
+            视频长度=str(cls.sec_format(data["duration"])),
+            up=str(data["owner"].get("name", "")),
+            播放量=str(data["stat"].get("view", "")),
+            弹幕量=str(data["stat"].get("danmaku", "")),
+            评论量=str(data["stat"].get("reply", "")),
+            点赞量=str(data["stat"].get("like", "")),
+            投币量=str(data["stat"].get("coin", "")),
+            收藏量=str(data["stat"].get("favorite", "")),
+            转发量=str(data["stat"].get("share", "")),
+            简介=description,
+            av号="av" + str(data["aid"]),
+            bv号=str(data["bvid"]),
+            链接=f"https://www.bilibili.com/video/av{str(data['aid'])}",
+        )
 
     @staticmethod
     def sec_format(secs: int) -> str:
         m, s = divmod(secs, 60)
         h, m = divmod(m, 60)
-        return "%2d:%2d:%2d" % (h, m, s)
+        return f"{h:02d}:{m:02d}:{s:02d}"
