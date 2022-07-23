@@ -21,5 +21,7 @@ test.py
 /sagiri_bot/handler/handlers/pica/cache
 /statics/genshin/*.json
 /sagiri_bot/core/api_server/data.json
-/statics/genshin/material/.*
-/statics/genshin/.*
+/statics/genshin/genshin_icon/*
+/statics/genshin/map/*
+/statics/genshin/material/*
+/statics/genshin/temp/*
