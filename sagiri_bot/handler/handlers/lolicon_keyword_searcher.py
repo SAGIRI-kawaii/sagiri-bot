@@ -1,33 +1,33 @@
-import os
 import asyncio
-import aiohttp
-import PIL.Image
+import contextlib
+import os
+from datetime import datetime
 from io import BytesIO
 
-from graia.ariadne.exception import UnknownTarget
-from loguru import logger
-from datetime import datetime
+import PIL.Image
+import aiohttp
 from aiohttp import TCPConnector
-
-from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
+from graia.ariadne.exception import UnknownTarget
+from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image, Source
-from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.saya import Saya, Channel
+from graia.saya.builtins.broadcast.schema import ListenerSchema
+from loguru import logger
 
-from sagiri_bot.orm.async_orm import orm
-from sagiri_bot.utils import group_setting
-from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.orm.async_orm import Setting, LoliconData
 from sagiri_bot.control import (
     FrequencyLimit,
     Function,
     BlackListControl,
     UserCalledCountControl,
 )
+from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.orm.async_orm import Setting, LoliconData
+from sagiri_bot.orm.async_orm import orm
+from sagiri_bot.utils import group_setting
 
 saya = Saya.current()
 channel = Channel.current()
@@ -43,7 +43,6 @@ image_cache = config.data_related.get("lolicon_image_cache")
 data_cache = config.data_related.get("lolicon_data_cache")
 
 
-import contextlib
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
@@ -93,6 +92,8 @@ async def lolicon_keyword_searcher(
         )
     else:
         await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
+
+
 async def get_image(group: Group, keyword: str) -> MessageChain:
     word_filter = ("&", "r18", "&r18", "%26r18")
     r18 = await group_setting.get_setting(group.id, Setting.r18)
