@@ -62,7 +62,7 @@ class ConfirmWaiter(Waiter.create([GroupMessage])):
 
     async def detected_event(self, group: Group, member: Member, message: MessageChain):
         if group.id == self.group and member.id == self.member:
-            return True if re.match(r"[是否]", message.display) else False
+            return bool(re.match(r"[是否]", message.display))
 
 
 add_keyword_twilight = Twilight([
@@ -264,7 +264,10 @@ async def keyword_detect(app: Ariadne, message: MessageChain, group: Group):
                 reply = random.choice(result)
                 await app.send_group_message(group, json_to_message_chain(str(reply[0])))
             else:
-                response_md5 = [i[1] for i in regex_list if (re.match(i[0], copied_msg.as_persistent_string()) and i[2] in (-1, group.id))]
+                response_md5 = [
+                    i[1] for i in regex_list
+                    if (re.match(i[0], copied_msg.as_persistent_string()) and i[2] in (-1, group.id))
+                ]
                 if response_md5:
                     await app.send_group_message(
                         group,
@@ -301,5 +304,4 @@ async def regex_init():
 def get_md5(data: str) -> str:
     m = hashlib.md5()
     m.update(data.encode("utf-8"))
-    reply_md5 = m.hexdigest()
-    return reply_md5
+    return m.hexdigest()

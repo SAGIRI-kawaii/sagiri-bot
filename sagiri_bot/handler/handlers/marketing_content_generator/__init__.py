@@ -38,8 +38,8 @@ channel.description("一个营销号内容生成器插件，在群中发送 `营
 )
 async def marketing_content_generator(
     app: Ariadne,
-    message: MessageChain,
     group: Group,
+    source: Source,
     somebody: RegexResult,
     something: RegexResult,
     other_word: RegexResult
@@ -52,4 +52,4 @@ async def marketing_content_generator(
               f"{somebody}{something}，其实就是{somebody}{other_word}，大家可能会很惊讶{somebody}怎么会{something}呢？" \
               f"但事实就是这样，小编也感到非常惊讶。\n" \
               f"这就是关于{somebody}{something}的事情了，大家有什么想法呢，欢迎在评论区告诉小编一起讨论哦！ "
-    await app.send_group_message(group, MessageChain(content), quote=message.get_first(Source))
+    await app.send_group_message(group, MessageChain(content), quote=source)

@@ -3,13 +3,13 @@ import random
 from pathlib import Path
 from random import randrange
 
-from graia.ariadne.app import Ariadne
-from graia.ariadne.event.message import Group, GroupMessage
-from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Source
-from graia.ariadne.message.parser.twilight import Twilight, RegexMatch, UnionMatch, MatchResult
 from graia.saya import Saya, Channel
+from graia.ariadne.app import Ariadne
+from graia.ariadne.message.element import Source
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import Twilight, RegexMatch, UnionMatch, MatchResult
 
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
@@ -41,7 +41,7 @@ with open(str(Path(__file__).parent.joinpath("food.json")), "r", encoding="utf-8
         ]
     )
 )
-async def random_meal(app: Ariadne, message: MessageChain, group: Group, option: MatchResult):
+async def random_meal(app: Ariadne, group: Group, source: Source, option: MatchResult):
     option = option.result.display
     main_amount = 1 if option == "早餐" else 2
     dish = []
@@ -59,7 +59,7 @@ async def random_meal(app: Ariadne, message: MessageChain, group: Group, option:
     for i in range(0, main_amount):
         dish.append(random.choice(food[option]["main"]))
     result = f"你的随机{option}是：\n" + " ".join(dish)
-    await app.send_group_message(group, MessageChain(result), quote=message.get_first(Source))
+    await app.send_group_message(group, MessageChain(result), quote=source)
 
 
 @channel.use(
@@ -79,7 +79,7 @@ async def random_meal(app: Ariadne, message: MessageChain, group: Group, option:
         ]
     )
 )
-async def random_tea(app: Ariadne, message: MessageChain, group: Group, option: MatchResult):
+async def random_tea(app: Ariadne, group: Group, source: Source, option: MatchResult):
     option = option.result.display
     if randrange(101) < 5:
         return "没得喝！"
@@ -94,4 +94,4 @@ async def random_tea(app: Ariadne, message: MessageChain, group: Group, option: 
     if randrange(2):
         cream = divider + str(random.choice(food[option]["cream"]))
     result = f"你的随机{option}是：\n" + temperature + sugar + addon + cream + body
-    await app.send_group_message(group, MessageChain(result), quote=message.get_first(Source))
+    await app.send_group_message(group, MessageChain(result), quote=source)

@@ -33,8 +33,8 @@ channel.description("可以抽塔罗牌的插件，在群中发送 `塔罗牌` �
         ]
     )
 )
-async def tarot(app: Ariadne, message: MessageChain, group: Group):
-    await app.send_group_message(group, Tarot.get_tarot(), quote=message.get_first(Source))
+async def tarot(app: Ariadne, group: Group, source: Source):
+    await app.send_group_message(group, Tarot.get_tarot(), quote=source)
 
 
 class Tarot(object):

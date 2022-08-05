@@ -33,11 +33,11 @@ channel.description("将收到的消息合并为图片，在群中发送 `/merge
         ]
     )
 )
-async def message_merger(app: Ariadne, message: MessageChain, group: Group, msg_to_merge: RegexResult):
+async def message_merger(app: Ariadne, group: Group, source: Source, msg_to_merge: RegexResult):
     await app.send_group_message(
         group,
         MessageChain([Image(
             data_bytes=TextEngine([GraiaAdapter(msg_to_merge.result)], min_width=1080).draw()
         )]),
-        quote=message.get_first(Source)
+        quote=source
     )

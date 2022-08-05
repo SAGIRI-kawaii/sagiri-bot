@@ -18,7 +18,6 @@ channel = Channel.current()
 channel.name("ChatRecorder")
 channel.author("SAGIRI-kawaii")
 channel.description("一个记录聊天记录的插件，可配合词云等插件使用")
-channel.meta["uninstallable"] = False
 
 
 @channel.use(

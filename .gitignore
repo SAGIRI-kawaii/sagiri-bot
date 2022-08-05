@@ -22,6 +22,7 @@ test.py
 /sagiri_bot/handler/handlers/genshin_gacha/icon/角色图鉴/*
 /sagiri_bot/handler/handlers/genshin_gacha/icon/武器图鉴/*
 /sagiri_bot/handler/handlers/genshin_gacha/gid_pool.json
+/sagiri_bot/handler/required_module/mirai_event/event_config.yaml
 /statics/genshin/*.json
 /sagiri_bot/core/api_server/data.json
 /statics/genshin/genshin_icon/*

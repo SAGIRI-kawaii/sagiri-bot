@@ -17,7 +17,6 @@ channel = Channel.current()
 channel.name("MiraiEvent")
 channel.author("SAGIRI-kawaii")
 channel.description("对各种事件响应")
-channel.meta["uninstallable"] = False
 
 functions = sys.modules["sagiri_bot.handler.required_module.mirai_event"].__dict__
 group_listening_events = list(gen_subclass(GroupEvent))

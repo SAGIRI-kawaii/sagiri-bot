@@ -224,15 +224,9 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
         ranking = "%s+" % ranking
 
     websites_list = profile['websites']
-    websites = []
-    for i in websites_list:
-        websites.append("\n    %s" % i)
-
+    websites = ["\n    %s" % i for i in websites_list]
     skills_list = profile['skillTags']
-    skills = []
-    for i in skills_list:
-        skills.append("\n    %s" % i)
-
+    skills = ["\n    %s" % i for i in skills_list]
     architecture = profile['skillSet']['topicAreaScores'][0]['score']
     data_structures = profile['skillSet']['topicAreaScores'][1]['score']
     algorithms = profile['skillSet']['topicAreaScores'][2]['score']

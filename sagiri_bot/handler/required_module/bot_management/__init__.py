@@ -17,7 +17,6 @@ channel = Channel.current()
 channel.name("BotManagement")
 channel.author("SAGIRI-kawaii")
 channel.description("bot管理插件，必要插件，请勿卸载！否则会导致管理功能失效（若失效请重启机器人）")
-channel.meta["uninstallable"] = False
 
 
 @channel.use(
