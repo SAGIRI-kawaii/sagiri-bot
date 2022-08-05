@@ -80,41 +80,41 @@ async def super_resolution(
     ):
         if waiter_group.id == group.id and waiter_member.id == member.id:
             if waiter_message.has(Image):
-                return waiter_message.getFirst(Image)
+                return waiter_message.get_first(Image)
             else:
                 return False
 
     if not enable:
-        return await app.sendGroupMessage(group, MessageChain("超分功能未开启！"), quote=source)
+        return await app.send_group_message(group, MessageChain("超分功能未开启！"), quote=source)
     if processing:
-        return await app.sendGroupMessage(group, MessageChain("有任务正在处理中，请稍后重试"), quote=source)
+        return await app.send_group_message(group, MessageChain("有任务正在处理中，请稍后重试"), quote=source)
     if image.matched:
         image = image.result
     else:
         try:
-            await app.sendMessage(group, MessageChain.create("请在30s内发送要处理的图片"), quote=source)
+            await app.send_message(group, MessageChain("请在30s内发送要处理的图片"), quote=source)
             image = await asyncio.wait_for(inc.wait(image_waiter), 30)
             if not image:
-                return await app.sendGroupMessage(group, MessageChain("未检测到图片，请重新发送，进程退出"), quote=source)
+                return await app.send_group_message(group, MessageChain("未检测到图片，请重新发送，进程退出"), quote=source)
         except asyncio.TimeoutError:
-            return await app.sendGroupMessage(group, MessageChain("图片等待超时，进程退出"), quote=source)
+            return await app.send_group_message(group, MessageChain("图片等待超时，进程退出"), quote=source)
         except ClientResponseError:
             await mutex.acquire()
             processing = False
             mutex.release()
-            return await app.sendGroupMessage(group, MessageChain("图片获取错误，进程退出"), quote=source)
+            return await app.send_group_message(group, MessageChain("图片获取错误，进程退出"), quote=source)
     if processing:
-        return await app.sendGroupMessage(group, MessageChain("有任务正在处理中，请稍后重试"), quote=source)
+        return await app.send_group_message(group, MessageChain("有任务正在处理中，请稍后重试"), quote=source)
     await mutex.acquire()
     processing = True
     mutex.release()
-    await app.sendMessage(
+    await app.send_message(
         group,
-        MessageChain.create([Plain(text="已收到图片，启动处理进程")]),
+        MessageChain([Plain(text="已收到图片，启动处理进程")]),
         quote=message[Source][0]
     )
     try:
-        await app.sendGroupMessage(
+        await app.send_group_message(
             group,
             await do_super_resolution(await image.get_bytes(), resize.matched, '.gif' in image.id),
             quote=source
@@ -123,7 +123,7 @@ async def super_resolution(
         await mutex.acquire()
         processing = False
         mutex.release()
-        await app.sendGroupMessage(group, MessageChain(str(e)), quote=source)
+        await app.send_group_message(group, MessageChain(str(e)), quote=source)
 
 
 async def do_super_resolution(image_data: bytes, resize: bool = False, is_gif: bool = False) -> MessageChain:

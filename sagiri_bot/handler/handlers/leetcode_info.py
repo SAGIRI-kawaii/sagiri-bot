@@ -1,11 +1,11 @@
 import re
 import json
+import aiohttp
 from html import unescape
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
+
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image
 from graia.ariadne.message.parser.twilight import Twilight
@@ -52,9 +52,9 @@ async def leetcode_info(app: Ariadne, group: Group, daily_question: RegexResult,
     if not daily_question.matched and not user_slug.matched or daily_question.matched and user_slug.matched:
         return
     if daily_question.matched:
-        await app.sendGroupMessage(group, await get_leetcode_daily_question())
+        await app.send_group_message(group, await get_leetcode_daily_question())
     else:
-        await app.sendGroupMessage(group, await get_leetcode_user_statics(user_slug.result.asDisplay()))
+        await app.send_group_message(group, await get_leetcode_user_statics(user_slug.result.display))
 
 
 async def get_daily_question_json():
@@ -76,8 +76,9 @@ async def get_daily_question_json():
                  "\n      questionTitleSlug,\n      __typename\n    }\n    lastSubmission {\n      id,"
                  "\n      __typename,\n    }\n    date,\n    userStatus,\n    __typename\n  }\n}\n "
     }
-    async with get_running(Adapter).session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
-        result = await resp.json()
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
+            result = await resp.json()
     return result
 
 
@@ -116,8 +117,9 @@ async def get_question_content(questionTitleSlug, language="Zh"):
                  "  productUrl\n      __typename\n    }\n    isSubscribed\n    isDailyQuestion\n    "
                  "dailyRecordStatus\n    editorType\n    ugcQuestionId\n    style\n    __typename\n  }\n}\n "
     }
-    async with get_running(Adapter).session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
-        result = await resp.json()
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
+            result = await resp.json()
     if language == "En":
         return result["data"]["question"]["content"]
     elif language == "Zh":
@@ -203,8 +205,9 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
         'variables': '{"userSlug": "%s"}' % account_name
     }
 
-    async with get_running(Adapter).session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
-        data_json = await resp.json()
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
+            data_json = await resp.json()
 
     if 'userProfilePublicProfile' in data_json["data"].keys() \
             and data_json["data"]['userProfilePublicProfile'] is None:

@@ -1,6 +1,6 @@
 import json
 import base64
-from typing import Dict, Union, List
+from typing import Union
 
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image, Face, Voice, At
@@ -27,7 +27,7 @@ async def message_chain_to_json(message: MessageChain) -> str:
         elif isinstance(element, Face):
             result.append({
                 "type": "Face",
-                "faceId": element.faceId,
+                "face_id": element.face_id,
                 "name": element.name
             })
         elif isinstance(element, Voice):
@@ -57,9 +57,7 @@ def json_to_message_chain(data: Union[str, dict, list]) -> MessageChain:
         elif i["type"] == "Image":
             elements.append(Image(base64=i["base64"]))
         elif i["type"] == "Face":
-            elements.append(Face(i["faceId"]))
-        elif i["type"] == "Image":
-            elements.append(Voice(base64=i["base64"]))
+            elements.append(Face(i["face_id"]))
         elif i["type"] == "At":
             elements.append(At(target=i["target"]))
     return MessageChain(elements)

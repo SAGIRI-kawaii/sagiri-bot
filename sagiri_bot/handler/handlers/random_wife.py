@@ -32,8 +32,8 @@ channel.description("生成随机老婆图片的插件，在群中发送 `[来�
     )
 )
 async def random_wife(app: Ariadne, message: MessageChain, group: Group):
-    await app.sendGroupMessage(
+    await app.send_group_message(
         group,
         MessageChain([Image(url=f"https://www.thiswaifudoesnotexist.net/example-{random.randint(1, 100000)}.jpg")]),
-        quote=message.getFirst(Source)
+        quote=message.get_first(Source)
     )

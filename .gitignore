@@ -28,3 +28,4 @@ test.py
 /statics/genshin/map/*
 /statics/genshin/material/*
 /statics/genshin/temp/*
+migrator.py

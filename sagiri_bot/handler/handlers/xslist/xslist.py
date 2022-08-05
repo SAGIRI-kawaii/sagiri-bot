@@ -1,14 +1,15 @@
+import aiohttp
 from typing import Optional
 from datetime import datetime
 from bs4 import BeautifulSoup
 
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
-from sagiri_bot.core.app_core import AppCore
+from creart import create
+
+from sagiri_bot.config import GlobalConfig
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image, Forward, ForwardNode
 
-config = AppCore.get_core_instance().get_config()
+config = create(GlobalConfig)
 proxy = config.proxy if config.proxy != "proxy" else ''
 
 
@@ -19,13 +20,15 @@ async def search(*, keyword: Optional[str] = None, data_bytes: Optional[bytes] =
         raise ValueError("You should give keyword or data_bytes!")
     elif keyword:
         keyword = keyword.strip()
-        async with get_running(Adapter).session.get(search_url + keyword, proxy=proxy) as resp:
-            html = await resp.text()
-    elif data_bytes:
-        async with get_running(Adapter).session.post(
-            pic_search_url, data={"pic": data_bytes, "lg": "en"}, proxy=proxy
-        ) as resp:
-            html = await resp.text()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(search_url + keyword, proxy=proxy) as resp:
+                html = await resp.text()
+    else:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                pic_search_url, data={"pic": data_bytes, "lg": "en"}, proxy=proxy
+            ) as resp:
+                html = await resp.text()
     soup = BeautifulSoup(html, "html.parser")
     lis = soup.find_all("li")
     if not lis:
@@ -33,8 +36,9 @@ async def search(*, keyword: Optional[str] = None, data_bytes: Optional[bytes] =
     msgs = []
     for li in lis:
         avatar = li.find("img")["src"]
-        async with get_running(Adapter).session.get(avatar, proxy=proxy) as resp:
-            avatar = await resp.read()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(avatar, proxy=proxy) as resp:
+                avatar = await resp.read()
         msgs.append(
             MessageChain([
                 Image(data_bytes=avatar),
@@ -47,10 +51,10 @@ async def search(*, keyword: Optional[str] = None, data_bytes: Optional[bytes] =
     return msgs[0] if len(msgs) == 1 else MessageChain([
         Forward([
             ForwardNode(
-                senderId=config.bot_qq,
+                sender_id=config.bot_qq,
                 time=datetime.now(),
-                senderName="SAGIRI BOT",
-                messageChain=msg,
+                sender_name="SAGIRI BOT",
+                message_chain=msg,
             ) for msg in msgs
         ])
     ])

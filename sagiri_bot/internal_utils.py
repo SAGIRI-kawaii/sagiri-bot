@@ -15,8 +15,9 @@ from sqlalchemy import select, column
 from PIL import ImageDraw, ImageFont, ImageFilter
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.attributes import InstrumentedAttribute
-from typing import Tuple, Optional, Union, List, Literal, Dict
+from typing import Tuple, Optional, Union, List, Literal, Dict, TypedDict
 
+from creart import create
 from graia.ariadne.app import Ariadne
 from graia.ariadne.exception import AccountMuted
 from graia.ariadne.message.chain import MessageChain
@@ -24,7 +25,7 @@ from graia.ariadne.message.element import Plain, Image
 from graia.ariadne.event.message import Group, Member, Friend
 
 from sagiri_bot.orm.async_orm import orm
-from sagiri_bot.config import GlobalConfig
+from sagiri_bot.config import GlobalConfig, PluginConfig
 from sagiri_bot.orm.async_orm import Setting, UserPermission, UserCalledCount, FunctionCalledRecord
 
 yaml.warnings({'YAMLLoadWarning': False})
@@ -182,11 +183,11 @@ async def get_admins(group: Group) -> list:
 
 
 async def online_notice(app: Ariadne):
-    group_list = await app.getGroupList()
+    group_list = await app.get_group_list()
     for group in group_list:
         if await group_setting.get_setting(group.id, Setting.online_notice):
             try:
-                await app.sendGroupMessage(group, MessageChain.create([Plain(text="纱雾酱打卡上班啦！")]))
+                await app.send_group_message(group, MessageChain([Plain(text="纱雾酱打卡上班啦！")]))
             except AccountMuted:
                 pass
 
@@ -309,7 +310,7 @@ class MessageChainUtils:
             return line_count + 1
 
         font = ImageFont.truetype(font_path, font_size, encoding="utf-8")
-        message = message.merge(copy=True)
+        message = message.merge()
         elements = message.__root__
 
         plains = message.get(Plain)
@@ -362,7 +363,7 @@ class MessageChainUtils:
         bytes_io = BytesIO()
         picture.save(bytes_io, format='PNG')
         logger.success("消息转图片处理成功！")
-        return MessageChain.create([
+        return MessageChain([
             Image(data_bytes=bytes_io.getvalue())
         ])
 
@@ -1122,7 +1123,21 @@ async def get_avatar(qq: Union[int, Member, Friend, Group], size: int = 640) -> 
             async with session.get(f"https://p.qlogo.cn/gh/{qq.id}/{qq.id}/{size}/") as resp:
                 return await resp.read()
         else:
-            if isinstance(qq, Member) or isinstance(qq, Friend):
+            if isinstance(qq, (Member, Friend)):
                 qq = qq.id
             async with session.get(f"http://q1.qlogo.cn/g?b=qq&nk={qq}&s={size}") as resp:
                 return await resp.read()
+
+
+def get_plugin_config(module: str) -> PluginConfig:
+    config: GlobalConfig = create(GlobalConfig)
+    commands = config.commands
+    return commands.get(module, commands.get("default")).copy()
+
+
+def get_command_match(prefix: List[str], alias: List[str]) -> List[str]:
+    result = []
+    for p in prefix:
+        for a in alias:
+            result.append(p + a)
+    return result

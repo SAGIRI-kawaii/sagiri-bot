@@ -3,9 +3,10 @@ import aiohttp
 from loguru import logger
 from datetime import datetime, timedelta
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.model import UploadMethod
+from graia.ariadne.connection.util import UploadMethod
 from graia.ariadne.exception import RemoteException
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
@@ -16,7 +17,7 @@ from graia.ariadne.message.element import ForwardNode, Image, Plain, Forward, So
 from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, UnionMatch, ArgumentMatch
 
 from .Pica import pica
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.config import GlobalConfig
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
 from utils.daily_number_limiter import DailyNumberLimiter
@@ -35,8 +36,7 @@ channel.description(
     "在群中发送 `pica download (-message|-forward) {comic_id}` 来获取图片消息/转发消息/压缩文件形式的漫画"
 )
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 bot_qq = config.bot_qq
 DOWNLOAD_CACHE = config.functions["pica"]["download_cache"]
 SEARCH_CACHE = config.functions["pica"]["search_cache"]
@@ -88,52 +88,56 @@ limit_text = {
 )
 async def pica_function(
     app: Ariadne,
-    message: MessageChain,
     group: Group,
+    message: MessageChain,
     member: Member,
+    source: Source,
     operation: RegexResult,
     message_type: ArgResult,
     forward_type: ArgResult,
     rank_time: RegexResult,
     content: RegexResult
 ):
-    if not pica.init:
-        await app.sendGroupMessage(group, MessageChain("pica实例初始化失败，请重启机器人或重载插件！"))
-        return
     if any([
-        operation.result.asDisplay() == "download" and not DAILY_DOWNLOAD_LIMITER.check(member.id),
-        operation.result.asDisplay() == "search" and not DAILY_SEARCH_LIMITER.check(member.id),
-        operation.result.asDisplay() == "random" and not DAILY_RANDOM_LIMITER.check(member.id),
-        operation.result.asDisplay() == "rank" and not DAILY_RANK_LIMITER.check(member.id)
+        operation.result.display == "download" and not DAILY_DOWNLOAD_LIMITER.check(member.id),
+        operation.result.display == "search" and not DAILY_SEARCH_LIMITER.check(member.id),
+        operation.result.display == "random" and not DAILY_RANDOM_LIMITER.check(member.id),
+        operation.result.display == "rank" and not DAILY_RANK_LIMITER.check(member.id)
     ]):
-        return await app.sendGroupMessage(
-            group, MessageChain(limit_text[str(operation.result.asDisplay())]), quote=message.getFirst(Source)
+        return await app.send_group_message(
+            group,
+            MessageChain(limit_text[str(operation.result.display)]),
+            quote=source
         )
 
-    if operation.result.asDisplay() == "download":
+    if operation.result.display == "download":
         DAILY_DOWNLOAD_LIMITER.increase(member.id)
-    elif operation.result.asDisplay() == "search":
+    elif operation.result.display == "search":
         DAILY_SEARCH_LIMITER.increase(member.id)
-    elif operation.result.asDisplay() == "random":
+    elif operation.result.display == "random":
         DAILY_RANDOM_LIMITER.increase(member.id)
-    elif operation.result.asDisplay() == "rank":
+    elif operation.result.display == "rank":
         DAILY_RANK_LIMITER.increase(member.id)
 
-    if operation.result.asDisplay() == "init":
+    if operation.result.display == "init":
         if pica.init:
-            await app.sendGroupMessage(group, MessageChain("pica已初始化"))
-            return
+            return await app.send_group_message(group, MessageChain("pica已初始化"))
         try:
-            await pica.check()
-            await app.sendGroupMessage(group, MessageChain("pica初始化成功"))
+            res = await pica.check()
+            return await app.send_group_message(
+                group,
+                MessageChain("pica初始化成功" if res else "pica实例初始化失败，请重启机器人或重载插件！")
+            )
         except aiohttp.ClientConnectorError:
-            await app.sendGroupMessage(group, MessageChain("pica初始化失败，请检查代理"))
+            await app.send_group_message(group, MessageChain("pica初始化失败，请检查代理"))
         except KeyError:
-            await app.sendGroupMessage(group, MessageChain("pica初始化失败，请检查账号密码是否配置正确"))
+            await app.send_group_message(group, MessageChain("pica初始化失败，请检查账号密码是否配置正确"))
 
-    elif operation.result.asDisplay() == "download" and forward_type.matched and content.matched:
-        comic_id = content.result.asDisplay()
-        await app.sendMessage(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
+    if not pica.init:
+        return await app.send_group_message(group, MessageChain("pica实例初始化失败，请重启机器人或重载插件！"))
+    elif operation.result.display == "download" and forward_type.matched and content.matched:
+        comic_id = content.result.display
+        await app.send_message(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
         info = await pica.download_comic(comic_id, False)
         image_list = []
         for root, _, files in os.walk(info[0]):
@@ -144,62 +148,62 @@ async def pica_function(
         time_count = 0
         time_base = datetime.now() - timedelta(seconds=len(image_list))
         forward_nodes = [ForwardNode(
-            senderId=bot_qq,
+            sender_id=bot_qq,
             time=time_base + timedelta(seconds=time_count),
-            senderName="纱雾酱",
-            messageChain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！")
+            sender_name="纱雾酱",
+            message_chain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！")
         )]
         for path in image_list:
             node_count += 1
             time_count += 1
             forward_nodes.append(
                 ForwardNode(
-                    senderId=bot_qq,
+                    sender_id=bot_qq,
                     time=time_base + timedelta(seconds=time_count),
-                    senderName="纱雾酱",
-                    messageChain=MessageChain([
+                    sender_name="纱雾酱",
+                    message_chain=MessageChain([
                         Image(path=path),
                         Plain(f"\n{path.replace(info[0], '')}\n{time_base + timedelta(seconds=time_count)}")
                     ])
                 )
             )
             if node_count == 20:
-                await app.sendMessage(group, MessageChain([Forward(nodeList=forward_nodes)]))
+                await app.send_message(group, MessageChain([Forward(node_list=forward_nodes)]))
                 forward_nodes = [
                     ForwardNode(
-                        senderId=bot_qq,
+                        sender_id=bot_qq,
                         time=time_base + timedelta(seconds=time_count),
-                        senderName="纱雾酱",
-                        messageChain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！")
+                        sender_name="纱雾酱",
+                        message_chain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！")
                     )
                 ]
                 node_count = 0
-        await app.sendGroupMessage(group, MessageChain([Forward(nodeList=forward_nodes)]))
+        await app.send_group_message(group, MessageChain([Forward(node_list=forward_nodes)]))
 
-    elif operation.result.asDisplay() == "download" and message_type.matched and content.matched:
-        comic_id = content.result.asDisplay()
-        await app.sendMessage(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
+    elif operation.result.display == "download" and message_type.matched and content.matched:
+        comic_id = content.result.display
+        await app.send_message(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
         info = await pica.download_comic(comic_id, False)
         image_list = []
         for root, _, files in os.walk(info[0]):
             for file in files:
                 if file[-3:] != "zip":
                     image_list.append(os.path.join(root, file))
-        await app.sendGroupMessage(group, MessageChain([Image(path=path) for path in image_list]))
+        await app.send_group_message(group, MessageChain([Image(path=path) for path in image_list]))
 
-    elif operation.result.asDisplay() == "download" and content.matched:
-        comic_id = message.asDisplay()[14:]
-        await app.sendMessage(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
+    elif operation.result.display == "download" and content.matched:
+        comic_id = message.display[14:]
+        await app.send_message(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
         info = await pica.download_comic(comic_id)
         try:
-            await app.uploadFile(
+            await app.upload_file(
                 data=info[1],
                 method=UploadMethod.Group,
                 target=group,
                 name=f"{info[0].replace(' ', '')}.zip"
             )
         except RemoteException:
-            await app.uploadFile(
+            await app.upload_file(
                 data=info[1],
                 method=UploadMethod.Group,
                 target=group,
@@ -207,39 +211,39 @@ async def pica_function(
             )
         return None
 
-    elif operation.result.asDisplay() in ("search", "random"):
-        search = operation.result.asDisplay() == "search"
-        keyword = content.result.asDisplay().strip() if content.matched else ''
+    elif operation.result.display in ("search", "random"):
+        search = operation.result.display == "search"
+        keyword = content.result.display.strip() if content.matched else ''
         if search and content.matched:
-            await app.sendMessage(group, MessageChain(f"收到请求，正在搜索{keyword}..."))
+            await app.send_message(group, MessageChain(f"收到请求，正在搜索{keyword}..."))
         data = (await pica.search(keyword))[:10] \
             if search else (await pica.random())[:10]
         forward_nodes = []
         if not data:
-            return await app.sendGroupMessage(group, MessageChain("没有搜索到捏"))
+            return await app.send_group_message(group, MessageChain("没有搜索到捏"))
         for comic in data:
-            comic_info = await pica.comic_info(comic["id"]) if operation.result.asDisplay() == "search" else comic
+            comic_info = await pica.comic_info(comic["id"]) if operation.result.display == "search" else comic
             try:
                 forward_nodes.append(
                     ForwardNode(
-                        senderId=bot_qq,
+                        sender_id=bot_qq,
                         time=datetime.now(),
-                        senderName="纱雾酱",
-                        messageChain=MessageChain([
+                        sender_name="纱雾酱",
+                        message_chain=MessageChain([
                             Image(data_bytes=TextEngine(
                                 [GraiaAdapter(
                                     MessageChain([
                                         await get_thumb(comic_info),
-                                        Plain(text=f"\n名称：{comic_info['title']}\n"),
-                                        Plain(text=f"作者：{comic_info['author']}\n"),
-                                        Plain(text=f"描述：{comic_info['description']}\n") if search else Plain(text=''),
-                                        Plain(text=f"分类：{'、'.join(comic_info['categories'])}\n"),
-                                        Plain(text=f"标签：{'、'.join(comic_info['tags'])}\n") if search else Plain(text=''),
-                                        Plain(text=f"页数：{comic_info['pagesCount']}\n"),
-                                        Plain(text=f"章节数：{comic_info['epsCount']}\n"),
-                                        Plain(text=f"完结状态：{'已完结' if comic_info['finished'] else '未完结'}\n"),
-                                        Plain(text=f"喜欢: {comic_info['totalLikes']}    "),
-                                        Plain(text=f"浏览次数: {comic_info['totalViews']}    ")
+                                        Plain(f"\n名称：{comic_info['title']}\n"),
+                                        Plain(f"作者：{comic_info['author']}\n"),
+                                        Plain(f"描述：{comic_info['description']}\n") if search else Plain(''),
+                                        Plain(f"分类：{'、'.join(comic_info['categories'])}\n"),
+                                        Plain(f"标签：{'、'.join(comic_info['tags'])}\n") if search else Plain(''),
+                                        Plain(f"页数：{comic_info['pagesCount']}\n"),
+                                        Plain(f"章节数：{comic_info['epsCount']}\n"),
+                                        Plain(f"完结状态：{'已完结' if comic_info['finished'] else '未完结'}\n"),
+                                        Plain(f"喜欢: {comic_info['totalLikes']}    "),
+                                        Plain(f"浏览次数: {comic_info['totalViews']}    ")
                                     ])
                                 )], max_width=2160
                             ).draw())
@@ -254,12 +258,12 @@ async def pica_function(
             except Exception as e:
                 logger.error(e)
                 continue
-        await app.sendGroupMessage(group, MessageChain([Forward(nodeList=forward_nodes)]))
+        await app.send_group_message(group, MessageChain([Forward(node_list=forward_nodes)]))
 
-    elif operation.result.asDisplay() == "rank":
-        rank_time = rank_time.result.asDisplay() if rank_time.matched else "-H24"
+    elif operation.result.display == "rank":
+        rank_time = rank_time.result.display if rank_time.matched else "-H24"
         if rank_time not in ("-H24", "-D7", "-D30"):
-            await app.sendGroupMessage(
+            await app.send_group_message(
                 group, MessageChain([
                     Plain(text="错误的时间！支持的选项：\n"),
                     Plain(text="H24：24小时排行榜\n"),
@@ -277,10 +281,10 @@ async def pica_function(
             try:
                 forward_nodes.append(
                     ForwardNode(
-                        senderId=bot_qq,
+                        sender_id=bot_qq,
                         time=datetime.now(),
-                        senderName="纱雾酱",
-                        messageChain=MessageChain([
+                        sender_name="纱雾酱",
+                        message_chain=MessageChain([
                             Image(data_bytes=TextEngine(
                                 [GraiaAdapter(
                                     MessageChain([
@@ -308,7 +312,7 @@ async def pica_function(
             except Exception as e:
                 logger.error(e)
                 continue
-        await app.sendGroupMessage(group, MessageChain([Forward(nodeList=forward_nodes)]))
+        await app.send_group_message(group, MessageChain([Forward(node_list=forward_nodes)]))
 
 
 async def get_thumb(comic_info: dict) -> Image:

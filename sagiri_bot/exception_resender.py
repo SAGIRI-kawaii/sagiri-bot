@@ -80,7 +80,7 @@ def exception_resender_listener(app: Ariadne, exception_resender_instance: Excep
                     exception_resender_instance.addTask(task)
                 else:
                     logger.error("Maximum number of retries exceeded! Task cancelled!")
-                    asyncio.run_coroutine_threadsafe(app.sendGroupMessage(task[4], MessageChain.create([
+                    asyncio.run_coroutine_threadsafe(app.send_group_message(task[4], MessageChain([
                         Plain(text="Maximum number of retries exceeded! Task cancelled!")
                     ]), quote=task[1][Source][0]), loop)
         time.sleep(2)

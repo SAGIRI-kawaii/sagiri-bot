@@ -1,6 +1,7 @@
 import aiohttp
 from io import BytesIO
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Image
@@ -10,8 +11,8 @@ from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, ElementMatch, RegexResult, ElementResult
 
-from sagiri_bot.utils import BuildImage
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.internal_utils import BuildImage
+from sagiri_bot.config import GlobalConfig
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 
@@ -23,8 +24,7 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个生成黑白草图的插件，在群中发送 `黑白[草]图 内容 图片` 即可")
 channel.meta["origin"] = "https://github.com/HibiKier/zhenxun_bot"
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 
 
 @channel.use(
@@ -45,7 +45,7 @@ config = core.get_config()
     )
 )
 async def black_white_grass(app: Ariadne, group: Group, content: RegexResult, image: ElementResult):
-    msg = content.result.asDisplay()
+    msg = content.result.display
     img = await image.result.get_bytes()
     msg = await get_translate(msg)
     w2b = BuildImage(0, 0, background=BytesIO(img))
@@ -68,7 +68,7 @@ async def black_white_grass(app: Ariadne, group: Group, content: RegexResult, im
         add_h = add_h * ratio
         bg.resize(ratio)
         centered_text(bg, msg, add_h)
-    await app.sendGroupMessage(group, MessageChain([Image(data_bytes=bg.pic2bytes())]))
+    await app.send_group_message(group, MessageChain([Image(data_bytes=bg.pic2bytes())]))
 
 
 def centered_text(img: BuildImage, text: str, add_h: int):

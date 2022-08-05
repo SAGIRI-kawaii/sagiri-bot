@@ -4,7 +4,9 @@ from loguru import logger
 from typing import Dict, Union
 from json.decoder import JSONDecodeError
 
+from creart import create
 from graia.saya import Saya
+from graia.broadcast import Broadcast
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import Group
 from graia.broadcast.exceptions import ExecutionStop
@@ -12,8 +14,6 @@ from graia.broadcast.builtin.decorators import Depend
 from graia.ariadne.message.chain import MessageChain, Plain
 from graia.ariadne.event.mirai import MiraiEvent, GroupEvent
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-
-from sagiri_bot.core.app_core import AppCore
 
 DEFAULT_SWITCH = True
 DEFAULT_NOTICE = False
@@ -38,7 +38,7 @@ def manageable(name: str, group_events: bool = True) -> Depend:
             saya_data.add_group(group)
         if not saya_data.is_turned_on(name, group):
             if saya_data.is_notice_on(name, group):
-                await app.sendMessage(group, MessageChain.create([Plain(text=f"{name}插件已关闭，请联系管理员")]))
+                await app.send_message(group, MessageChain([Plain(text=f"{name}插件已关闭，请联系管理员")]))
             raise ExecutionStop()
 
     async def manage_mirai_events(app: Ariadne, event: MiraiEvent):
@@ -50,7 +50,7 @@ def manageable(name: str, group_events: bool = True) -> Depend:
         if not saya_data.is_turned_on(name, group):
             if saya_data.is_notice_on(name, group):
                 if group != '0':
-                    await app.sendGroupMessage(int(group), MessageChain.create([Plain(text=f"{name}插件已关闭，请联系管理员")]))
+                    await app.send_group_message(int(group), MessageChain([Plain(text=f"{name}插件已关闭，请联系管理员")]))
             raise ExecutionStop()
 
     return Depend(manage_group_events) if group_events else Depend(manage_mirai_events)
@@ -58,8 +58,7 @@ def manageable(name: str, group_events: bool = True) -> Depend:
 
 def saya_init():
     channels = Saya.current().channels
-    core = AppCore.get_core_instance()
-    bcc = core.get_bcc()
+    bcc = create(Broadcast)
     for channel in channels.values():
         cubes = channel.content
         logger.info(f"converting saya module: {channel.module}")

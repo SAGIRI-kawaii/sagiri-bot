@@ -25,6 +25,7 @@
   * [使用文档](#使用文档)
   * [注意](#注意)
   * [鸣谢](#鸣谢)
+  * [Stargazers over time](#Stargazers over time)
 
 ## 项目特色
 - 基于Sqlalchemy的异步ORM
@@ -68,3 +69,7 @@
 - 特别感谢 [JetBrains](https://www.jetbrains.com/?from=sagiri-bot) 为开源项目提供免费的 [PyCharm](https://www.jetbrains.com/pycharm/?from=sagiri-bot) 等 IDE 的授权  
 
 [<img src=".github/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/?from=sagiri-bot)
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/SAGIRI-kawaii/sagiri-bot.svg)](https://starchart.cc/SAGIRI-kawaii/sagiri-bot)

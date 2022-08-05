@@ -52,24 +52,24 @@ channel.description("一个可以生成不同风格图片的插件，在群中�
     )
 )
 async def style_picture_generator(app: Ariadne, message: MessageChain, group: Group, logo_type: RegexResult):
-    logo_type = logo_type.result.asDisplay()
+    logo_type = logo_type.result.display
     if logo_type == "5000兆":
-        await app.sendGroupMessage(
+        await app.send_group_message(
             group,
             StylePictureGenerator.gosencho_en_hoshi_style_image_generator(message),
-            quote=message.getFirst(Source)
+            quote=message.get_first(Source)
         )
     elif logo_type == "ph":
-        await app.sendGroupMessage(
+        await app.send_group_message(
             group,
             StylePictureGenerator.pornhub_style_image_generator(message),
-            quote=message.getFirst(Source)
+            quote=message.get_first(Source)
         )
     elif logo_type == "yt":
-        await app.sendGroupMessage(
+        await app.send_group_message(
             group,
             StylePictureGenerator.youtube_style_image_generator(message),
-            quote=message.getFirst(Source)
+            quote=message.get_first(Source)
         )
 
 
@@ -78,7 +78,7 @@ class StylePictureGenerator(object):
     @staticmethod
     def gosencho_en_hoshi_style_image_generator(message: MessageChain) -> MessageChain:
         try:
-            _, left_text, right_text = message.asDisplay().split(" ")
+            _, left_text, right_text = message.display.split(" ")
             try:
                 img_byte = BytesIO()
                 GoSenChoEnHoShiStyleUtils.genImage(word_a=left_text, word_b=right_text).save(img_byte, format='PNG')
@@ -90,7 +90,7 @@ class StylePictureGenerator(object):
 
     @staticmethod
     def pornhub_style_image_generator(message: MessageChain) -> MessageChain:
-        message_text = message.asDisplay()
+        message_text = message.display
         if '/' in message_text or '\\' in message_text:
             return MessageChain("不支持 '/' 与 '\\' ！")
         try:
@@ -105,7 +105,7 @@ class StylePictureGenerator(object):
 
     @staticmethod
     def youtube_style_image_generator(message: MessageChain) -> MessageChain:
-        message_text = message.asDisplay()
+        message_text = message.display
         if '/' in message_text or '\\' in message_text:
             return MessageChain("不支持 '/' 与 '\\' ！")
         try:
@@ -414,7 +414,7 @@ class PornhubStyleUtils:
 
     @staticmethod
     def make_ph_style_logo(left_text: str, right_text: str) -> MessageChain:
-        return MessageChain.create([
+        return MessageChain([
             Image(data_bytes=PornhubStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
         ])
 
@@ -492,6 +492,6 @@ class YoutubeStyleUtils:
 
     @staticmethod
     def make_yt_style_logo(left_text: str, right_text: str) -> MessageChain:
-        return MessageChain.create([
+        return MessageChain([
             Image(data_bytes=YoutubeStyleUtils.combine_img(left_text, right_text, FONT_SIZE))
         ])

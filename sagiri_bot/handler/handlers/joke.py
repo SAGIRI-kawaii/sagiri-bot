@@ -38,8 +38,8 @@ joke_non_replace = {
     )
 )
 async def joke(app: Ariadne, group: Group, keyword: RegexResult):
-    keyword = keyword.result.asDisplay()
+    keyword = keyword.result.display
     if keyword in joke_non_replace.keys():
-        await app.sendGroupMessage(group, MessageChain(random.choice(joke_non_replace[keyword])))
+        await app.send_group_message(group, MessageChain(random.choice(joke_non_replace[keyword])))
     else:
-        await app.sendGroupMessage(group, MessageChain(random.choice(jokes).replace("%name%", keyword)))
+        await app.send_group_message(group, MessageChain(random.choice(jokes).replace("%name%", keyword)))

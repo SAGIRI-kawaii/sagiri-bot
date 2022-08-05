@@ -1,9 +1,9 @@
 import json
+import aiohttp
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
+
 from graia.ariadne.message.element import Source
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
@@ -35,7 +35,7 @@ channel.description("一个可以查询热门词的插件，在群中发送 `{ke
     )
 )
 async def hot_words_explainer(app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult):
-    await app.sendGroupMessage(group, await get_result(keyword.result.asDisplay()), quote=message.getFirst(Source))
+    await app.send_group_message(group, await get_result(keyword.result.display), quote=message.get_first(Source))
 
 
 async def get_result(keyword: str) -> MessageChain:
@@ -44,8 +44,9 @@ async def get_result(keyword: str) -> MessageChain:
         "Content-Type": "application/json;charset=UTF-8"
     }
     payload = {"phrase": keyword, "page": 1}
-    async with get_running(Adapter).session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
-        result = await resp.json()
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=url, headers=headers, data=json.dumps(payload)) as resp:
+            result = await resp.json()
     if result.get("category") == "ban_enabled":
         return MessageChain("请求过多，已达到访问上限，请稍后再试。")
     result = result["data"][0]

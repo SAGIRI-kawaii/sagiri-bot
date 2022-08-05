@@ -18,7 +18,7 @@ from sagiri_bot.orm.async_orm import UserCalledCount
 from sagiri_bot.frequency_limit_module import GlobalFrequencyLimitDict
 from sagiri_bot.orm.async_orm import orm, Setting, BlackList, UserPermission
 from sagiri_bot.handler.required_module.saya_manager.utils import saya_data, SayaData
-from sagiri_bot.utils import group_setting, user_permission_require, update_user_call_count_plus
+from sagiri_bot.internal_utils import group_setting, user_permission_require, update_user_call_count_plus
 
 
 class Permission(object):
@@ -67,17 +67,17 @@ class Permission(object):
         :param level: 限制等级
         """
 
-        async def perm_check(event: GroupMessage, group: Group) -> NoReturn:
+        async def perm_check(event: GroupMessage, group: Group, source: Source) -> NoReturn:
             if not Permission.DEFAULT <= level <= Permission.MASTER:
                 raise ValueError(f"invalid level: {level}")
             member_level = await cls.get(event.sender.group, event.sender)
             if member_level == cls.MASTER:
                 pass
             elif member_level < level:
-                await ariadne_ctx.get().sendGroupMessage(
+                await ariadne_ctx.get().send_group_message(
                     group,
                     MessageChain(f"权限不足，爬！需要达到等级{level}，你的等级是{member_level}"),
-                    quote=event.messageChain.getFirst(Source)
+                    quote=source
                 )
                 raise ExecutionStop()
 
@@ -113,13 +113,13 @@ class FrequencyLimit(object):
             if frequency_limit_instance.blacklist_judge(group, member):
                 if not frequency_limit_instance.announce_judge(group, member):
                     await frequency_limit_instance.blacklist_announced(group, member)
-                    await ariadne_ctx.get().sendGroupMessage(
-                        group, MessageChain("检测到大量请求，加入黑名单一小时！"), quote=event.messageChain.getFirst(Source)
+                    await ariadne_ctx.get().send_group_message(
+                        group, MessageChain("检测到大量请求，加入黑名单一小时！"), quote=event.message_chain.get_first(Source)
                     )
                 raise ExecutionStop()
             if frequency_limit_instance.get(group, member, func_name) + weight >= total_weight:
-                await ariadne_ctx.get().sendGroupMessage(
-                    group, MessageChain("超过频率调用限制！"), quote=event.messageChain.getFirst(Source)
+                await ariadne_ctx.get().send_group_message(
+                    group, MessageChain("超过频率调用限制！"), quote=event.message_chain.get_first(Source)
                 )
                 raise ExecutionStop()
             else:
@@ -220,9 +220,9 @@ class Interval(object):
                     return
                 if event.sender.id not in cls.sent_alert:
                     if not silent:
-                        await ariadne_ctx.get().sendGroupMessage(
+                        await ariadne_ctx.get().send_group_message(
                             event.sender.group,
-                            MessageChain.create(
+                            MessageChain(
                                 [
                                     Plain(
                                         f"冷却还有{last[1] + suspend_time - current:.2f}秒结束，"
@@ -230,7 +230,7 @@ class Interval(object):
                                     )
                                 ]
                             ),
-                            quote=event.messageChain.getFirst(Source).id,
+                            quote=event.message_chain.get_first(Source).id,
                         )
                     cls.sent_alert.add(event.sender.id)
                 raise ExecutionStop()
@@ -278,7 +278,7 @@ class Function(object):
                 print(name, saya_data.is_turned_on(name, group))
             if not saya_data.is_turned_on(name, group):
                 if saya_data.is_notice_on(name, group) or notice:
-                    await ariadne_ctx.get().sendMessage(
+                    await ariadne_ctx.get().send_message(
                         group, MessageChain(f"{name}插件已关闭，请联系管理员")
                     )
                 raise ExecutionStop()

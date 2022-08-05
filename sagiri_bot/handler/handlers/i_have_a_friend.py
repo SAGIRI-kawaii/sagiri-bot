@@ -1,5 +1,6 @@
 from io import BytesIO
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -9,8 +10,8 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, ElementMatch, RegexResult, ElementResult
 
-from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.utils import BuildImage, get_avatar
+from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import BuildImage, get_avatar
 
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
@@ -26,8 +27,7 @@ channel.description(
     "即可 [@目标]"
 )
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 
 
 @channel.use(
@@ -55,21 +55,25 @@ config = core.get_config()
 )
 async def i_have_a_friend(
     app: Ariadne,
-    message: MessageChain,
     group: Group,
     member: Member,
+    source: Source,
     content: RegexResult,
     target: ElementResult,
     dark: RegexResult
 ):
-    if content.matched and content.result.asDisplay().strip():
-        content = content.result.asDisplay()
+    if content.matched and content.result.display.strip():
+        content = content.result.display
         if target.matched:
             target = target.result.target
-            member = await app.getMember(group, target)
+            member = await app.get_member(group, target)
             if not member:
-                await app.sendGroupMessage(group, MessageChain("获取成员信息失败！"), quote=message.getFirst(Source))
-                return
+                return await app.send_group_message(
+                    group,
+                    MessageChain("获取成员信息失败！"),
+                    quote=source
+                )
+
         else:
             target = member
         if avatar := await get_avatar(target, 160):
@@ -83,6 +87,10 @@ async def i_have_a_friend(
         A.paste(avatar, (30, 25), True)
         A.paste(text, (150, 38))
         A.text((150, 85), content.strip(), (125, 125, 125) if not dark.matched else (255, 255, 255))
-        await app.sendGroupMessage(group, MessageChain([Image(data_bytes=A.pic2bytes())]), quote=message.getFirst(Source))
+        await app.send_group_message(
+            group,
+            MessageChain([Image(data_bytes=A.pic2bytes())]),
+            quote=source
+        )
     else:
-        await app.sendGroupMessage(group, MessageChain("都不知道问什么"), quote=message.getFirst(Source))
+        await app.send_group_message(group, MessageChain("都不知道问什么"), quote=source)

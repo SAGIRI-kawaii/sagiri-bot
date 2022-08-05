@@ -13,7 +13,7 @@ from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import RegexMatch, UnionMatch, FullMatch, RegexResult
 
 from .pool_data import init_pool_list
-from sagiri_bot.utils import user_permission_require
+from sagiri_bot.internal_utils import user_permission_require
 from .gacha import gacha_info, FILE_PATH, Gacha, POOL
 from utils.daily_number_limiter import DailyNumberLimiter
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
@@ -75,16 +75,16 @@ with open(os.path.join(FILE_PATH, 'gid_pool.json'), 'r', encoding='UTF-8') as f:
         ]
     )
 )
-async def gacha(app: Ariadne, group: Group, message: MessageChain, member: Member, count: RegexResult):
+async def gacha(app: Ariadne, group: Group, source: Source, member: Member, count: RegexResult):
     gid = group.id
     user_id = member.id
-    count = int(count.result.asDisplay())
+    count = int(count.result.display)
     if all([
         count == 10 and not daily_limiter_10.check(user_id),
         count == 90 and not daily_limiter_90.check(user_id),
         count == 180 and not daily_limiter_180.check(user_id)
     ]):
-        await app.sendMessage(group, MessageChain.create([Plain(text='今天已经抽了很多次啦，明天再来吧~')]))
+        await app.send_message(group, MessageChain([Plain(text='今天已经抽了很多次啦，明天再来吧~')]))
         return
     if gid in group_pool:
         G = Gacha(group_pool[gid])
@@ -96,10 +96,10 @@ async def gacha(app: Ariadne, group: Group, message: MessageChain, member: Membe
         daily_limiter_90.increase(user_id)
     else:
         daily_limiter_180.increase(user_id)
-    await app.sendMessage(
+    await app.send_message(
         group,
         G.gacha_10() if count == 10 else (G.gacha_90() if count == 90 else G.gacha_90(180)),
-        quote=message.getFirst(Source)
+        quote=source
     )
 
 
@@ -112,7 +112,7 @@ async def gacha(app: Ariadne, group: Group, message: MessageChain, member: Membe
 async def get_gacha_info(app: Ariadne, group: Group):
     gid = group.id
     info = gacha_info(group_pool[gid]) if gid in group_pool else gacha_info()
-    await app.sendMessage(group, info)
+    await app.send_message(group, info)
 
 
 @channel.use(
@@ -127,10 +127,10 @@ async def get_gacha_info(app: Ariadne, group: Group):
 )
 async def set_pool(app: Ariadne, group: Group, message: MessageChain, member: Member, pool_name: RegexResult):
     if not await user_permission_require(group, member, 2):
-        await app.sendMessage(group, MessageChain('只有群管理才能切换卡池'), quote=message.getFirst(Source))
+        await app.send_message(group, MessageChain('只有群管理才能切换卡池'), quote=message.get_first(Source))
         return
 
-    pool_name = pool_name.result.asDisplay().strip()
+    pool_name = pool_name.result.display.strip()
     gid = group.id
 
     if pool_name in POOL.keys():
@@ -139,13 +139,13 @@ async def set_pool(app: Ariadne, group: Group, message: MessageChain, member: Me
         else:
             group_pool.setdefault(gid, pool_name)
         save_group_pool()
-        await app.sendMessage(group, MessageChain(f"卡池已切换为 {pool_name} "))
+        await app.send_message(group, MessageChain(f"卡池已切换为 {pool_name} "))
         return
 
     txt = "请使用以下命令来切换卡池\n"
     for i in POOL.keys():
         txt += f"原神卡池切换 {i} \n"
-    await app.sendMessage(group, MessageChain(txt))
+    await app.send_message(group, MessageChain(txt))
 
 
 @channel.use(
@@ -158,13 +158,13 @@ async def set_pool(app: Ariadne, group: Group, message: MessageChain, member: Me
         ]
     )
 )
-async def up_pool_(app: Ariadne, group: Group, member: Member, message: MessageChain):
+async def up_pool_(app: Ariadne, group: Group, member: Member, source: Source):
     if not await user_permission_require(group, member, 3):
-        await app.sendMessage(group, MessageChain('只有群管理才能更新卡池'), quote=message.getFirst(Source))
+        await app.send_message(group, MessageChain('只有群管理才能更新卡池'), quote=source)
         return
-    await app.sendMessage(group, MessageChain('正在更新卡池'))
+    await app.send_message(group, MessageChain('正在更新卡池'))
     _ = await init_pool_list()
-    await app.sendMessage(group, MessageChain('更新卡池完成'))
+    await app.send_message(group, MessageChain('更新卡池完成'))
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))

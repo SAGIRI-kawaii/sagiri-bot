@@ -9,7 +9,7 @@ from graia.ariadne.message.parser.twilight import RegexMatch
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from sagiri_bot.utils import group_setting
+from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
@@ -35,17 +35,17 @@ channel.description("一个简单的投骰子插件，发送 `{times}d{range}` �
 )
 async def dice(app: Ariadne, message: MessageChain, group: Group):
     if not await group_setting.get_setting(group.id, Setting.dice):
-        await app.sendGroupMessage(group, MessageChain("骰子功能尚未开启哟~"), quote=message.getFirst(Source))
+        await app.send_group_message(group, MessageChain("骰子功能尚未开启哟~"), quote=message.get_first(Source))
         return
-    times, max_point = message.asDisplay().strip().split('d')
+    times, max_point = message.display.strip().split('d')
     times, max_point = int(times), int(max_point)
     if times > 100:
-        await app.sendGroupMessage(group, MessageChain("nmd，太多次了！"), quote=message.getFirst(Source))
+        await app.send_group_message(group, MessageChain("nmd，太多次了！"), quote=message.get_first(Source))
     elif max_point > 1000:
-        await app.sendGroupMessage(group, MessageChain("你滴太大，我忍不住！"), quote=message.getFirst(Source))
+        await app.send_group_message(group, MessageChain("你滴太大，我忍不住！"), quote=message.get_first(Source))
     else:
-        await app.sendGroupMessage(
+        await app.send_group_message(
             group,
             MessageChain(f"{random.choice([num for num in range(1, max_point + 1)])}/{max_point} " for _ in range(times)),
-            quote=message.getFirst(Source)
+            quote=message.get_first(Source)
         )

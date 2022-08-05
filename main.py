@@ -5,20 +5,23 @@ from loguru import logger
 from datetime import time
 from pathlib import Path
 
-from graia.ariadne.event.lifecycle import ApplicationLaunched
-from graia.ariadne.event.message import Group, Member, MessageChain, Friend
+from creart import create
+from graia.saya import Saya
+from graia.broadcast import Broadcast
+from graia.ariadne.event.lifecycle import ApplicationLaunch
 from graia.ariadne.event.message import ActiveFriendMessage, ActiveGroupMessage
+from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Stranger
 
+from sagiri_bot.config import GlobalConfig
 from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.utils import online_notice, load_config
+from sagiri_bot.internal_utils import online_notice
 from sagiri_bot.core.api_server.app import run_api_server, set_log
 
-core = AppCore(load_config())
-
+config = create(GlobalConfig)
+core = AppCore(config)
 app = core.get_app()
-bcc = core.get_bcc()
-saya = core.get_saya()
-config = core.get_config()
+bcc = create(Broadcast)
+saya = create(Saya)
 
 logger.add(
     Path(os.getcwd()) / "log" / "{time:YYYY-MM-DD}" / "common.log",
@@ -34,7 +37,7 @@ logger.add(
     encoding="utf-8",
     rotation=time(),
 )
-logger.add(set_log)
+# logger.add(set_log)
 
 ignore = ["__init__.py", "__pycache__"]
 with saya.module_context():
@@ -54,7 +57,7 @@ core.load_saya_modules()
 
 @bcc.receiver("GroupMessage")
 async def group_message_handler(message: MessageChain, group: Group, member: Member):
-    message_text_log = message.asDisplay().replace("\n", "\\n").strip()
+    message_text_log = message.display.replace("\n", "\\n").strip()
     logger.info(
         f"收到来自群 <{group.name.strip()}> 中成员 <{member.name.strip()}> 的消息：{message_text_log}"
     )
@@ -62,24 +65,35 @@ async def group_message_handler(message: MessageChain, group: Group, member: Mem
 
 @bcc.receiver("FriendMessage")
 async def friend_message_listener(friend: Friend, message: MessageChain):
-    message_text_log = message.asDisplay().replace("\n", "\\n").strip()
+    message_text_log = message.display.replace("\n", "\\n").strip()
     logger.info(f"收到来自好友 <{friend.nickname.strip()}> 的消息：{message_text_log}")
+
+
+@bcc.receiver("TempMessage")
+async def temp_message_listener(member: Member, message: MessageChain):
+    message_text_log = message.display.replace("\n", "\\n").strip()
+    logger.info(f"收到来自群 <{member.group.name.strip()}> 中成员 <{member.name.strip()}> 的临时消息：{message_text_log}")
+
+
+@bcc.receiver("StrangerMessage")
+async def stranger_message_listener(stranger: Stranger, message: MessageChain):
+    message_text_log = message.display.replace("\n", "\\n").strip()
+    logger.info(f"收到来自陌生人 <{stranger.nickname.strip()}> 的消息：{message_text_log}")
 
 
 @bcc.receiver("ActiveGroupMessage")
 async def send_group_message_handler(event: ActiveGroupMessage):
-    message_text_log = event.messageChain.asDisplay().replace("\n", "\\n").strip()
+    message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
     logger.info(f"成功向群 <{event.subject.name.strip()}> 发送消息：{message_text_log}")
 
 
 @bcc.receiver("ActiveFriendMessage")
 async def send_group_message_handler(event: ActiveFriendMessage):
-    message_text_log = event.messageChain.asDisplay().replace("\n", "\\n").strip()
+    message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
     logger.info(f"成功向好友 <{event.subject.nickname.strip()}> 发送消息：{message_text_log}")
 
 
-@logger.catch
-@bcc.receiver(ApplicationLaunched)
+@bcc.receiver(ApplicationLaunch)
 async def init():
     await core.bot_launch_init()
     await online_notice(app)

@@ -17,7 +17,9 @@ from PIL import Image as IMG
 from aiohttp import TCPConnector
 from typing import Literal, Optional, Tuple, Union
 
-from sagiri_bot.core.app_core import AppCore
+from creart import create
+
+from sagiri_bot.config import GlobalConfig
 
 BASE_PATH = os.path.dirname(__file__)
 CACHE_PATH = BASE_PATH + "/cache/download"
@@ -41,40 +43,39 @@ header = {
 }
 path_filter = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
+loop = create(asyncio.AbstractEventLoop)
 proxy = config.proxy if config.proxy != "proxy" else ''
 pica_config = config.functions.get("pica")
 username = pica_config.get("username", None)
 password = pica_config.get("password", None)
 compress_password = pica_config.get("compress_password", "i_luv_sagiri")
-loop = core.get_loop()
 DOWNLOAD_CACHE = pica_config.get("download_cache", True)
 
 
 class Pica:
 
-    def __init__(self, account, password):
+    def __init__(self, account, pwd):
         if not os.path.exists(CACHE_PATH):
             os.makedirs(CACHE_PATH)
         self.init = False
         self.account = account
-        self.password = password
+        self.password = pwd
         self.header = header.copy()
         self.header["nonce"] = uuid_s
         asyncio.run_coroutine_threadsafe(self.check(), loop)
 
-    async def check(self):
+    @logger.catch
+    async def check(self) -> bool:
         try:
             token = await self.login()
             self.header["authorization"] = token
             self.init = True
+            return True
         except aiohttp.ClientConnectorError:
             logger.error("proxy配置可能错误或失效，请检查")
         except KeyError:
             logger.error("pica 账号密码可能错误，请检查")
-        except:
-            logger.exception("")
 
     def update_signature(self, url: str, method: Literal["GET", "POST"]) -> dict:
         ts = str(int(time.time()))
@@ -230,33 +231,33 @@ class Pica:
             return comic_path, comic_name
 
     @staticmethod
-    def zip_file(path: str, zip_name: str, password: str = "i_luv_sagiri") -> Optional[Tuple[str, bytes]]:
+    def zip_file(path: str, zip_name: str, pwd: str = "i_luv_sagiri") -> Optional[Tuple[str, bytes]]:
         shutil.make_archive(f"{path}/{zip_name}", 'zip', path)
-        with open(f"{path}/{zip_name}_密码{password}.zip", "rb") as r:
+        with open(f"{path}/{zip_name}_密码{pwd}.zip", "rb") as r:
             return zip_name, r.read()
 
     @staticmethod
-    def zip_directory(path, zip_name, password: str = "i_luv_sagiri") -> Optional[Tuple[str, bytes]]:
-        if not os.path.exists(f"{path}/{zip_name}_密码{password}.zip"):
+    def zip_directory(path, zip_name, pwd: str = "i_luv_sagiri") -> Optional[Tuple[str, bytes]]:
+        if not os.path.exists(f"{path}/{zip_name}_密码{pwd}.zip"):
             if not os.path.exists(f"{path}/{zip_name}.zip"):
-                with zipfile.ZipFile(Path(path) / f"{zip_name}.zip", mode='w') as zipf:
+                with zipfile.ZipFile(Path(path) / f"{zip_name}.zip", mode='w') as zip_w:
                     len_dir_path = len(path)
                     for root, _, files in os.walk(path):
                         for file in files:
                             if file[-3:] == "zip":
                                 continue
                             file_path = os.path.join(root, file)
-                            zipf.write(file_path, file_path[len_dir_path:])
+                            zip_w.write(file_path, file_path[len_dir_path:])
             with pyzipper.AESZipFile(
-                f"{path}/{zip_name}_密码{password}.zip", 'w',
+                f"{path}/{zip_name}_密码{pwd}.zip", 'w',
                 compression=pyzipper.ZIP_LZMA,
                 encryption=pyzipper.WZ_AES
             ) as zf:
-                zf.setpassword(password.encode())
+                zf.setpassword(pwd.encode())
                 zf.setencryption(pyzipper.WZ_AES, nbits=128)
-                zf.write(Path(path) / f"{zip_name}.zip", f"{zip_name}_密码{password}.zip")
-        with open(f"{path}/{zip_name}_密码{password}.zip", "rb") as r:
-            return f"{zip_name}_密码{password}", r.read()
+                zf.write(Path(path) / f"{zip_name}.zip", f"{zip_name}_密码{pwd}.zip")
+        with open(f"{path}/{zip_name}_密码{pwd}.zip", "rb") as r:
+            return f"{zip_name}_密码{pwd}", r.read()
 
 
 pica = Pica(username, password)

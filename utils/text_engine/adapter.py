@@ -66,12 +66,12 @@ class GraiaAdapter(AbstractAdapter):
     def parse(self, elements: List[Union[MessageChain, Element]]):
         for element in elements:
             if isinstance(element, MessageChain):
-                messagechain_elements = element.asSendable().__root__
+                messagechain_elements = element.as_sendable().__root__
                 self.parse(messagechain_elements)
             elif any(isinstance(element, el_type) for el_type in (Plain, At, AtAll)):
                 self.data.append(
                     Text(
-                        element.asDisplay(), self.font, self.color, self.size, self.spacing, None, self.center, self.end
+                        element.display, self.font, self.color, self.size, self.spacing, None, self.center, self.end
                     )
                 )
             elif isinstance(element, GraiaImage):

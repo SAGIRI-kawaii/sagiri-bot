@@ -32,4 +32,4 @@ channel.description("一个获取舔狗日记的插件，在群中发送 `舔` �
     )
 )
 async def pero_dog(app: Ariadne, group: Group):
-    await app.sendGroupMessage(group, MessageChain(random.choice(pero_dog_contents).replace('*', '')))
+    await app.send_group_message(group, MessageChain(random.choice(pero_dog_contents).replace('*', '')))

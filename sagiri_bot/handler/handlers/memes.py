@@ -8,6 +8,7 @@ from PIL import ImageDraw, ImageFont
 from typing import Union, List, Tuple
 from PIL.ImageFont import FreeTypeFont
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -17,7 +18,7 @@ from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, UnionMatch, RegexResult
 
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.config import GlobalConfig
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -27,8 +28,7 @@ channel.name("Memes")
 channel.author("SAGIRI-kawaii")
 channel.description("一个生成趣味表情包的插件")
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 
 FONT_BASE_PATH = f"{os.getcwd()}/statics/fonts/"
 IMAGE_BASE_PATH = f"{os.getcwd()}/statics/memes/"
@@ -60,13 +60,13 @@ BREAK_LINE_MSG = '文字长度过长，请手动换行或适当缩减'
 )
 async def memes(
     app: Ariadne,
-    message: MessageChain,
     group: Group,
+    source: Source,
     prefix: RegexResult,
     content: RegexResult
 ):
-    prefix = prefix.result.asDisplay().strip()
-    content = [content.result.asDisplay()]
+    prefix = prefix.result.display.strip()
+    content = [content.result.display]
     result = None
     if prefix == "nokia":
         result = await Memes.make_nokia(content)
@@ -91,19 +91,19 @@ async def memes(
         for key in gif_subtitle_memes.keys():
             if prefix in gif_subtitle_memes[key]["aliases"]:
                 if len(content) != len(gif_subtitle_memes[key]["pieces"]):
-                    await app.sendGroupMessage(
+                    await app.send_group_message(
                         group,
                         MessageChain(f"参数数量不符，需要输入{len(gif_subtitle_memes[key]['pieces'])}段文字，若包含空格请加引号"),
-                        quote=message.getFirst(Source)
+                        quote=source
                     )
                     return
                 else:
                     result = await Memes.gif_func(gif_subtitle_memes[key], content)
     if result:
-        await app.sendGroupMessage(
+        await app.send_group_message(
             group,
             MessageChain([Image(data_bytes=result.getvalue()) if isinstance(result, BytesIO) else Plain(text=result)]),
-            quote=message.getFirst(Source)
+            quote=source
         )
 
 
@@ -384,7 +384,6 @@ class Memes(object):
     @staticmethod
     async def gif_func(meme_config: dict, texts: List[str]) -> Union[str, BytesIO]:
         return await Memes.make_gif(meme_config['filename'], texts, meme_config['pieces'], meme_config['fontsize'])
-
 
 
 gif_subtitle_memes = {

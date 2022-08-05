@@ -29,7 +29,7 @@ async def init(**kwargs) -> Browser:
 
 
 async def get_browser(**kwargs) -> Browser:
-    return _browser or await init(**kwargs)
+    return await init(**kwargs)
 
 
 async def launch_browser(**kwargs) -> Browser:

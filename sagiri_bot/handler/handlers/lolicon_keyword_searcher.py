@@ -1,12 +1,13 @@
-import asyncio
-import contextlib
 import os
-from datetime import datetime
-from io import BytesIO
-
-import PIL.Image
 import aiohttp
+import asyncio
+import PIL.Image
+import contextlib
+from io import BytesIO
+from datetime import datetime
 from aiohttp import TCPConnector
+
+from creart import create
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.exception import UnknownTarget
@@ -24,10 +25,10 @@ from sagiri_bot.control import (
     BlackListControl,
     UserCalledCountControl,
 )
-from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.orm.async_orm import Setting, LoliconData
 from sagiri_bot.orm.async_orm import orm
-from sagiri_bot.utils import group_setting
+from sagiri_bot.internal_utils import group_setting
+from sagiri_bot.config import GlobalConfig
+from sagiri_bot.orm.async_orm import Setting, LoliconData
 
 saya = Saya.current()
 channel = Channel.current()
@@ -36,8 +37,7 @@ channel.name("LoliconKeywordSearcher")
 channel.author("SAGIRI-kawaii")
 channel.description("一个接入lolicon api的插件，在群中发送 `来点{keyword}[色涩瑟]图` 即可")
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 proxy = config.proxy if config.proxy != "proxy" else ""
 image_cache = config.data_related.get("lolicon_image_cache")
 data_cache = config.data_related.get("lolicon_data_cache")
@@ -64,34 +64,30 @@ data_cache = config.data_related.get("lolicon_data_cache")
     )
 )
 async def lolicon_keyword_searcher(
-    app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult
+    app: Ariadne, message: MessageChain, group: Group, source: Source, keyword: RegexResult
 ):
-    keyword = keyword.result.asDisplay()
+    keyword = keyword.result.display
     if not await group_setting.get_setting(group, Setting.setu):
-        return await app.sendGroupMessage(group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"))
+        return await app.send_group_message(group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"))
     msg_chain = await get_image(group, keyword)
-    if msg_chain.onlyContains(Plain):
-        return await app.sendGroupMessage(
-            group, msg_chain, quote=message.getFirst(Source)
-        )
+    if msg_chain.only(Plain):
+        return await app.send_group_message(group, msg_chain, quote=source)
     mode = await group_setting.get_setting(group, Setting.r18_process)
     r18 = await group_setting.get_setting(group, Setting.r18)
     if mode == "revoke" and r18:
-        msg = await app.sendGroupMessage(
-            group, msg_chain, quote=message.getFirst(Source)
-        )
+        msg = await app.send_group_message(group, msg_chain, quote=source)
         await asyncio.sleep(20)
         with contextlib.suppress(UnknownTarget):
-            await app.recallMessage(msg)
+            await app.recall_message(msg)
     elif mode == "flashImage" and r18:
-        await app.sendGroupMessage(
-            group, msg_chain.exclude(Image), quote=message.getFirst(Source)
+        await app.send_group_message(
+            group, msg_chain.exclude(Image), quote=source
         )
-        await app.sendGroupMessage(
-            group, MessageChain.create([msg_chain.getFirst(Image).toFlashImage()])
+        await app.send_group_message(
+            group, MessageChain([msg_chain.get_first(Image).to_flash_image()])
         )
     else:
-        await app.sendGroupMessage(group, msg_chain, quote=message.getFirst(Source))
+        await app.send_group_message(group, msg_chain, quote=source)
 
 
 async def get_image(group: Group, keyword: str) -> MessageChain:
@@ -150,19 +146,18 @@ async def get_image(group: Group, keyword: str) -> MessageChain:
                 Plain(text=f"\n{info}"),
             ]
         )
-    else:
-        async with aiohttp.ClientSession(
-            connector=TCPConnector(verify_ssl=False)
-        ) as session:
-            async with session.get(url=result["urls"]["original"], proxy=proxy) as resp:
-                img_content = await resp.read()
-        if image_cache:
-            image = PIL.Image.open(BytesIO(img_content))
-            image.save(file_path)
-        return MessageChain(
-            [
-                Plain(text=f"你要的{keyword}涩图来辣！\n"),
-                Image(data_bytes=img_content),
-                Plain(text=f"\n{info}"),
-            ]
-        )
+    async with aiohttp.ClientSession(
+        connector=TCPConnector(verify_ssl=False)
+    ) as session:
+        async with session.get(url=result["urls"]["original"], proxy=proxy) as resp:
+            img_content = await resp.read()
+    if image_cache:
+        image = PIL.Image.open(BytesIO(img_content))
+        image.save(file_path)
+    return MessageChain(
+        [
+            Plain(text=f"你要的{keyword}涩图来辣！\n"),
+            Image(data_bytes=img_content),
+            Plain(text=f"\n{info}"),
+        ]
+    )

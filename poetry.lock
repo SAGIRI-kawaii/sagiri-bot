@@ -255,6 +255,19 @@ url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
 reference = "tsinghua"
 
 [[package]]
+name = "creart"
+version = "0.2.1"
+description = "a universal, extensible class instantiation helper"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+reference = "tsinghua"
+
+[[package]]
 name = "croniter"
 version = "1.3.5"
 description = "croniter provides iteration for datetime object with cron like format"
@@ -1509,7 +1522,7 @@ reference = "tsinghua"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.10"
-content-hash = "8e6fe243033966a0399dd59f483653206a6f1c217e64443e81d6a360c4ebaad5"
+content-hash = "45f64513f05d1aff9229ffd4b38723fb13923624e8081f0ca8d4490b03d40ae4"
 
 [metadata.files]
 aiofiles = [
@@ -1640,6 +1653,10 @@ click = [
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
+]
+creart = [
+    {file = "creart-0.2.1-py3-none-any.whl", hash = "sha256:961ac6f9ae325be578adc8c69311f40ae5e9b2ee8eccd913514417b393d9c203"},
+    {file = "creart-0.2.1.tar.gz", hash = "sha256:a19517cf3bc8bb648edc6d3f634cc0f691e13c26594011bca94657ae28df953b"},
 ]
 croniter = [
     {file = "croniter-1.3.5-py2.py3-none-any.whl", hash = "sha256:4f72faca42c00beb6e30907f1315145f43dfbe5ec0ad4ada24b4c0d57b86a33a"},

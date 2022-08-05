@@ -1,10 +1,11 @@
 import json
+import aiohttp
 from datetime import datetime, timedelta
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
+
+from creart import create
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
@@ -12,7 +13,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Source, Forward, ForwardNode, Plain, Image
 from graia.ariadne.message.parser.twilight import FullMatch, RegexResult, ArgumentMatch, WildcardMatch, ArgResult
 
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.config import GlobalConfig
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
@@ -24,7 +25,7 @@ channel.name("Aminer")
 channel.author("SAGIRI-kawaii")
 channel.description("一个搜索导师信息的插件")
 
-config = AppCore.get_core_instance().get_config()
+config = create(GlobalConfig)
 
 
 @channel.use(
@@ -72,7 +73,7 @@ async def aminer(
     }
 
     data = {
-        "query": keyword.result.asDisplay().strip(),
+        "query": keyword.result.display.strip(),
         "needDetails": True,
         "page": 0,
         "size": 5,
@@ -80,9 +81,10 @@ async def aminer(
     }
     print(data)
 
-    async with get_running(Adapter).session.post(url=url, headers=headers, data=json.dumps(data)) as resp:
-        res = await resp.json()
-        print(res)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=url, headers=headers, data=json.dumps(data)) as resp:
+            res = await resp.json()
+            print(res)
 
     forward_nodes = []
     if router == "person":
@@ -95,10 +97,10 @@ async def aminer(
             work = person['contact']['workZh'].replace('<br>', '\n') if person["contact"].get("workZh") else person['contact'].get('work', '无数据')
             forward_nodes.append(
                 ForwardNode(
-                    senderId=config.bot_qq,
+                    sender_id=config.bot_qq,
                     time=datetime.now() + timedelta(seconds=time_count),
-                    senderName="纱雾酱",
-                    messageChain=MessageChain([
+                    sender_name="纱雾酱",
+                    message_chain=MessageChain([
                         Image(data_bytes=TextEngine([GraiaAdapter(MessageChain([
                             Image(url=person.get("avatar")) if person.get("avatar") else Plain(""),
                             Plain("\n") if person.get("avatar") else Plain(""),
@@ -133,10 +135,10 @@ async def aminer(
             abstract = pub['pubAbstractZh'] if pub.get("pubAbstractZh") else pub.get("pubAbstract", "无数据")
             forward_nodes.append(
                 ForwardNode(
-                    senderId=config.bot_qq,
+                    sender_id=config.bot_qq,
                     time=datetime.now() + timedelta(seconds=time_count),
-                    senderName="纱雾酱",
-                    messageChain=MessageChain([
+                    sender_name="纱雾酱",
+                    message_chain=MessageChain([
                         Image(data_bytes=TextEngine([GraiaAdapter(MessageChain([
                             Plain(f"标题：{title[0]}\n"),
                             Plain(f"作者：{authors}\n"),
@@ -163,10 +165,10 @@ async def aminer(
             pub_auth = country + pub_num + pub_kind if all([country, pub_num, pub_kind]) else "无数据"
             forward_nodes.append(
                 ForwardNode(
-                    senderId=config.bot_qq,
+                    sender_id=config.bot_qq,
                     time=datetime.now() + timedelta(seconds=time_count),
-                    senderName="纱雾酱",
-                    messageChain=MessageChain([
+                    sender_name="纱雾酱",
+                    message_chain=MessageChain([
                         Image(data_bytes=TextEngine([GraiaAdapter(MessageChain([
                             Plain(f"标题：{title}\n"),
                             Plain(f"专利号：{pub_auth}\n"),
@@ -179,4 +181,4 @@ async def aminer(
             )
             time_count += 1
 
-    await app.sendGroupMessage(group, MessageChain([Forward(nodeList=forward_nodes)]), quote=message.getFirst(Source))
+    await app.send_group_message(group, MessageChain([Forward(node_list=forward_nodes)]), quote=message.get_first(Source))

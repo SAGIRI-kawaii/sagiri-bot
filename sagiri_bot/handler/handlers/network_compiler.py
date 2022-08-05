@@ -1,9 +1,9 @@
+import aiohttp
 from asyncio.exceptions import TimeoutError
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
+
 from graia.ariadne.message.element import Source
 from graia.ariadne.exception import MessageTooLong
 from graia.ariadne.message.chain import MessageChain
@@ -12,7 +12,7 @@ from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
 
-from sagiri_bot.utils import group_setting
+from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
@@ -41,27 +41,27 @@ channel.description("一个网络编译器插件，在群中发送 `super langua
         ]
     )
 )
-async def network_compiler(app: Ariadne, message: MessageChain, group: Group, language: RegexResult, code: RegexResult):
+async def network_compiler(app: Ariadne, group: Group, source: Source, language: RegexResult, code: RegexResult):
     if not await group_setting.get_setting(group.id, Setting.compile):
-        await app.sendGroupMessage(group, MessageChain("网络编译器功能关闭了呐~去联系管理员开启吧~"))
+        await app.send_group_message(group, MessageChain("网络编译器功能关闭了呐~去联系管理员开启吧~"))
         return
-    language = language.result.asDisplay()
-    code = code.result.asDisplay()
+    language = language.result.display
+    code = code.result.display
     result = await get_result(language, code)
     if isinstance(result, str):
-        await app.sendGroupMessage(group, MessageChain(result), quote=message.getFirst(Source))
+        await app.send_group_message(group, MessageChain(result), quote=source)
     else:
         try:
-            await app.sendGroupMessage(
+            await app.send_group_message(
                 group,
                 MessageChain(result["output"] if result["output"] else result["errors"]),
-                quote=message.getFirst(Source)
+                quote=source
             )
         except MessageTooLong:
-            await app.sendGroupMessage(
+            await app.send_group_message(
                 group,
                 MessageChain("MessageTooLong"),
-                quote=message.getFirst(Source)
+                quote=source
             )
 
 
@@ -105,8 +105,9 @@ async def get_result(language: str, code: str):
                       "Chrome/87.0.4280.141 Safari/537.36 "
     }
     try:
-        async with get_running(Adapter).session.post(url=url, headers=headers, data=payload, timeout=3) as resp:
-            res = await resp.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url=url, headers=headers, data=payload, timeout=3) as resp:
+                res = await resp.json()
     except TimeoutError:
         return {
             "output": "",

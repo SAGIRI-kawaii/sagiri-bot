@@ -10,16 +10,15 @@ from typing import Tuple, Optional, List
 from asyncio.exceptions import TimeoutError
 from PIL.Image import UnidentifiedImageError
 
+from creart import create
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Plain
 
 from .map import Map
-from sagiri_bot.utils import BuildImage
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.internal_utils import BuildImage
 
 
-core = AppCore.get_core_instance()
-loop = core.get_loop()
+loop = create(asyncio.AbstractEventLoop)
 
 LABEL_URL = "https://api-static.mihoyo.com/common/blackboard/ys_obc/v1/map/label/tree?app_sn=ys_obc"
 POINT_LIST_URL = "https://api-static.mihoyo.com/common/blackboard/ys_obc/v1/map/point/list?map_id=2&app_sn=ys_obc"
@@ -71,7 +70,7 @@ async def query_resource(resource_name: str) -> Optional[MessageChain]:
     rand = await asyncio.get_event_loop().run_in_executor(
         None, map_.generate_resource_icon_in_map
     )
-    return MessageChain.create([
+    return MessageChain([
         Image(path=str(IMAGE_PATH / "genshin" / "temp" / f"genshin_map_{rand}.png")),
         Plain(text=f"\n\n※ {resource_name} 一共找到 {count} 个位置点\n※ 数据来源于米游社wiki")
     ])

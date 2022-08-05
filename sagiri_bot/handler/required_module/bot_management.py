@@ -17,6 +17,7 @@ channel = Channel.current()
 channel.name("BotManagement")
 channel.author("SAGIRI-kawaii")
 channel.description("bot管理插件，必要插件，请勿卸载！否则会导致管理功能失效（若失效请重启机器人）")
+channel.meta["uninstallable"] = False
 
 
 @channel.use(
@@ -28,8 +29,8 @@ channel.description("bot管理插件，必要插件，请勿卸载！否则会�
         ]
     )
 )
-async def bot_manager_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    message_text = message.asDisplay()
+async def bot_manager_handler(app: Ariadne, message: MessageChain, group: Group, member: Member, source: Source):
+    message_text = message.display
     if message_text.startswith("setting -set "):
         msg = await execute_setting_update(group, member, message_text)
     elif re.match(r"user -grant @[1-9][0-9]{4,14} .*", message_text):
@@ -42,4 +43,4 @@ async def bot_manager_handler(app: Ariadne, message: MessageChain, group: Group,
         msg = await execute_blacklist_remove(int(message_text[19:]), group, member)
     else:
         return None
-    await app.sendGroupMessage(group, msg, quote=message.getFirst(Source))
+    await app.send_group_message(group, msg, quote=source)

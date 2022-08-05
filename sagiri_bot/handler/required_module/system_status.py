@@ -1,6 +1,7 @@
 import os
 import psutil
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -10,7 +11,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, ArgResult
 
 from sagiri_bot.control import Permission
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.config import GlobalConfig
 
 saya = Saya.current()
 channel = Channel.current()
@@ -19,7 +20,7 @@ channel.name("SystemStatus")
 channel.author("SAGIRI-kawaii")
 channel.description("查看系统状态")
 
-image_path = AppCore.get_core_instance().get_config().image_path
+image_path = create(GlobalConfig).image_path
 
 
 @channel.use(
@@ -41,8 +42,10 @@ async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: A
     memory_message = MessageChain(
         "内存相关：\n"
         f"    内存总大小：{round(mem.total / (1024 ** 3), 2)}GB\n"
-        f"    内存使用量：{round(mem.used / (1024 ** 3), 2)}GB / {round(mem.total / (1024 ** 3), 2)}GB ({round(mem.used / mem.total * 100, 2)}%)\n"
-        f"    内存空闲量：{round(mem.free / (1024 ** 3), 2)}GB / {round(mem.total / (1024 ** 3), 2)}GB ({round(mem.free / mem.total* 100, 2)}%)"
+        f"    内存使用量：{round(mem.used / (1024 ** 3), 2)}GB / "
+        f"{round(mem.total / (1024 ** 3), 2)}GB ({round(mem.used / mem.total * 100, 2)}%)\n"
+        f"    内存空闲量：{round(mem.free / (1024 ** 3), 2)}GB / "
+        f"{round(mem.total / (1024 ** 3), 2)}GB ({round(mem.free / mem.total* 100, 2)}%)"
     )
     cpu_message = MessageChain(
         "CPU相关：\n"
@@ -53,11 +56,17 @@ async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: A
     disk_message = MessageChain(
         "磁盘相关：\n" +
         "    图库占用空间：\n        " +
-        '\n        '.join([*[f"{path_name}：{round(sum([os.path.getsize(path + file) for file in os.listdir(path)]) / (1024 ** 3), 2)}GB" if os.path.exists(path) else f"{path_name}：路径不存在" for path_name, path in image_path.items()]])
+        '\n        '.join([
+            *[f"{path_name}："
+              f"{round(sum([os.path.getsize(path + file) for file in os.listdir(path)]) / (1024 ** 3), 2)}GB"
+              if os.path.exists(path) else
+              f"{path_name}：路径不存在"
+              for path_name, path in image_path.items()]
+        ])
     )
     if all_info.matched or (not info.matched and not storage.matched):
-        await app.sendGroupMessage(group, cpu_message + "\n" + memory_message + "\n" + disk_message)
+        await app.send_group_message(group, cpu_message + "\n" + memory_message + "\n" + disk_message)
     elif info.matched:
-        await app.sendGroupMessage(group, cpu_message + "\n" + memory_message)
+        await app.send_group_message(group, cpu_message + "\n" + memory_message)
     elif storage.matched:
-        await app.sendGroupMessage(group, disk_message)
+        await app.send_group_message(group, disk_message)

@@ -53,16 +53,16 @@ async def genshin_resource_points(
     group: Group,
     resource_name: RegexResult
 ):
-    resource_name = resource_name.result.asDisplay().strip()
+    resource_name = resource_name.result.display.strip()
     if check_resource_exists(resource_name):
         await get_resource_list()
-        await app.sendGroupMessage(group, MessageChain("正在生成位置...."))
-        await app.sendGroupMessage(group, await query_resource(resource_name), quote=message.getFirst(Source))
+        await app.send_group_message(group, MessageChain("正在生成位置...."))
+        await app.send_group_message(group, await query_resource(resource_name), quote=message.get_first(Source))
     else:
-        await app.sendGroupMessage(
+        await app.send_group_message(
             group,
             MessageChain(f"未查找到 {resource_name} 资源，可通过 “原神资源列表” 获取全部资源名称.."),
-            quote=message.getFirst(Source)
+            quote=message.get_first(Source)
         )
 
 
@@ -79,7 +79,7 @@ async def genshin_resource_points(
     )
 )
 async def genshin_resource_point_list(app: Ariadne, group: Group):
-    await app.sendMessage(group, await get_resource_list())
+    await app.send_message(group, await get_resource_list())
 
 
 @channel.use(ListenerSchema(listening_events=[ApplicationLaunched]))

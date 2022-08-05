@@ -5,7 +5,7 @@ from typing import Callable
 from graia.saya import Saya, Channel
 from graia.ariadne.util import gen_subclass
 from graia.ariadne.event.message import GroupMessage
-from graia.broadcast.utilles import run_always_await_safely
+from graia.broadcast.utilles import run_always_await
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from .mirai_events import *
@@ -17,6 +17,7 @@ channel = Channel.current()
 channel.name("MiraiEvent")
 channel.author("SAGIRI-kawaii")
 channel.description("对各种事件响应")
+channel.meta["uninstallable"] = False
 
 functions = sys.modules["sagiri_bot.handler.required_module.mirai_event"].__dict__
 group_listening_events = list(gen_subclass(GroupEvent))
@@ -47,7 +48,7 @@ async def mirai_event_group(app: Ariadne, group: Group, event: GroupEvent):
                 if not isinstance(args[arg], argument_signatures[arg][0]):
                     return None
                 final_args[arg] = args[arg]
-        await run_always_await_safely(func, **final_args)
+        await run_always_await(func, **final_args)
 
 
 @channel.use(ListenerSchema(listening_events=mirai_listening_events))
@@ -62,4 +63,21 @@ async def mirai_event_group(app: Ariadne, event: MiraiEvent):
                 if not isinstance(args[arg], argument_signatures[arg][0]):
                     return None
                 final_args[arg] = args[arg]
-        await run_always_await_safely(func, **final_args)
+        await run_always_await(func, **final_args)
+
+
+@channel.use(ListenerSchema(listening_events=[MemberJoinRequestEvent]))
+async def member_join_request_event(app: Ariadne, event: MemberJoinRequestEvent):
+    try:
+        if not await group_setting.get_setting(event.source_group, Setting.switch):
+            return None
+        await app.send_group_message(
+            event.source_group, MessageChain([
+                Plain(text=f"有个新的加群加群请求哟~管理员们快去看看叭！\n"),
+                Plain(text=f"ID：{event.supplicant}\n"),
+                Plain(text=f"昵称：{event.nickname}\n"),
+                Plain(text=f"描述：{event.message}\n")
+            ])
+        )
+    except AccountMuted:
+        pass

@@ -18,6 +18,7 @@ channel = Channel.current()
 channel.name("ChatRecorder")
 channel.author("SAGIRI-kawaii")
 channel.description("一个记录聊天记录的插件，可配合词云等插件使用")
+channel.meta["uninstallable"] = False
 
 
 @channel.use(
@@ -27,7 +28,7 @@ channel.description("一个记录聊天记录的插件，可配合词云等插�
     )
 )
 async def chat_record(message: MessageChain, group: Group, member: Member):
-    content = "".join([plain.text for plain in message.get(Plain)]).strip()
+    content = "".join(plain.text for plain in message.get(Plain)).strip()
     filter_words = re.findall(r"\[mirai:(.*?)\]", content, re.S)
     for i in filter_words:
         content = content.replace(f"[mirai:{i}]", "")
@@ -38,7 +39,7 @@ async def chat_record(message: MessageChain, group: Group, member: Member):
             "time": datetime.datetime.now(),
             "group_id": group.id,
             "member_id": member.id,
-            "persistent_string": message.asPersistentString(),
+            "persistent_string": message.as_persistent_string(),
             "seg": "|".join(seg_result) if seg_result else ''
         }
     )

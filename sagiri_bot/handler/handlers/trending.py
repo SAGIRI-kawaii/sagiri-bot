@@ -1,17 +1,17 @@
 import random
+import aiohttp
 from bs4 import BeautifulSoup
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import UnionMatch, RegexResult
 
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.config import GlobalConfig
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 
@@ -27,8 +27,7 @@ channel.description(
     "在群中发送 `github热搜` 即可查看github热搜"
 )
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 proxy = config.proxy if config.proxy != "proxy" else ''
 
 
@@ -45,13 +44,13 @@ proxy = config.proxy if config.proxy != "proxy" else ''
     )
 )
 async def trending(app: Ariadne, group: Group, trending_type: RegexResult):
-    trending_type = trending_type.result.asDisplay()
+    trending_type = trending_type.result.display
     if trending_type == "微博热搜":
-        await app.sendGroupMessage(group, await Trending.get_weibo_trending())
+        await app.send_group_message(group, await Trending.get_weibo_trending())
     elif trending_type == "知乎热搜":
-        await app.sendGroupMessage(group, await Trending.get_zhihu_trending())
+        await app.send_group_message(group, await Trending.get_zhihu_trending())
     elif trending_type == "github热搜":
-        await app.sendGroupMessage(group, await Trending.get_github_trending())
+        await app.send_group_message(group, await Trending.get_github_trending())
 
 
 class Trending(object):
@@ -59,8 +58,9 @@ class Trending(object):
     @staticmethod
     async def get_weibo_trending() -> MessageChain:
         weibo_hot_url = "http://api.weibo.cn/2/guest/search/hot/word"
-        async with get_running(Adapter).session.get(url=weibo_hot_url) as resp:
-            data = await resp.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url=weibo_hot_url) as resp:
+                data = await resp.json()
         data = data["data"]
         text_list = [f"随机数:{random.randint(0, 10000)}", "\n微博实时热榜:"]
         for index, i in enumerate(data, start=1):
@@ -71,8 +71,9 @@ class Trending(object):
     @staticmethod
     async def get_zhihu_trending() -> MessageChain:
         zhihu_hot_url = "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true"
-        async with get_running(Adapter).session.get(url=zhihu_hot_url) as resp:
-            data = await resp.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url=zhihu_hot_url) as resp:
+                data = await resp.json()
         data = data["data"]
         text_list = [f"随机数:{random.randint(0, 10000)}", "\n知乎实时热榜:"]
         for index, i in enumerate(data, start=1):
@@ -87,8 +88,9 @@ class Trending(object):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                           "Chrome/87.0.4280.141 Safari/537.36 "
         }
-        async with get_running(Adapter).session.get(url=url, headers=headers, proxy=proxy) as resp:
-            html = await resp.read()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url=url, headers=headers, proxy=proxy) as resp:
+                html = await resp.read()
         soup = BeautifulSoup(html, "html.parser")
         articles = soup.find_all("article", {"class": "Box-row"})
 

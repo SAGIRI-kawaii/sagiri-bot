@@ -1,9 +1,9 @@
+import aiohttp
 import datetime
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
+
 from graia.ariadne.message.element import Image
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
@@ -36,8 +36,8 @@ channel.description("一个可以获取BiliBili7日内新番时间表的插件�
     )
 )
 async def bilibili_bangumi_scheduler(app: Ariadne, group: Group, days: RegexResult):
-    days = int(days.result.asDisplay())
-    await app.sendGroupMessage(group, await formatted_output_bangumi(days))
+    days = int(days.result.display)
+    await app.send_group_message(group, await formatted_output_bangumi(days))
 
 
 async def get_new_bangumi_json() -> dict:
@@ -65,8 +65,9 @@ async def get_new_bangumi_json() -> dict:
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/85.0.4183.121 Safari/537.36 "
     }
-    async with get_running(Adapter).session.post(url=url, headers=headers) as resp:
-        result = await resp.json()
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url=url, headers=headers) as resp:
+            result = await resp.json()
     return result
 
 
@@ -90,17 +91,21 @@ async def get_formatted_new_bangumi_json() -> list:
     """
     all_bangumi_data = await get_new_bangumi_json()
     all_bangumi_data = all_bangumi_data["result"][-7:]
-    formatted_bangumi_data = list()
+    formatted_bangumi_data = []
 
     for bangumi_data in all_bangumi_data:
-        temp_bangumi_data_list = list()
+        temp_bangumi_data_list = []
         for data in bangumi_data["seasons"]:
-            temp_bangumi_data_dict = dict()
-            temp_bangumi_data_dict["title"] = data["title"]
-            temp_bangumi_data_dict["cover"] = data["cover"]
-            temp_bangumi_data_dict["pub_index"] = data["delay_index"] + " (本周停更)" if data["delay"] else data["pub_index"]
-            temp_bangumi_data_dict["pub_time"] = data["pub_time"]
-            temp_bangumi_data_dict["url"] = data["url"]
+            temp_bangumi_data_dict = {
+                "title": data["title"],
+                "cover": data["cover"],
+                "pub_index": data["delay_index"] + " (本周停更)"
+                if data["delay"]
+                else data["pub_index"],
+                "pub_time": data["pub_time"],
+                "url": data["url"],
+            }
+
             temp_bangumi_data_list.append(temp_bangumi_data_dict)
         formatted_bangumi_data.append(temp_bangumi_data_list)
 

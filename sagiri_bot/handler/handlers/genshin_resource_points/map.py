@@ -5,7 +5,7 @@ from pathlib import Path
 from math import sqrt, pow
 from typing import Tuple, List
 
-from sagiri_bot.utils import BuildImage
+from sagiri_bot.internal_utils import BuildImage
 
 IMAGE_PATH = TEXT_PATH = Path.cwd() / "statics"
 icon_path = IMAGE_PATH / "genshin" / "genshin_icon"

@@ -11,16 +11,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect
 
+from creart import create
+from graia.saya import Saya
+from graia.ariadne import Ariadne
 from graia.ariadne.event.message import MessageChain
 
 from .models import User, GeneralResponse
-from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.orm.async_orm import Setting, orm
 from .depends import generate_token, certify_token
 from sagiri_bot.command_parse.commands import command_index
 from .utils import md5, UserData, get_not_installed_channels, get_installed_channels, parse_messagechain
 
 logs = []
+saya = create(Saya)
+loop = create(asyncio.AbstractEventLoop)
 
 
 def set_log(log_str: str):
@@ -114,7 +118,7 @@ async def installed_channels(token: bool = Depends(certify_token)):
             code=401,
             message="invalid token!"
         )
-    channels = AppCore.get_core_instance().get_saya_channels()
+    channels = saya.channels
     modules = list(channels.keys())
     modules.sort()
     return GeneralResponse(
@@ -148,7 +152,6 @@ async def install_channel(channel: str, token: bool = Depends(certify_token)):
             code=401,
             message="invalid token!"
         )
-    saya = AppCore.get_core_instance().get_saya()
     ignore = ["__init__.py", "__pycache__"]
     with saya.module_context():
         if channel in ignore:
@@ -174,7 +177,6 @@ async def uninstall_channel(channel: str, token: bool = Depends(certify_token)):
             code=401,
             message="invalid token!"
         )
-    saya = AppCore.get_core_instance().get_saya()
     loaded_channels = get_installed_channels()
     if channel not in loaded_channels:
         return GeneralResponse(
@@ -200,7 +202,6 @@ async def reload_channel(channel: str, token: bool = Depends(certify_token)):
             code=401,
             message="invalid token!"
         )
-    saya = AppCore.get_core_instance().get_saya()
     exceptions = {}
     loaded_channels = get_installed_channels()
     if channel not in loaded_channels:
@@ -228,16 +229,14 @@ async def get_group_list(token: bool = Depends(certify_token)):
             code=401,
             message="invalid token!"
         )
-    core = AppCore.get_core_instance()
-    ariadne_app = core.get_app()
-    loop = core.get_loop()
+    ariadne_app = Ariadne.current()
     return GeneralResponse(
         data={
             group.id: {
                 "name": group.name,
-                "accountPerm": group.accountPerm
+                "account_perm": group.account_perm
             }
-            for group in (asyncio.run_coroutine_threadsafe(ariadne_app.getGroupList(), loop).result())
+            for group in (asyncio.run_coroutine_threadsafe(ariadne_app.get_group_list(), loop).result())
         }
     )
 
@@ -245,19 +244,17 @@ async def get_group_list(token: bool = Depends(certify_token)):
 @app.get("/group/detail")
 async def get_group_detail(group_id: int, token: bool = Depends(certify_token)):
     if token:
-        core = AppCore.get_core_instance()
-        ariadne_app = core.get_app()
-        loop = core.get_loop()
-        if group := asyncio.run_coroutine_threadsafe(ariadne_app.getGroup(group_id), loop).result():
+        ariadne_app = Ariadne.current()
+        if group := asyncio.run_coroutine_threadsafe(ariadne_app.get_group(group_id), loop).result():
             group_config = asyncio.run_coroutine_threadsafe(group.getConfig(), loop).result()
             return GeneralResponse(
                 data={
                     "name": group_config.name,
                     "announcement": group_config.announcement,
-                    "confessTalk": group_config.confessTalk,
-                    "allowMemberInvite": group_config.allowMemberInvite,
-                    "autoApprove": group_config.autoApprove,
-                    "anonymousChat": group_config.anonymousChat
+                    "confess_talk": group_config.confess_talk,
+                    "allow_member_invite": group_config.allow_member_invite,
+                    "auto_approve": group_config.auto_approve,
+                    "anonymous_chat": group_config.anonymous_chat
                 }
             )
         else:
@@ -275,17 +272,15 @@ async def get_group_detail(group_id: int, token: bool = Depends(certify_token)):
 @app.post("/group/send")
 async def send_group_message(group_id: int, message: list, token: bool = Depends(certify_token)):
     if token:
-        core = AppCore.get_core_instance()
-        ariadne_app = core.get_app()
-        loop = core.get_loop()
+        ariadne_app = Ariadne.current()
         message = parse_messagechain(message)
-        if group := asyncio.run_coroutine_threadsafe(ariadne_app.getGroup(group_id), loop).result():
+        if group := asyncio.run_coroutine_threadsafe(ariadne_app.get_group(group_id), loop).result():
             if isinstance(message, MessageChain):
                 asyncio.run_coroutine_threadsafe(
-                    ariadne_app.sendGroupMessage(
+                    ariadne_app.send_group_message(
                         group, message
                         # MessageChain(message)
-                        # MessageChain.fromPersistentString(message).asSendable()
+                        # MessageChain.from_persistent_string(message).as_sendable()
                     ),
                     loop
                 ).result()
@@ -338,7 +333,12 @@ async def get_group_setting(group_id: int, token: bool = Depends(certify_token))
 
 
 @app.get("/group/setting/modify")
-async def modify_group_setting(group_id: int, column: str, value: Union[int, str], token: bool = Depends(certify_token)):
+async def modify_group_setting(
+    group_id: int,
+    column: str,
+    value: Union[int, str],
+    token: bool = Depends(certify_token)
+):
     if token:
         value = (True if value in ("True", "true") else False) if value in ("True", "true", "False", "false") else value
         columns = {
@@ -385,16 +385,14 @@ async def modify_group_setting(group_id: int, column: str, value: Union[int, str
 @app.get("/friend/list")
 async def get_friend_list(token: bool = Depends(certify_token)):
     if token:
-        core = AppCore.get_core_instance()
-        ariadne_app = core.get_app()
-        loop = core.get_loop()
+        ariadne_app = Ariadne.current()
         return GeneralResponse(
             data={
                 friend.id: {
                     "nickname": friend.nickname,
                     "remark": friend.remark
                 }
-                for friend in (asyncio.run_coroutine_threadsafe(ariadne_app.getFriendList(), loop).result())
+                for friend in (asyncio.run_coroutine_threadsafe(ariadne_app.get_friend_list(), loop).result())
             }
         )
     else:
@@ -407,10 +405,8 @@ async def get_friend_list(token: bool = Depends(certify_token)):
 @app.get("/friend/detail")
 async def get_friend_detail(friend_id: int, token: bool = Depends(certify_token)):
     if token:
-        core = AppCore.get_core_instance()
-        ariadne_app = core.get_app()
-        loop = core.get_loop()
-        if friend := asyncio.run_coroutine_threadsafe(ariadne_app.getFriend(friend_id), loop).result():
+        ariadne_app = Ariadne.current()
+        if friend := asyncio.run_coroutine_threadsafe(ariadne_app.get_friend(friend_id), loop).result():
             friend_profile = asyncio.run_coroutine_threadsafe(friend.getProfile(), loop).result()
             return GeneralResponse(
                 data={
@@ -437,14 +433,12 @@ async def get_friend_detail(friend_id: int, token: bool = Depends(certify_token)
 @app.post("/friend/send")
 async def send_friend_message(friend_id: int, message: list, token: bool = Depends(certify_token)):
     if token:
-        core = AppCore.get_core_instance()
-        ariadne_app = core.get_app()
-        loop = core.get_loop()
+        ariadne_app = Ariadne.current()
         message = parse_messagechain(message)
-        if friend := asyncio.run_coroutine_threadsafe(ariadne_app.getFriend(friend_id), loop).result():
+        if friend := asyncio.run_coroutine_threadsafe(ariadne_app.get_friend(friend_id), loop).result():
             if isinstance(message, MessageChain):
                 asyncio.run_coroutine_threadsafe(
-                    ariadne_app.sendFriendMessage(
+                    ariadne_app.send_friend_message(
                         friend, message
                     ),
                     loop

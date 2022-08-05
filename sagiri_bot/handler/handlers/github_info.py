@@ -1,7 +1,7 @@
+import aiohttp
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
+
 from graia.ariadne.exception import MessageTooLong
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
@@ -40,20 +40,22 @@ channel.description("可以搜索Github项目信息的插件，在群中发送 `
         ]
     )
 )
-async def github_info(app: Ariadne, message: MessageChain, group: Group, image: ArgResult, keyword: RegexResult):
+async def github_info(app: Ariadne, group: Group, source: Source, image: ArgResult, keyword: RegexResult):
     image = image.matched
-    keyword = keyword.result.asDisplay()
+    keyword = keyword.result.display
     url = "https://api.github.com/search/repositories?q="
     img_url = "https://opengraph.githubassets.com/c9f4179f4d560950b2355c82aa2b7750bffd945744f9b8ea3f93cc24779745a0/"
-    async with get_running(Adapter).session.get(url=url + keyword) as resp:
-        result = (await resp.json())["items"]
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=url + keyword) as resp:
+            result = (await resp.json())["items"]
     if not result:
-        await app.sendGroupMessage(group, MessageChain("没有搜索到结果呢~"), quote=message.getFirst(Source))
+        await app.send_group_message(group, MessageChain("没有搜索到结果呢~"), quote=source)
     elif image:
         img_url += result[0]["full_name"]
-        async with get_running(Adapter).session.get(img_url) as resp:
-            content = await resp.read()
-        await app.sendGroupMessage(group, MessageChain([Image(data_bytes=content)]), quote=message.getFirst(Source))
+        async with aiohttp.ClientSession() as session:
+            async with session.get(img_url) as resp:
+                content = await resp.read()
+        await app.send_group_message(group, MessageChain([Image(data_bytes=content)]), quote=source)
     else:
         result = result[0]
         name = result["name"]
@@ -79,10 +81,10 @@ async def github_info(app: Ariadne, message: MessageChain, group: Group, image: 
             Plain(text=f"license：{repo_license}")
         ])
         try:
-            await app.sendGroupMessage(group, msg, quote=message.getFirst(Source))
+            await app.send_group_message(group, msg, quote=source)
         except MessageTooLong:
-            await app.sendGroupMessage(
+            await app.send_group_message(
                 group,
                 MessageChain([Image(data_bytes=TextEngine([GraiaAdapter(msg)]).draw())]),
-                quote=message.getFirst(Source)
+                quote=source
             )

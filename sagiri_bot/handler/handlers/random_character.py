@@ -33,8 +33,8 @@ channel.description("随机生成人设插件，在群中发送 `随机人设` �
     )
 )
 async def random_character(app: Ariadne, message: MessageChain, group: Group):
-    await app.sendGroupMessage(
+    await app.send_group_message(
         group,
         MessageChain("\n".join([f"{k}：{random.choice(character_dict[k])}" for k in character_dict.keys()])),
-        quote=message.getFirst(Source)
+        quote=message.get_first(Source)
     )

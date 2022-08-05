@@ -5,10 +5,9 @@ import asyncio
 from graia.ariadne.exception import AccountMuted
 from loguru import logger
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
 from graia.ariadne.model import Friend, Group
 from graia.scheduler.timers import crontabify
 from graia.ariadne.message.element import Image
@@ -18,13 +17,13 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import FriendMessage, GroupMessage
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch
 
-from sagiri_bot.utils import group_setting
+from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
-from sagiri_bot.core.app_core import AppCore
 
 saya = Saya.current()
 channel = Channel.current()
-host_qq = AppCore.get_core_instance().get_config().host_qq
+host_qq = create(GlobalConfig).host_qq
 
 channel.name("DailyNewspaper")
 channel.author("SAGIRI-kawaii")
@@ -59,7 +58,7 @@ async def main(app: Ariadne, friend: Friend):
     )
 )
 async def main(app: Ariadne, group: Group):
-    await app.sendMessage(group, MessageChain([Image(data_bytes=await get_image())]))
+    await app.send_message(group, MessageChain([Image(data_bytes=await get_image())]))
 
 
 async def send_newspaper(app: Ariadne):
@@ -73,19 +72,20 @@ async def send_newspaper(app: Ariadne):
             await asyncio.sleep(3)
     if not image_content:
         return logger.error("日报获取失败！")
-    for group in await app.getGroupList():
+    for group in await app.get_group_list():
         if not await group_setting.get_setting(group, Setting.daily_newspaper):
             continue
         try:
-            await app.sendMessage(group, MessageChain.create(Image(data_bytes=image_content)))
+            await app.send_message(group, MessageChain(Image(data_bytes=image_content)))
         except AccountMuted:
             continue
         await asyncio.sleep(random.randint(3, 6))
 
 
 async def get_image() -> bytes:
-    async with get_running(Adapter).session.get("http://api.2xb.cn/zaob") as resp:
-        image_url = (await resp.json()).get("imageUrl", None)
-    async with get_running(Adapter).session.get(image_url) as resp:
-        image_content = await resp.read()
+    async with aiohttp.ClientSession() as session:
+        async with session.get("http://api.2xb.cn/zaob") as resp:
+            image_url = (await resp.json()).get("imageUrl", None)
+        async with session.get(image_url) as resp:
+            image_content = await resp.read()
     return image_content

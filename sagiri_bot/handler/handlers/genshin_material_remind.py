@@ -5,6 +5,7 @@ from typing import List
 from pathlib import Path
 from datetime import datetime, timedelta
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -15,8 +16,8 @@ from graia.ariadne.message.element import Source, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from utils.browser import get_browser
-from sagiri_bot.utils import BuildImage
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.internal_utils import BuildImage
+from sagiri_bot.config import GlobalConfig
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -26,8 +27,7 @@ channel.name("GenshinMaterialRemind")
 channel.author("SAGIRI-kawaii")
 channel.description("一个可以查询原神每日可获取素材的插件，在群中发送 `原神今日素材` 即可")
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 proxy = config.proxy if config.proxy != "proxy" else ''
 IMAGE_PATH = Path.cwd() / "statics" / "genshin" / "material"
 
@@ -46,20 +46,23 @@ IMAGE_PATH = Path.cwd() / "statics" / "genshin" / "material"
 )
 async def genshin_material_remind(app: Ariadne, message: MessageChain, group: Group,):
     if time.strftime("%w") == "0":
-        await app.sendGroupMessage(group, MessageChain("今天是周日，所有材料副本都开放了。"), quote=message.getFirst(Source))
-        return
+        return await app.send_group_message(
+            group,
+            MessageChain("今天是周日，所有材料副本都开放了。"),
+            quote=message.get_first(Source)
+        )
     file_name = str((datetime.now() - timedelta(hours=4)).date())
     if not (Path(IMAGE_PATH) / f"{file_name}.png").exists():
-        await app.sendMessage(group, MessageChain("正在自动更新中..."))
+        await app.send_message(group, MessageChain("正在自动更新中..."))
         _ = await update_image()
         print(_)
-    await app.sendGroupMessage(
+    await app.send_group_message(
         group,
         MessageChain([
             Image(path=Path(IMAGE_PATH) / f"{file_name}.png"),
             Plain(text="\n※ 每日素材数据来源于 genshin.pub")
         ]),
-        quote=message.getFirst(Source)
+        quote=message.get_first(Source)
     )
 
 
@@ -139,9 +142,11 @@ async def update_image():
 
 
 def get_background_height(weapons_imgs: List[str]) -> int:
-    height = 0
-    for weapons in weapons_imgs:
-        height += BuildImage(0, 0, background=weapons).size[1]
+    height = sum(
+        BuildImage(0, 0, background=weapons).size[1]
+        for weapons in weapons_imgs
+    )
+
     last_weapon = BuildImage(0, 0, background=weapons_imgs[-1])
     w, h = last_weapon.size
     last_weapon.crop((0, 0, w, h - 10))

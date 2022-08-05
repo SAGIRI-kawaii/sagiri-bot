@@ -1,3 +1,4 @@
+import aiohttp
 import PIL.Image
 import numpy as np
 from io import BytesIO
@@ -5,8 +6,7 @@ from PIL import ImageEnhance
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
+
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Source
 from graia.ariadne.message.parser.twilight import Twilight
@@ -45,21 +45,22 @@ channel.description("一个幻影坦克生成器，在群中发送 `幻影 [显�
 )
 async def phantom_tank(
     app: Ariadne,
-    message: MessageChain,
     group: Group,
+    source: Source,
     colorful: RegexResult,
     img1: ElementResult,
     img2: ElementResult
 ):
-    async with get_running(Adapter).session.get(url=img1.result.url) as resp:
-        display_img = PIL.Image.open(BytesIO(await resp.read()))
-    async with get_running(Adapter).session.get(url=img2.result.url) as resp:
-        hide_img = PIL.Image.open(BytesIO(await resp.read()))
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=img1.result.url) as resp:
+            display_img = PIL.Image.open(BytesIO(await resp.read()))
+        async with session.get(url=img2.result.url) as resp:
+            hide_img = PIL.Image.open(BytesIO(await resp.read()))
     if colorful.matched:
         msg = MessageChain([Image(data_bytes=await PhantomTank.colorful_tank(display_img, hide_img))])
     else:
         msg = MessageChain([Image(data_bytes=await PhantomTank.make_tank(display_img, hide_img))])
-    await app.sendGroupMessage(group, msg, quote=message.getFirst(Source))
+    await app.send_group_message(group, msg, quote=source)
 
 
 class PhantomTank(object):
@@ -92,13 +93,13 @@ class PhantomTank(object):
 
     @staticmethod
     async def colorful_tank(
-            wimg: PIL.Image.Image,
-            bimg: PIL.Image.Image,
-            wlight: float = 1.0,
-            blight: float = 0.18,
-            wcolor: float = 0.5,
-            bcolor: float = 0.7,
-            chess: bool = False
+        wimg: PIL.Image.Image,
+        bimg: PIL.Image.Image,
+        wlight: float = 1.0,
+        blight: float = 0.18,
+        wcolor: float = 0.5,
+        bcolor: float = 0.7,
+        chess: bool = False
     ):
         wimg = ImageEnhance.Brightness(wimg).enhance(wlight).convert("RGB")
         bimg = ImageEnhance.Brightness(bimg).enhance(blight).convert("RGB")

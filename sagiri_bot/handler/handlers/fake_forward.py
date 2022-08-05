@@ -3,15 +3,14 @@ from datetime import datetime
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.parser.twilight import Twilight
+from graia.ariadne.message.parser.twilight import FullMatch
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.element import ForwardNode, Plain, Forward, At
 
-from sagiri_bot.message_sender.strategy import Normal
-from sagiri_bot.decorators import switch, blacklist
-from sagiri_bot.handler.handler import AbstractHandler
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.message_sender import MessageSender
+
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -21,32 +20,30 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个生成转发消息的插件，发送 '/fake [@目标] [内容]' 即可")
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def fake_forward(app: Ariadne, message: MessageChain, group: Group, member: Member):
-    if result := await FakeForward.handle(app, message, group, member):
-        await MessageSender(result.strategy).send(app, result.message, message, group, member)
-
-
-class FakeForward(AbstractHandler):
-    __name__ = "FakeForward"
-    __description__ = "转发消息生成器"
-    __usage__ = "None"
-
-    @staticmethod
-    @switch()
-    @blacklist()
-    async def handle(app: Ariadne, message: MessageChain, group: Group, member: Member):
-        if message.asDisplay().startswith("/fake "):
-            content = "".join(i.text for i in message.get(Plain))[6:]
-            if not message.has(At):
-                return MessageItem(MessageChain.create([Plain(text="未指定目标！")]), Normal())
-            sender = message.get(At)[0]
-            forward_nodes = [
-                ForwardNode(
-                    senderId=sender.target,
-                    time=datetime.now(),
-                    senderName=(await app.getMember(group, sender.target)).name,
-                    messageChain=MessageChain.create(Plain(text=content)),
-                )
-            ]
-            return MessageItem(MessageChain.create(Forward(nodeList=forward_nodes)), Normal())
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("/fake")])],
+        decorators=[
+            FrequencyLimit.require("fake_forward", 1),
+            Function.require(channel.module, notice=True),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
+        ]
+    )
+)
+async def fake_forward(app: Ariadne, message: MessageChain, group: Group):
+    if message.display.startswith("/fake "):
+        content = "".join(i.text for i in message.get(Plain))[6:]
+        if not message.has(At):
+            return await app.send_group_message(group, MessageChain("未指定目标！"))
+        sender = message.get(At)[0]
+        forward_nodes = [
+            ForwardNode(
+                sender_id=sender.target,
+                time=datetime.now(),
+                sender_name=(await app.get_member(group, sender.target)).name,
+                message_chain=MessageChain(Plain(text=content)),
+            )
+        ]
+        await app.send_group_message(group, MessageChain(Forward(node_list=forward_nodes)))

@@ -1,43 +1,43 @@
-import asyncio
-import base64
-import json
 import re
-import traceback
+import json
 import uuid
+import base64
+import asyncio
+import aiohttp
+import traceback
 from typing import Union
+from loguru import logger
 
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
+from creart import create
+from graiax import silkcoder
+from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Voice, Source
+from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.parser.twilight import FullMatch, WildcardMatch, RegexResult
 from graia.ariadne.message.parser.twilight import Twilight, SpacePolicy, ArgumentMatch, ArgResult
-from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graiax import silkcoder
-from loguru import logger
-from tencentcloud.common import credential
-from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
-from tencentcloud.common.profile.client_profile import ClientProfile
-from tencentcloud.common.profile.http_profile import HttpProfile
-from tencentcloud.tts.v20190823 import tts_client, models
 
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
-from sagiri_bot.core.app_core import AppCore
+from tencentcloud.common import credential
+from tencentcloud.tts.v20190823 import tts_client, models
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
+
+from sagiri_bot.internal_utils import group_setting
+from sagiri_bot.config import GlobalConfig
 from sagiri_bot.orm.async_orm import Setting
-from sagiri_bot.utils import group_setting
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
-#
+
 channel.name("Speak")
 channel.author("nullqwertyuiop, SAGIRI-kawaii")
 channel.description("语音合成插件，在群中发送 `说 {content}` 即可")
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 
 user_data = config.functions["tencent"]
 cred = credential.Credential(user_data["secret_id"], user_data["secret_key"])
@@ -62,16 +62,16 @@ client_profile.httpProfile = http_profile
         ]
     )
 )
-async def speak(app: Ariadne, message: MessageChain, group: Group, voice_type: ArgResult, content: RegexResult):
-    text = content.result.asDisplay()
+async def speak(app: Ariadne, group: Group, voice_type: ArgResult, content: RegexResult, source: Source):
+    text = content.result.display
     voice_type = voice_type.result if voice_type.matched else await group_setting.get_setting(group.id, Setting.voice)
     if voice_type == "off":
         return None
     if voice := await Speak.aget_voice(text, voice_type):
         if isinstance(voice, str):
-            await app.sendGroupMessage(group, MessageChain(voice), quote=message.getFirst(Source))
+            await app.send_group_message(group, MessageChain(voice), quote=source)
         elif isinstance(voice, bytes):
-            await app.sendGroupMessage(
+            await app.send_group_message(
                 group, MessageChain([Voice(data_bytes=await silkcoder.async_encode(voice, rate=24000))])
             )
 
@@ -132,6 +132,7 @@ class Speak(object):
                 break
             elif status == 3:
                 return "长文本转语音失败"
-        async with get_running(Adapter).session.get(url=url) as resp:
-            voice = await resp.read()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url=url) as resp:
+                voice = await resp.read()
         return voice

@@ -5,12 +5,12 @@ import platform
 from json import JSONDecodeError
 from typing import Union, Optional, List, Dict
 
-from graia.saya import Channel
+from creart import create
+from graia.saya import Saya, Channel
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image
 
 from .models import User
-from sagiri_bot.core.app_core import AppCore
 
 
 def md5(content: str) -> str:
@@ -33,13 +33,13 @@ def get_all_channels() -> List[str]:
 
 
 def get_not_installed_channels() -> List[str]:
-    installed_channels = AppCore.get_core_instance().get_saya().channels.keys()
+    installed_channels = create(Saya).channels.keys()
     all_channels = get_all_channels()
     return [channel for channel in all_channels if channel not in installed_channels]
 
 
 def get_installed_channels() -> Dict[str, Channel]:
-    return AppCore.get_core_instance().get_saya().channels
+    return create(Saya).channels
 
 
 def load_channel(modules: Union[str, List[str]]) -> Dict[str, Exception]:
@@ -47,12 +47,12 @@ def load_channel(modules: Union[str, List[str]]) -> Dict[str, Exception]:
     exceptions = {}
     if isinstance(modules, str):
         modules = [modules]
-    with AppCore.get_core_instance().get_saya().module_context():
+    with create(Saya).module_context():
         for module in modules:
             if module in ignore:
                 continue
             try:
-                AppCore.get_core_instance().get_saya().require(module)
+                create(Saya).require(module)
             except Exception as e:
                 exceptions[module] = e
     return exceptions

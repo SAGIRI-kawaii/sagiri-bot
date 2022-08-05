@@ -38,9 +38,9 @@ with open(f"{os.getcwd()}/statics/cp_data.json", "r", encoding="utf-8") as r:
         ]
     )
 )
-async def cp_generator(app: Ariadne, message: MessageChain, group: Group, attack: RegexResult, defence: RegexResult):
-    attack = attack.result.asDisplay()
-    defence = defence.result.asDisplay()
+async def cp_generator(app: Ariadne, group: Group, source: Source, attack: RegexResult, defence: RegexResult):
+    attack = attack.result.display
+    defence = defence.result.display
     template = random.choice(cp_data["data"])
     content = template.replace("<攻>", attack).replace("<受>", defence)
-    await app.sendGroupMessage(group, MessageChain(content), quote=message.getFirst(Source))
+    await app.send_group_message(group, MessageChain(content), quote=source)

@@ -1,19 +1,19 @@
 import json
 import jinja2
+import aiohttp
 import asyncio
 from pathlib import Path
 from loguru import logger
 from typing import List, Union
 
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
+from creart import create
 
 from utils.html2pic import html_to_pic
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.config import GlobalConfig
 
 
 vtb_list_path = Path(__file__).parent / "vtb_list.json"
-config = AppCore.get_core_instance().get_config()
+config = create(GlobalConfig)
 dir_path = Path(__file__).parent
 template_path = dir_path / "template"
 env = jinja2.Environment(
@@ -30,8 +30,9 @@ async def update_vtb_list():
     ]
     for url in urls:
         try:
-            async with get_running(Adapter).session.get(url, timeout=10) as resp:
-                result = await resp.json()
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=10) as resp:
+                    result = await resp.json()
             if not result:
                 continue
             for info in result:
@@ -75,8 +76,9 @@ async def get_uid_by_name(name: str) -> int:
     try:
         url = "http://api.bilibili.com/x/web-interface/search/type"
         params = {"search_type": "bili_user", "keyword": name}
-        async with get_running(Adapter).session.get(url, params=params, timeout=10) as resp:
-            result = await resp.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params, timeout=10) as resp:
+                result = await resp.json()
         for user in result["data"]["result"]:
             if user["uname"] == name:
                 return user["mid"]
@@ -90,8 +92,9 @@ async def get_user_info(uid: int) -> dict:
     try:
         url = "https://account.bilibili.com/api/member/getCardByMid"
         params = {"mid": uid}
-        async with get_running(Adapter).session.get(url, params=params, timeout=10) as resp:
-            result = await resp.text()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params, timeout=10) as resp:
+                result = await resp.text()
         result = json.loads(result)
         return result["card"]
     except (KeyError, IndexError, asyncio.TimeoutError) as e:
@@ -108,8 +111,9 @@ async def get_medals(uid: int) -> List[dict]:
         if not bilibili or not cookie:
             raise ValueError("cookie is None")
         headers = {"cookie": cookie}
-        async with get_running(Adapter).session.get(url, params=params, headers=headers) as resp:
-            result = await resp.json()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params, headers=headers) as resp:
+                result = await resp.json()
         return result["data"]["list"]
     except (KeyError, IndexError, asyncio.TimeoutError) as e:
         logger.warning(f"Error in get_medals({uid}): {e}")

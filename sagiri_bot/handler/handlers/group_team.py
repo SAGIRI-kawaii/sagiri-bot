@@ -54,10 +54,10 @@ channel.description(
 async def group_team_new_team(
     app: Ariadne, group: Group, member: Member, source: Source, team_name: RegexResult, teammates: RegexResult
 ):
-    team_name = team_name.result.asDisplay().strip()
+    team_name = team_name.result.display.strip()
     teammates = teammates.result.get(At)
     if await team_exists(group, team_name):
-        return await app.sendGroupMessage(
+        return await app.send_group_message(
             group,
             MessageChain(f"小组 {team_name} 已存在！请更换名称或使用 `群小组 添加成员 {team_name} <@要加入的成员>` 命令添加成员！"),
             quote=source
@@ -68,7 +68,7 @@ async def group_team_new_team(
         [GroupTeam.group_id == group.id, GroupTeam.name == team_name],
         {"creator": member.id, "group_id": group.id, "name": team_name, "teammates": teammates}
     )
-    await app.sendGroupMessage(group, MessageChain(f"已成功创建小组 <{team_name}>"), quote=source)
+    await app.send_group_message(group, MessageChain(f"已成功创建小组 <{team_name}>"), quote=source)
 
 
 @channel.use(
@@ -93,9 +93,9 @@ async def group_team_new_team(
 async def group_team_delete_team(
     app: Ariadne, group: Group, source: Source, team_name: RegexResult
 ):
-    team_name = team_name.result.asDisplay().strip()
+    team_name = team_name.result.display.strip()
     if not await team_exists(group, team_name):
-        return await app.sendGroupMessage(
+        return await app.send_group_message(
             group,
             MessageChain(f"小组 {team_name} 不存在！请检查名称！"),
             quote=source
@@ -103,7 +103,7 @@ async def group_team_delete_team(
     await orm.delete(
         GroupTeam, [GroupTeam.group_id == group.id, GroupTeam.name == team_name]
     )
-    await app.sendGroupMessage(group, MessageChain(f"已成功删除小组 <{team_name}>"), quote=source)
+    await app.send_group_message(group, MessageChain(f"已成功删除小组 <{team_name}>"), quote=source)
 
 
 @channel.use(
@@ -129,10 +129,10 @@ async def group_team_delete_team(
 async def group_team_modify_teammate(
     app: Ariadne, group: Group, source: Source, op: RegexResult, team_name: RegexResult, teammates: RegexResult
 ):
-    team_name = team_name.result.asDisplay().strip()
+    team_name = team_name.result.display.strip()
     new_teammates = teammates.result.get(At)
     if not await team_exists(group, team_name):
-        return await app.sendGroupMessage(
+        return await app.send_group_message(
             group,
             MessageChain(f"小组 {team_name} 不存在！请更换名称或使用 `群小组 创建分组 {team_name} <@要加入的成员>` 命令新建小组！"),
             quote=source
@@ -140,7 +140,7 @@ async def group_team_modify_teammate(
     team = await get_team(group, team_name)
     teammates = list(map(int, team[3].split('|')))
     modify_count = 0
-    op = op.result.asDisplay().strip()
+    op = op.result.display.strip()
     if op in ("添加成员", "add"):
         teammate_exists = []
         for teammate in new_teammates:
@@ -163,11 +163,11 @@ async def group_team_modify_teammate(
         {"teammates": '|'.join(map(str, teammates))}
     )
     op = "添加" if op in ("添加成员", "add") else "移除"
-    await app.sendGroupMessage(
+    await app.send_group_message(
         group,
         MessageChain(
             f"已成功为小组  <{team_name}> {op}{modify_count}位成员，当前小组成员如下：\n" +
-            "\n".join([(await app.getMember(group, member)).name for member in teammates])
+            "\n".join([(await app.get_member(group, member)).name for member in teammates])
         ),
         quote=source
     )
@@ -196,16 +196,16 @@ async def group_team_modify_teammate(
 async def group_team_notice(
     app: Ariadne, group: Group, source: Source, team_name: RegexResult, message: RegexResult
 ):
-    team_name = team_name.result.asDisplay().strip()
+    team_name = team_name.result.display.strip()
     message = message.result
     if not await team_exists(group, team_name):
-        return await app.sendGroupMessage(
+        return await app.send_group_message(
             group,
             MessageChain(f"小组 {team_name} 不存在！请更换名称或使用 `群小组 创建分组 {team_name} <@要加入的成员>` 命令新建小组！"),
             quote=source
         )
     teammates = await get_teammates(group, team_name)
-    await app.sendGroupMessage(
+    await app.send_group_message(
         group,
         MessageChain(' ').join([MessageChain([At(teammate)]) for teammate in teammates]) +
         ' ' + message if message else ""
@@ -233,18 +233,18 @@ async def group_team_notice(
 )
 async def group_team_show(app: Ariadne, group: Group, source: Source, team_name: RegexResult):
     if team_name.matched:
-        team_name = team_name.result.asDisplay().strip()
+        team_name = team_name.result.display.strip()
         if not await team_exists(group, team_name):
-            await app.sendGroupMessage(
+            await app.send_group_message(
                 group,
                 MessageChain(f"小组 {team_name} 不存在！请检查名称！"),
                 quote=source
             )
         else:
             teammates = await get_teammates(group, team_name)
-            await app.sendGroupMessage(
+            await app.send_group_message(
                 group, MessageChain(f"小组 <{team_name}> 有如下{len(teammates)}名成员：\n") +
-                "\n".join([(await app.getMember(group, member)).name for member in teammates])
+                "\n".join([(await app.get_member(group, member)).name for member in teammates])
             )
     else:
         teams = await orm.fetchall(
@@ -254,11 +254,11 @@ async def group_team_show(app: Ariadne, group: Group, source: Source, team_name:
                 GroupTeam.group_id == group.id
             )
         )
-        await app.sendGroupMessage(
+        await app.send_group_message(
             group, MessageChain(
                 f"群组 <{group.name}> 有如下{len(teams)}个小组：\n" +
                 '\n'.join([
-                    f"<{team[0]}>  人数：{len(team[1].split('|'))}  创建者：{(await app.getMember(group, team[2])).name}"
+                    f"<{team[0]}>  人数：{len(team[1].split('|'))}  创建者：{(await app.get_member(group, team[2])).name}"
                     for team in teams
                 ])
             ),

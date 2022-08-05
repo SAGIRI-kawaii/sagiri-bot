@@ -36,15 +36,15 @@ channel.description("一个生成二维码的插件，在群中发送 `qrcode �
     )
 )
 async def qrcode_generator(app: Ariadne, message: MessageChain, group: Group, content: RegexResult):
-    content = content.result.asDisplay()
+    content = content.result.display
     try:
         qrcode_img = qrcode.make(content)
     except DataOverflowError:
-        return await app.sendGroupMessage(group, MessageChain("数据超大了捏~"), quote=message.getFirst(Source))
+        return await app.send_group_message(group, MessageChain("数据超大了捏~"), quote=message.get_first(Source))
     bytes_io = BytesIO()
     qrcode_img.save(bytes_io)
-    await app.sendGroupMessage(
+    await app.send_group_message(
         group,
         MessageChain([Image(data_bytes=bytes_io.getvalue())]),
-        quote=message.getFirst(Source)
+        quote=message.get_first(Source)
     )

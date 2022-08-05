@@ -17,6 +17,12 @@ image_path:
   bizhi: bizhi
   sketch: sketch
 
+# 个性化设置
+commands:
+  default:
+    prefix: /
+    alias: []
+
 # 功能相关
 functions:
   tencent:

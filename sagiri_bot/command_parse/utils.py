@@ -9,8 +9,8 @@ from graia.ariadne.event.message import Group, Member
 
 from .commands import *
 from sagiri_bot.orm.async_orm import orm
-from sagiri_bot.utils import group_setting
-from sagiri_bot.utils import user_permission_require
+from sagiri_bot.internal_utils import group_setting
+from sagiri_bot.internal_utils import user_permission_require
 from sagiri_bot.orm.async_orm import Setting, UserPermission, BlackList
 
 
@@ -21,14 +21,12 @@ class BlackListType(Enum):
 def camel_to_underscore(s: str) -> str:
     result = s[0]
     for i in range(1, len(s)):
-        if s[i].isupper() and not s[i - 1].isupper():
-            result += '_'
-            result += s[i]
-        elif s[i].isupper() and s[i - 1].isupper() and s[i + 1].islower():
-            result += '_'
-            result += s[i]
-        else:
-            result += s[i]
+        if s[i].isupper():
+            if not s[i - 1].isupper():
+                result += '_'
+            elif s[i - 1].isupper() and s[i + 1].islower():
+                result += '_'
+        result += s[i]
     return result.lower()
 
 
@@ -205,4 +203,3 @@ async def check_admin(member: Union[int, Member], group: Union[int, Group]) -> b
         return res[0] >= 2
     else:
         return False
-

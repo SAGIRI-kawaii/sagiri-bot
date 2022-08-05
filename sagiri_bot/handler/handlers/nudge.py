@@ -1,31 +1,29 @@
-import asyncio
-import random
 import re
+import random
+import asyncio
+from loguru import logger
 from datetime import datetime
-
 from dateutil.relativedelta import relativedelta
+
+from creart import create
+from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.event.mirai import NudgeEvent
 from graia.ariadne.exception import UnknownTarget
-from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, At
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch, ElementMatch, RegexMatch, MatchResult
-from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from loguru import logger
 
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
-from sagiri_bot.core.app_core import AppCore
-from sagiri_bot.message_sender.message_item import MessageItem
-from sagiri_bot.message_sender.strategy import Normal
+from sagiri_bot.internal_utils import group_setting
+from sagiri_bot.config import GlobalConfig
 from sagiri_bot.orm.async_orm import Setting
-from sagiri_bot.utils import group_setting
+from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
-core: AppCore = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 
 channel.name("Nudge")
 channel.author("nullqwertyuiop")
@@ -44,7 +42,7 @@ async def nudged(app: Ariadne, event: NudgeEvent):
         return None
     if event.target == config.bot_qq and event.supplicant != config.bot_qq:
         if event.context_type == "group":
-            if member := await app.getMember(event.group_id, event.supplicant):
+            if member := await app.get_member(event.group_id, event.supplicant):
                 logger.info(f"机器人被群 <{member.group.name}> 中用户 <{member.name}> 戳了戳。")
                 if member.group.id in nudged_data.keys():
                     if member.id in nudged_data[member.group.id].keys():
@@ -54,15 +52,15 @@ async def nudged(app: Ariadne, event: NudgeEvent):
                         count = nudged_data[member.group.id][member.id]["count"] + 1
                         if count == 1:
                             try:
-                                await app.sendNudge(member)
+                                await app.send_nudge(member)
                             except UnknownTarget:
                                 pass
                             nudged_data[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 2:
                             try:
-                                await app.sendNudge(member)
-                                await app.sendMessage(
-                                    member.group, MessageChain.create([
+                                await app.send_nudge(member)
+                                await app.send_message(
+                                    member.group, MessageChain([
                                         Plain(text=f"不许戳了！")
                                     ])
                                 )
@@ -71,9 +69,9 @@ async def nudged(app: Ariadne, event: NudgeEvent):
                             nudged_data[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 3:
                             try:
-                                await app.sendNudge(member)
-                                await app.sendMessage(
-                                    member.group, MessageChain.create([
+                                await app.send_nudge(member)
+                                await app.send_message(
+                                    member.group, MessageChain([
                                         Plain(text=f"说了不许再戳了！")
                                     ])
                                 )
@@ -82,15 +80,15 @@ async def nudged(app: Ariadne, event: NudgeEvent):
                             nudged_data[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 4:
                             try:
-                                await app.sendNudge(member)
+                                await app.send_nudge(member)
                             except UnknownTarget:
                                 pass
                             nudged_data[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 5:
                             try:
-                                await app.sendNudge(member)
-                                await app.sendMessage(
-                                    member.group, MessageChain.create([
+                                await app.send_nudge(member)
+                                await app.send_message(
+                                    member.group, MessageChain([
                                         Plain(text=f"呜呜呜你欺负我，不理你了！")
                                     ])
                                 )
@@ -101,9 +99,9 @@ async def nudged(app: Ariadne, event: NudgeEvent):
                             nudged_data[member.group.id][member.id] = {"count": count, "time": datetime.now()}
                         elif count == 10:
                             try:
-                                await app.sendNudge(member)
-                                await app.sendMessage(
-                                    member.group, MessageChain.create([
+                                await app.send_nudge(member)
+                                await app.send_message(
+                                    member.group, MessageChain([
                                         Plain(text="你真的很有耐心欸。")
                                     ])
                                 )
@@ -111,10 +109,10 @@ async def nudged(app: Ariadne, event: NudgeEvent):
                                 pass
                     else:
                         nudged_data[member.group.id][member.id] = {"count": 1, "time": datetime.now()}
-                        await app.sendNudge(member)
+                        await app.send_nudge(member)
                 else:
                     nudged_data[member.group.id] = {member.id: {"count": 1, "time": datetime.now()}}
-                    await app.sendNudge(member)
+                    await app.send_nudge(member)
 
 
 @channel.use(
@@ -139,27 +137,27 @@ async def nudged(app: Ariadne, event: NudgeEvent):
     )
 )
 async def nudge(
-        app: Ariadne,
-        message: MessageChain,
-        group: Group,
-        member: Member,
-        me: MatchResult,
-        at: MatchResult,
-        times: MatchResult
+    app: Ariadne,
+    message: MessageChain,
+    group: Group,
+    member: Member,
+    me: MatchResult,
+    at: MatchResult,
+    times: MatchResult
 ):
-    if message.asDisplay() == "戳":
+    if message.display == "戳":
         return None
     if me.matched and at.matched:
-        return await app.sendGroupMessage(group, MessageChain.create("到底戳谁？"))
+        return await app.send_group_message(group, MessageChain("到底戳谁？"))
     elif not me.matched and not at.matched:
-        return await app.sendGroupMessage(group, MessageChain.create("也不说要戳谁......"))
+        return await app.send_group_message(group, MessageChain("也不说要戳谁......"))
     if times.matched:
-        times = int(re.search(r"\d+", times.result.asDisplay()).group(0))
+        times = int(re.search(r"\d+", times.result.display).group(0))
         if times > 10:
-            return await app.sendGroupMessage(group, MessageChain.create("太多次啦！"))
+            return await app.send_group_message(group, MessageChain("太多次啦！"))
     else:
         times = 1
-    target = member if me.matched else await app.getMember(group, at.result.target)
+    target = member if me.matched else await app.get_member(group, at.result.target)
     if target:
         count = 0
         if target.group.id not in nudge_data.keys():
@@ -172,9 +170,9 @@ async def nudge(
                 nudge_data[target.group.id][member.id] = {"count": 0, "time": datetime.now()}
             count = nudge_data[target.group.id][member.id]['count']
         if count >= 10 or count + times > 10:
-            return MessageItem(MessageChain.create([Plain(text="有完没完？")]), Normal())
+            return await app.send_group_message(group, MessageChain("有完没完？"))
         for i in range(times):
-            await app.sendNudge(target)
+            await app.send_nudge(target)
             count += 1
             await asyncio.sleep(0.25 * random.randint(1, 5))
         nudge_data[target.group.id][member.id]['count'] = count

@@ -2,14 +2,16 @@ import json
 import base64
 import asyncio
 
+from creart import create
+
 from tencentcloud.common import credential
 from tencentcloud.tms.v20201229 import tms_client, models
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.profile.client_profile import ClientProfile
 
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.config import GlobalConfig
 
-config = AppCore.get_core_instance().get_config()
+config = create(GlobalConfig)
 
 
 def text_moderation(text: str):

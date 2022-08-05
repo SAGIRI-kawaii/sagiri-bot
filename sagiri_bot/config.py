@@ -1,4 +1,19 @@
+import os
+import yaml
+from abc import ABC
+from pathlib import Path
 from pydantic import BaseModel
+from typing import Type, List, Dict
+from typing_extensions import TypedDict
+
+from creart import exists_module
+from creart import add_creator
+from creart.creator import AbstractCreator, CreateTargetInfo
+
+
+class PluginConfig(TypedDict):
+    prefix: List[str]
+    alias: List[str]
 
 
 class GlobalConfig(BaseModel):
@@ -11,6 +26,7 @@ class GlobalConfig(BaseModel):
     web_manager_auto_boot: bool = False
     image_path: dict = {}
     proxy: str = "proxy"
+    commands: Dict[str, PluginConfig]
     functions: dict = {
         "tencent": {
             "secret_id": "secret_id",
@@ -34,3 +50,22 @@ class GlobalConfig(BaseModel):
         "automatic_update": False,
         "data_retention": False
     }
+
+
+class ConfigClassCreator(AbstractCreator, ABC):
+    targets = (
+        CreateTargetInfo("sagiri_bot.config", "GlobalConfig"),
+    )
+
+    @staticmethod
+    def available() -> bool:
+        return exists_module("sagiri_bot.config")
+
+    @staticmethod
+    def create(create_type: Type[GlobalConfig]) -> GlobalConfig:
+        with open(Path(os.getcwd()) / "config.yaml", "r", encoding='utf-8') as f:
+            configs = yaml.load(f.read(), Loader=yaml.BaseLoader)
+            return GlobalConfig(**configs)
+
+
+add_creator(ConfigClassCreator)

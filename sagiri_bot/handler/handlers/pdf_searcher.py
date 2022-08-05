@@ -3,6 +3,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 from aiohttp import TCPConnector
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Source
@@ -12,7 +13,7 @@ from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult, SpacePolicy
 
-from sagiri_bot.core.app_core import AppCore
+from sagiri_bot.config import GlobalConfig
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -22,8 +23,7 @@ channel.name("PDFSearcher")
 channel.author("SAGIRI-kawaii")
 channel.description("可以搜索pdf的插件，在群中发送 `pdf 书名` 即可")
 
-core = AppCore.get_core_instance()
-config = core.get_config()
+config = create(GlobalConfig)
 proxy = config.proxy if config.proxy != "proxy" else ''
 
 
@@ -40,9 +40,9 @@ proxy = config.proxy if config.proxy != "proxy" else ''
         ]
     )
 )
-async def pdf_searcher(app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult):
+async def pdf_searcher(app: Ariadne, group: Group, source: Source, keyword: RegexResult):
     base_url = "https://zh.1lib.tw"
-    keyword = keyword.result.asDisplay().strip()
+    keyword = keyword.result.display.strip()
     url = f"{base_url}/s/?q={keyword}"
     async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
         async with session.get(url=url, proxy=proxy) as resp:
@@ -55,7 +55,7 @@ async def pdf_searcher(app: Ariadne, message: MessageChain, group: Group, keywor
             "div", {"class": "resItemBox resItemBoxBooks exactMatch"}
         )
     except AttributeError:
-        await app.sendGroupMessage(group, MessageChain(f"请检查{base_url}是否可以正常访问！若不可以请检查代理是否正常，若代理正常可能为域名更换，请向仓库提出PR"))
+        await app.send_group_message(group, MessageChain(f"请检查{base_url}是否可以正常访问！若不可以请检查代理是否正常，若代理正常可能为域名更换，请向仓库提出PR"))
         return
     count = 0
     books = []
@@ -87,4 +87,4 @@ async def pdf_searcher(app: Ariadne, message: MessageChain, group: Group, keywor
 
     if not books:
         text = "未搜索到结果呢 >A<\n要不要换个关键词试试呢~"
-    await app.sendGroupMessage(group, MessageChain(text), quote=message.getFirst(Source))
+    await app.send_group_message(group, MessageChain(text), quote=source)

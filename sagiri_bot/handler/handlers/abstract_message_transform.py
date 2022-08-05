@@ -45,7 +45,7 @@ channel.description("一个普通话转抽象话的插件，在群中发送 `/�
 )
 async def abstract_message_transformer(app: Ariadne, message: MessageChain, group: Group, content: RegexResult):
     result = ""
-    content = content.result.asDisplay()
+    content = content.result.display
     length = len(content)
     index = 0
     while index < length:
@@ -57,4 +57,4 @@ async def abstract_message_transformer(app: Ariadne, message: MessageChain, grou
         else:
             result += content[index]
         index += 1
-    await app.sendGroupMessage(group, MessageChain(result), quote=message.getFirst(Source))
+    await app.send_group_message(group, MessageChain(result), quote=message.get_first(Source))

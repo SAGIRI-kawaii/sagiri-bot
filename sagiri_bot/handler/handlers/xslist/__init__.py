@@ -45,9 +45,9 @@ channel.description("一个查老师的插件，发送 `/查老师 {作品名/�
 )
 async def xslist_handler(app: Ariadne, group: Group, keyword: RegexResult, image: ElementResult):
     if image.matched:
-        await app.sendGroupMessage(group, await search(data_bytes=await image.result.get_bytes()))
+        await app.send_group_message(group, await search(data_bytes=await image.result.get_bytes()))
     elif keyword.matched:
-        keyword = keyword.result.asDisplay().strip()
-        await app.sendGroupMessage(group, await search(keyword=keyword))
+        keyword = keyword.result.display.strip()
+        await app.send_group_message(group, await search(keyword=keyword))
     else:
-        await app.sendGroupMessage(group, MessageChain("什么都没有，你让我查什么好呢~"))
+        await app.send_group_message(group, MessageChain("什么都没有，你让我查什么好呢~"))

@@ -1,5 +1,7 @@
 import os
 import random
+import aiohttp
+import asyncio
 import numpy as np
 import jieba.analyse
 from io import BytesIO
@@ -11,10 +13,9 @@ from sqlalchemy import select, func
 from dateutil.relativedelta import relativedelta
 from wordcloud import WordCloud, ImageColorGenerator
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -22,7 +23,6 @@ from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import (
     Twilight,
     UnionMatch,
-    FullMatch,
     RegexMatch,
     MatchResult,
     ElementMatch,
@@ -30,9 +30,8 @@ from graia.ariadne.message.parser.twilight import (
 )
 
 from sagiri_bot.orm.async_orm import orm
-from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.orm.async_orm import ChatRecord
-from sagiri_bot.utils import user_permission_require
+from sagiri_bot.internal_utils import user_permission_require
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -42,7 +41,7 @@ channel.name("GroupWordCloudGenerator")
 channel.author("SAGIRI-kawaii")
 channel.description("群词云生成器，" "在群中发送 `[我的|本群][日|月|年]内总结` 即可查看个人/群 月/年词云（群词云需要权限等级2）")
 
-loop = AppCore.get_core_instance().get_loop()
+loop = create(asyncio.AbstractEventLoop)
 
 
 @channel.use(
@@ -79,20 +78,20 @@ async def group_wordcloud_generator(
     topK: MatchResult,
     mask: ElementResult
 ):
-    scope = "group" if scope.result.asDisplay() == "本群" else "member"
+    scope = "group" if scope.result.display == "本群" else "member"
     if scope == "group" and not await user_permission_require(group, member, 2):
-        return await app.sendGroupMessage(
+        return await app.send_group_message(
             group,
-            MessageChain.create([Plain(text="权限不足呢~爪巴!")]),
-            quote=message.getFirst(Source),
+            MessageChain([Plain(text="权限不足呢~爪巴!")]),
+            quote=message.get_first(Source),
         )
 
-    period = period.result.asDisplay()
-    topK = min(int(topK.result.asDisplay()), 100000) if topK.matched else 1000
-    await app.sendGroupMessage(
+    period = period.result.display
+    topK = min(int(topK.result.display), 100000) if topK.matched else 1000
+    await app.send_group_message(
         group,
         await GroupWordCloudGenerator.get_review(group, member, period, scope, topK, mask.result),
-        quote=message.getFirst(Source),
+        quote=message.get_first(Source),
     )
 
 
@@ -217,8 +216,9 @@ class GroupWordCloudGenerator:
 
         times = res[0]
         if mask:
-            async with get_running(Adapter).session.get(url=mask.url) as resp:
-                mask = IMG.open(BytesIO(await resp.read()))
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url=mask.url) as resp:
+                    mask = IMG.open(BytesIO(await resp.read()))
         return MessageChain(
             [
                 Plain(text="记录时间：\n"),
@@ -277,11 +277,9 @@ class TfIdf:
         for doc in self.documents:
             score = 0.0
             doc_dict = doc[1]
-            for k in query_dict:
+            for k, v in query_dict.items():
                 if k in doc_dict:
-                    score += (query_dict[k] / self.corpus_dict[k]) + (
-                        doc_dict[k] / self.corpus_dict[k]
-                    )
+                    score += (v / self.corpus_dict[k] + doc_dict[k] / self.corpus_dict[k])
             sims.append([doc[0], score])
 
         return sims

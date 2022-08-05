@@ -16,9 +16,8 @@ from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, Wildcar
 
 from utils.message_chain import *
 from sagiri_bot.orm.async_orm import orm
-from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.orm.async_orm import KeywordReply
-from sagiri_bot.utils import user_permission_require
+from sagiri_bot.internal_utils import user_permission_require
 from sagiri_bot.control import BlackListControl, Function
 
 saya = Saya.current()
@@ -32,7 +31,7 @@ channel.description(
     "在群中发送 `删除回复关键词#{keyword}` 可删除关键词"
 )
 
-inc = InterruptControl(AppCore.get_core_instance().get_bcc())
+inc = InterruptControl(saya.broadcast)
 regex_list = []
 parse_big_bracket = "\\{"
 parse_mid_bracket = "\\["
@@ -48,9 +47,9 @@ class NumberWaiter(Waiter.create([GroupMessage])):
         self.member = (member if isinstance(member, int) else member.id) if member else None
         self.max_length = max_length
 
-    async def detected_event(self, app: Ariadne, group: Group, member: Member, message: MessageChain):
+    async def detected_event(self, group: Group, member: Member, message: MessageChain):
         if group.id == self.group and member.id == self.member:
-            return int(message.asDisplay()) if message.asDisplay().isnumeric() and 0 < int(message.asDisplay()) <= self.max_length else -1
+            return int(message.display) if message.display.isnumeric() and 0 < int(message.display) <= self.max_length else -1
 
 
 class ConfirmWaiter(Waiter.create([GroupMessage])):
@@ -61,9 +60,9 @@ class ConfirmWaiter(Waiter.create([GroupMessage])):
         self.group = group if isinstance(group, int) else group.id
         self.member = (member if isinstance(member, int) else member.id) if member else None
 
-    async def detected_event(self, app: Ariadne, group: Group, member: Member, message: MessageChain):
+    async def detected_event(self, group: Group, member: Member, message: MessageChain):
         if group.id == self.group and member.id == self.member:
-            return True if re.match(r"[是否]", message.asDisplay()) else False
+            return True if re.match(r"[是否]", message.display) else False
 
 
 add_keyword_twilight = Twilight([
@@ -92,24 +91,23 @@ delete_keyword_twilight = Twilight([
 )
 async def add_keyword(
     app: Ariadne,
-    message: MessageChain,
     group: Group,
     member: Member,
+    source: Source,
     group_only: RegexResult,
     op_type: RegexResult,
     keyword: RegexResult,
     response: RegexResult
 ):
     if not await user_permission_require(group, member, 2):
-        await app.sendGroupMessage(group, MessageChain("权限不足，爬！"), quote=message.getFirst(Source))
-        return
-    op_type = ("regex" if op_type.result.asDisplay() == "正则" else "fuzzy") if op_type.matched else "fullmatch"
+        return await app.send_group_message(group, MessageChain("权限不足，爬！"), quote=source)
+    op_type = ("regex" if op_type.result.display == "正则" else "fuzzy") if op_type.matched else "fullmatch"
     response = await message_chain_to_json(response.result)
     keyword = keyword.result.copy()
     for i in keyword.__root__:
         if isinstance(i, MultimediaElement):
             i.url = ''
-    keyword = keyword.asPersistentString()
+    keyword = keyword.as_persistent_string()
     reply_md5 = get_md5(response + str(group.id))
     if await orm.fetchone(
         select(
@@ -121,8 +119,7 @@ async def add_keyword(
             KeywordReply.group == (group.id if group_only.matched else -1)
         )
     ):
-        await app.sendGroupMessage(group, MessageChain("重复添加关键词！进程退出"), quote=message.getFirst(Source))
-        return
+        return await app.send_group_message(group, MessageChain("重复添加关键词！进程退出"), quote=source)
     await orm.add(
         KeywordReply,
         {
@@ -141,7 +138,7 @@ async def add_keyword(
                 group.id if group_only else -1
             )
         )
-    await app.sendGroupMessage(group, MessageChain("关键词添加成功！"), quote=message.getFirst(Source))
+    await app.send_group_message(group, MessageChain("关键词添加成功！"), quote=source)
 
 
 @channel.use(
@@ -156,22 +153,22 @@ async def add_keyword(
 )
 async def delete_keyword(
     app: Ariadne,
-    message: MessageChain,
     group: Group,
     member: Member,
+    source: Source,
     group_only: RegexResult,
     op_type: RegexResult,
     keyword: RegexResult
 ):
     if not await user_permission_require(group, member, 2):
-        await app.sendGroupMessage(group, MessageChain("权限不足，爬！"), quote=message.getFirst(Source))
+        await app.send_group_message(group, MessageChain("权限不足，爬！"), quote=source)
         return
-    op_type = ("regex" if op_type.result.asDisplay() == "正则" else "fuzzy") if op_type.matched else "fullmatch"
+    op_type = ("regex" if op_type.result.display == "正则" else "fuzzy") if op_type.matched else "fullmatch"
     keyword = keyword.result.copy()
     for i in keyword.__root__:
         if isinstance(i, MultimediaElement):
             i.url = ''
-    keyword = keyword.asPersistentString()
+    keyword = keyword.as_persistent_string()
     if results := await orm.fetchall(
         select(
             KeywordReply.reply_type, KeywordReply.reply, KeywordReply.reply_md5
@@ -194,13 +191,13 @@ async def delete_keyword(
             msg.extend(json_to_message_chain(replies[i][1]).__root__)
             msg.append(Plain("\n"))
         msg.append(Plain(text="请发送你要删除的回复编号"))
-        await app.sendGroupMessage(group, MessageChain.create(msg))
+        await app.send_group_message(group, MessageChain(msg))
 
         number = await inc.wait(NumberWaiter(group, member, len(replies)), timeout=30)
         if number == -1:
-            await app.sendGroupMessage(group, MessageChain("非预期回复，进程退出"), quote=message.getFirst(Source))
+            await app.send_group_message(group, MessageChain("非预期回复，进程退出"), quote=source)
             return
-        await app.sendGroupMessage(
+        await app.send_group_message(
             group,
             MessageChain([
                 Plain(text="你确定要删除下列回复吗(是/否)：\n"),
@@ -229,11 +226,11 @@ async def delete_keyword(
                     continue
                 temp_list.append(i)
             regex_list = temp_list
-            await app.sendGroupMessage(group, MessageChain("删除成功"), quote=message.getFirst(Source))
+            await app.send_group_message(group, MessageChain("删除成功"), quote=source)
         else:
-            await app.sendGroupMessage(group, MessageChain("非预期回复，进程退出"), quote=message.getFirst(Source))
+            await app.send_group_message(group, MessageChain("非预期回复，进程退出"), quote=source)
     else:
-        await app.sendGroupMessage(group, MessageChain("未检测到此关键词数据"), quote=message.getFirst(Source))
+        await app.send_group_message(group, MessageChain("未检测到此关键词数据"), quote=source)
 
 
 @channel.use(
@@ -260,16 +257,16 @@ async def keyword_detect(app: Ariadne, message: MessageChain, group: Group):
                 select(
                     KeywordReply.reply
                 ).where(
-                    KeywordReply.keyword == copied_msg.asPersistentString(),
+                    KeywordReply.keyword == copied_msg.as_persistent_string(),
                     KeywordReply.group.in_((-1, group.id))
                 )
             )):
                 reply = random.choice(result)
-                await app.sendGroupMessage(group, json_to_message_chain(str(reply[0])))
+                await app.send_group_message(group, json_to_message_chain(str(reply[0])))
             else:
-                response_md5 = [i[1] for i in regex_list if (re.match(i[0], copied_msg.asPersistentString()) and i[2] in (-1, group.id))]
+                response_md5 = [i[1] for i in regex_list if (re.match(i[0], copied_msg.as_persistent_string()) and i[2] in (-1, group.id))]
                 if response_md5:
-                    await app.sendGroupMessage(
+                    await app.send_group_message(
                         group,
                         json_to_message_chain(
                             (await orm.fetchone(
@@ -304,5 +301,4 @@ async def regex_init():
 def get_md5(data: str) -> str:
     m = hashlib.md5()
     m.update(data.encode("utf-8"))
-    reply_md5 = m.hexdigest()
-    return reply_md5
+    return m.hexdigest()

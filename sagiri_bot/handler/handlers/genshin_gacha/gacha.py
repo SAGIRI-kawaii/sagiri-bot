@@ -326,7 +326,7 @@ class Gacha(object):
 
         mes.append(Plain(text=f"\n* 本次抽取卡池为 {self.pool} \n* 发送 原神卡池切换 可切换卡池"))
 
-        return MessageChain.create(mes)
+        return MessageChain(mes)
 
     def gacha_90(self, frequency=90) -> MessageChain:
         # 抽一井
@@ -370,7 +370,7 @@ class Gacha(object):
             mes.append(Plain(text="居然全是保底，你脸也太黑了\n"))
 
         mes.append(Plain(text=f"\n* 本次抽取卡池为 {self.pool} \n* 发送 原神卡池切换 可切换卡池"))
-        return MessageChain.create(mes)
+        return MessageChain(mes)
 
 
 def gacha_info(pool=DEFAULT_POOL) -> MessageChain:
@@ -394,4 +394,4 @@ def gacha_info(pool=DEFAULT_POOL) -> MessageChain:
         # 如果up_info是空的，表示当前是常驻池没有UP
         up_info.append(Plain(text="常驻池没有UP"))
 
-    return MessageChain.create([Plain(text=info_txt)] + up_info)
+    return MessageChain([Plain(text=info_txt)] + up_info)

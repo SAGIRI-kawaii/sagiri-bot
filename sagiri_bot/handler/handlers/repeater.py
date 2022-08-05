@@ -21,7 +21,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from sagiri_bot.control import Function
 from sagiri_bot.orm.async_orm import Setting
-from sagiri_bot.utils import group_setting
+from sagiri_bot.internal_utils import group_setting
 
 saya = Saya.current()
 channel = Channel.current()
@@ -52,13 +52,13 @@ async def repeater_handler(app: Ariadne, message: MessageChain, group: Group):
         or message.has(Xml)
         or message.has(MarketFace)
     ):
-        group_repeat[group.id] = {"msg": message.asPersistentString(), "count": -1}
+        group_repeat[group.id] = {"msg": message.as_persistent_string(), "count": -1}
         return
     msg = message.copy()
     for i in msg.__root__:
         if isinstance(i, MultimediaElement):
             i.url = ""
-    message_serialization = msg.asPersistentString()
+    message_serialization = msg.as_persistent_string()
     if group.id not in group_repeat.keys():
         group_repeat[group.id] = {"msg": message_serialization, "count": 1}
     else:
@@ -69,13 +69,13 @@ async def repeater_handler(app: Ariadne, message: MessageChain, group: Group):
             if count == 2:
                 group_repeat[group.id]["count"] = count
                 msg = message.include(Plain, Image, At, Quote, AtAll, Face, Poke)
-                if msg.asDisplay() == "<! 不支持的消息类型 !>":
+                if msg.display == "<! 不支持的消息类型 !>":
                     group_repeat[group.id] = {
-                        "msg": msg.asPersistentString(),
+                        "msg": msg.as_persistent_string(),
                         "count": -1,
                     }
                     return
-                return await app.sendGroupMessage(group, msg.asSendable())
+                return await app.send_group_message(group, msg.as_sendable())
             else:
                 group_repeat[group.id]["count"] = count
                 return
@@ -88,6 +88,6 @@ async def repeater_handler(app: Ariadne, message: MessageChain, group: Group):
 async def repeater_flush_handler(event: ActiveGroupMessage):
     global group_repeat
     group_repeat[event.subject.id] = {
-        "msg": event.messageChain.asPersistentString(),
+        "msg": event.message_chain.as_persistent_string(),
         "count": -1,
     }
