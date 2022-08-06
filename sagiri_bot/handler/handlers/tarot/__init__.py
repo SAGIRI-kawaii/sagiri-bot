@@ -7,10 +7,10 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
-from graia.ariadne.message.parser.twilight import FullMatch
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -24,7 +24,7 @@ channel.description("可以抽塔罗牌的插件，在群中发送 `塔罗牌` �
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("塔罗牌")])],
+        inline_dispatchers=[Twilight([get_command(__file__, channel.module)])],
         decorators=[
             FrequencyLimit.require("tarot", 1),
             Function.require(channel.module, notice=True),

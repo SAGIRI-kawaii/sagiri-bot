@@ -1,0 +1,13 @@
+{
+  "name": "SteamGameInfoSearch",
+  "version": "0.1",
+  "display_name": "steam游戏信息",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以搜索steam游戏信息的插件",
+  "usage": "在群中发送 `steam {游戏名}` 即可",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["steam"]
+}

@@ -10,14 +10,13 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
-from graia.ariadne.message.parser.twilight import FullMatch
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.element import Source, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from utils.browser import get_browser
-from sagiri_bot.internal_utils import BuildImage
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import BuildImage, get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -35,7 +34,7 @@ IMAGE_PATH = Path.cwd() / "statics" / "genshin" / "material"
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("原神今日素材")])],
+        inline_dispatchers=[Twilight([get_command(__file__, channel.module)])],
         decorators=[
             FrequencyLimit.require("genshin_material_remind", 2),
             Function.require(channel.module, notice=True),

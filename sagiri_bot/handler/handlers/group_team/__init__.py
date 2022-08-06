@@ -11,6 +11,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult, UnionMatch, WildcardMatch
 
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.orm.async_orm import orm, GroupTeam
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl, Permission
 
@@ -36,7 +37,7 @@ channel.description(
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                UnionMatch("群小组", "group_team"),
+                get_command(__file__, channel.module),
                 UnionMatch("添加分组", "创建分组", "create"),
                 RegexMatch(r"[\S]+") @ "team_name",
                 WildcardMatch() @ "teammates"

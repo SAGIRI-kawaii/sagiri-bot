@@ -18,9 +18,10 @@ from .google import google_search
 from .ascii2d import ascii2d_search
 from .ehentai import ehentai_search
 from .saucenao import saucenao_search
-from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.orm.async_orm import Setting
+from sagiri_bot.internal_utils import get_command
+from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -28,7 +29,7 @@ channel = Channel.current()
 bcc = saya.broadcast
 inc = InterruptControl(bcc)
 
-channel.name("ImageSearch")
+channel.name("ImageSearcher")
 channel.author("SAGIRI-kawaii")
 channel.description("一个可以以图搜图的插件，在群中发送 `搜图` 后，等待回应在30s内发送图片即可（多张图片只会搜索第一张）")
 
@@ -42,7 +43,7 @@ SAUCENAO_API_KEY = config.functions.get("saucenao_api_key", None)
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                UnionMatch("搜图", "识图", "以图搜图"),
+                get_command(__file__, channel.module),
                 RegexMatch(r"[\s]+", optional=True),
                 ElementMatch(Image, optional=True) @ "image"
             ])

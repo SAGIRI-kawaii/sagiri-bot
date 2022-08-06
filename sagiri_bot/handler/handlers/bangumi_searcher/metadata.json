@@ -1,0 +1,13 @@
+{
+  "name": "BangumiSearcher",
+  "version": "0.1",
+  "display_name": "以图搜番",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以根据图片搜索番剧的插件",
+  "usage": "",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["搜番", "识番", "以图搜番"]
+}

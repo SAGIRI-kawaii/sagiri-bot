@@ -1,0 +1,13 @@
+{
+  "name": "GenshinCharaCard",
+  "version": "0.1",
+  "display_name": "原神角色卡",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个原神角色卡查询插件",
+  "usage": "在群中发送 `/原神角色卡 UID 角色名` 即可",
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["原神角色卡"]
+}

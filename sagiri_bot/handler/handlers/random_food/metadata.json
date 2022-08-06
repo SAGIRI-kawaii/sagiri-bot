@@ -1,0 +1,14 @@
+{
+  "name": "RandomFood",
+  "version": "0.1",
+  "display_name": "随机餐点",
+  "authors": [
+    "SAGIRI-kawaii",
+    "nullqwertyuiop"
+  ],
+  "description": "随机餐点",
+  "usage": "",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

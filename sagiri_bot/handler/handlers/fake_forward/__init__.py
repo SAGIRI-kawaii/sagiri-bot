@@ -4,12 +4,11 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
-from graia.ariadne.message.parser.twilight import FullMatch
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import ForwardNode, Plain, Forward, At
 
-
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -23,7 +22,7 @@ channel.description("一个生成转发消息的插件，发送 '/fake [@目标]
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("/fake")])],
+        inline_dispatchers=[Twilight([get_command(__file__, channel.module)])],
         decorators=[
             FrequencyLimit.require("fake_forward", 1),
             Function.require(channel.module, notice=True),

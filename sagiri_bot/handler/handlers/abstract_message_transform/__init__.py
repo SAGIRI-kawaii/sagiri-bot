@@ -5,8 +5,9 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
+from sagiri_bot.internal_utils import get_command
 from statics.abstract_message_transformer_data import pinyin, emoji
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
@@ -31,7 +32,7 @@ channel.description("一个普通话转抽象话的插件，在群中发送 `/�
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("/抽象 "),
+                get_command(__file__, channel.module),
                 RegexMatch(r".*").help("要转抽象的内容") @ "content"
             ])
         ],

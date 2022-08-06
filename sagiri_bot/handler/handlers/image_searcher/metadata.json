@@ -1,0 +1,13 @@
+{
+  "name": "ImageSearcher",
+  "version": "0.1",
+  "display_name": "以图搜图",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以以图搜图的插件",
+  "usage": "在群中发送 `搜图` 后，等待回应在30s内发送图片即可（多张图片只会搜索第一张）",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["搜图", "以图搜图", "识图"]
+}

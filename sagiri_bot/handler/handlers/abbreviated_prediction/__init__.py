@@ -8,9 +8,9 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult, UnionMatch
+from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
-from sagiri_bot.internal_utils import get_plugin_config, get_command_match
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -21,19 +21,12 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个获取英文缩写意思的插件，在群中发送 `缩 内容` 即可")
 
 
-plugin_config = get_plugin_config(channel.module)
-prefix = plugin_config.get("prefix")
-alias = plugin_config.get("alias")
-alias.append("缩")
-command = UnionMatch(*get_command_match(prefix, alias))
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                command,
+                get_command(__file__, channel.module),
                 RegexMatch(r"[A-Za-z0-9]+").help("要缩写的内容") @ "content"]
             )
         ],

@@ -1,0 +1,13 @@
+{
+  "name": "MarketingContentGenerator",
+  "version": "0.1",
+  "display_name": "营销号内容生成器",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个营销号内容生成器插件",
+  "usage": "在群中发送 `营销号#事件主体#事件内容#事件另一种说法` 即可",
+  "icon": "",
+  "prefix": [""],
+  "triggers": ["营销号"]
+}

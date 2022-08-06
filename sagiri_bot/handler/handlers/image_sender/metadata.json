@@ -1,0 +1,13 @@
+{
+  "name": "ImageSender",
+  "version": "0.1",
+  "display_name": "图库",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以发送图片的插件",
+  "usage": "在群中发送设置好的关键词即可\n发送 `添加图库关键词#{图库名（配置文件中路径key值）}#{keyword}即可进行关键词的添加\n发送 `删除图库关键词#{图库名（配置文件中路径key值）}即可进行关键词的删除\n发送 `查看图库关键词#{图库名（配置文件中路径key值）}即可进行关键词的查看`",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Nudge",
+  "version": "0.1",
+  "display_name": "戳一戳相关",
+  "authors": [
+    "nullqwertyuiop"
+  ],
+  "description": "戳一戳相关",
+  "usage": "被戳时自动触发\n`戳我[n次]`\n`戳{@目标}[n次]",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

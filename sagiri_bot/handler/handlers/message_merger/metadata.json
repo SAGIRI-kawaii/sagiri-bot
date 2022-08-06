@@ -1,0 +1,13 @@
+{
+  "name": "MessageMerger",
+  "version": "0.1",
+  "display_name": "消息合并",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "将收到的消息合并为图片",
+  "usage": "在群中发送 `/merge 文字/图片` 即可",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

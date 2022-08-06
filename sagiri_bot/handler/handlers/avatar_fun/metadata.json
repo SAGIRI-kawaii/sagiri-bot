@@ -1,0 +1,13 @@
+{
+  "name": "AvatarFun",
+  "version": "0.1",
+  "display_name": "头像趣味功能",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以生成头像相关趣味图的插件",
+  "usage": "在群中发送 `[摸|亲|贴|撕|丢|爬|精神支柱|吞] [@目标|目标qq|目标图片]` 即可",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

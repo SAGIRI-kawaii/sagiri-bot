@@ -19,6 +19,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.element import Plain, Image, FlashImage, Forward, ForwardNode, Source
 
+from sagiri_bot.control import Function
 from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.internal_utils import update_user_call_count_plus
@@ -81,7 +82,14 @@ async def db_init():
             pass
 
 
-@channel.use(ListenerSchema(listening_events=[GroupMessage]))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        decorators=[
+            Function.require(channel.module)
+        ]
+    )
+)
 async def image_sender(app: Ariadne, message: MessageChain, group: Group, member: Member, source: Source):
     if re.match(r"[\w]+ -[0-9]+", message.as_persistent_string(), re.S):
         message_serialization = message.as_persistent_string().split(" -")[0]

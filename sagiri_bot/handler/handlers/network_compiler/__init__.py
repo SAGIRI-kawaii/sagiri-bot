@@ -12,8 +12,8 @@ from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
 
-from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
+from sagiri_bot.internal_utils import group_setting, get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -29,7 +29,8 @@ channel.description("一个网络编译器插件，在群中发送 `super langua
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("super"), RegexMatch(r"[^\s]+") @ "language", RegexMatch(r"[\s]+", optional=True),
+                get_command(__file__, channel.module),
+                RegexMatch(r"[^\s]+") @ "language", RegexMatch(r"[\s]+", optional=True),
                 RegexMatch(r"[\s\S]+") @ "code"
             ])
         ],

@@ -11,8 +11,7 @@ from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, ElementMatch, RegexResult, ElementResult
 
 from sagiri_bot.config import GlobalConfig
-from sagiri_bot.internal_utils import BuildImage, get_avatar
-
+from sagiri_bot.internal_utils import BuildImage, get_avatar, get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -35,9 +34,7 @@ config = create(GlobalConfig)
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("我"),
-                RegexMatch(r"有一?个", optional=True),
-                FullMatch("朋友"),
+                get_command(__file__, channel.module),
                 RegexMatch(r"(想问问|说|让我问问|想问|让我问|想知道|让我帮他问问|让我帮他问|让我帮忙问|让我帮忙问问|问)"),
                 FullMatch(" ", optional=True),
                 FullMatch("-dark", optional=True) @ "dark",

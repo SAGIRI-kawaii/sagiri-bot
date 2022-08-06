@@ -9,10 +9,11 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, ElementMatch, RegexResult, ElementResult
+from graia.ariadne.message.parser.twilight import RegexMatch, ElementMatch, RegexResult, ElementResult
 
-from sagiri_bot.internal_utils import BuildImage
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import BuildImage
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 
@@ -22,7 +23,6 @@ channel = Channel.current()
 channel.name("BWGrass")
 channel.author("SAGIRI-kawaii")
 channel.description("一个生成黑白草图的插件，在群中发送 `黑白[草]图 内容 图片` 即可")
-channel.meta["origin"] = "https://github.com/HibiKier/zhenxun_bot"
 
 config = create(GlobalConfig)
 
@@ -32,7 +32,7 @@ config = create(GlobalConfig)
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("黑白"), FullMatch("草", optional=True), FullMatch("图"),
+                get_command(__file__, channel.module),
                 RegexMatch(r".+") @ "content", ElementMatch(Image) @ "image"
             ])
         ],

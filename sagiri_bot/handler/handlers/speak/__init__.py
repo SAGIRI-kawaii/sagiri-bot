@@ -15,9 +15,9 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Voice, Source
 from graia.ariadne.event.message import Group, GroupMessage
-from graia.ariadne.message.parser.twilight import FullMatch, WildcardMatch, RegexResult
-from graia.ariadne.message.parser.twilight import Twilight, SpacePolicy, ArgumentMatch, ArgResult
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.message.parser.twilight import WildcardMatch, RegexResult
+from graia.ariadne.message.parser.twilight import Twilight, SpacePolicy, ArgumentMatch, ArgResult
 
 from tencentcloud.common import credential
 from tencentcloud.tts.v20190823 import tts_client, models
@@ -25,9 +25,9 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 
-from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.orm.async_orm import Setting
+from sagiri_bot.internal_utils import group_setting, get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -51,7 +51,7 @@ client_profile.httpProfile = http_profile
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight([
-            FullMatch("说").space(SpacePolicy.FORCE),
+            get_command(__file__, channel.module).space(SpacePolicy.FORCE),
             ArgumentMatch("-v", "--voice", type=int, optional=True) @ "voice_type",
             WildcardMatch().flags(re.DOTALL) @ "content"])],
         decorators=[

@@ -10,9 +10,10 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import ForwardNode, Forward, Source
-from graia.ariadne.message.parser.twilight import FullMatch, WildcardMatch, RegexResult
+from graia.ariadne.message.parser.twilight import WildcardMatch, RegexResult
 
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -30,7 +31,7 @@ url = base_url + "/s/{keyword}.html"
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("/bt"), WildcardMatch() @ "keyword"])],
+        inline_dispatchers=[Twilight([get_command(__file__, channel.module), WildcardMatch() @ "keyword"])],
         decorators=[
             FrequencyLimit.require("bt_searcher", 3),
             Function.require(channel.module, notice=True),
@@ -39,7 +40,7 @@ url = base_url + "/s/{keyword}.html"
         ]
     )
 )
-async def bt_searcher(app: Ariadne, message: MessageChain, group: Group, keyword: RegexResult):
+async def bt_searcher(app: Ariadne, group: Group, source: Source, keyword: RegexResult):
     keyword = keyword.result.display.strip()
     search_url = url.format(keyword=keyword)
     async with aiohttp.ClientSession() as session:
@@ -49,7 +50,7 @@ async def bt_searcher(app: Ariadne, message: MessageChain, group: Group, keyword
     divs = soup.find_all("div", {"class": "search-item"})
     if not divs:
         return await app.send_group_message(
-            group, MessageChain(f"没有找到有关{keyword}的结果呢~"), quote=message.get_first(Source)
+            group, MessageChain(f"没有找到有关{keyword}的结果呢~"), quote=source
         )
     forward_list = []
     for div in divs[:5]:

@@ -8,9 +8,10 @@ from graia.ariadne.message.element import Image, Source
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, RegexResult
+from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -25,7 +26,7 @@ api_key = create(GlobalConfig).functions.get("wolfram_alpha_key", None)
 
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
-    inline_dispatchers=[Twilight([FullMatch("/solve"), RegexMatch(".+") @ "content"])],
+    inline_dispatchers=[Twilight([get_command(__file__, channel.module), RegexMatch(".+") @ "content"])],
     decorators=[
         FrequencyLimit.require("wolfram_alpha", 4),
         Function.require(channel.module, notice=True),

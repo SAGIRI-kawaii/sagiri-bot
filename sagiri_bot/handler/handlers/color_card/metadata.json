@@ -1,0 +1,13 @@
+{
+  "name": "ColorCard",
+  "version": "0.1",
+  "display_name": "色卡生成",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个获取图片色卡的插件",
+  "usage": "在群中发送 `/色卡 -s={size} -m={mode} -t {图片/@成员/qq号/回复有图片的消息}` 即可\n发送 `/色卡 -h` 查看帮助",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["色卡", "color_card"]
+}

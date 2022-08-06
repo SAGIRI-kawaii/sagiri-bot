@@ -1,0 +1,13 @@
+{
+  "name": "AbbreviatedPrediction",
+  "version": "0.1",
+  "display_name": "缩写预测",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个获取英文缩写意思的插件",
+  "usage": "在群中发送 `缩 内容` 即可",
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["缩", "缩写"]
+}

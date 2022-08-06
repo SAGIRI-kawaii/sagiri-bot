@@ -1,0 +1,13 @@
+{
+  "name": "EncoderDecoder",
+  "version": "0.1",
+  "display_name": "编码解码器",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以编码解码的插件",
+  "usage": "在群中发送 `encode {code} {content/回复消息}` 可以进行编码\n在群中发送 `decode {code} {content/回复消息}` 可以进行编码",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

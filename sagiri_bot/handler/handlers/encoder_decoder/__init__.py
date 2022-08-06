@@ -6,17 +6,24 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
-from graia.ariadne.message.element import Source, Quote, At, Xml
+from graia.ariadne.message.element import Source, Quote, At
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, ElementMatch, WildcardMatch, RegexResult, SpacePolicy
+from graia.ariadne.message.parser.twilight import (
+    RegexMatch,
+    FullMatch,
+    ElementMatch,
+    WildcardMatch,
+    RegexResult,
+    SpacePolicy
+)
 
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
 
-channel.name("EncoderDecoder 编码解码器")
+channel.name("EncoderDecoder")
 channel.author("SAGIRI-kawaii")
 channel.description("一个可以编码解码的插件")
 
@@ -173,7 +180,9 @@ async def decoder(
         return await app.send_group_message(
             group,
             MessageChain(
-                f"目前暂支持 {'、'.join([f'<{i}>' for i in SPECIAL_TYPE.keys() if SPECIAL_TYPE[i].get('decode')])} 的 decode方法！"),
+                f"目前暂支持 {'、'.join([f'<{i}>' for i in SPECIAL_TYPE.keys() if SPECIAL_TYPE[i].get('decode')])} "
+                f"的 decode方法！"
+            ),
             quote=source
         )
 

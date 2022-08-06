@@ -1,0 +1,13 @@
+{
+  "name": "FakeForward",
+  "version": "0.1",
+  "display_name": "伪造转发",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个生成转发消息的插件",
+  "usage": "在群中发送 '/fake [@目标] [内容]' 即可",
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["fake"]
+}

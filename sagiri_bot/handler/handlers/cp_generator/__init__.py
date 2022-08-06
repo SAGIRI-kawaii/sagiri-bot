@@ -9,8 +9,9 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -18,7 +19,7 @@ channel = Channel.current()
 
 channel.name("CPGenerator")
 channel.author("SAGIRI-kawaii")
-channel.description("生成CP文的插件，在群中发送 `/cp {攻名字} {受名字}`")
+channel.description("生成CP文的插件，在群中发送 `/cp {攻名字} {受名字}` 即可")
 
 with open(f"{os.getcwd()}/statics/cp_data.json", "r", encoding="utf-8") as r:
     cp_data = json.loads(r.read())
@@ -28,7 +29,10 @@ with open(f"{os.getcwd()}/statics/cp_data.json", "r", encoding="utf-8") as r:
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([FullMatch("/cp"), RegexMatch(r"[^\s]+") @ "attack", RegexMatch(r"[^\s]+") @ "defence"])
+            Twilight([
+                get_command(__file__, channel.module),
+                RegexMatch(r"[^\s]+") @ "attack", RegexMatch(r"[^\s]+") @ "defence"
+            ])
         ],
         decorators=[
             FrequencyLimit.require("cp_generator", 1),
@@ -38,9 +42,9 @@ with open(f"{os.getcwd()}/statics/cp_data.json", "r", encoding="utf-8") as r:
         ]
     )
 )
-async def cp_generator(app: Ariadne, message: MessageChain, group: Group, attack: RegexResult, defence: RegexResult):
+async def cp_generator(app: Ariadne, group: Group, source: Source, attack: RegexResult, defence: RegexResult):
     attack = attack.result.display
     defence = defence.result.display
     template = random.choice(cp_data["data"])
     content = template.replace("<攻>", attack).replace("<受>", defence)
-    await app.send_group_message(group, MessageChain(content), quote=message.get_first(Source))
+    await app.send_group_message(group, MessageChain(content), quote=source)

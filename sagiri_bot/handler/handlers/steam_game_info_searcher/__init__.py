@@ -5,13 +5,14 @@ from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.parser.twilight import Twilight, SpacePolicy
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, WildcardMatch, RegexResult
+from graia.ariadne.message.parser.twilight import Twilight, SpacePolicy
+from graia.ariadne.message.parser.twilight import WildcardMatch, RegexResult
 
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -30,7 +31,7 @@ proxy = config.proxy if config.proxy != "proxy" else ""
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("steam").space(SpacePolicy.FORCE),
+                get_command(__file__, channel.module).space(SpacePolicy.FORCE),
                 WildcardMatch().flags(re.DOTALL) @ "keyword",
             ])
         ],

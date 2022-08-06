@@ -1,14 +1,39 @@
 import os
 import yaml
+import json
 from abc import ABC
 from pathlib import Path
 from pydantic import BaseModel
-from typing import Type, List, Dict
 from typing_extensions import TypedDict
+from typing import Type, List, Dict, Union
 
 from creart import exists_module
 from creart import add_creator
 from creart.creator import AbstractCreator, CreateTargetInfo
+
+
+class PluginMeta(BaseModel):
+    name: str = ""
+    version: str = "0.1"
+    display_name: str = ""
+    authors: List[str] = []
+    description: str = ""
+    usage: str = ""
+    icon: str = ""
+    prefix: List[str] = []
+    triggers: List[str] = []
+
+
+def load_plugin_meta(path: Union[Path, str]) -> PluginMeta:
+    if isinstance(path, str):
+        path = Path(path)
+    if path.is_file():
+        path = path.parent
+    if (path / "metadata.json").exists():
+        with open(path / "metadata.json", "r", encoding="utf-8") as r:
+            data = json.load(r)
+            return PluginMeta(**data)
+    return PluginMeta()
 
 
 class PluginConfig(TypedDict):

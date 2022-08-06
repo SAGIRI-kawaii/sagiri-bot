@@ -1,0 +1,13 @@
+{
+  "name": "PeroDog",
+  "version": "0.1",
+  "display_name": "舔狗日记",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个获取舔狗日记的插件",
+  "usage": "在群中发送 `舔` 即可",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["舔"]
+}

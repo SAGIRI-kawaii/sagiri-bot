@@ -10,8 +10,9 @@ from graia.ariadne.message.element import Image, Source
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, WildcardMatch, RegexResult
+from graia.ariadne.message.parser.twilight import WildcardMatch, RegexResult
 
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 
@@ -26,7 +27,12 @@ channel.description("一个生成二维码的插件，在群中发送 `qrcode �
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("qrcode"), WildcardMatch().flags(re.DOTALL) @ "content"])],
+        inline_dispatchers=[
+            Twilight([
+                get_command(__file__, channel.module),
+                WildcardMatch().flags(re.DOTALL) @ "content"
+            ])
+        ],
         decorators=[
             FrequencyLimit.require("qrcode_generator", 1),
             Function.require(channel.module, notice=True),

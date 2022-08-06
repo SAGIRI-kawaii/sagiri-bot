@@ -1,0 +1,13 @@
+{
+  "name": "GroupWordCloudGenerator",
+  "version": "0.1",
+  "display_name": "群词云生成器",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "群词云生成器",
+  "usage": "在群中发送 `[我的|本群][日|月|年]内总结` 即可查看个人/群 月/年词云（群词云需要权限等级2）",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

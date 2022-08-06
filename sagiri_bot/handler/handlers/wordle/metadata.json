@@ -1,0 +1,13 @@
+{
+  "name": "Wordle",
+  "version": "0.1",
+  "display_name": "Wordle猜单词",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "wordle猜单词游戏",
+  "usage": "发送 /wordle -h 查看帮助",
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["wordle"]
+}

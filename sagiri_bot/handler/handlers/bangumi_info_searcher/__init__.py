@@ -8,9 +8,10 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import get_command
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
@@ -29,7 +30,7 @@ proxy = create(GlobalConfig).proxy
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("番剧"), RegexMatch(r".+") @ "keyword"])],
+        inline_dispatchers=[Twilight([get_command(__file__, channel.module), RegexMatch(r".+") @ "keyword"])],
         decorators=[
             FrequencyLimit.require("bangumi_info_searcher", 3),
             Function.require(channel.module, notice=True),

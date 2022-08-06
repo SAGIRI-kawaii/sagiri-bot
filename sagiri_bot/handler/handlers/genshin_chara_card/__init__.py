@@ -11,10 +11,11 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
 from utils.browser import get_browser
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -35,7 +36,7 @@ characters = {}
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("/原神角色卡"),
+                get_command(__file__, channel.module),
                 RegexMatch(r"[12][0-9]{8}") @ "uid",
                 RegexMatch(r".*") @ "chara"
             ])

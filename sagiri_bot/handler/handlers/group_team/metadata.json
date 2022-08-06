@@ -1,0 +1,13 @@
+{
+  "name": "GroupTeam",
+  "version": "0.1",
+  "display_name": "群小组",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以将群内组员分为小组进行呼叫的插件",
+  "usage": "发送 `群小组/group_team 添加分组/创建分组/create <小组名> <@要添加的组员>` 即可创建分组\n发送 `群小组/group_team 删除分组/解散分组/delete <小组名>` 即可删除分组\n发送 `群小组/group_team 添加成员/add <小组名> <@要添加的组员>` 即可在分组中添加成员\n发送 `群小组/group_team 移除成员/删除成员/remove <小组名> <@要移除的组员>` 即可在分组中移除成员\n发送 `群小组/group_team 通知/呼叫/notice/call <小组名> <要发送的信息>` 即可对小组内成员发送消息\n发送 `群小组/group_team 列出/显示/列表/show/list` 即可查看所在群组中所有小组\n发送 `群小组/group_team 列出/显示/列表/show/list <小组名>` 即可查看小组内组员",
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["group_team", "群小组"]
+}

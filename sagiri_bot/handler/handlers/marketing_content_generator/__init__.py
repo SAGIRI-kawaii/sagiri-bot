@@ -7,6 +7,7 @@ from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, RegexResult
 
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -22,7 +23,8 @@ channel.description("一个营销号内容生成器插件，在群中发送 `营
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("营销号#"),
+                get_command(__file__, channel.module),
+                FullMatch("#"),
                 RegexMatch(r"[^\s]+") @ "somebody", FullMatch("#"),
                 RegexMatch(r"[^\s]+") @ "something", FullMatch("#"),
                 RegexMatch(r"[^\s]+") @ "other_word"

@@ -6,10 +6,10 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
-from graia.ariadne.message.parser.twilight import RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -25,7 +25,7 @@ config = create(GlobalConfig)
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([RegexMatch(r"(鸡汤|毒鸡汤|来碗鸡汤)$")])],
+        inline_dispatchers=[Twilight([get_command(__file__, channel.module)])],
         decorators=[
             FrequencyLimit.require("poisonous_chicken_soup", 1),
             Function.require(channel.module, notice=True),

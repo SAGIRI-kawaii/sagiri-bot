@@ -14,10 +14,11 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Plain, Image, At, Source
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import UnionMatch, RegexMatch, ElementMatch, ElementResult
+from graia.ariadne.message.parser.twilight import RegexMatch, ElementMatch, ElementResult
 
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.orm.async_orm import Setting
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.internal_utils import MessageChainUtils
 from sagiri_bot.internal_utils import group_setting, sec_to_str
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
@@ -40,7 +41,7 @@ proxy = create(GlobalConfig).proxy
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                UnionMatch("搜番", "识番", "以图搜番"),
+                get_command(__file__, channel.module),
                 RegexMatch(r"[\s]+", optional=True),
                 ElementMatch(Image, optional=True) @ "image"
             ])

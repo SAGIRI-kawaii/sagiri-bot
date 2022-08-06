@@ -1,0 +1,13 @@
+{
+  "name": "FlashImageCatcher",
+  "version": "0.1",
+  "display_name": "闪照转换",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "闪照转换插件",
+  "usage": "发送闪照自动转换",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

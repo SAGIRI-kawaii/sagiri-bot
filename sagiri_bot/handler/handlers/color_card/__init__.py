@@ -21,6 +21,7 @@ from graia.ariadne.event.message import Group, GroupMessage, Member
 from graia.ariadne.message.element import Image, Source, Plain, At, Quote
 from graia.ariadne.message.parser.twilight import ElementMatch, RegexMatch, ElementResult, RegexResult, ArgumentMatch
 
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 
@@ -42,7 +43,7 @@ inc = InterruptControl(bcc)
         inline_dispatchers=[
             Twilight([
                 ElementMatch(At, optional=True),
-                RegexMatch(r"/?色卡"),
+                get_command(__file__, channel.module),
                 ArgumentMatch("-h", "-help", optional=True, action="store_true") @ "help",
                 RegexMatch(r"-(s|size)=[0-9]+", optional=True) @ "size",
                 RegexMatch(r"-(m|mode)=\w+", optional=True) @ "mode",

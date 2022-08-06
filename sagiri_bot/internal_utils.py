@@ -15,16 +15,18 @@ from sqlalchemy import select, column
 from PIL import ImageDraw, ImageFont, ImageFilter
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.attributes import InstrumentedAttribute
-from typing import Tuple, Optional, Union, List, Literal, Dict, TypedDict
+from typing import Tuple, Optional, Union, List, Literal, Dict
 
 from creart import create
 from graia.ariadne.app import Ariadne
 from graia.ariadne.exception import AccountMuted
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.message.parser.twilight import UnionMatch
 from graia.ariadne.event.message import Group, Member, Friend
 
 from sagiri_bot.orm.async_orm import orm
+from sagiri_bot.config import load_plugin_meta
 from sagiri_bot.config import GlobalConfig, PluginConfig
 from sagiri_bot.orm.async_orm import Setting, UserPermission, UserCalledCount, FunctionCalledRecord
 
@@ -1141,3 +1143,13 @@ def get_command_match(prefix: List[str], alias: List[str]) -> List[str]:
         for a in alias:
             result.append(p + a)
     return result
+
+
+def get_command(path: Union[Path, str], module: str) -> UnionMatch:
+    plugin_meta = load_plugin_meta(path)
+    plugin_config = get_plugin_config(module)
+    prefix = plugin_config.get("prefix")
+    alias = plugin_config.get("alias")
+    prefix = list(set(prefix + plugin_meta.prefix))
+    alias = list(set(alias + plugin_meta.triggers))
+    return UnionMatch(*get_command_match(prefix, alias))

@@ -1,0 +1,13 @@
+{
+  "name": "PoisonousChickenSoup",
+  "version": "0.1",
+  "display_name": "毒鸡汤",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个获取毒鸡汤的插件",
+  "usage": "在群中发送 `[鸡汤|毒鸡汤|来碗鸡汤|来碗毒鸡汤]` 即可",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["毒鸡汤", "来碗鸡汤", "来碗毒鸡汤", "鸡汤"]
+}

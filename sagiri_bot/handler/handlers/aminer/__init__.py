@@ -11,9 +11,10 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import Source, Forward, ForwardNode, Plain, Image
-from graia.ariadne.message.parser.twilight import FullMatch, RegexResult, ArgumentMatch, WildcardMatch, ArgResult
+from graia.ariadne.message.parser.twilight import RegexResult, ArgumentMatch, WildcardMatch, ArgResult
 
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import get_command
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
@@ -33,7 +34,7 @@ config = create(GlobalConfig)
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("/aminer"),
+                get_command(__file__, channel.module),
                 ArgumentMatch("-person", action="store_true", optional=True) @ "person",
                 ArgumentMatch("-article", "-a", "-paper", action="store_true", optional=True) @ "article",
                 ArgumentMatch("-patent", action="store_true", optional=True) @ "patent",

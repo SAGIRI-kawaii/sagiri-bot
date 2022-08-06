@@ -1,0 +1,14 @@
+{
+  "name": "Memes",
+  "version": "0.1",
+  "display_name": "趣味表情包",
+  "authors": [
+    "SAGIRI-kawaii",
+    "from: MeetWq"
+  ],
+  "description": "一个生成趣味表情包的插件",
+  "usage": "在群中发送 `(nokia|鲁迅说|狂粉|狂爱|喜报|记仇|低语|别说了|一巴掌|滚屏) {content}` 即可\n在群中发送 `(王境泽|谁反对|曾小贤|连连看|食屎啦你|五年怎么过的)` {content1} {content2} {content3} {content4} 即可\n在群中发送 `(馋身子|压力大爷|你好骚啊) {content1} {content2} {content3}`   即可\n在群中发送 `切格瓦拉 {content} * 6` 即可\n在群中发送 `为所欲为 {content} * 9` 即可",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

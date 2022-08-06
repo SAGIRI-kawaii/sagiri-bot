@@ -24,7 +24,7 @@ loop = bcc.loop
 channel.name("GenshinResourcePoints")
 channel.author("SAGIRI-kawaii")
 channel.description(
-    "一个获取原神资源的插件\n"
+    "一个获取原神资源点的插件\n"
     "在群中发送 `{resource_name} 在哪里? | 哪里?有 {resource_name}` 即可查看资源地图\n"
     "在群中发送 `原神资源列表` 即可查看资源列表"
 )

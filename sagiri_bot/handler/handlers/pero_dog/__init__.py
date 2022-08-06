@@ -4,10 +4,10 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
-from graia.ariadne.message.parser.twilight import FullMatch
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
+from sagiri_bot.internal_utils import get_command
 from statics.pero_dog_contents import pero_dog_contents
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
@@ -22,7 +22,7 @@ channel.description("一个获取舔狗日记的插件，在群中发送 `舔` �
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("舔")])],
+        inline_dispatchers=[Twilight([get_command(__file__, channel.module)])],
         decorators=[
             FrequencyLimit.require("pero_dog", 1),
             Function.require(channel.module, notice=True),

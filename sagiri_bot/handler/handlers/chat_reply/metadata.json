@@ -1,0 +1,13 @@
+{
+  "name": "ChatReply",
+  "version": "0.1",
+  "display_name": "智能回复",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以实现智能回复的插件",
+  "usage": "在群中发送 `@bot + 想说的话` 即可",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

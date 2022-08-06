@@ -1,0 +1,13 @@
+{
+  "name": "WolframAlpha",
+  "version": "0.1",
+  "display_name": "WolframAlpha科学计算",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个接入WolframAlpha的插件",
+  "usage": "在群中发送 `/solve {content}` 即可",
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["solve"]
+}

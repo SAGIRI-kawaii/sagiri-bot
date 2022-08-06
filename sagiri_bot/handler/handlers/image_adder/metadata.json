@@ -1,0 +1,13 @@
+{
+  "name": "ImageAdder",
+  "version": "0.1",
+  "display_name": "图片保存（至图库）",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个能够在图库中添加图片的插件",
+  "usage": "在群中发送 `添加(图库名)图片([图片])+` 即可",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

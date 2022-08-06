@@ -1,0 +1,13 @@
+{
+  "name": "RandomWife",
+  "version": "0.1",
+  "display_name": "随机老婆",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "生成随机老婆图片的插件",
+  "usage": "在群中发送 `[来个老婆|随机老婆]` 即可",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["来个老婆", "随机老婆"]
+}

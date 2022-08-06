@@ -12,9 +12,10 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, RegexMatch, RegexResult, ArgResult
+from graia.ariadne.message.parser.twilight import ArgumentMatch, RegexMatch, RegexResult, ArgResult
 
 from .wordle import Wordle, word_list, word_dics
+from sagiri_bot.internal_utils import get_command
 from .utils import update_member_statistic, StatisticType, get_member_statistic
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
@@ -67,7 +68,7 @@ class WordleWaiter(Waiter.create([GroupMessage])):
             if message.display.strip() in ("/wordle -giveup", "/wordle -g"):
                 dic = group_word_dic[group.id]
                 word_data = word_list[dic][len(self.wordle.word)][self.wordle.word]
-                explain = '\n'.join([f"【{key}】：{word_data[key]}" for key in word_data])
+                explain = '\n'.join(f"【{key}】：{word_data[key]}" for key in word_data)
                 await app.send_group_message(
                     group,
                     MessageChain([
@@ -125,7 +126,7 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     self.member_list_mutex.release()
                     dic = group_word_dic[group.id]
                     word_data = word_list[dic][len(self.wordle.word)][self.wordle.word]
-                    explain = '\n'.join([f"【{key}】：{word_data[key]}" for key in word_data])
+                    explain = '\n'.join(f"【{key}】：{word_data[key]}" for key in word_data)
                     await app.send_group_message(
                         group,
                         MessageChain([
@@ -160,7 +161,7 @@ class WordleWaiter(Waiter.create([GroupMessage])):
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("/wordle"),
+                get_command(__file__, channel.module),
                 ArgumentMatch("-single", action="store_true", optional=True) @ "single_game",
                 ArgumentMatch("-group", action="store_true", optional=True) @ "group_game",
                 RegexMatch(r"-(l|length)=[0-9]+", optional=True) @ "length",

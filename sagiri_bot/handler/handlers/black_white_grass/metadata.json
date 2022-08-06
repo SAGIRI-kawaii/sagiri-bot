@@ -1,0 +1,13 @@
+{
+  "name": "BWGrass",
+  "version": "0.1",
+  "display_name": "黑白草图",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个生成黑白草图的插件",
+  "usage": "在群中发送 `黑白[草]图 内容 图片` 即可",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["黑白图", "黑白草图"]
+}

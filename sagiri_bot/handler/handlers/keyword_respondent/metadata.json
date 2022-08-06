@@ -1,0 +1,13 @@
+{
+  "name": "KeywordRespondent",
+  "version": "0.1",
+  "display_name": "关键字回复",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个关键字回复插件",
+  "usage": "在群中发送已添加关键词可自动回复\n在群中发送 `添加回复关键词#{keyword}#{reply}` 可添加关键词\n在群中发送 `删除回复关键词#{keyword}` 可删除关键词",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

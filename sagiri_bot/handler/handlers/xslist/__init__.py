@@ -6,7 +6,6 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import (
-    FullMatch,
     WildcardMatch,
     RegexResult,
     ElementMatch,
@@ -15,6 +14,7 @@ from graia.ariadne.message.parser.twilight import (
 )
 
 from .xslist import search
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -30,7 +30,7 @@ channel.description("一个查老师的插件，发送 `/查老师 {作品名/�
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("/查老师"), RegexMatch(r"[\s]+", optional=True),
+                get_command(__file__, channel.module), RegexMatch(r"[\s]+", optional=True),
                 ElementMatch(Image, optional=True) @ "image",
                 WildcardMatch(optional=True) @ "keyword"
             ])

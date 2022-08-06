@@ -1,0 +1,13 @@
+{
+  "name": "RandomCharacter",
+  "version": "0.1",
+  "display_name": "随机人设",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "随机生成人设插件",
+  "usage": "在群中发送 `随机人设` 即可",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["随机人设"]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "GenshinMaterialRemind",
+  "version": "0.1",
+  "display_name": "原神每日素材",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以查询原神每日可获取素材的插件",
+  "usage": "在群中发送 `原神今日素材` 即可",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["原神今日素材"]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "BiliBiliBangumiScheduler",
+  "version": "0.1",
+  "display_name": "B站新番时间表",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以获取BiliBili7日内新番时间表的插件",
+  "usage": "在群内发送 `[1-7]日内新番` 即可",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

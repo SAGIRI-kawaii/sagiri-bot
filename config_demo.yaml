@@ -20,7 +20,7 @@ image_path:
 # 个性化设置
 commands:
   default:
-    prefix: /
+    prefix: []
     alias: []
 
 # 功能相关

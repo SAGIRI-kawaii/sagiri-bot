@@ -8,8 +8,9 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, RegexResult, RegexMatch, ArgResult
+from graia.ariadne.message.parser.twilight import ArgumentMatch, RegexResult, RegexMatch, ArgResult
 
+from sagiri_bot.internal_utils import get_command
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
@@ -27,7 +28,7 @@ channel.description("可以搜索Github项目信息的插件，在群中发送 `
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("/github"),
+                get_command(__file__, channel.module),
                 ArgumentMatch("-i", "-image", action="store_true", optional=True) @ "image",
                 RegexMatch(r"[^\s]+") @ "keyword"
             ])

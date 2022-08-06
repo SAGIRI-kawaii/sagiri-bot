@@ -27,6 +27,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import FullMatch, ElementMatch, ElementResult, RegexResult
 
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
@@ -49,7 +50,7 @@ processing = False
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("/超分"),
+                get_command(__file__, channel.module),
                 FullMatch("-resize", optional=True) @ "resize",
                 FullMatch("\n", optional=True) @ "enter",
                 ElementMatch(Image, optional=True) @ "image"

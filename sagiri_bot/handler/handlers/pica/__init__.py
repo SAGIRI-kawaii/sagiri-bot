@@ -14,10 +14,11 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import RegexResult, ArgResult
 from graia.ariadne.message.element import ForwardNode, Image, Plain, Forward, Source
-from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, UnionMatch, ArgumentMatch
+from graia.ariadne.message.parser.twilight import RegexMatch, UnionMatch, ArgumentMatch
 
 from .Pica import pica
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import get_command
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
 from utils.daily_number_limiter import DailyNumberLimiter
@@ -70,7 +71,7 @@ limit_text = {
         listening_events=[GroupMessage],
         inline_dispatchers=[
             Twilight([
-                FullMatch("pica"),
+                get_command(__file__, channel.module),
                 UnionMatch("download", "search", "random", "rank", "init") @ "operation",
                 ArgumentMatch("-forward", action="store_true", optional=True) @ "forward_type",
                 ArgumentMatch("-message", action="store_true", optional=True) @ "message_type",

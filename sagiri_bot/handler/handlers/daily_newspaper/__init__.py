@@ -18,8 +18,8 @@ from graia.ariadne.event.message import FriendMessage, GroupMessage
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch
 
 from sagiri_bot.config import GlobalConfig
-from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
+from sagiri_bot.internal_utils import group_setting, get_command
 
 saya = Saya.current()
 channel = Channel.current()
@@ -54,7 +54,7 @@ async def main(app: Ariadne, friend: Friend):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("今日早报")])]
+        inline_dispatchers=[Twilight([get_command(__file__, channel.module)])]
     )
 )
 async def main(app: Ariadne, group: Group):

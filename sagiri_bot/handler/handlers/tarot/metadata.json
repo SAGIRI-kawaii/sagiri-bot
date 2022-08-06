@@ -1,0 +1,13 @@
+{
+  "name": "Tarot",
+  "version": "0.1",
+  "display_name": "塔罗牌",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "可以抽塔罗牌的插件",
+  "usage": "在群中发送 `塔罗牌` 即可",
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["塔罗牌"]
+}
