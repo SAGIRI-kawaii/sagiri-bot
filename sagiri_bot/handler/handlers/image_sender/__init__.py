@@ -86,7 +86,7 @@ async def db_init():
     ListenerSchema(
         listening_events=[GroupMessage],
         decorators=[
-            Function.require(channel.module)
+            Function.require(channel.module, log=False, notice=False)
         ]
     )
 )

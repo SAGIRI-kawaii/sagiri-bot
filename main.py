@@ -15,7 +15,7 @@ from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Str
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.internal_utils import online_notice
-from sagiri_bot.core.api_server.app import run_api_server, set_log
+from sagiri_bot.core.api_server.app import run_api_server
 
 config = create(GlobalConfig)
 core = AppCore(config)
@@ -82,13 +82,13 @@ async def stranger_message_listener(stranger: Stranger, message: MessageChain):
 
 
 @bcc.receiver("ActiveGroupMessage")
-async def send_group_message_handler(event: ActiveGroupMessage):
+async def active_group_message_handler(event: ActiveGroupMessage):
     message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
     logger.info(f"成功向群 <{event.subject.name.strip()}> 发送消息：{message_text_log}")
 
 
 @bcc.receiver("ActiveFriendMessage")
-async def send_group_message_handler(event: ActiveFriendMessage):
+async def active_friend_message_handler(event: ActiveFriendMessage):
     message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
     logger.info(f"成功向好友 <{event.subject.nickname.strip()}> 发送消息：{message_text_log}")
 

@@ -4,13 +4,12 @@ import numpy
 import random
 import aiohttp
 import imageio
-import hashlib
 from io import BytesIO
 from typing import Union
 from PIL import Image as IMG
-from moviepy.editor import ImageSequenceClip
 from PIL import ImageDraw, ImageFilter, ImageOps
 
+from graia.ariadne import Ariadne
 from graia.saya import Saya, Channel
 from graia.ariadne.message.element import At, Image
 from graia.ariadne.message.chain import MessageChain
@@ -73,6 +72,7 @@ channel.description("一个可以生成头像相关趣味图的插件，在群�
     ]
 ))
 async def avatar_fun_pic(
+    app: Ariadne,
     message: MessageChain,
     group: Group,
     member: Member,
@@ -84,7 +84,7 @@ async def avatar_fun_pic(
     img2: ElementResult
 ):
     if not any([at1.matched, at2.matched, qq1.matched, qq2.matched, img1.matched, img2.matched]):
-        return None
+        return
     await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
     message_text = message.display
     match_elements = get_match_element(message)
@@ -92,103 +92,163 @@ async def avatar_fun_pic(
         if len(match_elements) >= 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element = match_elements[0]
-            return await petpet(element.target if isinstance(element, At) else element.url)
+            return await app.send_group_message(
+                group,
+                await petpet(element.target if isinstance(element, At) else element.url)
+            )
         elif re.match(r"摸 [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await petpet(int(message_text[2:]))
+            return await app.send_group_message(
+                group,
+                await petpet(int(message_text[2:]))
+            )
 
     elif message_text.startswith("亲"):
         if len(match_elements) == 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element = match_elements[0]
-            return await kiss(
-                member.id,
-                element.target if isinstance(element, At) else element.url
+            return await app.send_group_message(
+                group,
+                await kiss(
+                    member.id,
+                    element.target if isinstance(element, At) else element.url
+                )
             )
         elif len(match_elements) > 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element1 = match_elements[0]
             element2 = match_elements[1]
-            return await kiss(
-                element1.target if isinstance(element1, At) else element1.url,
-                element2.target if isinstance(element2, At) else element2.url
+            return await app.send_group_message(
+                group,
+                await kiss(
+                    element1.target if isinstance(element1, At) else element1.url,
+                    element2.target if isinstance(element2, At) else element2.url
+                )
             )
         elif re.match(r"亲 [0-9]+ [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             operator, target = message_text[2:].split(" ")
-            return await kiss(int(operator), int(target))
+            return await app.send_group_message(
+                group,
+                await kiss(int(operator), int(target))
+            )
         elif re.match(r"亲 [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await kiss(member.id, int(message_text[2:]))
+            return await app.send_group_message(
+                group,
+                await kiss(member.id, int(message_text[2:]))
+            )
 
     elif message_text.startswith("贴"):
         if len(match_elements) == 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element = match_elements[0]
-            return await rub(
-                member.id,
-                element.target if isinstance(element, At) else element.url
+            return await app.send_group_message(
+                group,
+                await rub(
+                    member.id,
+                    element.target if isinstance(element, At) else element.url
+                )
             )
         elif len(match_elements) > 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element1 = match_elements[0]
             element2 = match_elements[1]
-            return await rub(
-                element1.target if isinstance(element1, At) else element1.url,
-                element2.target if isinstance(element2, At) else element2.url
+            return await app.send_group_message(
+                group,
+                await rub(
+                    element1.target if isinstance(element1, At) else element1.url,
+                    element2.target if isinstance(element2, At) else element2.url
+                )
             )
         elif re.match(r"贴 [0-9]+ [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             operator, target = message_text[2:].split(" ")
-            return await rub(int(operator), int(target))
+            return await app.send_group_message(
+                group,
+                await rub(int(operator), int(target))
+            )
         elif re.match(r"贴 [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await rub(member.id, int(message_text[2:]))
+            return await app.send_group_message(
+                group,
+                await rub(member.id, int(message_text[2:]))
+            )
 
     elif message_text.startswith("撕"):
         if len(match_elements) >= 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element = match_elements[0]
-            return await ripped(element.target if isinstance(element, At) else element.url)
+            return await app.send_group_message(
+                group,
+                await ripped(element.target if isinstance(element, At) else element.url)
+            )
         elif re.match(r"撕 [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await ripped(int(message_text[2:]))
+            return await app.send_group_message(
+                group,
+                await ripped(int(message_text[2:]))
+            )
 
     elif message_text.startswith("丢"):
         if len(match_elements) >= 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element = match_elements[0]
-            return await throw(element.target if isinstance(element, At) else element.url)
+            return await app.send_group_message(
+                group,
+                await throw(element.target if isinstance(element, At) else element.url)
+            )
         elif re.match(r"丢 [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await throw(int(message_text[2:]))
+            return await app.send_group_message(
+                group,
+                await throw(int(message_text[2:]))
+            )
 
     elif message_text.startswith("爬"):
         if len(match_elements) >= 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element = match_elements[0]
-            return await crawl(element.target if isinstance(element, At) else element.url)
+            return await app.send_group_message(
+                group,
+                await crawl(element.target if isinstance(element, At) else element.url)
+            )
         elif re.match(r"爬 [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await crawl(int(message_text[2:]))
+            return await app.send_group_message(
+                group,
+                await crawl(int(message_text[2:]))
+            )
 
     elif message_text.startswith("精神支柱"):
         if len(match_elements) >= 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element = match_elements[0]
-            return await support(element.target if isinstance(element, At) else element.url)
+            return await app.send_group_message(
+                group,
+                await support(element.target if isinstance(element, At) else element.url)
+            )
         elif re.match(r"精神支柱 [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await support(int(message_text[5:]))
+            return await app.send_group_message(
+                group,
+                await support(int(message_text[5:]))
+            )
 
     elif message_text.startswith("吞"):
         if len(match_elements) >= 1:
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
             element = match_elements[0]
-            return await swallowed(element.target if isinstance(element, At) else element.url)
+            return await app.send_group_message(
+                group,
+                await swallowed(element.target if isinstance(element, At) else element.url)
+            )
         elif re.match(r"吞 [0-9]+", message_text):
             await update_user_call_count_plus(group, member, UserCalledCount.functions, "functions")
-            return await swallowed(int(message_text[2:]))
+            return await app.send_group_message(
+                group,
+                await swallowed(int(message_text[2:]))
+            )
 
 
 def get_match_element(message: MessageChain) -> list:
@@ -211,7 +271,7 @@ async def get_pil_avatar(image: Union[int, str]):
     return IMG.open(BytesIO(img_content)).convert("RGBA")
 
 
-async def save_gif(gif_frames, dest, fps=10):
+def save_gif(gif_frames, fps=10):
     """生成 gif
     将输入的帧数据合并成视频并输出为 gif
     参数
@@ -225,9 +285,11 @@ async def save_gif(gif_frames, dest, fps=10):
     None
     但是会输出一个符合参数的 gif
     """
-    clip = ImageSequenceClip(gif_frames, fps=fps)
-    clip.write_gif(dest)  # 使用 imageio
-    clip.close()
+    bytes_io = BytesIO()
+    imgs = [IMG.fromarray(frame) for frame in gif_frames]
+    print(1/fps)
+    imgs[0].save(bytes_io, format="GIF", save_all=True, append_images=imgs, duration=1 / (fps / 1000))
+    return bytes_io.getvalue()
 
 
 async def make_frame(avatar, i, squish=0, flip=False):
@@ -293,13 +355,7 @@ async def petpet(image: Union[int, str], flip=False, squish=0, fps=20) -> Messag
 
     if not os.path.exists(f"{os.getcwd()}/statics/temp/"):
         os.mkdir(f"{os.getcwd()}/statics/temp/")
-    md5 = hashlib.md5(str(image).encode("utf-8")).hexdigest()
-    await save_gif(gif_frames, f"{os.getcwd()}/statics/temp/tempPetPet-{md5}.gif", fps=fps)
-
-    with open(f"{os.getcwd()}/statics/temp/tempPetPet-{md5}.gif", "rb") as r:
-        image_bytes = r.read()
-
-    os.remove(f"{os.getcwd()}/statics/temp/tempPetPet-{md5}.gif")
+    image_bytes = save_gif(gif_frames, fps=fps)
 
     return MessageChain([Image(data_bytes=image_bytes)])
 
@@ -346,16 +402,12 @@ async def kiss(operator_image: Union[int, str], target_image: Union[int, str]) -
     alpha.paste(circle, (0, 0))
     target.putalpha(alpha)
 
-    md5 = hashlib.md5(str(str(operator_image) + str(target_image)).encode("utf-8")).hexdigest()
     gif_frames = [
         await kiss_make_frame(operator, target, i)
         for i in range(1, 14)
     ]
 
-    await save_gif(gif_frames, f"{os.getcwd()}/statics/temp/tempKiss-{md5}.gif", fps=25)
-    with open(f"{os.getcwd()}/statics/temp/tempKiss-{md5}.gif", 'rb') as r:
-        img_content = r.read()
-    os.remove(f"{os.getcwd()}/statics/temp/tempKiss-{md5}.gif")
+    img_content = save_gif(gif_frames, fps=25)
     return MessageChain([Image(data_bytes=img_content)])
 
 
