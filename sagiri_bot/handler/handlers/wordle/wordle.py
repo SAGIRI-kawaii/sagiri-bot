@@ -279,7 +279,7 @@ for key in word_list.keys():
     for length in word_list[key].keys():
         root.insert_many(*[i for i in word_list[key][length].keys()])
 
-with open(Path(os.path.dirname(__file__)) / "words" / f"words.txt", 'r', encoding="utf-8") as r:
+with open(Path(os.path.dirname(__file__)) / "words" / "words.txt", 'r', encoding="utf-8") as r:
     words = r.read().split("\n")
     for word in words:
         root.insert(word.strip())

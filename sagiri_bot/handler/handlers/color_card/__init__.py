@@ -286,8 +286,8 @@ def draw(
         block_width = int(width / color_size)
         canvas = PIL.Image.new("RGBA", (width, height + block_width), "white")
         canvas.paste(image, (0, 0))
-        for i in range(len(colors)):
-            block = PIL.Image.new("RGBA", (block_width, block_width), colors[i])
+        for i, color in enumerate(colors):
+            block = PIL.Image.new("RGBA", (block_width, block_width), color)
             canvas.paste(block, (i * block_width, height))
             if i == len(colors) - 1:
                 canvas.paste(block, ((i + 1) * block_width, height))
