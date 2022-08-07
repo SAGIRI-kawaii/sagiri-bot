@@ -4,18 +4,16 @@ from typing import List, Dict, Optional, Union
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.message.element import Plain, Source
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.element import Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
-from .utils import saya_data, saya_init
+from .utils import saya_data
 from sagiri_bot.internal_utils import MessageChainUtils
 from sagiri_bot.internal_utils import user_permission_require
-
-# saya_init()
 
 saya = Saya.current()
 channel = Channel.current()

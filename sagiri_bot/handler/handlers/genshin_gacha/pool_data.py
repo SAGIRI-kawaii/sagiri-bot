@@ -80,8 +80,7 @@ async def get_arm_id(ch_name):
         if txt is None:
             continue
         txt = re.search('weapon/.+?/\?lang', txt.group()).group()
-        arm_id = txt[7:-6]
-        return arm_id
+        return txt[7:-6]
     raise NameError(f"没有找到武器 {ch_name} 的 ID")
 
 
@@ -198,7 +197,7 @@ async def init_pool_list():
     ARMS_HTML_LIST = None
     POOL.clear()
 
-    logger.info(f"正在更新卡池数据")
+    logger.info("正在更新卡池数据")
     data = await get_url_data(POOL_API)
     data = json.loads(data.decode("utf-8"))
     for d in data["data"]["list"]:

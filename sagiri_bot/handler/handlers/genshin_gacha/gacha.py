@@ -130,36 +130,38 @@ class Gacha(object):
 
     def update_last(self, name):
         # 这个方法用来更新第一次抽到4星或5星或UP的计数
-        if not self.last_4_up:
-            if name in POOL[self.pool]['4_star_UP']:
-                self.last_4_up = self.current_times + 1
+        if not self.last_4_up and name in POOL[self.pool]['4_star_UP']:
+            self.last_4_up = self.current_times + 1
 
-        if not self.last_5_up:
-            if name in POOL[self.pool]['5_star_UP']:
-                self.last_5_up = self.current_times + 1
+        if not self.last_5_up and name in POOL[self.pool]['5_star_UP']:
+            self.last_5_up = self.current_times + 1
 
-        if not self.last_4:
-            if (name in POOL[self.pool]['4_star_not_UP']) or (name in POOL[self.pool]['4_star_UP']):
-                self.last_4 = self.current_times + 1
+        if not self.last_4 and (
+            (name in POOL[self.pool]['4_star_not_UP'])
+            or (name in POOL[self.pool]['4_star_UP'])
+        ):
+            self.last_4 = self.current_times + 1
 
-        if not self.last_5:
-            if (name in POOL[self.pool]['5_star_not_UP']) or (name in POOL[self.pool]['5_star_UP']):
-                self.last_5 = self.current_times + 1
+        if not self.last_5 and (
+            (name in POOL[self.pool]['5_star_not_UP'])
+            or (name in POOL[self.pool]['5_star_UP'])
+        ):
+            self.last_5 = self.current_times + 1
 
     def is_guaranteed(self, frequency):
         # 检查本轮抽卡是不是全保底
-        if frequency == 90:
-            if self.gacha_rarity_statistics['5星'] == 1 and self.gacha_rarity_statistics['4星'] == 8:
-                return True
         if frequency == 180:
             if self.gacha_rarity_statistics['5星'] == 2 and self.gacha_rarity_statistics['4星'] == 16:
+                return True
+        elif frequency == 90:
+            if self.gacha_rarity_statistics['5星'] == 1 and self.gacha_rarity_statistics['4星'] == 8:
                 return True
         return False
 
     def get_most_arms(self):
         # 返回抽出的武器抽出最多的是哪个，抽出了多少次
         if not self.gacha_all_statistics:
-            raise KeyError(f"字典 self.gacha_all_statistics 是空的")
+            raise KeyError("字典 self.gacha_all_statistics 是空的")
         most_value = max(self.gacha_all_statistics.values())
         for key, value in self.gacha_all_statistics.items():
             if most_value == value:

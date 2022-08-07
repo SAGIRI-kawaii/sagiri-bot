@@ -109,11 +109,7 @@ async def super_resolution(
     await mutex.acquire()
     processing = True
     mutex.release()
-    await app.send_message(
-        group,
-        MessageChain([Plain(text="已收到图片，启动处理进程")]),
-        quote=message[Source][0]
-    )
+    await app.send_message(group, MessageChain("已收到图片，启动处理进程"), quote=source)
     try:
         await app.send_group_message(
             group,
@@ -197,6 +193,6 @@ async def do_super_resolution(image_data: bytes, resize: bool = False, is_gif: b
     del upsampler
     return MessageChain([
         Plain(text=f"超分完成！处理用时：{use_time}s\n"),
-        Plain(text=f"由于像素过大，图片已进行缩放，结果可能不如原图片清晰\n" if resize else ""),
+        Plain(text="由于像素过大，图片已进行缩放，结果可能不如原图片清晰\n" if resize else ""),
         Image(data_bytes=result.getvalue())
     ])

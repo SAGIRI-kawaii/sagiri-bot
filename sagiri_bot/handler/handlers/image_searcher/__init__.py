@@ -11,7 +11,7 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.element import Source, Image, Forward, ForwardNode
-from graia.ariadne.message.parser.twilight import UnionMatch, RegexMatch, ElementMatch, ElementResult
+from graia.ariadne.message.parser.twilight import RegexMatch, ElementMatch, ElementResult
 
 from .baidu import baidu_search
 from .google import google_search

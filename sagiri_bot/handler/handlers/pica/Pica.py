@@ -113,8 +113,7 @@ class Pica:
     def HashKey(src, key):
         app_secret = key.encode('utf-8')  # 秘钥
         data = src.lower().encode('utf-8')  # 数据
-        signature = hmac.new(app_secret, data, digestmod=sha256).hexdigest()
-        return signature
+        return hmac.new(app_secret, data, digestmod=sha256).hexdigest()
 
     async def login(self):
         """ 登录获取token """
@@ -140,10 +139,10 @@ class Pica:
         """ 关键词搜索 """
         api = global_url + "comics/search?page={0}" + "&q={0}".format(parse.quote(keyword))
         url = api.format(1)
-        temp_header = self.update_signature(url, "GET")
+        # temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
-            async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
-                __pages = (await resp.json())["data"]["comics"]["pages"]
+            # async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
+            #     __pages = (await resp.json())["data"]["comics"]["pages"]
             _return = []
             for _ in range(1, 3):
                 url = api.format(_)

@@ -36,3 +36,5 @@ scipy
 PicImageSearch
 pypinyin
 creart
+unwind
+chardet

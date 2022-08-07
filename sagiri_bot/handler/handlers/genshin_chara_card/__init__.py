@@ -135,8 +135,8 @@ async def init_chara_list():
     print(characters)
 
 
-async def generate_card(uid: int):
-    url = f"https://enka.shinshin.moe/u/{uid}/__data.json"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
-            result = await resp.json()
+# async def generate_card(uid: int):
+#     url = f"https://enka.shinshin.moe/u/{uid}/__data.json"
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(url) as resp:
+#             result = await resp.json()

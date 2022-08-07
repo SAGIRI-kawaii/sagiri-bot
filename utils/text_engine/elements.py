@@ -102,15 +102,16 @@ class Text(AbstractElement):
         end: Optional[str] = None
     ):
         parameters = {
-            "text": text if text else self.text,
-            "font": font if font else self.font,
-            "color": color if color else self.color,
-            "size": size if size else self.size,
-            "spacing": spacing if spacing else self.spacing,
-            "text_type": text_type if text_type else None,
-            "center": center if center else self.center,
-            "end": end if end else self.end,
+            "text": text or self.text,
+            "font": font or self.font,
+            "color": color or self.color,
+            "size": size or self.size,
+            "spacing": spacing or self.spacing,
+            "text_type": text_type or None,
+            "center": center or self.center,
+            "end": end or self.end,
         }
+
         return Text(**parameters)
 
     def get_canvas_size(self):
