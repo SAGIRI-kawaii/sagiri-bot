@@ -260,6 +260,5 @@ class TextEngine(object):
             else:
                 result.append(text_list[0])
                 text_list.pop(0)
-        else:
-            result.append(text_list[0])
+        result.append(text_list[0])
         return result

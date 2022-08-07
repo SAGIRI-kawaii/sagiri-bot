@@ -92,7 +92,7 @@ def centered_text(img: BuildImage, text: str, add_h: int):
 
 
 async def get_translate(msg: str) -> str:
-    url = f"http://fanyi.youdao.com/translate?smartresult=dict&smartresult=rule&smartresult=ugc&sessionFrom=null"
+    url = "http://fanyi.youdao.com/translate?smartresult=dict&smartresult=rule&smartresult=ugc&sessionFrom=null"
     data = {
         "type": "ZH_CN2JA",
         "i": msg,

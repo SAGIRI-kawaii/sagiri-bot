@@ -114,7 +114,7 @@ async def aminer(
                             Plain(f"被引用数：{person.get('ncitation', '无数据')}\n"),
                             Plain(bio),
                             Plain(f"\n教育经历：\n{edu}"),
-                            Plain(f"\n工作（经历/职位）：\n"),
+                            Plain("\n工作（经历/职位）：\n"),
                             Plain(work),
                             Plain("\n邮箱：\n"),
                             Plain(person['contact'].get('email', '无数据').replace(';', '\n'))

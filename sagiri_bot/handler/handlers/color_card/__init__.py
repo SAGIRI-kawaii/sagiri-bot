@@ -30,7 +30,10 @@ channel = Channel.current()
 
 channel.name("ColorCard")
 channel.author("SAGIRI-kawaii")
-channel.description("一个获取图片色卡的插件，在群中发送 `/色卡 -s={size} -m={mode} -t {图片/@成员/qq号/回复有图片的消息}` 即可，发送 `/色卡 -h` 查看帮助")
+channel.description(
+    "一个获取图片色卡的插件，"
+    "在群中发送 `/色卡 -s={size} -m={mode} -t {图片/@成员/qq号/回复有图片的消息}` 即可，发送 `/色卡 -h` 查看帮助"
+)
 
 loop = create(asyncio.AbstractEventLoop)
 bcc = saya.broadcast
@@ -102,7 +105,7 @@ async def color_card(
         await app.send_group_message(group, MessageChain(f"蛤？size为{size}我还给你什么色卡阿，爪巴巴！"), quote=source)
         return
     elif size > 30:
-        await app.send_group_message(group, MessageChain(f"太多了啦，要溢出了！"), quote=source)
+        await app.send_group_message(group, MessageChain("太多了啦，要溢出了！"), quote=source)
         return
     if mode.matched:
         mode = mode.result.display.split('=')[1].strip().lower()
@@ -273,8 +276,8 @@ def draw(
         height = 100
         width = 100 * len(colors)
         canvas = PIL.Image.new("RGBA", (width, height), (0, 0, 0, 0))
-        for i in range(len(colors)):
-            block = PIL.Image.new("RGB", (100, 100), colors[i])
+        for i, color in enumerate(colors):
+            block = PIL.Image.new("RGB", (100, 100), color)
             canvas.paste(block, (i * 100, 0))
     elif resize:
         raise TypeError("The resize option cannot be used in drawing modes other than CardType.PURE!")

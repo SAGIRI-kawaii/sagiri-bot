@@ -201,8 +201,8 @@ class Wordle(object):
             "white"
         )
         hint = self.get_hint()
-        for i in range(len(hint)):
-            char = hint[i].upper()
+        for i, char in enumerate(hint):
+            char = char.upper()
             block = PIL.Image.new("RGB", (self.block_side_length, self.block_side_length), self.border_color)
             char_block = PIL.Image.new(
                 "RGB", (self.white_side_length, self.white_side_length), self.correct_place if char != '*' else "white")

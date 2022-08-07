@@ -1,17 +1,18 @@
 import os
 import yaml
+from pathlib import Path
 from loguru import logger
 
 from creart import create
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.mirai import *
-from graia.ariadne.message.element import *
 from graia.ariadne.event.message import Group
+from graia.ariadne.message.element import Plain, At
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.exception import AccountMuted, UnknownTarget
 
-from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.orm.async_orm import orm, UserPermission, Setting
 from sagiri_bot.frequency_limit_module import GlobalFrequencyLimitDict
 
@@ -29,9 +30,10 @@ async def member_join_event(app: Ariadne, group: Group, event: MemberJoinEvent):
             event.member.group, MessageChain([
                 At(target=event.member.id),
                 Plain(
-                    event_config["member_join_event"]
-                        .get(str(group.id), event_config["member_join_event"]
-                             .get("default")).replace("\\n", "\n").format(group_name=group.name)
+                    event_config["member_join_event"].get(
+                        str(group.id),
+                        event_config["member_join_event"].get("default")
+                    ).replace("\\n", "\n").format(group_name=group.name)
                 )
             ])
         )
