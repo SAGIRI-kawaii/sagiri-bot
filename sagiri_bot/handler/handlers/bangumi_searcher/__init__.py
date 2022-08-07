@@ -62,19 +62,12 @@ async def bangumi_searcher(app: Ariadne, group: Group, member: Member, source: S
     ):
         if waiter_group.id == group.id and waiter_member.id == member.id:
             if waiter_message.has(Image):
-                return waiter_message.get_first(Image).url
+                return waiter_message.get_first(Image)
             else:
                 return False
 
     if not await group_setting.get_setting(group.id, Setting.bangumi_search):
         return await app.send_group_message(group, MessageChain("搜番功能未开启呐~请联系管理员哦~"))
-    try:
-        await app.send_group_message(group, MessageChain([
-            At(member.id), Plain("请在30秒内发送要搜索的图片呐~")
-        ]))
-    except AccountMuted:
-        logger.error(f"Bot 在群 <{group.name}> 被禁言，无法发送！")
-        return None
 
     if not image.matched:
         try:
@@ -90,9 +83,13 @@ async def bangumi_searcher(app: Ariadne, group: Group, member: Member, source: S
             return await app.send_group_message(
                 group, MessageChain("图片等待超时，进程退出"), quote=source
             )
+        except AccountMuted:
+            logger.error(f"Bot 在群 <{group.name}> 被禁言，无法发送！")
+            return None
     else:
         image = image.result
     logger.success("收到用户图片，启动搜索进程！")
+    await app.send_group_message(group, MessageChain("已收到图片，正在进行搜索..."), quote=source)
     try:
         await app.send_group_message(group, await search_bangumi(image), quote=source)
     except AccountMuted:
