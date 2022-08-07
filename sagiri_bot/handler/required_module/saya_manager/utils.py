@@ -106,8 +106,8 @@ class SayaData:
         permission: Dict[str, Dict[int, int]] = None,
         switch: Dict[str, Dict[str, Dict[str, bool]]] = None
     ):
-        self.permission = permission if permission else {}
-        self.switch = switch if switch else {}
+        self.permission = permission or {}
+        self.switch = switch or {}
 
     def add_group(self, group: Union[Group, int, str]) -> None:
         if isinstance(group, Group):

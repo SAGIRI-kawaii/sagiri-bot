@@ -527,9 +527,9 @@ async def swallowed(image: Union[int, str]) -> MessageChain:
     raw_frames = [IMG.open(i).convert('RGBA') for i in raw_frames]
 
     avatar_frames = []
-    for i in range(len(frame_locs)):
+    for i, frame_loc in enumerate(frame_locs):
         frame = IMG.new('RGBA', (480, 400), (255, 255, 255, 0))
-        x, y, l, w = frame_locs[i]
+        x, y, l, w = frame_loc
         avatar_resized = avatar.resize((l, w), IMG.ANTIALIAS)
         frame.paste(avatar_resized, (x, y))
         img = raw_frames[i]

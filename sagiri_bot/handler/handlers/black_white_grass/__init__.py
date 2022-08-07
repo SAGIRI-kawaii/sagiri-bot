@@ -114,9 +114,9 @@ async def get_translate(msg: str) -> str:
 
 def formalization_msg(msg: str) -> str:
     rst = ""
-    for i in range(len(msg)):
-        rst += msg[i] + " " if is_chinese(msg[i]) else msg[i]
-        if i + 1 < len(msg) and is_chinese(msg[i + 1]) and msg[i].isalpha():
+    for i, char in enumerate(msg):
+        rst += char + " " if is_chinese(char) else char
+        if i + 1 < len(msg) and is_chinese(msg[i + 1]) and char.isalpha():
             rst += " "
     return rst
 

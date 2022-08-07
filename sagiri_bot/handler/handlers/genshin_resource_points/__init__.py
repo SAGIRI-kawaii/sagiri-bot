@@ -49,20 +49,20 @@ channel.description(
 )
 async def genshin_resource_points(
     app: Ariadne,
-    message: MessageChain,
     group: Group,
+    source: Source,
     resource_name: RegexResult
 ):
     resource_name = resource_name.result.display.strip()
     if check_resource_exists(resource_name):
         await get_resource_list()
         await app.send_group_message(group, MessageChain("正在生成位置...."))
-        await app.send_group_message(group, await query_resource(resource_name), quote=message.get_first(Source))
+        await app.send_group_message(group, await query_resource(resource_name), quote=source)
     else:
         await app.send_group_message(
             group,
             MessageChain(f"未查找到 {resource_name} 资源，可通过 “原神资源列表” 获取全部资源名称.."),
-            quote=message.get_first(Source)
+            quote=source
         )
 
 

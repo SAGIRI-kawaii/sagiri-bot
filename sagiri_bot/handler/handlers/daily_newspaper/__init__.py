@@ -57,7 +57,7 @@ async def main(app: Ariadne, friend: Friend):
         inline_dispatchers=[Twilight([get_command(__file__, channel.module)])]
     )
 )
-async def main(app: Ariadne, group: Group):
+async def send(app: Ariadne, group: Group):
     await app.send_message(group, MessageChain([Image(data_bytes=await get_image())]))
 
 

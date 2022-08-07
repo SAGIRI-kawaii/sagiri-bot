@@ -18,7 +18,7 @@ from sagiri_bot.frequency_limit_module import GlobalFrequencyLimitDict
 config = create(GlobalConfig)
 
 with open(str(Path(os.path.dirname(__file__)) / "event_config.yaml"), "r", encoding='utf-8') as f:
-    event_config = yaml.load(f.read(), Loader=yaml.BaseLoader)
+    event_config = yaml.safe_load(f.read())
 
 
 async def member_join_event(app: Ariadne, group: Group, event: MemberJoinEvent):

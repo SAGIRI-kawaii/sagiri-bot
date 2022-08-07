@@ -44,7 +44,7 @@ inc = InterruptControl(bcc)
             Twilight([
                 ElementMatch(At, optional=True),
                 get_command(__file__, channel.module),
-                ArgumentMatch("-h", "-help", optional=True, action="store_true") @ "help",
+                ArgumentMatch("-h", "-help", optional=True, action="store_true") @ "need_help",
                 RegexMatch(r"-(s|size)=[0-9]+", optional=True) @ "size",
                 RegexMatch(r"-(m|mode)=\w+", optional=True) @ "mode",
                 RegexMatch(r"-(t|text)", optional=True) @ "text",
@@ -69,7 +69,7 @@ async def color_card(
     member: Member,
     message: MessageChain,
     source: Source,
-    help: RegexResult,
+    need_help: RegexResult,
     size: RegexResult,
     mode: RegexResult,
     text: RegexResult,
@@ -77,7 +77,7 @@ async def color_card(
     at: ElementResult,
     qq: RegexResult
 ):
-    if help.matched:
+    if need_help.matched:
         await app.send_group_message(
             group,
             MessageChain(
@@ -169,7 +169,10 @@ async def color_card(
             MessageChain([
                 Image(data_bytes=bytes_io.getvalue()),
                 Plain("\n"),
-                Plain("\n".join([f"rgb{str(i).ljust(15, ' ')} #{''.join(hex(i[j]).upper()[2:] for j in range(3))}" for i in result[1]]))
+                Plain("\n".join([
+                    f"rgb{str(i).ljust(15, ' ')} #{''.join(hex(i[j]).upper()[2:] for j in range(3))}"
+                    for i in result[1]
+                ]))
             ]),
             quote=source
         )

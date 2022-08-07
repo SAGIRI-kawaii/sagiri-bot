@@ -1,10 +1,8 @@
 import os
-import sys
 import time
 import threading
 from loguru import logger
 from pydantic import BaseModel
-from typing import Union, Optional
 from asyncio.events import AbstractEventLoop
 from sqlalchemy.exc import InternalError, ProgrammingError
 
@@ -27,7 +25,7 @@ from graia.ariadne.event.message import (
     ActiveGroupMessage,
     ActiveFriendMessage
 )
-from graia.ariadne.model import Group, Friend, LogConfig
+from graia.ariadne.model import LogConfig
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 
 try:
@@ -230,8 +228,3 @@ class AppCore(object):
 
     def load_schedulers(self):
         pass
-
-    @staticmethod
-    def restart(notice_target: Optional[Union[Friend, Group]] = None):
-        print(sys.executable, *sys.argv)
-        os.execv(sys.executable, sys.argv)

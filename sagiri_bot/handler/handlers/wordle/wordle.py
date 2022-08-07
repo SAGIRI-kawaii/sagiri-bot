@@ -169,11 +169,10 @@ class Wordle(object):
         self.current_row += 1
         return self
 
-    def get_color(self, word: str) -> List[Tuple[str, Tuple[int, int, int]]]:
+    def get_color(self, w: str) -> List[Tuple[str, Tuple[int, int, int]]]:
         result = []
         lower_answer = self.word.lower()
-        for i in range(len(word)):
-            char = word[i]
+        for i, char in enumerate(w):
             if char == lower_answer[i]:
                 self.hint_set.add(char)
                 result.append((char, self.correct_place))
@@ -190,7 +189,7 @@ class Wordle(object):
         return bytes_io.getvalue()
 
     def get_hint(self) -> str:
-        return ''.join([i if i in self.hint_set else '*' for i in self.word])
+        return ''.join(i if i in self.hint_set else '*' for i in self.word)
 
     def draw_hint(self) -> bytes:
         hint_canvas = PIL.Image.new(
@@ -219,8 +218,6 @@ class Wordle(object):
         bytes_io = BytesIO()
         hint_canvas.save(bytes_io, format="PNG")
         return bytes_io.getvalue()
-
-    def run(self): ...
 
 
 class TrieNode(object):
@@ -256,13 +253,12 @@ class TrieNode(object):
     def search_lower(self, word: str):
         curr = self
         for char in word:
-            if char not in curr.nodes:
-                if char.upper() not in curr.nodes:
-                    return False
-                else:
-                    curr = curr.nodes[char.upper()]
-            else:
+            if char in curr.nodes:
                 curr = curr.nodes[char]
+            elif char.upper() not in curr.nodes:
+                return False
+            else:
+                curr = curr.nodes[char.upper()]
         return curr.is_leaf
 
 

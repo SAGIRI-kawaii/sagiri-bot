@@ -14,6 +14,7 @@ env = jinja2.Environment(
     extensions=["jinja2.ext.loopcontrols"],
     loader=jinja2.FileSystemLoader(TEMPLATES_PATH),
     enable_async=True,
+    autoescape=True
 )
 
 
