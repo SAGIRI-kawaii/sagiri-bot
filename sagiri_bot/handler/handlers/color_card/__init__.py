@@ -298,8 +298,8 @@ def draw(
         padding = int(width * 0.02) if card_type == CardType.CENTER_HORIZON else int(height * 0.02)
         block_size = int((draw_size - (color_size - 1) * padding) / color_size)
         stable_x = int((height if card_type == CardType.CENTER_HORIZON else width) / 2 - block_size / 2)
-        for i in range(len(colors)):
-            block = get_circle_color(colors[i], (block_size, block_size))
+        for i, color in enumerate(colors):
+            block = get_circle_color(color, (block_size, block_size))
             if card_type == CardType.CENTER_HORIZON:
                 canvas.paste(block, (int(width * 0.15) + i * (block_size + padding), stable_x))
             else:
