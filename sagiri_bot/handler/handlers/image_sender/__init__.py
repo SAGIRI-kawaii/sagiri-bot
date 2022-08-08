@@ -180,10 +180,10 @@ async def image_sender(app: Ariadne, message: MessageChain, group: Group, member
                 else:
                     return await app.send_group_message(group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"))
             else:
-                if any([
-                    tfunc not in setting_column_index,
+                if (
+                    tfunc not in setting_column_index or
                     await group_setting.get_setting(group.id, setting_column_index[tfunc])
-                ]):
+                ):
                     return await app.send_group_message(
                         group,
                         await get_image_message(group, tfunc, image_count),
