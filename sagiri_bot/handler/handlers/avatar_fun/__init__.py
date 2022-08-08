@@ -514,7 +514,7 @@ async def crawl(image: Union[int, str]) -> MessageChain:
     )
     mask = mask.filter(ImageFilter.GaussianBlur(0))
     avatar.putalpha(mask)
-    images = [i for i in os.listdir(f"{os.getcwd()}/statics/crawl")]
+    images = list(os.listdir(f"{os.getcwd()}/statics/crawl"))
     crawl = IMG.open(f"{os.getcwd()}/statics/crawl/{random.choice(images)}").resize(
         (500, 500), IMG.ANTIALIAS
     )
@@ -628,8 +628,8 @@ async def swallowed(image: Union[int, str]) -> MessageChain:
 
     frames = []
     for _ in range(2):
-        frames.extend(avatar_frames[0:12])
-    frames.extend(avatar_frames[0:8])
+        frames.extend(avatar_frames[:12])
+    frames.extend(avatar_frames[:8])
     frames.extend(avatar_frames[12:18])
     frames.extend(raw_frames[18:23])
 

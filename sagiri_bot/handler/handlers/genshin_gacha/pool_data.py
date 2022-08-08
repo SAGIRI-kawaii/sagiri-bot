@@ -165,7 +165,7 @@ async def paste_arm_icon(ch_name, star):
 
 async def up_role_icon(name, star):
     # 更新角色图标
-    role_name_path = os.path.join(ICON_PATH, "角色图鉴", str(name) + ".png")
+    role_name_path = os.path.join(ICON_PATH, "角色图鉴", f"{str(name)}.png")
     if os.path.exists(role_name_path):
         return
     logger.info(f"正在更新 {name} 角色图标")
@@ -182,7 +182,7 @@ async def up_role_icon(name, star):
 
 async def up_arm_icon(name, star):
     # 更新武器图标
-    arm_name_path = os.path.join(ICON_PATH, "武器图鉴", str(name) + ".png")
+    arm_name_path = os.path.join(ICON_PATH, "武器图鉴", f"{str(name)}.png")
     if os.path.exists(arm_name_path):
         return
     logger.info(f"正在更新 {name} 武器图标")
@@ -226,8 +226,7 @@ async def init_pool_list():
                 item_name = i["item_name"]
                 item_type = i["item_type"]
                 item_star = str(i["rank"])
-                key = ""
-                key += item_star
+                key = "" + item_star
                 key += "_star_UP" if str(i["is_up"]) == "1" else "_star_not_UP"
                 POOL[pool_name][key].append(item_name)
 

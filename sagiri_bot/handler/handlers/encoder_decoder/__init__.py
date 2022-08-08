@@ -81,7 +81,8 @@ MORSE_CODE_DICT = {
 
 def morse_encrypt(message):
     return "".join(
-        MORSE_CODE_DICT[letter] + " " if letter != " " else " " for letter in message
+        f"{MORSE_CODE_DICT[letter]} " if letter != " " else " "
+        for letter in message
     )
 
 
@@ -165,26 +166,30 @@ async def encoder(
             quote=source,
         )
     if code in SPECIAL_TYPE:
-        if "encode" not in SPECIAL_TYPE[code]:
-            return await app.send_group_message(
+        return (
+            await app.send_group_message(
                 group, MessageChain(f"编码 <{code}> 不支持方法 encode！"), quote=source
             )
-        return await app.send_group_message(
-            group, MessageChain(SPECIAL_TYPE[code]["encode"](content)), quote=source
+            if "encode" not in SPECIAL_TYPE[code]
+            else await app.send_group_message(
+                group,
+                MessageChain(SPECIAL_TYPE[code]["encode"](content)),
+                quote=source,
+            )
         )
-    else:
-        try:
-            return await app.send_group_message(
-                group, MessageChain(content.encode().decode(code)), quote=source
-            )
-        except LookupError:
-            return await app.send_group_message(
-                group, MessageChain(f"未知的编码： <{code}>"), quote=source
-            )
-        except Exception as e:
-            return await app.send_group_message(
-                group, MessageChain(f"发生错误：{str(e)}"), quote=source
-            )
+
+    try:
+        return await app.send_group_message(
+            group, MessageChain(content.encode().decode(code)), quote=source
+        )
+    except LookupError:
+        return await app.send_group_message(
+            group, MessageChain(f"未知的编码： <{code}>"), quote=source
+        )
+    except Exception as e:
+        return await app.send_group_message(
+            group, MessageChain(f"发生错误：{str(e)}"), quote=source
+        )
 
 
 @channel.use(
@@ -229,20 +234,7 @@ async def decoder(
             MessageChain("未指定内容！可以发送 `decode 编码 content` 或对要编码的内容回复 `decode 编码` !"),
             quote=source,
         )
-    if code in SPECIAL_TYPE:
-        if "decode" not in SPECIAL_TYPE[code]:
-            return await app.send_group_message(
-                group, MessageChain(f"编码 <{code}> 不支持方法 decode！"), quote=source
-            )
-        try:
-            return await app.send_group_message(
-                group, MessageChain(SPECIAL_TYPE[code]["decode"](content)), quote=source
-            )
-        except Exception as e:
-            return await app.send_group_message(
-                group, MessageChain(f"发生错误：{str(e)}"), quote=source
-            )
-    else:
+    if code not in SPECIAL_TYPE:
         # try:
         #     return await app.send_group_message(group, MessageChain(content.encode().decode(code)), quote=source)
         # except LookupError:
@@ -256,6 +248,18 @@ async def decoder(
                 f"的 decode方法！"
             ),
             quote=source,
+        )
+    if "decode" not in SPECIAL_TYPE[code]:
+        return await app.send_group_message(
+            group, MessageChain(f"编码 <{code}> 不支持方法 decode！"), quote=source
+        )
+    try:
+        return await app.send_group_message(
+            group, MessageChain(SPECIAL_TYPE[code]["decode"](content)), quote=source
+        )
+    except Exception as e:
+        return await app.send_group_message(
+            group, MessageChain(f"发生错误：{str(e)}"), quote=source
         )
 
 

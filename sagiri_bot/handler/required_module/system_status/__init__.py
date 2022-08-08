@@ -61,25 +61,27 @@ async def system_status(
         f"    CPU频率：{psutil.cpu_freq().current}MHz"
     )
     disk_message = MessageChain(
-        "磁盘相关：\n"
-        + "    图库占用空间：\n        "
-        + "\n        ".join(
-            [
-                *[
-                    f"{path_name}："
-                    f"{round(sum([os.path.getsize(path + file) for file in os.listdir(path)]) / (1024 ** 3), 2)}GB"
-                    if os.path.exists(path)
-                    else f"{path_name}：路径不存在"
-                    for path_name, path in image_path.items()
+        (
+            "磁盘相关：\n"
+            + "    图库占用空间：\n        "
+            + "\n        ".join(
+                [
+                    *[
+                        f"{path_name}：{round(sum(os.path.getsize(path + file) for file in os.listdir(path)) / 1024 ** 3, 2)}GB"
+                        if os.path.exists(path)
+                        else f"{path_name}：路径不存在"
+                        for path_name, path in image_path.items()
+                    ]
                 ]
-            ]
+            )
         )
     )
+
     if all_info.matched or (not info.matched and not storage.matched):
         await app.send_group_message(
             group, cpu_message + "\n" + memory_message + "\n" + disk_message
         )
     elif info.matched:
         await app.send_group_message(group, cpu_message + "\n" + memory_message)
-    elif storage.matched:
+    else:
         await app.send_group_message(group, disk_message)

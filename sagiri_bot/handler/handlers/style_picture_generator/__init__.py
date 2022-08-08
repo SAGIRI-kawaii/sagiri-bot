@@ -366,7 +366,7 @@ class GoSenChoEnHoShiStyleUtils:
         # Prepare mask - Upper
         upper_mask_base = IMG.new("L", (upper_width, _round(height / 2)), 0)
 
-        mask_img_upper = list()
+        mask_img_upper = []
         upper_data = [
             [(4, 4), (4, 4), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)],
             [22, 20, 16, 10, 6, 6, 4, 0],
@@ -396,7 +396,7 @@ class GoSenChoEnHoShiStyleUtils:
         downer_mask_base = IMG.new(
             "L", (downer_width + leftmargin, _round(height / 2)), 0
         )
-        mask_img_downer = list()
+        mask_img_downer = []
         downer_data = [
             [(5, 2), (5, 2), (0, 0), (0, 0), (0, 0), (0, -3)],
             [22, 19, 17, 8, 7, 0],
@@ -444,7 +444,7 @@ class GoSenChoEnHoShiStyleUtils:
             img_downer.alpha_composite(img_downer_part)
 
         # tilt image
-        tiltres = list()
+        tiltres = []
         angle = 20
         for img in [img_upper, img_downer]:
             dist = img.height * tan(radians(angle))

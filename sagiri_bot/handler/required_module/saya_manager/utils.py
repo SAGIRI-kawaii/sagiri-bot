@@ -50,11 +50,10 @@ def manageable(name: str, group_events: bool = True) -> Depend:
         if group not in saya_data.switch[name]:
             saya_data.add_group(group)
         if not saya_data.is_turned_on(name, group):
-            if saya_data.is_notice_on(name, group):
-                if group != "0":
-                    await app.send_group_message(
-                        int(group), MessageChain([Plain(text=f"{name}插件已关闭，请联系管理员")])
-                    )
+            if saya_data.is_notice_on(name, group) and group != "0":
+                await app.send_group_message(
+                    int(group), MessageChain([Plain(text=f"{name}插件已关闭，请联系管理员")])
+                )
             raise ExecutionStop()
 
     return Depend(manage_group_events) if group_events else Depend(manage_mirai_events)
@@ -70,7 +69,8 @@ def saya_init():
             if isinstance(cube.metaclass, ListenerSchema):
                 bcc.removeListener(bcc.getListener(cube.content))
                 if all(
-                    [issubclass(i, GroupEvent) for i in cube.metaclass.listening_events]
+                    issubclass(i, GroupEvent)
+                    for i in cube.metaclass.listening_events
                 ):
                     cube.metaclass.decorators.append(manageable(channel.module))
                 else:
@@ -146,11 +146,11 @@ class SayaData:
         self, name: str, switch: bool = DEFAULT_SWITCH, notice: bool = DEFAULT_NOTICE
     ) -> None:
         if name not in self.switch:
-            self.switch[name] = {}
-            for group in self.permission:
-                self.switch[name][group] = {}
-                self.switch[name][group]["switch"] = switch
-                self.switch[name][group]["notice"] = notice
+            self.switch[name] = {
+                group: {"switch": switch, "notice": notice}
+                for group in self.permission
+            }
+
         self.save()
 
     def remove_saya(self, name: str) -> None:
@@ -167,14 +167,13 @@ class SayaData:
                 return False
             if group in self.switch[name]:
                 return self.switch[name][group]["switch"]
-            else:
-                self.add_group(group)
-                return DEFAULT_SWITCH
+            self.add_group(group)
         else:
             self.add_saya(name)
             if not self.switch[name].get(group):
                 self.add_group(group)
-            return DEFAULT_SWITCH
+
+        return DEFAULT_SWITCH
 
     def is_notice_on(self, name: str, group: Union[Group, int, str]) -> bool:
         if isinstance(group, Group):
@@ -183,14 +182,13 @@ class SayaData:
         if self.switch.get(name):
             if group in self.switch[name]:
                 return self.switch[name][group]["notice"]
-            else:
-                self.add_group(group)
-                return DEFAULT_NOTICE
+            self.add_group(group)
         else:
             self.add_saya(name)
             if not self.switch[name].get(group):
                 self.add_group(group)
-            return DEFAULT_NOTICE
+
+        return DEFAULT_NOTICE
 
     def value_change(
         self, name: str, group: Union[Group, int, str], key: str, value: bool
@@ -236,7 +234,7 @@ class SayaData:
                 data = json.load(r)
                 self.switch = data.get("switch", {})
                 self.permission = data.get("permission", {})
-        except (FileNotFoundError, JSONDecodeError):
+        except FileNotFoundError:
             pass
         return self
 

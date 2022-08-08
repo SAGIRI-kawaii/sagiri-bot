@@ -47,11 +47,7 @@ async def execute_setting_update(
                 continue
             func, value = command.split("=")
             func = camel_to_underscore(func)
-            value = (
-                (True if value == "True" else False)
-                if value in ["True", "False"]
-                else value
-            )
+            value = value == "True" if value in ["True", "False"] else value
             if func in command_index.keys():
                 if command_index[func].is_valid(value):
                     """update"""
@@ -97,63 +93,59 @@ async def execute_setting_update(
 async def execute_grant_permission(
     group: Group, member: Member, message_text: str
 ) -> MessageChain:
-    if await user_permission_require(group, member, 3):
-        message_text = message_text[13:]
-        try:
-            target, level = message_text.split(" ")
-        except ValueError:
-            return MessageChain("格式错误！使用方法：user -grant @user level[1-3]")
-        target = int(target)
-        if level.isdigit():
-            level = int(level)
-            if (
-                member.id == target
-                and level != 4
-                and await user_permission_require(group, member, 4)
-            ):
-                return MessageChain("怎么有master想给自己改权限欸？纱雾很关心你呢~快去脑科看看吧！")
-            if 1 <= level <= 2:
-                if result := await orm.fetchone(
-                    select(UserPermission.level).where(
-                        UserPermission.group_id == group.id,
-                        UserPermission.member_id == target,
-                    )
-                ):
-                    if result[0] == 4:
-                        if await user_permission_require(group, member, 4):
-                            return MessageChain(
-                                "就算是master也不能修改master哦！（怎么会有两个master，怪耶）"
-                            )
-                        else:
-                            return MessageChain("master level 不可更改！若想进行修改请直接修改数据库！")
-                    if result[0] == 3:
-                        if await user_permission_require(group, member, 4):
-                            return await grant_permission_process(
-                                group.id, target, level
-                            )
-                        else:
-                            return MessageChain(
-                                "权限不足，你必须达到权限等级4(master level)才可对超级管理员权限进行修改！"
-                            )
-                    else:
-                        return await grant_permission_process(group.id, target, level)
-                else:
-                    return await grant_permission_process(group.id, target, level)
-            elif level == 3:
-                if await user_permission_require(group, member, 4):
-                    return await grant_permission_process(group.id, target, level)
-                else:
-                    return MessageChain(
-                        "格式错误！权限不足，你必须达到权限等级4(master level)才可对超级管理员进行授权！"
-                    )
-            else:
-                return MessageChain(
-                    "level值非法！合法level值：1-3\n1: user\n2: administrator\n3: super administrator"
-                )
-        else:
-            return MessageChain("格式错误！使用方法：user -grant @user level[1-3]")
-    else:
+    if not await user_permission_require(group, member, 3):
         return MessageChain("权限不足，爬!")
+    message_text = message_text[13:]
+    try:
+        target, level = message_text.split(" ")
+    except ValueError:
+        return MessageChain("格式错误！使用方法：user -grant @user level[1-3]")
+    target = int(target)
+    if not level.isdigit():
+        return MessageChain("格式错误！使用方法：user -grant @user level[1-3]")
+    level = int(level)
+    if (
+        member.id == target
+        and level != 4
+        and await user_permission_require(group, member, 4)
+    ):
+        return MessageChain("怎么有master想给自己改权限欸？纱雾很关心你呢~快去脑科看看吧！")
+    if 1 <= level <= 2:
+        if not (
+            result := await orm.fetchone(
+                select(UserPermission.level).where(
+                    UserPermission.group_id == group.id,
+                    UserPermission.member_id == target,
+                )
+            )
+        ):
+            return await grant_permission_process(group.id, target, level)
+        if result[0] == 4:
+            return (
+                MessageChain("就算是master也不能修改master哦！（怎么会有两个master，怪耶）")
+                if await user_permission_require(group, member, 4)
+                else MessageChain("master level 不可更改！若想进行修改请直接修改数据库！")
+            )
+
+        return (
+            await grant_permission_process(group.id, target, level)
+            if result[0] == 3
+            and await user_permission_require(group, member, 4)
+            or result[0] != 3
+            else MessageChain("权限不足，你必须达到权限等级4(master level)才可对超级管理员权限进行修改！")
+        )
+
+    elif level == 3:
+        if await user_permission_require(group, member, 4):
+            return await grant_permission_process(group.id, target, level)
+        else:
+            return MessageChain(
+                "格式错误！权限不足，你必须达到权限等级4(master level)才可对超级管理员进行授权！"
+            )
+    else:
+        return MessageChain(
+            "level值非法！合法level值：1-3\n1: user\n2: administrator\n3: super administrator"
+        )
 
 
 async def grant_permission_process(

@@ -18,10 +18,7 @@ from sagiri_bot.control import (
 
 
 def get_pinyin(char: str):
-    if char in pinyin:
-        return pinyin[char]
-    else:
-        return "None"
+    return pinyin[char] if char in pinyin else "None"
 
 
 saya = Saya.current()

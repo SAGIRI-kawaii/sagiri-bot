@@ -190,9 +190,10 @@ class TextEngine(object):
                 )
                 self.canvas_image.paste(image, (current_x, current_y))
                 current_font_height = (
-                    image_height if not element.self_line else current_font_height
+                    current_font_height if element.self_line else image_height
                 )
-                current_x += image_width if not element.self_line else 0
+
+                current_x += 0 if element.self_line else image_width
                 current_y += (
                     image_height + self.line_spacing if element.self_line else 0
                 )
@@ -214,9 +215,7 @@ class TextEngine(object):
         return bytes_io.getvalue()
 
     def get_canvas_size(self) -> Tuple[int, int]:
-        if self.size:
-            return self.size
-        else:
+        if not self.size:
             text_sizes = [
                 element.get_canvas_size()
                 for element in self.elements
@@ -229,21 +228,7 @@ class TextEngine(object):
             ]
             height = 0
             current_width, current_height = 0, 0
-            if not self.image_adaption:
-                if image_sizes:
-                    width = max([self.max_width, *[size[0] for size in image_sizes]])
-                else:
-                    text_max_width = max([size[0] for size in text_sizes])
-                    width = (
-                        self.max_width
-                        if text_max_width >= self.max_width
-                        else (
-                            self.min_width
-                            if text_max_width <= self.min_width
-                            else text_max_width
-                        )
-                    )
-            else:
+            if self.image_adaption:
                 width = min(
                     [
                         self.min_width,
@@ -253,12 +238,25 @@ class TextEngine(object):
                 )
                 if width < self.min_width:
                     width = self.min_width
+            elif image_sizes:
+                width = max([self.max_width, *[size[0] for size in image_sizes]])
+            else:
+                text_max_width = max(size[0] for size in text_sizes)
+                width = (
+                    self.max_width
+                    if text_max_width >= self.max_width
+                    else (
+                        self.min_width
+                        if text_max_width <= self.min_width
+                        else text_max_width
+                    )
+                )
             # print(width)
             for element in self.elements:
                 size = element.get_canvas_size()
                 # print(element.__class__.__name__, size, width, '*', height, str(element).strip())
                 if isinstance(element, Text):
-                    height += current_height if current_height else 0
+                    height += current_height or 0
                     current_height = 0
                     if size[0] + current_width > width:
                         height += current_height + self.line_spacing
@@ -266,9 +264,7 @@ class TextEngine(object):
                             ((size[0] + current_width) / width + 1)
                             * (size[1] + self.line_spacing)
                         )
-                        current_height = (
-                            size[1] if size[1] > current_height else current_height
-                        )
+                        current_height = max(size[1], current_height)
                         current_width = (current_width + size[0]) % width
                     else:
                         current_width += size[0] + element.spacing
@@ -308,7 +304,7 @@ class TextEngine(object):
                 int(width) + self.padding_x * 2,
                 int(height) + self.padding_y * 2,
             )
-            return self.size
+        return self.size
 
     def merge_and_split(self, sep: str = "\n") -> "TextEngine":
         elements = []
@@ -317,10 +313,8 @@ class TextEngine(object):
             if isinstance(element, Text):
                 temp_element.append(element)
             elif any(
-                [
-                    isinstance(element, element_type)
-                    for element_type in (Image, Enter, EmptyLine)
-                ]
+                isinstance(element, element_type)
+                for element_type in (Image, Enter, EmptyLine)
             ):
                 if temp_element:
                     elements.extend(self.text_merge(temp_element))

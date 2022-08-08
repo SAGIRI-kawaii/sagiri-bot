@@ -95,7 +95,7 @@ def parse_messagechain(message: list) -> Union[MessageChain, list]:
                         "missing parameter: content(bytes) / url(str) / path(str)",
                     )
                 )
-    return MessageChain(elements) if not exceptions else exceptions
+    return exceptions or MessageChain(elements)
 
 
 class UserData:

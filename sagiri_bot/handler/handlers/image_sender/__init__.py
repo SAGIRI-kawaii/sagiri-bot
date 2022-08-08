@@ -148,78 +148,92 @@ async def image_sender(
         )
     ):
         resp_functions = resp_functions[0]
-        tfunc = None
-        for function in resp_functions:
-            if function in functions:
-                tfunc = function
-                break
+        tfunc = next(
+            (function for function in resp_functions if function in functions),
+            None,
+        )
+
         if not tfunc:
             return
-        else:
-            if tfunc in user_called_column_index and tfunc in user_called_name_index:
-                await update_user_call_count_plus(
-                    group,
-                    member,
-                    user_called_column_index[tfunc],
-                    user_called_name_index[tfunc],
-                    image_count,
-                )
-            if tfunc == "setu" or tfunc == "setu18":
-                if await group_setting.get_setting(group.id, Setting.setu):
-                    if await group_setting.get_setting(group.id, Setting.r18):
-                        return await app.send_group_message(
-                            group,
-                            await get_image_message(group, "setu18", image_count),
-                            quote=source,
-                        )
-                    elif tfunc == "setu":
-                        return await app.send_group_message(
-                            group,
-                            await get_image_message(group, tfunc, image_count),
-                            quote=source,
-                        )
-                    else:
-                        return await app.send_group_message(
-                            group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
-                        )
-                else:
-                    return await app.send_group_message(
-                        group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
+        if tfunc in user_called_column_index and tfunc in user_called_name_index:
+            await update_user_call_count_plus(
+                group,
+                member,
+                user_called_column_index[tfunc],
+                user_called_name_index[tfunc],
+                image_count,
+            )
+        if tfunc == "setu":
+            if await group_setting.get_setting(group.id, Setting.setu):
+                return (
+                    await app.send_group_message(
+                        group,
+                        await get_image_message(group, "setu18", image_count),
+                        quote=source,
                     )
-            elif tfunc == "real_highq":
-                if all(
-                    [
-                        await group_setting.get_setting(group.id, Setting.real),
-                        await group_setting.get_setting(
-                            group.id, Setting.real_high_quality
-                        ),
-                    ]
-                ):
-                    return await app.send_group_message(
+                    if await group_setting.get_setting(group.id, Setting.r18)
+                    else await app.send_group_message(
                         group,
                         await get_image_message(group, tfunc, image_count),
                         quote=source,
                     )
-                else:
-                    return await app.send_group_message(
+                )
+
+            else:
+                return await app.send_group_message(
+                    group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
+                )
+        elif tfunc == "setu18":
+            if await group_setting.get_setting(group.id, Setting.setu):
+                return (
+                    await app.send_group_message(
+                        group,
+                        await get_image_message(group, "setu18", image_count),
+                        quote=source,
+                    )
+                    if await group_setting.get_setting(group.id, Setting.r18)
+                    else await app.send_group_message(
                         group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
                     )
+                )
+
             else:
-                if (
+                return await app.send_group_message(
+                    group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
+                )
+        elif tfunc == "real_highq":
+            if all(
+                [
+                    await group_setting.get_setting(group.id, Setting.real),
+                    await group_setting.get_setting(
+                        group.id, Setting.real_high_quality
+                    ),
+                ]
+            ):
+                return await app.send_group_message(
+                    group,
+                    await get_image_message(group, tfunc, image_count),
+                    quote=source,
+                )
+            else:
+                return await app.send_group_message(
+                    group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
+                )
+        elif (
                     tfunc not in setting_column_index
                     or await group_setting.get_setting(
                         group.id, setting_column_index[tfunc]
                     )
                 ):
-                    return await app.send_group_message(
-                        group,
-                        await get_image_message(group, tfunc, image_count),
-                        quote=source,
-                    )
-                else:
-                    return await app.send_group_message(
-                        group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
-                    )
+            return await app.send_group_message(
+                group,
+                await get_image_message(group, tfunc, image_count),
+                quote=source,
+            )
+        else:
+            return await app.send_group_message(
+                group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
+            )
 
 
 def random_pic(base_path: str) -> str:
@@ -242,10 +256,7 @@ async def get_pic(image_type: str, image_count: int) -> Union[List[Image], str]:
                     res = await resp.json()
                 for p in path:
                     try:
-                        if p[0] == "|" and p[1:].isnumeric():
-                            res = res[int(p[1:])]
-                        else:
-                            res = res.get(p)
+                        res = res[int(p[1:])] if p[0] == "|" and p[1:].isnumeric() else res.get(p)
                     except TypeError:
                         logger.error("json解析失败！")
                         return "json解析失败！请查看配置路径是否正确或API是否有变动！"
@@ -384,8 +395,6 @@ async def show_keywords(function: str) -> MessageChain:
 
 def show_functions() -> MessageChain:
     if loaded_functions := config.image_path.keys():
-        return MessageChain(
-            ["当前已加载图库：\n", "\n".join([func for func in loaded_functions])]
-        )
+        return MessageChain(["当前已加载图库：\n", "\n".join(list(loaded_functions))])
     else:
         return MessageChain("未检测到已加载图库！请检查配置！")

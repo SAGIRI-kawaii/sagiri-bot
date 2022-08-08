@@ -53,13 +53,12 @@ class Permission(object):
             )
         ):
             return result[0]
-        else:
-            await orm.insert_or_ignore(
-                UserPermission,
-                [UserPermission.group_id == group, UserPermission.member_id == member],
-                {"group_id": group, "member_id": member, "level": 1},
-            )
-            return Permission.DEFAULT
+        await orm.insert_or_ignore(
+            UserPermission,
+            [UserPermission.group_id == group, UserPermission.member_id == member],
+            {"group_id": group, "member_id": member, "level": 1},
+        )
+        return Permission.DEFAULT
 
     @classmethod
     def require(cls, level: int = DEFAULT) -> Depend:

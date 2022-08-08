@@ -90,21 +90,22 @@ async def i_have_a_friend(
             avatar = BuildImage(200, 100, color=(0, 0, 0))
         avatar.circle_new()
         text = BuildImage(
-            300, 30, font_size=30, color="white" if not dark.matched else "black"
+            300, 30, font_size=30, color="black" if dark.matched else "white"
         )
-        text.text(
-            (0, 0), member.name, (0, 0, 0) if not dark.matched else (141, 141, 146)
-        )
+
+        text.text((0, 0), member.name, (141, 141, 146) if dark.matched else (0, 0, 0))
         A = BuildImage(
-            700, 150, font_size=25, color="white" if not dark.matched else "black"
+            700, 150, font_size=25, color="black" if dark.matched else "white"
         )
+
         A.paste(avatar, (30, 25), True)
         A.paste(text, (150, 38))
         A.text(
             (150, 85),
             content.strip(),
-            (125, 125, 125) if not dark.matched else (255, 255, 255),
+            (255, 255, 255) if dark.matched else (125, 125, 125),
         )
+
         await app.send_group_message(
             group, MessageChain([Image(data_bytes=A.pic2bytes())]), quote=source
         )

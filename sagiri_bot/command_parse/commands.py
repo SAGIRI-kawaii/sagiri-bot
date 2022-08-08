@@ -216,16 +216,18 @@ class Voice(StringCommand):
 #     "voice": Voice()
 # }
 
-command_index = {
-    k: v
-    for k, v in [
+command_index = dict(
+    [
         (
-            re.sub(r"(?P<key>[A-Z])", r"_\g<key>", class_name).strip("_").lower(),
+            re.sub(r"(?P<key>[A-Z])", r"_\g<key>", class_name)
+            .strip("_")
+            .lower(),
             class_(),
         )
         for class_name, class_ in inspect.getmembers(
             sys.modules[__name__], inspect.isclass
         )
-        if issubclass(class_, BooleanCommand) or issubclass(class_, StringCommand)
+        if issubclass(class_, BooleanCommand)
+        or issubclass(class_, StringCommand)
     ]
-}
+)

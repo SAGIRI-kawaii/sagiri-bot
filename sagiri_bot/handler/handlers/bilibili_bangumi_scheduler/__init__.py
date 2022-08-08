@@ -136,12 +136,13 @@ async def formatted_output_bangumi(days: int) -> MessageChain:
     temp_output_substring = ["------BANGUMI------\n\n"]
     now = datetime.datetime.now()
     for index in range(days):
-        temp_output_substring.append(now.strftime("%m-%d"))
-        temp_output_substring.append("即将播出：")
-        for data in formatted_bangumi_data[index]:
-            temp_output_substring.append(
-                "\n%s %s %s\n" % (data["pub_time"], data["title"], data["pub_index"])
-            )
+        temp_output_substring.extend((now.strftime("%m-%d"), "即将播出："))
+        temp_output_substring.extend(
+            "\n%s %s %s\n"
+            % (data["pub_time"], data["title"], data["pub_index"])
+            for data in formatted_bangumi_data[index]
+        )
+
         temp_output_substring.append("\n\n----------------\n\n")
         now += datetime.timedelta(days=1)
 

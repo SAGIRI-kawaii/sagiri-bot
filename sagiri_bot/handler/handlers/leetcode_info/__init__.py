@@ -108,7 +108,7 @@ async def get_question_content(questionTitleSlug, language="Zh"):
         "accept-language": "zh-CN,zh;q=0.9",
         "content-type": "application/json",
         "origin": "https://leetcode-cn.com",
-        "referer": "https://leetcode-cn.com/problems/%s/" % questionTitleSlug,
+        "referer": f"https://leetcode-cn.com/problems/{questionTitleSlug}/",
         "sec-fetch-dest": "empty",
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-origin",
@@ -118,9 +118,10 @@ async def get_question_content(questionTitleSlug, language="Zh"):
         "x-operation-name": "questionData",
         "x-timezone": "Asia/Shanghai",
     }
+
     payload = {
         "operationName": "questionData",
-        "variables": {"titleSlug": "%s" % questionTitleSlug},
+        "variables": {"titleSlug": f"{questionTitleSlug}"},
         "query": "query questionData($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n    "
         "questionId\n    questionFrontendId\n    boundTopicId\n    title\n    titleSlug\n    content\n   "
         " translatedTitle\n    translatedContent\n    isPaidOnly\n    difficulty\n    likes\n    "
@@ -135,6 +136,7 @@ async def get_question_content(questionTitleSlug, language="Zh"):
         "  productUrl\n      __typename\n    }\n    isSubscribed\n    isDailyQuestion\n    "
         "dailyRecordStatus\n    editorType\n    ugcQuestionId\n    style\n    __typename\n  }\n}\n ",
     }
+
     async with aiohttp.ClientSession() as session:
         async with session.post(
             url=url, headers=headers, data=json.dumps(payload)
@@ -171,7 +173,7 @@ def image_in_html_to_text(content):
 
 
 async def get_leetcode_daily_question(language: str = "Zh") -> MessageChain:
-    if language != "Zh" and language != "En":
+    if language not in ["Zh", "En"]:
         raise ValueError("Language only can be Zh or En!")
 
     question_slug_data = await get_daily_question_json()
@@ -197,13 +199,14 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
     url = "https://leetcode-cn.com/graphql/"
     headers = {
         "origin": "https://leetcode-cn.com",
-        "referer": "https://leetcode-cn.com/u/%s/" % account_name,
+        "referer": f"https://leetcode-cn.com/u/{account_name}/",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/80.0.3987.100 Safari/537.36",
         "x-definition-name": "userProfilePublicProfile",
         "x-operation-name": "userPublicProfile",
         "content-type": "application/json",
     }
+
     payload = {
         "operationName": "userPublicProfile",
         "query": "query userPublicProfile($userSlug: String!) {\n  userProfilePublicProfile(userSlug: $userSlug) {\n  "
@@ -248,7 +251,7 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
 
     ranking = data_json["siteRanking"]
     if ranking == 100000:
-        ranking = "%s+" % ranking
+        ranking = f"{ranking}+"
 
     websites_list = profile["websites"]
     websites = ["\n    %s" % i for i in websites_list]

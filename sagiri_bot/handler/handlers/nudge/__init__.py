@@ -36,100 +36,103 @@ refresh_time = relativedelta(minutes=1)
 async def nudged(app: Ariadne, event: NudgeEvent):
     if not await group_setting.get_setting(event.group_id, Setting.switch):
         return None
-    if event.target == config.bot_qq and event.supplicant != config.bot_qq:
-        if event.context_type == "group":
-            if member := await app.get_member(event.group_id, event.supplicant):
-                logger.info(f"机器人被群 <{member.group.name}> 中用户 <{member.name}> 戳了戳。")
-                if member.group.id in nudged_data.keys():
-                    if member.id in nudged_data[member.group.id].keys():
-                        period = (
-                            nudged_data[member.group.id][member.id]["time"]
-                            + refresh_time
-                        )
-                        if datetime.now() >= period:
-                            nudged_data[member.group.id][member.id] = {
-                                "count": 0,
-                                "time": datetime.now(),
-                            }
-                        count = nudged_data[member.group.id][member.id]["count"] + 1
-                        if count == 1:
-                            try:
-                                await app.send_nudge(member)
-                            except UnknownTarget:
-                                pass
-                            nudged_data[member.group.id][member.id] = {
-                                "count": count,
-                                "time": datetime.now(),
-                            }
-                        elif count == 2:
-                            try:
-                                await app.send_nudge(member)
-                                await app.send_message(
-                                    member.group, MessageChain("不许戳了！")
-                                )
-                            except UnknownTarget:
-                                pass
-                            nudged_data[member.group.id][member.id] = {
-                                "count": count,
-                                "time": datetime.now(),
-                            }
-                        elif count == 3:
-                            try:
-                                await app.send_nudge(member)
-                                await app.send_message(
-                                    member.group, MessageChain("说了不许再戳了！")
-                                )
-                            except UnknownTarget:
-                                pass
-                            nudged_data[member.group.id][member.id] = {
-                                "count": count,
-                                "time": datetime.now(),
-                            }
-                        elif count == 4:
-                            try:
-                                await app.send_nudge(member)
-                            except UnknownTarget:
-                                pass
-                            nudged_data[member.group.id][member.id] = {
-                                "count": count,
-                                "time": datetime.now(),
-                            }
-                        elif count == 5:
-                            try:
-                                await app.send_nudge(member)
-                                await app.send_message(
-                                    member.group, MessageChain("呜呜呜你欺负我，不理你了！")
-                                )
-                            except UnknownTarget:
-                                pass
-                            nudged_data[member.group.id][member.id] = {
-                                "count": count,
-                                "time": datetime.now(),
-                            }
-                        elif 6 <= count <= 9:
-                            nudged_data[member.group.id][member.id] = {
-                                "count": count,
-                                "time": datetime.now(),
-                            }
-                        elif count == 10:
-                            try:
-                                await app.send_nudge(member)
-                                await app.send_message(
-                                    member.group, MessageChain("你真的很有耐心欸。")
-                                )
-                            except UnknownTarget:
-                                pass
-                    else:
+    if (
+        event.target == config.bot_qq
+        and event.supplicant != config.bot_qq
+        and event.context_type == "group"
+    ):
+        if member := await app.get_member(event.group_id, event.supplicant):
+            logger.info(f"机器人被群 <{member.group.name}> 中用户 <{member.name}> 戳了戳。")
+            if member.group.id in nudged_data.keys():
+                if member.id in nudged_data[member.group.id].keys():
+                    period = (
+                        nudged_data[member.group.id][member.id]["time"]
+                        + refresh_time
+                    )
+                    if datetime.now() >= period:
                         nudged_data[member.group.id][member.id] = {
-                            "count": 1,
+                            "count": 0,
                             "time": datetime.now(),
                         }
-                        await app.send_nudge(member)
+                    count = nudged_data[member.group.id][member.id]["count"] + 1
+                    if count == 1:
+                        try:
+                            await app.send_nudge(member)
+                        except UnknownTarget:
+                            pass
+                        nudged_data[member.group.id][member.id] = {
+                            "count": count,
+                            "time": datetime.now(),
+                        }
+                    elif count == 2:
+                        try:
+                            await app.send_nudge(member)
+                            await app.send_message(
+                                member.group, MessageChain("不许戳了！")
+                            )
+                        except UnknownTarget:
+                            pass
+                        nudged_data[member.group.id][member.id] = {
+                            "count": count,
+                            "time": datetime.now(),
+                        }
+                    elif count == 3:
+                        try:
+                            await app.send_nudge(member)
+                            await app.send_message(
+                                member.group, MessageChain("说了不许再戳了！")
+                            )
+                        except UnknownTarget:
+                            pass
+                        nudged_data[member.group.id][member.id] = {
+                            "count": count,
+                            "time": datetime.now(),
+                        }
+                    elif count == 4:
+                        try:
+                            await app.send_nudge(member)
+                        except UnknownTarget:
+                            pass
+                        nudged_data[member.group.id][member.id] = {
+                            "count": count,
+                            "time": datetime.now(),
+                        }
+                    elif count == 5:
+                        try:
+                            await app.send_nudge(member)
+                            await app.send_message(
+                                member.group, MessageChain("呜呜呜你欺负我，不理你了！")
+                            )
+                        except UnknownTarget:
+                            pass
+                        nudged_data[member.group.id][member.id] = {
+                            "count": count,
+                            "time": datetime.now(),
+                        }
+                    elif 6 <= count <= 9:
+                        nudged_data[member.group.id][member.id] = {
+                            "count": count,
+                            "time": datetime.now(),
+                        }
+                    elif count == 10:
+                        try:
+                            await app.send_nudge(member)
+                            await app.send_message(
+                                member.group, MessageChain("你真的很有耐心欸。")
+                            )
+                        except UnknownTarget:
+                            pass
                 else:
-                    nudged_data[member.group.id] = {
-                        member.id: {"count": 1, "time": datetime.now()}
+                    nudged_data[member.group.id][member.id] = {
+                        "count": 1,
+                        "time": datetime.now(),
                     }
                     await app.send_nudge(member)
+            else:
+                nudged_data[member.group.id] = {
+                    member.id: {"count": 1, "time": datetime.now()}
+                }
+                await app.send_nudge(member)
 
 
 async def nudge(
@@ -148,7 +151,7 @@ async def nudge(
     elif not me.matched and not at.matched:
         return await app.send_group_message(group, MessageChain("也不说要戳谁......"))
     if times.matched:
-        times = int(re.search(r"\d+", times.result.display).group(0))
+        times = int(re.search(r"\d+", times.result.display)[0])
         if times > 10:
             return await app.send_group_message(group, MessageChain("太多次啦！"))
     else:

@@ -91,7 +91,7 @@ def get_resource_type_list():
 
     mes = "当前资源列表如下：\n"
 
-    for resource_type in temp.keys():
+    for resource_type in temp:
         mes += f"{resource_type}：{'，'.join(temp[resource_type])}\n"
     return mes
 
@@ -245,7 +245,7 @@ def gen_icon(icon: str):
     B.paste(icon_img, (17, 10), True)
     B.paste(A, alpha=True)
     B.save(icon)
-    logger.info(f"生成图片成功 file：{str(icon)}")
+    logger.info(f"生成图片成功 file：{icon}")
 
 
 # 下载图片

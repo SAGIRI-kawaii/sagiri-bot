@@ -96,7 +96,7 @@ async def update_image():
         await page.query_selector_all(".GSTraitCotainer_trait_section__1f3bc")
     ):
         index = 0
-        type_ = "char" if not i else "weapons"
+        type_ = "weapons" if i else "char"
         for x in await card.query_selector_all("xpath=child::*"):
             await x.screenshot(
                 path=f"{IMAGE_PATH}/{type_}_{index}.png",

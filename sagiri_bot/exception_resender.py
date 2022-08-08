@@ -55,10 +55,7 @@ class ExceptionReSender(object):
             raise ExceptionReSenderNotInitialized()
 
     def get(self):
-        if self.__tasks:
-            return self.__tasks.pop(0)
-        else:
-            return None
+        return self.__tasks.pop(0) if self.__tasks else None
 
     def addTask(self, task: list):
         self.__tasks.append(task)
@@ -71,8 +68,7 @@ def exception_resender_listener(
     app: Ariadne, exception_resender_instance: ExceptionReSender, loop
 ):
     while True:
-        task = exception_resender_instance.get()
-        if task:
+        if task := exception_resender_instance.get():
             logger.warning(
                 "task caught! "
                 + "len:"

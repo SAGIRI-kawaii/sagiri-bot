@@ -65,11 +65,10 @@ async def network_compiler(
         try:
             await app.send_group_message(
                 group,
-                MessageChain(
-                    result["output"] if result["output"] else result["errors"]
-                ),
+                MessageChain(result["output"] or result["errors"]),
                 quote=source,
             )
+
         except MessageTooLong:
             await app.send_group_message(
                 group, MessageChain("MessageTooLong"), quote=source

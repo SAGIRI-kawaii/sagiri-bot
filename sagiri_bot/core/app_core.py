@@ -33,7 +33,7 @@ try:
     from graia.scheduler.saya import GraiaSchedulerBehaviour
 
     _install_scheduler = True
-except (ModuleNotFoundError, ImportError):
+except ImportError:
     _install_scheduler = False
 
 from .exceptions import *

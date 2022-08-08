@@ -106,10 +106,7 @@ async def gacha(
     ):
         await app.send_message(group, MessageChain([Plain(text="今天已经抽了很多次啦，明天再来吧~")]))
         return
-    if gid in group_pool:
-        G = Gacha(group_pool[gid])
-    else:
-        G = Gacha()
+    G = Gacha(group_pool[gid]) if gid in group_pool else Gacha()
     if count == 10:
         daily_limiter_10.increase(user_id)
     elif count == 90:

@@ -111,22 +111,19 @@ class Speak(object):
     @staticmethod
     def get_voice(text: str, voice_type: int, is_long: bool = False) -> tuple:
         client = tts_client.TtsClient(cred, "ap-guangzhou", client_profile)
-        req = (
-            models.TextToVoiceRequest()
-            if not is_long
-            else models.CreateTtsTaskRequest()
-        )
+        req = models.CreateTtsTaskRequest() if is_long else models.TextToVoiceRequest()
         params = {
             "Text": text,
             "SessionId": str(uuid.uuid4()),
             "ModelType": 1,
-            "VoiceType": int(voice_type),
+            "VoiceType": voice_type,
             "Volume": 10,
             "Codec": "wav",
         }
+
         req.from_json_string(json.dumps(params))
         try:
-            resp = client.TextToVoice(req) if not is_long else client.CreateTtsTask(req)
+            resp = client.CreateTtsTask(req) if is_long else client.TextToVoice(req)
         except TencentCloudSDKException as err:
             logger.error(traceback.format_exc())
             if err.get_code() == "UnsupportedOperation.TextTooLong":
@@ -142,9 +139,7 @@ class Speak(object):
         status, data = await asyncio.get_event_loop().run_in_executor(
             None, Speak.get_voice, text, voice_type
         )
-        if status != 1:
-            return data
-        return await Speak.aget_long_voice(data)
+        return data if status != 1 else await Speak.aget_long_voice(data)
 
     @staticmethod
     def get_long_voice_status(task_id: str):

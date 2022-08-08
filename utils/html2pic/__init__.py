@@ -60,10 +60,12 @@ async def text_to_pic(text: str, css_path: str = None, width: int = 500) -> byte
     template = env.get_template("text.html")
 
     return await html_to_pic(
-        template_path=f"file://{css_path if css_path else TEMPLATES_PATH}",
+        template_path=f"file://{css_path or TEMPLATES_PATH}",
         html=await template.render_async(
             text=text,
-            css=await read_file(css_path) if css_path else await read_tpl("text.css"),
+            css=await read_file(css_path)
+            if css_path
+            else await read_tpl("text.css"),
         ),
         viewport={"width": width, "height": 10},
     )

@@ -50,8 +50,7 @@ class GroupSetting(object):
             for i in Setting.__dict__.keys()
             if isinstance(Setting.__dict__[i], InstrumentedAttribute)
         }
-        column_names = list(columns.keys())
-        column_names.sort()
+        column_names = sorted(columns.keys())
         datas = await orm.fetchall(
             select(Setting.group_id, *([columns[name] for name in column_names]))
         )
@@ -69,13 +68,14 @@ class GroupSetting(object):
                 return res
         else:
             self.data[group] = {}
-        if result := await orm.fetchone(
-            select(setting).where(Setting.group_id == group)
+        if not (
+            result := await orm.fetchone(
+                select(setting).where(Setting.group_id == group)
+            )
         ):
-            self.data[group][setting_name] = result[0]
-            return result[0]
-        else:
             raise ValueError(f"未找到 {group} -> {str(setting)} 结果！请检查数据库！")
+        self.data[group][setting_name] = result[0]
+        return result[0]
 
     async def modify_setting(
         self,
@@ -132,9 +132,8 @@ def get_config(config: str):
         configs = yaml.load(f.read(), yaml.BaseLoader)
     if config in configs.keys():
         return configs[config]
-    else:
-        logger.error(f"getConfig Error: {config}")
-        return None
+    logger.error(f"getConfig Error: {config}")
+    return None
 
 
 async def get_setting(group: Union[Group, int], setting) -> Union[bool, str]:
@@ -271,17 +270,16 @@ async def user_permission_require(
             UserPermission.group_id == group, UserPermission.member_id == member
         )
     ):
-        return True if result[0] >= level else False
-    else:
-        try:
-            await orm.insert_or_ignore(
-                UserPermission,
-                [UserPermission.group_id == group, UserPermission.member_id == member],
-                {"group_id": group, "member_id": member, "level": 1},
-            )
-        except:
-            pass
-        return True if level <= 1 else False
+        return result[0] >= level
+    try:
+        await orm.insert_or_ignore(
+            UserPermission,
+            [UserPermission.group_id == group, UserPermission.member_id == member],
+            {"group_id": group, "member_id": member, "level": 1},
+        )
+    except:
+        pass
+    return level <= 1
 
 
 class MessageChainUtils:
@@ -441,13 +439,13 @@ class BuildImage:
             :param is_alpha: 是否背景透明
             :param plain_text: 纯文字文本
         """
-        self.w = int(w)
-        self.h = int(h)
-        self.paste_image_width = int(paste_image_width)
-        self.paste_image_height = int(paste_image_height)
+        self.w = w
+        self.h = h
+        self.paste_image_width = paste_image_width
+        self.paste_image_height = paste_image_height
         self.current_w = 0
         self.current_h = 0
-        self.font = ImageFont.truetype(font, int(font_size))
+        self.font = ImageFont.truetype(font, font_size)
         if not plain_text and not color:
             color = (255, 255, 255)
         self.background = background
@@ -456,37 +454,36 @@ class BuildImage:
                 if not color:
                     color = (255, 255, 255, 0)
                 ttf_w, ttf_h = self.getsize(plain_text)
-                self.w = self.w if self.w > ttf_w else ttf_w
-                self.h = self.h if self.h > ttf_h else ttf_h
+                self.w = max(self.w, ttf_w)
+                self.h = max(self.h, ttf_h)
             self.markImg = IMG.new(image_mode, (self.w, self.h), color)
             self.markImg.convert(image_mode)
+        elif w or h:
+            self.markImg = IMG.open(background).resize(
+                (self.w, self.h), IMG.ANTIALIAS
+            )
         else:
-            if not w and not h:
-                self.markImg = IMG.open(background)
-                w, h = self.markImg.size
-                if ratio and ratio > 0 and ratio != 1:
-                    self.w = int(ratio * w)
-                    self.h = int(ratio * h)
-                    self.markImg = self.markImg.resize((self.w, self.h), IMG.ANTIALIAS)
-                else:
-                    self.w = w
-                    self.h = h
+            self.markImg = IMG.open(background)
+            w, h = self.markImg.size
+            if ratio and ratio > 0 and ratio != 1:
+                self.w = int(ratio * w)
+                self.h = int(ratio * h)
+                self.markImg = self.markImg.resize((self.w, self.h), IMG.ANTIALIAS)
             else:
-                self.markImg = IMG.open(background).resize(
-                    (self.w, self.h), IMG.ANTIALIAS
-                )
+                self.w = w
+                self.h = h
         if is_alpha:
             array = self.markImg.load()
             for i in range(w):
                 for j in range(h):
                     pos = array[i, j]
-                    is_edit = sum([1 for x in pos[0:3] if x > 240]) == 3
+                    is_edit = sum(x > 240 for x in pos[:3]) == 3
                     if is_edit:
                         array[i, j] = (255, 255, 255, 0)
         self.draw = ImageDraw.Draw(self.markImg)
         self.size = self.w, self.h
         if plain_text:
-            fill = font_color if font_color else (0, 0, 0)
+            fill = font_color or (0, 0, 0)
             self.text((0, 0), plain_text, fill)
         try:
             self.loop = asyncio.get_event_loop()
@@ -731,9 +728,9 @@ class BuildImage:
             :param w: 压缩图片宽度至 w
             :param h: 压缩图片高度至 h
         """
-        if not w and not h and not ratio:
-            raise Exception("缺少参数...")
-        if not w and not h and ratio:
+        if not w and not h:
+            if not ratio:
+                raise Exception("缺少参数...")
             w = int(self.w * ratio)
             h = int(self.h * ratio)
         self.markImg = self.markImg.resize((w, h), IMG.ANTIALIAS)
@@ -805,8 +802,7 @@ class BuildImage:
         """
         buf = BytesIO()
         self.markImg.save(buf, format="PNG")
-        base64_str = base64.b64encode(buf.getvalue()).decode()
-        return base64_str
+        return base64.b64encode(buf.getvalue()).decode()
 
     def pic2bytes(self) -> bytes:
         """
@@ -948,8 +944,8 @@ class BuildImage:
         pim_b = imb.load()
         r = float(r2 / 2)
         for i in range(r2):
+            lx = abs(i - r)  # 到圆心距离的横坐标
             for j in range(r2):
-                lx = abs(i - r)  # 到圆心距离的横坐标
                 ly = abs(j - r)  # 到圆心距离的纵坐标
                 l_ = (pow(lx, 2) + pow(ly, 2)) ** 0.5  # 三角函数 半径
                 if l_ < r3:
@@ -1044,21 +1040,18 @@ class BuildImage:
             :param aud: 利率
         """
         _x = None
-        if filter_ == "GaussianBlur":  # 高斯模糊
-            _x = ImageFilter.GaussianBlur
-        elif filter_ == "EDGE_ENHANCE":  # 锐化效果
-            _x = ImageFilter.EDGE_ENHANCE
-        elif filter_ == "BLUR":  # 模糊效果
+        if filter_ == "BLUR":
             _x = ImageFilter.BLUR
-        elif filter_ == "CONTOUR":  # 铅笔滤镜
+        elif filter_ == "CONTOUR":
             _x = ImageFilter.CONTOUR
-        elif filter_ == "FIND_EDGES":  # 边缘检测
+        elif filter_ == "EDGE_ENHANCE":
+            _x = ImageFilter.EDGE_ENHANCE
+        elif filter_ == "FIND_EDGES":
             _x = ImageFilter.FIND_EDGES
+        elif filter_ == "GaussianBlur":
+            _x = ImageFilter.GaussianBlur
         if _x:
-            if aud:
-                self.markImg = self.markImg.filter(_x(aud))
-            else:
-                self.markImg = self.markImg.filter(_x)
+            self.markImg = self.markImg.filter(_x(aud)) if aud else self.markImg.filter(_x)
         self.draw = ImageDraw.Draw(self.markImg)
 
     async def areplace_color_tran(
@@ -1102,16 +1095,16 @@ class BuildImage:
         for i in range(self.w):
             for j in range(self.h):
                 r, g, b = self.markImg.getpixel((i, j))
-                if not end_:
-                    if r == start_[0] and g == start_[1] and b == start_[2]:
-                        self.markImg.putpixel((i, j), replace_color)
-                else:
+                if end_:
                     if (
                         start_[0] <= r <= end_[0]
                         and start_[1] <= g <= end_[1]
                         and start_[2] <= b <= end_[2]
                     ):
                         self.markImg.putpixel((i, j), replace_color)
+
+                elif r == start_[0] and g == start_[1] and b == start_[2]:
+                    self.markImg.putpixel((i, j), replace_color)
 
     #
     def getchannel(self, type_):
@@ -1179,8 +1172,7 @@ def get_plugin_config(module: str) -> PluginConfig:
 def get_command_match(prefix: List[str], alias: List[str]) -> List[str]:
     result = []
     for p in prefix:
-        for a in alias:
-            result.append(p + a)
+        result.extend(p + a for a in alias)
     return result
 
 

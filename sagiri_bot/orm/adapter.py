@@ -14,5 +14,5 @@ def get_adapter(url: str) -> dict:
             adapter.pop("disable_pooling")
             for key in adapter.keys():
                 adapter[key] = int(adapter[key])
-        return adapter if adapter else {}
+        return adapter or {}
     return {}

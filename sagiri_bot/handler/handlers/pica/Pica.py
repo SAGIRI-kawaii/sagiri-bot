@@ -22,7 +22,7 @@ from creart import create
 from sagiri_bot.config import GlobalConfig
 
 BASE_PATH = os.path.dirname(__file__)
-CACHE_PATH = BASE_PATH + "/cache/download"
+CACHE_PATH = f"{BASE_PATH}/cache/download"
 global_url = "https://picaapi.picacomic.com/"
 api_key = "C69BAF41DA5ABD1FFEDC6D2FEA56B"
 uuid_s = str(uuid.uuid4()).replace("-", "")
@@ -176,7 +176,7 @@ class Pica:
 
     async def random(self):
         """随机本子"""
-        url = global_url + "comics/random"
+        url = f"{global_url}comics/random"
         temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
@@ -184,7 +184,7 @@ class Pica:
 
     async def rank(self, tt: Literal["H24", "D7", "D30"] = "H24"):
         """排行榜"""
-        url = global_url + f"comics/leaderboard?ct=VC&tt={tt}"
+        url = f"{global_url}comics/leaderboard?ct=VC&tt={tt}"
         temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
@@ -192,7 +192,7 @@ class Pica:
 
     async def comic_info(self, book_id: str):
         """漫画详情"""
-        url = global_url + f"comics/{book_id}"
+        url = f"{global_url}comics/{book_id}"
         temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
@@ -207,11 +207,9 @@ class Pica:
                 if resp.status != 200:
                     resp.raise_for_status()
                 image_bytes = await resp.read()
-                if not path:
-                    return image_bytes
-                else:
+                if path:
                     IMG.open(BytesIO(image_bytes)).save(str(path))
-                    return image_bytes
+                return image_bytes
 
     async def download_comic(
         self, book_id: str, return_zip: bool = True
@@ -222,11 +220,11 @@ class Pica:
         tasks = []
         for char in path_filter:
             comic_name = comic_name.replace(char, " ")
-        comic_path = CACHE_PATH + f"/{comic_name}"
+        comic_path = f"{CACHE_PATH}/{comic_name}"
         if not os.path.exists(comic_path):
             os.mkdir(comic_path)
         for episode in range(episodes):
-            url = global_url + f"comics/{book_id}/order/{episode + 1}/pages"
+            url = f"{global_url}comics/{book_id}/order/{episode + 1}/pages"
             temp_header = self.update_signature(url, "GET")
             async with aiohttp.ClientSession(
                 connector=TCPConnector(ssl=False)
@@ -236,13 +234,13 @@ class Pica:
                 ) as resp:
                     data = (await resp.json())["data"]
             episode_title = data["ep"]["title"]
-            episode_path = comic_path + f"/{episode_title}"
+            episode_path = f"{comic_path}/{episode_title}"
             if not os.path.exists(episode_path):
                 os.mkdir(episode_path)
             for img in data["pages"]["docs"]:
                 media = img["media"]
                 img_url = f"{media['fileServer']}/static/{media['path']}"
-                image_path = episode_path + f"/{media['originalName']}"
+                image_path = f"{episode_path}/{media['originalName']}"
                 print(comic_name, episode_title, media["originalName"], sep=" - ")
                 if os.path.exists(image_path):
                     continue

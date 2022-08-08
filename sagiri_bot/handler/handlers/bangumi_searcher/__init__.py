@@ -70,13 +70,10 @@ async def bangumi_searcher(
 ):
     @Waiter.create_using_function(listening_events=[GroupMessage])
     async def image_waiter(
-        waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
-    ):
+            waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
+        ):
         if waiter_group.id == group.id and waiter_member.id == member.id:
-            if waiter_message.has(Image):
-                return waiter_message.get_first(Image)
-            else:
-                return False
+            return waiter_message.get_first(Image) if waiter_message.has(Image) else False
 
     if not await group_setting.get_setting(group.id, Setting.bangumi_search):
         return await app.send_group_message(group, MessageChain("搜番功能未开启呐~请联系管理员哦~"))

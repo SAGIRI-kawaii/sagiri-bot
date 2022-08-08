@@ -105,8 +105,7 @@ async def installed_channels(token: bool = Depends(certify_token)):
     if not token:
         return GeneralResponse(code=401, message="invalid token!")
     channels = saya.channels
-    modules = list(channels.keys())
-    modules.sort()
+    modules = sorted(channels.keys())
     return GeneralResponse(
         data={
             module: {
@@ -204,87 +203,88 @@ async def get_group_list(token: bool = Depends(certify_token)):
 
 @app.get("/group/detail")
 async def get_group_detail(group_id: int, token: bool = Depends(certify_token)):
-    if token:
-        ariadne_app = Ariadne.current()
-        if group := asyncio.run_coroutine_threadsafe(
-            ariadne_app.get_group(group_id), loop
-        ).result():
-            group_config = asyncio.run_coroutine_threadsafe(
-                group.getConfig(), loop
-            ).result()
-            return GeneralResponse(
-                data={
-                    "name": group_config.name,
-                    "announcement": group_config.announcement,
-                    "confess_talk": group_config.confess_talk,
-                    "allow_member_invite": group_config.allow_member_invite,
-                    "auto_approve": group_config.auto_approve,
-                    "anonymous_chat": group_config.anonymous_chat,
-                }
-            )
-        else:
-            return GeneralResponse(
-                code=402, message=f"group {group_id} does not exist!"
-            )
-    else:
+    if not token:
         return GeneralResponse(code=401, message="invalid token!")
+    ariadne_app = Ariadne.current()
+    if not (
+        group := asyncio.run_coroutine_threadsafe(
+            ariadne_app.get_group(group_id), loop
+        ).result()
+    ):
+        return GeneralResponse(
+            code=402, message=f"group {group_id} does not exist!"
+        )
+    group_config = asyncio.run_coroutine_threadsafe(
+        group.getConfig(), loop
+    ).result()
+    return GeneralResponse(
+        data={
+            "name": group_config.name,
+            "announcement": group_config.announcement,
+            "confess_talk": group_config.confess_talk,
+            "allow_member_invite": group_config.allow_member_invite,
+            "auto_approve": group_config.auto_approve,
+            "anonymous_chat": group_config.anonymous_chat,
+        }
+    )
 
 
 @app.post("/group/send")
 async def send_group_message(
     group_id: int, message: list, token: bool = Depends(certify_token)
 ):
-    if token:
-        ariadne_app = Ariadne.current()
-        message = parse_messagechain(message)
-        if group := asyncio.run_coroutine_threadsafe(
-            ariadne_app.get_group(group_id), loop
-        ).result():
-            if isinstance(message, MessageChain):
-                asyncio.run_coroutine_threadsafe(
-                    ariadne_app.send_group_message(
-                        group,
-                        message
-                        # MessageChain(message)
-                        # MessageChain.from_persistent_string(message).as_sendable()
-                    ),
-                    loop,
-                ).result()
-                return GeneralResponse()
-            else:
-                return GeneralResponse(
-                    code=403, data=message, message="missing parameters!"
-                )
-        else:
-            return GeneralResponse(
-                code=402, message=f"group {group_id} does not exist!"
-            )
-    else:
+    if not token:
         return GeneralResponse(code=401, message="invalid token!")
+    ariadne_app = Ariadne.current()
+    message = parse_messagechain(message)
+    if not (
+        group := asyncio.run_coroutine_threadsafe(
+            ariadne_app.get_group(group_id), loop
+        ).result()
+    ):
+        return GeneralResponse(
+            code=402, message=f"group {group_id} does not exist!"
+        )
+    if isinstance(message, MessageChain):
+        asyncio.run_coroutine_threadsafe(
+            ariadne_app.send_group_message(
+                group,
+                message
+                # MessageChain(message)
+                # MessageChain.from_persistent_string(message).as_sendable()
+            ),
+            loop,
+        ).result()
+        return GeneralResponse()
+    else:
+        return GeneralResponse(
+            code=403, data=message, message="missing parameters!"
+        )
 
 
 @app.get("/group/setting/get")
 async def get_group_setting(group_id: int, token: bool = Depends(certify_token)):
-    if token:
-        columns = {
-            i: Setting.__dict__[i]
-            for i in Setting.__dict__.keys()
-            if isinstance(Setting.__dict__[i], InstrumentedAttribute)
-        }
-        column_names = list(columns.keys())
-        column_names.sort()
-        if result := await orm.fetchall(
-            select(*([columns[name] for name in column_names])).where(
-                Setting.group_id == group_id
-            )
-        ):
-            return GeneralResponse(data=result)
-        else:
-            return GeneralResponse(
-                code=402, message=f"group {group_id} does not exist!"
-            )
-    else:
+    if not token:
         return GeneralResponse(code=401, message="invalid token!")
+    columns = {
+        i: Setting.__dict__[i]
+        for i in Setting.__dict__.keys()
+        if isinstance(Setting.__dict__[i], InstrumentedAttribute)
+    }
+    column_names = sorted(columns.keys())
+    return (
+        GeneralResponse(data=result)
+        if (
+            result := await orm.fetchall(
+                select(*([columns[name] for name in column_names])).where(
+                    Setting.group_id == group_id
+                )
+            )
+        )
+        else GeneralResponse(
+            code=402, message=f"group {group_id} does not exist!"
+        )
+    )
 
 
 @app.get("/group/setting/modify")
@@ -294,138 +294,136 @@ async def modify_group_setting(
     value: Union[int, str],
     token: bool = Depends(certify_token),
 ):
-    if token:
-        value = (
-            (True if value in ("True", "true") else False)
-            if value in ("True", "true", "False", "false")
-            else value
-        )
-        columns = {
-            i: Setting.__dict__[i]
-            for i in Setting.__dict__.keys()
-            if isinstance(Setting.__dict__[i], InstrumentedAttribute)
-        }
-        if column in columns:
-            if await orm.fetchone(select(Setting).where(Setting.group_id == group_id)):
-                if command_index[column].is_valid(value):
-                    try:
-                        await orm.insert_or_update(
-                            Setting, [Setting.group_id == group_id], {column: value}
-                        )
-                    except Exception as e:
-                        logger.exception("")
-                        return GeneralResponse(code=500, message=str(e))
-                    return GeneralResponse()
-                else:
-                    valid_values = command_index[column].valid_values
-                    valid_values = [str(i) for i in valid_values]
-                    return GeneralResponse(
-                        code=405,
-                        message=f"invalid value for column {column}: {value}! "
-                        f"valid values for {column}: {', '.join(valid_values)}",
-                    )
-            else:
-                return GeneralResponse(
-                    code=402, message=f"group {group_id} does not exist!"
-                )
-        else:
-            return GeneralResponse(
-                code=403,
-                message=f"invalid column name: {column}! valid columns: {', '.join(columns.keys())}",
-            )
-    else:
+    if not token:
         return GeneralResponse(code=401, message="invalid token!")
+    columns = {
+        i: Setting.__dict__[i]
+        for i in Setting.__dict__.keys()
+        if isinstance(Setting.__dict__[i], InstrumentedAttribute)
+    }
+    if column not in columns:
+        return GeneralResponse(
+            code=403,
+            message=f"invalid column name: {column}! valid columns: {', '.join(columns.keys())}",
+        )
+    if not await orm.fetchone(
+        select(Setting).where(Setting.group_id == group_id)
+    ):
+        return GeneralResponse(
+            code=402, message=f"group {group_id} does not exist!"
+        )
+    value = (
+        value in ("True", "true")
+        if value in ("True", "true", "False", "false")
+        else value
+    )
+
+    if command_index[column].is_valid(value):
+        try:
+            await orm.insert_or_update(
+                Setting, [Setting.group_id == group_id], {column: value}
+            )
+        except Exception as e:
+            logger.exception("")
+            return GeneralResponse(code=500, message=str(e))
+        return GeneralResponse()
+    else:
+        valid_values = command_index[column].valid_values
+        valid_values = [str(i) for i in valid_values]
+        return GeneralResponse(
+            code=405,
+            message=f"invalid value for column {column}: {value}! "
+            f"valid values for {column}: {', '.join(valid_values)}",
+        )
 
 
 @app.get("/friend/list")
 async def get_friend_list(token: bool = Depends(certify_token)):
-    if token:
-        ariadne_app = Ariadne.current()
-        return GeneralResponse(
-            data={
-                friend.id: {"nickname": friend.nickname, "remark": friend.remark}
-                for friend in (
-                    asyncio.run_coroutine_threadsafe(
-                        ariadne_app.get_friend_list(), loop
-                    ).result()
-                )
-            }
-        )
-    else:
+    if not token:
         return GeneralResponse(code=401, message="invalid token!")
+    ariadne_app = Ariadne.current()
+    return GeneralResponse(
+        data={
+            friend.id: {"nickname": friend.nickname, "remark": friend.remark}
+            for friend in (
+                asyncio.run_coroutine_threadsafe(
+                    ariadne_app.get_friend_list(), loop
+                ).result()
+            )
+        }
+    )
 
 
 @app.get("/friend/detail")
 async def get_friend_detail(friend_id: int, token: bool = Depends(certify_token)):
-    if token:
-        ariadne_app = Ariadne.current()
-        if friend := asyncio.run_coroutine_threadsafe(
-            ariadne_app.get_friend(friend_id), loop
-        ).result():
-            friend_profile = asyncio.run_coroutine_threadsafe(
-                friend.getProfile(), loop
-            ).result()
-            return GeneralResponse(
-                data={
-                    "nickname": friend_profile.nickname,
-                    "email": friend_profile.email,
-                    "age": friend_profile.age,
-                    "level": friend_profile.level,
-                    "sign": friend_profile.sign,
-                    "sex": friend_profile.sex,
-                }
-            )
-        else:
-            return GeneralResponse(
-                code=402, message=f"friend {friend_id} does not exist!"
-            )
-    else:
+    if not token:
         return GeneralResponse(code=401, message="invalid token!")
+    ariadne_app = Ariadne.current()
+    if not (
+        friend := asyncio.run_coroutine_threadsafe(
+            ariadne_app.get_friend(friend_id), loop
+        ).result()
+    ):
+        return GeneralResponse(
+            code=402, message=f"friend {friend_id} does not exist!"
+        )
+    friend_profile = asyncio.run_coroutine_threadsafe(
+        friend.getProfile(), loop
+    ).result()
+    return GeneralResponse(
+        data={
+            "nickname": friend_profile.nickname,
+            "email": friend_profile.email,
+            "age": friend_profile.age,
+            "level": friend_profile.level,
+            "sign": friend_profile.sign,
+            "sex": friend_profile.sex,
+        }
+    )
 
 
 @app.post("/friend/send")
 async def send_friend_message(
     friend_id: int, message: list, token: bool = Depends(certify_token)
 ):
-    if token:
-        ariadne_app = Ariadne.current()
-        message = parse_messagechain(message)
-        if friend := asyncio.run_coroutine_threadsafe(
-            ariadne_app.get_friend(friend_id), loop
-        ).result():
-            if isinstance(message, MessageChain):
-                asyncio.run_coroutine_threadsafe(
-                    ariadne_app.send_friend_message(friend, message), loop
-                ).result()
-                return GeneralResponse()
-            else:
-                return GeneralResponse(
-                    code=403, data=message, message="missing parameters!"
-                )
-        else:
-            return GeneralResponse(
-                code=402, message=f"friend {friend_id} does not exist!"
-            )
-    else:
+    if not token:
         return GeneralResponse(code=401, message="invalid token!")
+    ariadne_app = Ariadne.current()
+    message = parse_messagechain(message)
+    if not (
+        friend := asyncio.run_coroutine_threadsafe(
+            ariadne_app.get_friend(friend_id), loop
+        ).result()
+    ):
+        return GeneralResponse(
+            code=402, message=f"friend {friend_id} does not exist!"
+        )
+    if isinstance(message, MessageChain):
+        asyncio.run_coroutine_threadsafe(
+            ariadne_app.send_friend_message(friend, message), loop
+        ).result()
+        return GeneralResponse()
+    else:
+        return GeneralResponse(
+            code=403, data=message, message="missing parameters!"
+        )
 
 
 @app.get("/sys/info")
 async def get_sys_info(token: bool = Depends(certify_token)):
-    if token:
-        mem = psutil.virtual_memory()
-        return GeneralResponse(
-            data={
-                "memory": {"total": mem.total, "used": mem.used, "free": mem.free},
-                "cpu": {
-                    "percent": psutil.cpu_percent(),
-                    "count": psutil.cpu_count(),
-                    "frequency": psutil.cpu_freq(),
-                },
-            }
-        )
-    else:
+    if not token:
         return GeneralResponse(code=401, message="invalid token!")
+    mem = psutil.virtual_memory()
+    return GeneralResponse(
+        data={
+            "memory": {"total": mem.total, "used": mem.used, "free": mem.free},
+            "cpu": {
+                "percent": psutil.cpu_percent(),
+                "count": psutil.cpu_count(),
+                "frequency": psutil.cpu_freq(),
+            },
+        }
+    )
 
 
 @app.websocket_route("/log")

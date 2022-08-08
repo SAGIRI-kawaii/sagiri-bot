@@ -220,7 +220,7 @@ class Memes(object):
 
     @staticmethod
     async def make_jichou(texts: List[str]) -> Union[str, BytesIO]:
-        date = datetime.today().strftime("%Y{}%m{}%d{}").format("年", "月", "日")
+        date = datetime.now().strftime("%Y{}%m{}%d{}").format("年", "月", "日")
         text = f"{date} 晴\n{texts[0]}\n这个仇我先记下了"
         font = Memes.load_font(DEFAULT_FONT, 45)
         lines = Memes.wrap_text(text, font, 440)

@@ -127,7 +127,7 @@ class GroupWordCloudGenerator:
                 continue
             if i.isdigit():
                 continue
-            if any([word in i for word in filter_list]):
+            if any(word in i for word in filter_list):
                 continue
             elif i in not_filter:
                 result.append(i)
@@ -143,8 +143,9 @@ class GroupWordCloudGenerator:
             return base_path + path
 
         mask = np.array(
-            mask if mask else IMG.open(random_pic(f"{os.getcwd()}/statics/wordcloud/"))
+            mask or IMG.open(random_pic(f"{os.getcwd()}/statics/wordcloud/"))
         )
+
         wc = WordCloud(
             font_path=f"{os.getcwd()}/statics/fonts/STKAITI.TTF",
             background_color="white",
@@ -184,10 +185,10 @@ class GroupWordCloudGenerator:
         member_id = member.id
         time = datetime.now()
         time_right = time.strftime("%Y-%m-%d %H:%M:%S")
-        if review_type in ("年内", "今年", "年度"):
+        if review_type in {"年内", "今年", "年度"}:
             timep = time - relativedelta(years=1)
             time_left = (time - relativedelta(years=1)).strftime("%Y-%m-%d %H:%M:%S")
-        elif review_type in ("月内", "本月", "月度"):
+        elif review_type in {"月内", "本月", "月度"}:
             timep = time - relativedelta(months=1)
             time_left = (time - relativedelta(months=1)).strftime("%Y-%m-%d %H:%M:%S")
         else:

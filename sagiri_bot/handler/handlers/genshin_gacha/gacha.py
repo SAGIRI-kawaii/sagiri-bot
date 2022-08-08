@@ -59,8 +59,8 @@ class Gacha(object):
     def get_png_path(name):
         # 获取png文件路径，传入的参数是角色或武器名字，会自动在角色和武器文件夹搜索，找不到使用默认图标
 
-        role_name_path = os.path.join(ICON_PATH, "角色图鉴", str(name) + ".png")
-        arms_name_path = os.path.join(ICON_PATH, "武器图鉴", str(name) + ".png")
+        role_name_path = os.path.join(ICON_PATH, "角色图鉴", f"{str(name)}.png")
+        arms_name_path = os.path.join(ICON_PATH, "武器图鉴", f"{str(name)}.png")
 
         if os.path.exists(role_name_path):
             return role_name_path
@@ -78,12 +78,10 @@ class Gacha(object):
         if self.pool == "常驻":
             return False
 
-        if (name in POOL[self.pool]["5_star_UP"]) or (
-            name in POOL[self.pool]["4_star_UP"]
-        ):
-            return True
-
-        return False
+        return (
+            name in POOL[self.pool]["5_star_UP"]
+            or name in POOL[self.pool]["4_star_UP"]
+        )
 
     def is_star(self, name):
         # 检查角色或物品是几星的
@@ -184,27 +182,19 @@ class Gacha(object):
 
     def get_up_probability(self):
         # 获取上一次抽卡抽到5星 UP 时，再次获取5星概率是多少
-        if self.pool.count("武器"):
-            return 0.75
-        return 0.5
+        return 0.75 if self.pool.count("武器") else 0.5
 
     def get_5_star_basic_probability(self):
         # 获取5星的基础概率
-        if self.pool.count("武器"):
-            return 0.007
-        return 0.006
+        return 0.007 if self.pool.count("武器") else 0.006
 
     def get_4_star_basic_probability(self):
         # 获取4星的基础概率
-        if self.pool.count("武器"):
-            return 0.060
-        return 0.051
+        return 0.060 if self.pool.count("武器") else 0.051
 
     def get_distance_frequency(self):
         # 获取当前卡池的保底抽卡次数
-        if self.pool.count("武器"):
-            return 80
-        return 90
+        return 80 if self.pool.count("武器") else 90
 
     def get_5_star(self):
         # 先检查上次5星是否是UP，不是UP本次抽取必定是 UP，
@@ -215,15 +205,12 @@ class Gacha(object):
         if self.pool == "常驻":
             return random.choice(POOL[self.pool]["5_star_not_UP"])
 
-        # 下边是角色或武器的UP
-        if self.is_up(self.last_time_5):
-
-            if random.random() < self.up_probability:
-                return random.choice(POOL[self.pool]["5_star_UP"])
-            else:
-                return random.choice(POOL[self.pool]["5_star_not_UP"])
-        else:
+        if not self.is_up(self.last_time_5):
             return random.choice(POOL[self.pool]["5_star_UP"])
+        if random.random() < self.up_probability:
+            return random.choice(POOL[self.pool]["5_star_UP"])
+        else:
+            return random.choice(POOL[self.pool]["5_star_not_UP"])
 
     def get_4_star(self):
         # 先检查上次4星是否是UP，不是UP本次抽取必定是 UP，
@@ -234,35 +221,31 @@ class Gacha(object):
         if self.pool == "常驻":
             return random.choice(POOL[self.pool]["4_star_not_UP"])
 
-        # 下边是角色或武器的UP
-        if self.is_up(self.last_time_4):
-            if random.random() < self.up_probability:
-                return random.choice(POOL[self.pool]["4_star_UP"])
-            else:
-                return random.choice(POOL[self.pool]["4_star_not_UP"])
-        else:
+        if not self.is_up(self.last_time_4):
             return random.choice(POOL[self.pool]["4_star_UP"])
+        if random.random() < self.up_probability:
+            return random.choice(POOL[self.pool]["4_star_UP"])
+        else:
+            return random.choice(POOL[self.pool]["4_star_not_UP"])
 
     def get_5_star_probability(self):
-        # 获取本次抽5星的概率是多少
-
         if self.pool.count("武器"):
             # 这是武器up池5星概率
-            if self.distance_5_star <= 62:
-                return self._5_star_basic_probability
-            else:
-                return self._5_star_basic_probability + 0.056 * (
-                    self.distance_5_star - 62
-                )
+            return (
+                self._5_star_basic_probability
+                if self.distance_5_star <= 62
+                else self._5_star_basic_probability
+                + 0.056 * (self.distance_5_star - 62)
+            )
+
+        # 下边是常驻池和角色UP池
+        # 这两个保底和概率是相同的所以放在一起
+        if self.distance_5_star <= 73:
+            return self._5_star_basic_probability
         else:
-            # 下边是常驻池和角色UP池
-            # 这两个保底和概率是相同的所以放在一起
-            if self.distance_5_star <= 73:
-                return self._5_star_basic_probability
-            else:
-                return self._5_star_basic_probability + 0.06 * (
-                    self.distance_5_star - 73
-                )
+            return self._5_star_basic_probability + 0.06 * (
+                self.distance_5_star - 73
+            )
 
     def gacha_one(self):
         # self.last_time_4表示上一个4星角色
@@ -311,7 +294,7 @@ class Gacha(object):
 
     def gacha_10(self) -> MessageChain:
         # 抽10连
-        if not (self.pool in POOL.keys()):
+        if self.pool not in POOL.keys():
             return MessageChain("当前卡池已结束，请使用 原神卡池切换 切换其他卡池")
 
         gacha_txt = ""
@@ -353,7 +336,7 @@ class Gacha(object):
 
     def gacha_90(self, frequency=90) -> MessageChain:
         # 抽一井
-        if not (self.pool in POOL.keys()):
+        if self.pool not in POOL.keys():
             return MessageChain("当前卡池已结束，请使用 原神卡池切换 切换其他卡池")
 
         gacha_txt = ""
@@ -362,7 +345,7 @@ class Gacha(object):
 
             new_gacha = self.gacha_one()
 
-            if not (new_gacha in POOL[self.pool]["3_star_not_UP"]):  # 抽一井时图片上不保留3星的武器
+            if new_gacha not in POOL[self.pool]["3_star_not_UP"]:  # 抽一井时图片上不保留3星的武器
                 self.gacha_list.append(new_gacha)
 
             self.add_gacha_all_statistics(
@@ -410,15 +393,11 @@ def gacha_info(pool=DEFAULT_POOL) -> MessageChain:
     for _5_star in POOL[pool]["5_star_UP"]:
         im = IMG.open(Gacha.get_png_path(_5_star))
         im = Gacha.pic2bytes(im)
-        up_info.append(Image(data_bytes=im))
-        up_info.append(Plain(text=f"\n{_5_star} ★★★★★"))
-
+        up_info.extend((Image(data_bytes=im), Plain(text=f"\n{_5_star} ★★★★★")))
     for _4_star in POOL[pool]["4_star_UP"]:
         im = IMG.open(Gacha.get_png_path(_4_star))
         im = Gacha.pic2bytes(im)
-        up_info.append(Image(data_bytes=im))
-        up_info.append(Plain(text=f"\n{_4_star} ★★★★"))
-
+        up_info.extend((Image(data_bytes=im), Plain(text=f"\n{_4_star} ★★★★")))
     if not up_info:
         # 如果up_info是空的，表示当前是常驻池没有UP
         up_info.append(Plain(text="常驻池没有UP"))

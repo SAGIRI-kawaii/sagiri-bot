@@ -37,9 +37,12 @@ async def update_vtb_list():
                     result = await resp.json()
             if not result:
                 continue
-            for info in result:
-                if info.get("mid", None) and info.get("uname", None):
-                    vtb_list.append(info)
+            vtb_list.extend(
+                info
+                for info in result
+                if info.get("mid", None) and info.get("uname", None)
+            )
+
             break
         except asyncio.TimeoutError:
             logger.warning(f"Get {url} timeout")
@@ -81,10 +84,15 @@ async def get_uid_by_name(name: str) -> int:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, params=params, timeout=10) as resp:
                 result = await resp.json()
-        for user in result["data"]["result"]:
-            if user["uname"] == name:
-                return user["mid"]
-        return 0
+        return next(
+            (
+                user["mid"]
+                for user in result["data"]["result"]
+                if user["uname"] == name
+            ),
+            0,
+        )
+
     except (KeyError, IndexError, asyncio.TimeoutError) as e:
         logger.warning(f"Error in get_uid_by_name({name}): {e}")
         return 0

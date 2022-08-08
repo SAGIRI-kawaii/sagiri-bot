@@ -123,8 +123,7 @@ async def saya_manager(
 ):
     if message.display.strip() == "已加载插件":
         loaded_channels = get_loaded_channels()
-        keys = list(loaded_channels.keys())
-        keys.sort()
+        keys = sorted(loaded_channels.keys())
         return await app.send_group_message(
             group,
             await MessageChainUtils.messagechain_to_img(
@@ -257,8 +256,7 @@ async def saya_manager(
         load_type = "reload" if message.display[0] == "重" else "unload"
         target = message.display[5:].strip()
         loaded_channels = get_loaded_channels()
-        keys = list(loaded_channels.keys())
-        keys.sort()
+        keys = sorted(loaded_channels.keys())
         if target.isdigit():
             if not 0 <= int(target) - 1 < len(keys):
                 return await app.send_group_message(
@@ -323,8 +321,7 @@ async def saya_manager(
         switch_type = "on" if message.display[:2] == "打开" else "off"
         target = message.display[5:].strip()
         loaded_channels = get_loaded_channels()
-        keys = list(loaded_channels.keys())
-        keys.sort()
+        keys = sorted(loaded_channels.keys())
         channel_path = ""
         if target.isdigit():
             if not 0 <= int(target) - 1 < len(keys):

@@ -52,7 +52,7 @@ async def dice(app: Ariadne, message: MessageChain, group: Group, source: Source
         await app.send_group_message(
             group,
             MessageChain(
-                f"{random.choice([num for num in range(1, max_point + 1)])}/{max_point} "
+                f"{random.choice(list(range(1, max_point + 1)))}/{max_point} "
                 for _ in range(times)
             ),
             quote=source,

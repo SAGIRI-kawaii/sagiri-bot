@@ -175,7 +175,7 @@ class Image(AbstractElement):
             raise ValueError("Too many binary initializers!")
         if sum([bool(data_bytes), bool(path), bool(base64)]) == 0:
             raise ValueError("Too few binary initializers!")
-        self.self_line = self_line if not self.center else True
+        self.self_line = True if self.center else self_line
         self.center = center
         if path:
             if isinstance(path, str):

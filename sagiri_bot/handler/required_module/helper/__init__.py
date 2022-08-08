@@ -70,14 +70,10 @@ def judge(name: str, group: Union[int, Group]):
 )
 async def helper(app: Ariadne, group: Group, source: Source):
     modules = [
-        (
-            saya.channels[c].meta["name"]
-            if saya.channels[c].meta["name"]
-            else c.split(".")[-1],
-            judge(c, group),
-        )
+        (saya.channels[c].meta["name"] or c.split(".")[-1], judge(c, group))
         for c in saya.channels
     ]
+
     if len(modules) % 15:
         modules.extend([(None, None) for _ in range(15 - len(modules) % 15)])
     print(modules)

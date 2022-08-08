@@ -75,7 +75,7 @@ async def black_white_grass(
         if len(msg_sp) == 1:
             centered_text(bg, chinese_msg, add_h)
         else:
-            centered_text(bg, chinese_msg + "<|>" + msg_sp[1], add_h)
+            centered_text(bg, f"{chinese_msg}<|>{msg_sp[1]}", add_h)
     elif not bg.check_font_size(msg_sp[0]):
         centered_text(bg, msg, add_h)
     else:
@@ -125,14 +125,14 @@ async def get_translate(msg: str) -> str:
             data = await resp.json()
     if data["errorCode"] == 0:
         translate = data["translateResult"][0][0]["tgt"]
-        msg += "<|>" + translate
+        msg += f"<|>{translate}"
     return msg
 
 
 def formalization_msg(msg: str) -> str:
     rst = ""
     for i, char in enumerate(msg):
-        rst += char + " " if is_chinese(char) else char
+        rst += f"{char} " if is_chinese(char) else char
         if i + 1 < len(msg) and is_chinese(msg[i + 1]) and char.isalpha():
             rst += " "
     return rst

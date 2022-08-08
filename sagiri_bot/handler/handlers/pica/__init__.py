@@ -161,9 +161,12 @@ async def pica_function(
         info = await pica.download_comic(comic_id, False)
         image_list = []
         for root, _, files in os.walk(info[0]):
-            for file in files:
-                if file[-4:] in (".jpg", ".png"):
-                    image_list.append(os.path.join(root, file))
+            image_list.extend(
+                os.path.join(root, file)
+                for file in files
+                if file[-4:] in (".jpg", ".png")
+            )
+
         node_count = 0
         time_count = 0
         time_base = datetime.now() - timedelta(seconds=len(image_list))
@@ -220,9 +223,12 @@ async def pica_function(
         info = await pica.download_comic(comic_id, False)
         image_list = []
         for root, _, files in os.walk(info[0]):
-            for file in files:
-                if file[-3:] != "zip":
-                    image_list.append(os.path.join(root, file))
+            image_list.extend(
+                os.path.join(root, file)
+                for file in files
+                if file[-3:] != "zip"
+            )
+
         await app.send_group_message(
             group, MessageChain([Image(path=path) for path in image_list])
         )

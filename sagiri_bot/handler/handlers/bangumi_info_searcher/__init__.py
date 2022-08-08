@@ -71,7 +71,7 @@ async def bangumi_info_searcher(
         return
 
     bangumi_id = data["list"][0]["id"]
-    url = "https://api.bgm.tv/subject/%s?responseGroup=medium" % bangumi_id
+    url = f"https://api.bgm.tv/subject/{bangumi_id}?responseGroup=medium"
 
     async with aiohttp.ClientSession() as session:
         async with session.post(

@@ -16,17 +16,14 @@ def get_font(
     if not font:
         if size in fonts[DEFAULT_FONT_NAME]:
             return DEFAULT_FONT
-        else:
-            fonts[DEFAULT_FONT_NAME][size] = ImageFont.truetype(DEFAULT_FONT_NAME, size)
-            return fonts[DEFAULT_FONT_NAME][size]
+        fonts[DEFAULT_FONT_NAME][size] = ImageFont.truetype(DEFAULT_FONT_NAME, size)
+        return fonts[DEFAULT_FONT_NAME][size]
     if isinstance(font, FreeTypeFont):
         return font
     elif str(font) in fonts:
-        if size in fonts[str(font)]:
-            return fonts[str(font)][size]
-        else:
+        if size not in fonts[str(font)]:
             fonts[str(font)][size] = ImageFont.truetype(str(font), size)
-            return fonts[str(font)][size]
+        return fonts[str(font)][size]
     else:
         fonts[str(font)] = {}
         fonts[str(font)][size] = ImageFont.truetype(str(font), size)
