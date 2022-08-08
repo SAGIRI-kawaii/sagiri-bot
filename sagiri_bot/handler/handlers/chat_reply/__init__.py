@@ -20,9 +20,9 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 
 from sagiri_bot.config import GlobalConfig
-from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.internal_utils import group_setting
+from sagiri_bot.control import Function, BlackListControl, UserCalledCountControl
 
 saya = Saya.current()
 channel = Channel.current()
@@ -46,7 +46,6 @@ config = create(GlobalConfig)
             )
         ],
         decorators=[
-            FrequencyLimit.require("chat_reply", 2),
             Function.require(channel.module),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.AT)

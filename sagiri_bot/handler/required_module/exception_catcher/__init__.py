@@ -13,7 +13,7 @@ from sagiri_bot.config import GlobalConfig
 from utils.text_engine.text_engine import TextEngine
 
 saya = create(Saya)
-channel = create(Channel)
+channel = Channel.current()
 
 channel.name("ExceptionCatcher")
 channel.author("SAGIRI-kawaii")

@@ -95,11 +95,11 @@ class FrequencyLimit(object):
 
     @staticmethod
     def require(
-            func_name: str,
-            weight: int,
-            total_weight: int = 10,
-            override_level: int = Permission.MASTER,
-            group_admin_override: bool = False
+        func_name: str,
+        weight: int,
+        total_weight: int = 15,
+        override_level: int = Permission.MASTER,
+        group_admin_override: bool = False
     ) -> Depend:
         async def limit(event: GroupMessage) -> NoReturn:
             if await Permission.get(event.sender.group, event.sender) >= override_level:

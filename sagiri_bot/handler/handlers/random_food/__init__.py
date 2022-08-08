@@ -35,7 +35,7 @@ with open(str(Path(__file__).parent.joinpath("food.json")), "r", encoding="utf-8
             ])
         ],
         decorators=[
-            FrequencyLimit.require("random_food", 2),
+            FrequencyLimit.require("random_meal", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
@@ -73,7 +73,7 @@ async def random_meal(app: Ariadne, group: Group, source: Source, option: MatchR
             ])
         ],
         decorators=[
-            FrequencyLimit.require("random_food", 2),
+            FrequencyLimit.require("random_tea", 1),
             Function.require(channel.module),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
