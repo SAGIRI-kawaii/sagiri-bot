@@ -20,7 +20,9 @@ channel.description("对各种事件响应")
 
 functions = sys.modules["sagiri_bot.handler.required_module.mirai_event"].__dict__
 group_listening_events = list(gen_subclass(GroupEvent))
-mirai_listening_events = [i for i in gen_subclass(MiraiEvent) if not issubclass(i, GroupEvent)]
+mirai_listening_events = [
+    i for i in gen_subclass(MiraiEvent) if not issubclass(i, GroupEvent)
+]
 group_listening_events.remove(GroupMessage)
 mirai_listening_events.remove(NudgeEvent)
 
@@ -28,7 +30,9 @@ mirai_listening_events.remove(NudgeEvent)
 def argument_signature(callable_target: Callable):
     return {
         name: (
-            param.annotation if param.annotation is not inspect.Signature.empty else None,
+            param.annotation
+            if param.annotation is not inspect.Signature.empty
+            else None,
             param.default if param.default is not inspect.Signature.empty else None,
         )
         for name, param in inspect.signature(callable_target).parameters.items()
@@ -71,12 +75,15 @@ async def member_join_request_event(app: Ariadne, event: MemberJoinRequestEvent)
         if not await group_setting.get_setting(event.source_group, Setting.switch):
             return None
         await app.send_group_message(
-            event.source_group, MessageChain([
-                Plain(text=f"有个新的加群加群请求哟~管理员们快去看看叭！\n"),
-                Plain(text=f"ID：{event.supplicant}\n"),
-                Plain(text=f"昵称：{event.nickname}\n"),
-                Plain(text=f"描述：{event.message}\n")
-            ])
+            event.source_group,
+            MessageChain(
+                [
+                    Plain(text=f"有个新的加群加群请求哟~管理员们快去看看叭！\n"),
+                    Plain(text=f"ID：{event.supplicant}\n"),
+                    Plain(text=f"昵称：{event.nickname}\n"),
+                    Plain(text=f"描述：{event.message}\n"),
+                ]
+            ),
         )
     except AccountMuted:
         pass

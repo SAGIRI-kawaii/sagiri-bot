@@ -38,7 +38,9 @@ class GlobalFrequencyLimitDict:
 
     def get(self, group_id: int, member_id: int, func_name: str):
         if group_id in self.frequency_limit_dict:
-            logger.info(f"called by {func_name} from member {member_id}, group: {group_id} frequency: {self.frequency_limit_dict[group_id]}")
+            logger.info(
+                f"called by {func_name} from member {member_id}, group: {group_id} frequency: {self.frequency_limit_dict[group_id]}"
+            )
             return self.frequency_limit_dict[group_id]
         else:
             self.frequency_limit_dict[group_id] = 0
@@ -65,15 +67,24 @@ class GlobalFrequencyLimitDict:
         if group_id in self.__temp_blacklist:
             if member_id in self.__temp_blacklist[group_id]:
                 if datetime.datetime.now() > self.__temp_blacklist[group_id][member_id]:
-                    self.__temp_blacklist[group_id][member_id] = datetime.datetime.now() + relativedelta(hours=1)
+                    self.__temp_blacklist[group_id][
+                        member_id
+                    ] = datetime.datetime.now() + relativedelta(hours=1)
             else:
-                self.__temp_blacklist[group_id][member_id] = datetime.datetime.now() + relativedelta(hours=1)
+                self.__temp_blacklist[group_id][
+                    member_id
+                ] = datetime.datetime.now() + relativedelta(hours=1)
         else:
             self.__temp_blacklist[group_id] = {}
-            self.__temp_blacklist[group_id][member_id] = datetime.datetime.now() + relativedelta(hours=1)
+            self.__temp_blacklist[group_id][
+                member_id
+            ] = datetime.datetime.now() + relativedelta(hours=1)
 
     def blacklist_judge(self, group_id: int, member_id: int) -> bool:
-        if group_id in self.__temp_blacklist and member_id in self.__temp_blacklist[group_id]:
+        if (
+            group_id in self.__temp_blacklist
+            and member_id in self.__temp_blacklist[group_id]
+        ):
             return datetime.datetime.now() <= self.__temp_blacklist[group_id][member_id]
         else:
             return False

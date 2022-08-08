@@ -16,25 +16,26 @@ DEFAULT_FONT = str(Path(os.getcwd()) / "statics" / "fonts" / "STKAITI.TTF")
 
 class AbstractElement(ABC):
 
-    center: bool = False    # 是否居中
+    center: bool = False  # 是否居中
 
     @abstractmethod
-    def get_canvas_size(self): ...
+    def get_canvas_size(self):
+        ...
 
 
 class Text(AbstractElement):
 
-    text: str   # 文本内容
+    text: str  # 文本内容
 
-    font: FreeTypeFont = None   # 字体（PIL.ImageFont.FreeTypeFont）
+    font: FreeTypeFont = None  # 字体（PIL.ImageFont.FreeTypeFont）
 
-    color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]    # 字体颜色
+    color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]  # 字体颜色
 
-    size: int   # 字体大小
+    size: int  # 字体大小
 
-    spacing: int    # 字间距
+    spacing: int  # 字间距
 
-    end: str    # 结尾字符
+    end: str  # 结尾字符
 
     def __init__(
         self,
@@ -45,7 +46,7 @@ class Text(AbstractElement):
         spacing: int = 1,
         text_type: Optional[TextType] = None,
         center: bool = False,
-        end: str = ''
+        end: str = "",
     ):
         if text_type:
             self.size = text_type.value["size"]
@@ -66,13 +67,15 @@ class Text(AbstractElement):
             )
 
     def __add__(self, other: "Text"):
-        if all([
-            self.font == other.font,
-            self.size == other.size,
-            self.color == other.color,
-            self.spacing == other.spacing,
-            self.center == other.center
-        ]):
+        if all(
+            [
+                self.font == other.font,
+                self.size == other.size,
+                self.color == other.color,
+                self.spacing == other.spacing,
+                self.center == other.center,
+            ]
+        ):
             self.text = self.get_data() + other.get_data()
             return self
         else:
@@ -94,12 +97,14 @@ class Text(AbstractElement):
         self,
         text: Optional[str] = None,
         font: Optional[Union[str, Path, FreeTypeFont]] = None,
-        color: Optional[Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]] = None,
+        color: Optional[
+            Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]
+        ] = None,
         size: Optional[int] = None,
         spacing: Optional[int] = None,
         text_type: Optional[TextType] = None,
         center: Optional[bool] = None,
-        end: Optional[str] = None
+        end: Optional[str] = None,
     ):
         parameters = {
             "text": text or self.text,
@@ -115,30 +120,47 @@ class Text(AbstractElement):
         return Text(**parameters)
 
     def get_canvas_size(self):
-        return self.font.getsize(self.text)[0] + (len(self.text) - 1) * self.spacing, self.font.getsize(self.text)[1]
+        return (
+            self.font.getsize(self.text)[0] + (len(self.text) - 1) * self.spacing,
+            self.font.getsize(self.text)[1],
+        )
 
     def get_data(self) -> str:
         return self.text + self.end
 
-    def get_pil_data(self): ...
+    def get_pil_data(self):
+        ...
 
     def split(self, sep: str = "\n") -> List[Union["Text", "Enter"]]:
         texts = (self.text + self.end).split(sep)
-        return Enter.join([
-            Text(text, self.font, self.color, self.size, self.spacing, None, self.center, self.end) if text else Null()
-            for text in texts
-        ])
+        return Enter.join(
+            [
+                Text(
+                    text,
+                    self.font,
+                    self.color,
+                    self.size,
+                    self.spacing,
+                    None,
+                    self.center,
+                    self.end,
+                )
+                if text
+                else Null()
+                for text in texts
+            ]
+        )
 
 
 class Image(AbstractElement):
 
-    base64: Optional[str] = None    # 元素的 base64
+    base64: Optional[str] = None  # 元素的 base64
 
-    pil_image: PIL.Image.Image    # PIL图片
+    pil_image: PIL.Image.Image  # PIL图片
 
-    self_line: bool    # 图片是否自称一行
+    self_line: bool  # 图片是否自称一行
 
-    center: bool    # 图片是否居中
+    center: bool  # 图片是否居中
 
     def __init__(
         self,
@@ -147,7 +169,7 @@ class Image(AbstractElement):
         base64: Optional[str] = None,
         data_bytes: Optional[bytes] = None,
         self_line: bool = True,
-        center: bool = False
+        center: bool = False,
     ):
         if sum([bool(data_bytes), bool(path), bool(base64)]) > 1:
             raise ValueError("Too many binary initializers!")
@@ -178,18 +200,19 @@ class Image(AbstractElement):
     def get_canvas_size(self):
         return self.pil_image.size
 
-    def resize(self, size: Tuple[int, int], resample=None, box=None, reducing_gap=None) -> PIL.Image.Image:
+    def resize(
+        self, size: Tuple[int, int], resample=None, box=None, reducing_gap=None
+    ) -> PIL.Image.Image:
         self.pil_image = self.pil_image.resize(size, resample, box, reducing_gap)
         return self.pil_image
 
     @staticmethod
     def draw_ellipse(image, bounds, width=1, antialias=4):
         mask = PIL.Image.new(
-            size=[int(dim * antialias) for dim in image.size],
-            mode='L', color='black'
+            size=[int(dim * antialias) for dim in image.size], mode="L", color="black"
         )
         draw = ImageDraw.Draw(mask)
-        for offset, fill in (width / -2.0, 'black'), (width / 2.0, 'white'):
+        for offset, fill in (width / -2.0, "black"), (width / 2.0, "white"):
             left, top = [(value + offset) * antialias for value in bounds[:2]]
             right, bottom = [(value - offset) * antialias for value in bounds[2:]]
             draw.ellipse([left, top, right, bottom], fill=fill)
@@ -208,8 +231,8 @@ class Image(AbstractElement):
 
 
 class Enter(AbstractElement):
-
-    def get_canvas_size(self): ...
+    def get_canvas_size(self):
+        ...
 
     @staticmethod
     def join(elements: List[Any]) -> List[Any]:
@@ -222,12 +245,13 @@ class Enter(AbstractElement):
 
 
 class Null(AbstractElement):
-    def get_canvas_size(self): ...
+    def get_canvas_size(self):
+        ...
 
 
 class EmptyLine(AbstractElement):
 
-    line_height: int    # 空白行高度（空白行只支持自成一行）
+    line_height: int  # 空白行高度（空白行只支持自成一行）
 
     def __init__(self, line_height: int = 40):
         self.line_height = line_height

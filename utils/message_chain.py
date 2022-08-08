@@ -13,37 +13,38 @@ async def message_chain_to_json(message: MessageChain) -> str:
     result = []
     for element in message.__root__:
         if isinstance(element, Plain):
-            result.append({
-                "type": "Plain",
-                "text": element.text
-            })
+            result.append({"type": "Plain", "text": element.text})
         elif isinstance(element, Image):
-            result.append({
-                "type": "Image",
-                "id": element.id,
-                "url": element.url,
-                "base64": base64.b64encode(await element.get_bytes()).decode("utf-8")
-            })
+            result.append(
+                {
+                    "type": "Image",
+                    "id": element.id,
+                    "url": element.url,
+                    "base64": base64.b64encode(await element.get_bytes()).decode(
+                        "utf-8"
+                    ),
+                }
+            )
         elif isinstance(element, Face):
-            result.append({
-                "type": "Face",
-                "face_id": element.face_id,
-                "name": element.name
-            })
+            result.append(
+                {"type": "Face", "face_id": element.face_id, "name": element.name}
+            )
         elif isinstance(element, Voice):
-            result.append({
-                "type": "Voice",
-                "id": element.id,
-                "url": element.url,
-                "base64": base64.b64encode(await element.get_bytes()).decode("utf-8"),
-                "length": element.length
-            })
+            result.append(
+                {
+                    "type": "Voice",
+                    "id": element.id,
+                    "url": element.url,
+                    "base64": base64.b64encode(await element.get_bytes()).decode(
+                        "utf-8"
+                    ),
+                    "length": element.length,
+                }
+            )
         elif isinstance(element, At):
-            result.append({
-                "type": "At",
-                "target": element.target,
-                "display": element.display
-            })
+            result.append(
+                {"type": "At", "target": element.target, "display": element.display}
+            )
     return json.dumps(result)
 
 

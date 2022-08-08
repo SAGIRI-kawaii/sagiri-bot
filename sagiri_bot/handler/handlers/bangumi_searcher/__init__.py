@@ -14,14 +14,23 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import RegexMatch, ElementMatch, ElementResult
+from graia.ariadne.message.parser.twilight import (
+    RegexMatch,
+    ElementMatch,
+    ElementResult,
+)
 
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.internal_utils import get_command
 from sagiri_bot.internal_utils import MessageChainUtils
 from sagiri_bot.internal_utils import group_setting, sec_to_str
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 
 saya = Saya.current()
@@ -40,25 +49,28 @@ proxy = create(GlobalConfig).proxy
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                RegexMatch(r"[\s]+", optional=True),
-                ElementMatch(Image, optional=True) @ "image"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    RegexMatch(r"[\s]+", optional=True),
+                    ElementMatch(Image, optional=True) @ "image",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("bangumi_searcher", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.SEARCH)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.SEARCH),
+        ],
     )
 )
-async def bangumi_searcher(app: Ariadne, group: Group, member: Member, source: Source, image: ElementResult):
-
+async def bangumi_searcher(
+    app: Ariadne, group: Group, member: Member, source: Source, image: ElementResult
+):
     @Waiter.create_using_function(listening_events=[GroupMessage])
     async def image_waiter(
-            waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
+        waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
     ):
         if waiter_group.id == group.id and waiter_member.id == member.id:
             if waiter_message.has(Image):
@@ -71,9 +83,7 @@ async def bangumi_searcher(app: Ariadne, group: Group, member: Member, source: S
 
     if not image.matched:
         try:
-            await app.send_message(
-                group, MessageChain("请在30s内发送要处理的图片"), quote=source
-            )
+            await app.send_message(group, MessageChain("请在30s内发送要处理的图片"), quote=source)
             image = await asyncio.wait_for(inc.wait(image_waiter), 30)
             if not image:
                 return await app.send_group_message(
@@ -99,7 +109,9 @@ async def bangumi_searcher(app: Ariadne, group: Group, member: Member, source: S
 async def search_bangumi(img: Image) -> MessageChain:
     url = f"https://api.trace.moe/search?anilistInfo&url={img.url}"
     async with aiohttp.ClientSession() as session:
-        async with session.post(url=url, proxy=proxy if proxy != "proxy" else '') as resp:
+        async with session.post(
+            url=url, proxy=proxy if proxy != "proxy" else ""
+        ) as resp:
             result = await resp.json()
     # print(result)
     if result := result.get("result"):
@@ -118,16 +130,20 @@ async def search_bangumi(img: Image) -> MessageChain:
                 thumbnail_content = await resp.read()
 
         message = await MessageChainUtils.messagechain_to_img(
-            MessageChain([
-                Plain(text="搜索到结果：\n"),
-                Image(data_bytes=thumbnail_content),
-                Plain(text=f"番剧名: {title_native}\n"),
-                Plain(text=f"罗马音名: {title_romaji}\n"),
-                Plain(text=f"英文名: {title_english}\n"),
-                Plain(text=f"文件名: {file_name}\n"),
-                Plain(text=f"时间: {sec_to_str(time_from)} ~ {sec_to_str(time_to)}\n"),
-                Plain(text=f"相似度: {similarity}%"),
-            ])
+            MessageChain(
+                [
+                    Plain(text="搜索到结果：\n"),
+                    Image(data_bytes=thumbnail_content),
+                    Plain(text=f"番剧名: {title_native}\n"),
+                    Plain(text=f"罗马音名: {title_romaji}\n"),
+                    Plain(text=f"英文名: {title_english}\n"),
+                    Plain(text=f"文件名: {file_name}\n"),
+                    Plain(
+                        text=f"时间: {sec_to_str(time_from)} ~ {sec_to_str(time_to)}\n"
+                    ),
+                    Plain(text=f"相似度: {similarity}%"),
+                ]
+            )
         )
         return message
     else:

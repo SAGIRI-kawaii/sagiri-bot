@@ -9,9 +9,7 @@ from .utils import get_thumb, error_catcher
 
 @error_catcher
 async def baidu_search(
-    *,
-    url: Optional[str] = None,
-    file: Optional[BinaryIO] = None
+    *, url: Optional[str] = None, file: Optional[BinaryIO] = None
 ) -> MessageChain:
     if not url and not file:
         raise ValueError("You should offer url or file!")
@@ -24,10 +22,12 @@ async def baidu_search(
         if not resp.raw:
             return MessageChain("BAIDU未搜索到结果！")
         resp = resp.raw[2]
-        return MessageChain([
-            Plain("BAIDU搜索到以下结果：\n"),
-            Image(data_bytes=await get_thumb(resp.image_src, '')),
-            Plain(f"\n标题：{resp.title}\n"),
-            Plain(f"摘要：{resp.abstract}\n"),
-            Plain(f"链接：{resp.url}")
-        ])
+        return MessageChain(
+            [
+                Plain("BAIDU搜索到以下结果：\n"),
+                Image(data_bytes=await get_thumb(resp.image_src, "")),
+                Plain(f"\n标题：{resp.title}\n"),
+                Plain(f"摘要：{resp.abstract}\n"),
+                Plain(f"链接：{resp.url}"),
+            ]
+        )

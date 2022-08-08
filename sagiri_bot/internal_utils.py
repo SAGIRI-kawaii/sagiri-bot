@@ -28,9 +28,14 @@ from graia.ariadne.event.message import Group, Member, Friend
 from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.config import load_plugin_meta
 from sagiri_bot.config import GlobalConfig, PluginConfig
-from sagiri_bot.orm.async_orm import Setting, UserPermission, UserCalledCount, FunctionCalledRecord
+from sagiri_bot.orm.async_orm import (
+    Setting,
+    UserPermission,
+    UserCalledCount,
+    FunctionCalledRecord,
+)
 
-yaml.warnings({'YAMLLoadWarning': False})
+yaml.warnings({"YAMLLoadWarning": False})
 
 
 class GroupSetting(object):
@@ -42,21 +47,21 @@ class GroupSetting(object):
     async def data_init(self):
         columns = {
             i: Setting.__dict__[i]
-            for i in Setting.__dict__.keys() if isinstance(Setting.__dict__[i], InstrumentedAttribute)
+            for i in Setting.__dict__.keys()
+            if isinstance(Setting.__dict__[i], InstrumentedAttribute)
         }
         column_names = list(columns.keys())
         column_names.sort()
         datas = await orm.fetchall(
-            select(
-                Setting.group_id,
-                *([columns[name] for name in column_names])
-            )
+            select(Setting.group_id, *([columns[name] for name in column_names]))
         )
         for data in datas:
             self.data[data[0]] = dict(zip(column_names, data[1:]))
 
-    async def get_setting(self, group: Union[Group, int], setting: InstrumentedAttribute) -> Union[bool, str]:
-        setting_name = str(setting).split('.')[1]
+    async def get_setting(
+        self, group: Union[Group, int], setting: InstrumentedAttribute
+    ) -> Union[bool, str]:
+        setting_name = str(setting).split(".")[1]
         if isinstance(group, Group):
             group = group.id
         if self.data.get(group, None):
@@ -64,16 +69,25 @@ class GroupSetting(object):
                 return res
         else:
             self.data[group] = {}
-        if result := await orm.fetchone(select(setting).where(Setting.group_id == group)):
+        if result := await orm.fetchone(
+            select(setting).where(Setting.group_id == group)
+        ):
             self.data[group][setting_name] = result[0]
             return result[0]
         else:
             raise ValueError(f"未找到 {group} -> {str(setting)} 结果！请检查数据库！")
 
     async def modify_setting(
-        self, group: Union[Group, int], setting: Union[InstrumentedAttribute, str], new_value: Union[bool, str]
+        self,
+        group: Union[Group, int],
+        setting: Union[InstrumentedAttribute, str],
+        new_value: Union[bool, str],
     ):
-        setting_name = str(setting).split('.')[1] if isinstance(setting, InstrumentedAttribute) else setting
+        setting_name = (
+            str(setting).split(".")[1]
+            if isinstance(setting, InstrumentedAttribute)
+            else setting
+        )
         print("modify:", setting_name)
         if isinstance(group, Group):
             group = group.id
@@ -114,7 +128,7 @@ def get_config(config: str):
             dbPass: str
             setuPath: str
     """
-    with open('config.yaml', 'r', encoding='utf-8') as f:
+    with open("config.yaml", "r", encoding="utf-8") as f:
         configs = yaml.load(f.read(), yaml.BaseLoader)
     if config in configs.keys():
         return configs[config]
@@ -127,29 +141,33 @@ async def get_setting(group: Union[Group, int], setting) -> Union[bool, str]:
     if isinstance(group, Group):
         group = group.id
     setting = str(setting).split(".", maxsplit=1)[1]
-    if result := await orm.fetchone(select(column(setting)).where(Setting.group_id == group)):
+    if result := await orm.fetchone(
+        select(column(setting)).where(Setting.group_id == group)
+    ):
         return result[0]
     else:
         raise ValueError(f"未找到 {group} -> {str(setting)} 结果！请检查数据库！")
 
 
 async def update_user_call_count_plus(
-        group: Group,
-        member: Member,
-        table_column,
-        column_name: str,
-        count: int = 1
+    group: Group, member: Member, table_column, column_name: str, count: int = 1
 ) -> bool:
     for _ in range(5):
         new_value = await orm.fetchone(
-            select(table_column).where(UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id)
+            select(table_column).where(
+                UserCalledCount.group_id == group.id,
+                UserCalledCount.member_id == member.id,
+            )
         )
         new_value = new_value[0] + count if new_value else count
         try:
             res = await orm.insert_or_update(
                 UserCalledCount,
-                [UserCalledCount.group_id == group.id, UserCalledCount.member_id == member.id],
-                {"group_id": group.id, "member_id": member.id, column_name: new_value}
+                [
+                    UserCalledCount.group_id == group.id,
+                    UserCalledCount.member_id == member.id,
+                ],
+                {"group_id": group.id, "member_id": member.id, column_name: new_value},
             )
             if not res:
                 return False
@@ -160,8 +178,8 @@ async def update_user_call_count_plus(
                         "time": datetime.datetime.now(),
                         "group_id": group.id,
                         "member_id": member.id,
-                        "function": column_name
-                    }
+                        "function": column_name,
+                    },
                 )
             return True
         except IntegrityError:
@@ -173,14 +191,13 @@ async def update_user_call_count_plus(
 
 
 async def get_admins(group: Group) -> list:
-    admins_res = list(await orm.fetchall(
-        select(
-            UserPermission.member_id
-        ).where(
-            UserPermission.group_id == group.id,
-            UserPermission.level > 1
+    admins_res = list(
+        await orm.fetchall(
+            select(UserPermission.member_id).where(
+                UserPermission.group_id == group.id, UserPermission.level > 1
+            )
         )
-    ))
+    )
     return [item[0] for item in admins_res]
 
 
@@ -189,7 +206,9 @@ async def online_notice(app: Ariadne):
     for group in group_list:
         if await group_setting.get_setting(group.id, Setting.online_notice):
             try:
-                await app.send_group_message(group, MessageChain([Plain(text="纱雾酱打卡上班啦！")]))
+                await app.send_group_message(
+                    group, MessageChain([Plain(text="纱雾酱打卡上班啦！")])
+                )
             except AccountMuted:
                 pass
 
@@ -211,14 +230,14 @@ async def compress_image_bs4(b64, mb=100, k=0.9):
         while o_size > mb:
             img = IMG.open(im_out)
             x, y = img.size
-            out = img.resize((int(x*k), int(y*k)), IMG.ANTIALIAS)
+            out = img.resize((int(x * k), int(y * k)), IMG.ANTIALIAS)
             im_out.close()
             im_out = io.BytesIO()
-            out.save(im_out, 'jpeg')
+            out.save(im_out, "jpeg")
             o_size = len(im_out.getvalue()) // 1024
         b64 = base64.b64encode(im_out.getvalue())
         im_out.close()
-        return str(b64, encoding='utf8')
+        return str(b64, encoding="utf8")
 
 
 def sec_to_str(seconds: int) -> str:
@@ -228,29 +247,28 @@ def sec_to_str(seconds: int) -> str:
 
 
 def get_image_save_number() -> int:
-    with open(f"{os.getcwd()}/statics/static_data.json", 'r') as r:
+    with open(f"{os.getcwd()}/statics/static_data.json", "r") as r:
         data = json.loads(r.read())
     data["imageSaveNumber"] += 1
-    with open(f"{os.getcwd()}/statics/static_data.json", 'w') as w:
+    with open(f"{os.getcwd()}/statics/static_data.json", "w") as w:
         w.write(json.dumps(data, indent=4))
     return data["imageSaveNumber"]
 
 
 def load_config(path: str = f"{os.getcwd()}/config.yaml") -> GlobalConfig:
-    with open(path, "r", encoding='utf-8') as f:
+    with open(path, "r", encoding="utf-8") as f:
         configs = yaml.load(f.read(), Loader=yaml.BaseLoader)
         return GlobalConfig(**configs)
 
 
-async def user_permission_require(group: Union[int, Group], member: Union[int, Member], level: int) -> bool:
+async def user_permission_require(
+    group: Union[int, Group], member: Union[int, Member], level: int
+) -> bool:
     group = group.id if isinstance(group, Group) else group
     member = member.id if isinstance(member, Member) else member
     if result := await orm.fetchone(
-        select(
-            UserPermission.level
-        ).where(
-            UserPermission.group_id == group,
-            UserPermission.member_id == member
+        select(UserPermission.level).where(
+            UserPermission.group_id == group, UserPermission.member_id == member
         )
     ):
         return True if result[0] >= level else False
@@ -259,7 +277,7 @@ async def user_permission_require(group: Union[int, Group], member: Union[int, M
             await orm.insert_or_ignore(
                 UserPermission,
                 [UserPermission.group_id == group, UserPermission.member_id == member],
-                {"group_id": group, "member_id": member, "level": 1}
+                {"group_id": group, "member_id": member, "level": 1},
             )
         except:
             pass
@@ -269,7 +287,9 @@ async def user_permission_require(group: Union[int, Group], member: Union[int, M
 class MessageChainUtils:
     @staticmethod
     async def get_image_content(url: str) -> bytes:
-        async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
+        async with aiohttp.ClientSession(
+            connector=aiohttp.TCPConnector(verify_ssl=False)
+        ) as session:
             async with session.get(url) as resp:
                 return await resp.read()
 
@@ -301,14 +321,18 @@ class MessageChainUtils:
             MessageChain （内含图片Image类）
         """
 
-        def get_final_text_lines(text: str, text_width: int, font: ImageFont.FreeTypeFont) -> int:
+        def get_final_text_lines(
+            text: str, text_width: int, font: ImageFont.FreeTypeFont
+        ) -> int:
             lines = text.split("\n")
             line_count = 0
             for line in lines:
                 if not line:
                     line_count += 1
                     continue
-                line_count += int(math.ceil(float(font.getsize(line)[0]) / float(text_width)))
+                line_count += int(
+                    math.ceil(float(font.getsize(line)[0]) / float(text_width))
+                )
             return line_count + 1
 
         font = ImageFont.truetype(font_path, font_size, encoding="utf-8")
@@ -318,9 +342,15 @@ class MessageChainUtils:
         plains = message.get(Plain)
         text_gather = "\n".join([plain.text for plain in plains])
         # print(max(font.getsize(text)[0] for text in text_gather.split("\n")) + 2 * padding_x)
-        final_width = min(max(font.getsize(text)[0] for text in text_gather.split("\n")) + 2 * padding_x, max_width)
+        final_width = min(
+            max(font.getsize(text)[0] for text in text_gather.split("\n"))
+            + 2 * padding_x,
+            max_width,
+        )
         text_width = final_width - 2 * padding_x
-        text_height = (font_size + spacing) * (get_final_text_lines(text_gather, text_width, font) + 1)
+        text_height = (font_size + spacing) * (
+            get_final_text_lines(text_gather, text_width, font) + 1
+        )
 
         img_height_sum = 0
         temp_img_list = []
@@ -329,15 +359,22 @@ class MessageChainUtils:
             temp_img = IMG.open(BytesIO(await image.get_bytes()))
             img_width, img_height = temp_img.size
             temp_img_list.append(
-                temp_img := temp_img.resize((
-                    int(final_width - 2 * spacing),
-                    int(float(img_height * (final_width - 2 * spacing)) / float(img_width))
-                )) if img_width > final_width - 2 * spacing or (img_fixed and img_width < final_width - 2 * spacing)
+                temp_img := temp_img.resize(
+                    (
+                        int(final_width - 2 * spacing),
+                        int(
+                            float(img_height * (final_width - 2 * spacing))
+                            / float(img_width)
+                        ),
+                    )
+                )
+                if img_width > final_width - 2 * spacing
+                or (img_fixed and img_width < final_width - 2 * spacing)
                 else temp_img
             )
             img_height_sum = img_height_sum + temp_img.size[1]
         final_height = 2 * padding_y + text_height + img_height_sum
-        picture = IMG.new('RGB', (final_width, final_height), (255, 255, 255))
+        picture = IMG.new("RGB", (final_width, final_height), (255, 255, 255))
         draw = ImageDraw.Draw(picture)
         present_x = padding_x
         present_y = padding_y
@@ -345,29 +382,27 @@ class MessageChainUtils:
         for element in elements:
             if isinstance(element, Image):
                 picture.paste(temp_img_list[image_index], (present_x, present_y))
-                present_y += (spacing + temp_img_list[image_index].size[1])
+                present_y += spacing + temp_img_list[image_index].size[1]
                 image_index += 1
             elif isinstance(element, Plain):
                 for char in element.text:
                     if char == "\n":
-                        present_y += (font_size + spacing)
+                        present_y += font_size + spacing
                         present_x = padding_x
                         continue
                     if char == "\r":
                         continue
                     if present_x + font.getsize(char)[0] > text_width:
-                        present_y += (font_size + spacing)
+                        present_y += font_size + spacing
                         present_x = padding_x
                     draw.text((present_x, present_y), char, font=font, fill=(0, 0, 0))
                     present_x += font.getsize(char)[0]
-                present_y += (font_size + spacing)
+                present_y += font_size + spacing
                 present_x = padding_x
         bytes_io = BytesIO()
-        picture.save(bytes_io, format='PNG')
+        picture.save(bytes_io, format="PNG")
         logger.success("消息转图片处理成功！")
-        return MessageChain([
-            Image(data_bytes=bytes_io.getvalue())
-        ])
+        return MessageChain([Image(data_bytes=bytes_io.getvalue())])
 
 
 class BuildImage:
@@ -432,9 +467,7 @@ class BuildImage:
                 if ratio and ratio > 0 and ratio != 1:
                     self.w = int(ratio * w)
                     self.h = int(ratio * h)
-                    self.markImg = self.markImg.resize(
-                        (self.w, self.h), IMG.ANTIALIAS
-                    )
+                    self.markImg = self.markImg.resize((self.w, self.h), IMG.ANTIALIAS)
                 else:
                     self.w = w
                     self.h = h
@@ -1084,19 +1117,19 @@ class BuildImage:
     def getchannel(self, type_):
         self.markImg = self.markImg.getchannel(type_)
 
-    def draw_ellipse(self, image, bounds, width=1, outline='white', antialias=4):
+    def draw_ellipse(self, image, bounds, width=1, outline="white", antialias=4):
         """Improved ellipse drawing function, based on PIL.ImageDraw."""
 
         # Use a single channel image (mode='L') as mask.
         # The size of the mask can be increased relative to the imput image
         # to get smoother looking results.
         mask = IMG.new(
-            size=[int(dim * antialias) for dim in image.size],
-            mode='L', color='black')
+            size=[int(dim * antialias) for dim in image.size], mode="L", color="black"
+        )
         draw = ImageDraw.Draw(mask)
 
         # draw outer shape in white (color) and inner shape in black (transparent)
-        for offset, fill in (width / -2.0, 'black'), (width / 2.0, 'white'):
+        for offset, fill in (width / -2.0, "black"), (width / 2.0, "white"):
             left, top = [(value + offset) * antialias for value in bounds[:2]]
             right, bottom = [(value - offset) * antialias for value in bounds[2:]]
             draw.ellipse([left, top, right, bottom], fill=fill)
@@ -1119,15 +1152,21 @@ class BuildImage:
         self.draw_ellipse(self.markImg, ellipse_box, width=1)
 
 
-async def get_avatar(qq: Union[int, Member, Friend, Group], size: int = 640) -> Optional[bytes]:
+async def get_avatar(
+    qq: Union[int, Member, Friend, Group], size: int = 640
+) -> Optional[bytes]:
     async with aiohttp.ClientSession() as session:
         if isinstance(qq, Group):
-            async with session.get(f"https://p.qlogo.cn/gh/{qq.id}/{qq.id}/{size}/") as resp:
+            async with session.get(
+                f"https://p.qlogo.cn/gh/{qq.id}/{qq.id}/{size}/"
+            ) as resp:
                 return await resp.read()
         else:
             if isinstance(qq, (Member, Friend)):
                 qq = qq.id
-            async with session.get(f"http://q1.qlogo.cn/g?b=qq&nk={qq}&s={size}") as resp:
+            async with session.get(
+                f"http://q1.qlogo.cn/g?b=qq&nk={qq}&s={size}"
+            ) as resp:
                 return await resp.read()
 
 

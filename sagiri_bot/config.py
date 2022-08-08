@@ -53,34 +53,23 @@ class GlobalConfig(BaseModel):
     proxy: str = "proxy"
     commands: Dict[str, PluginConfig]
     functions: dict = {
-        "tencent": {
-            "secret_id": "secret_id",
-            "secret_key": "secret_key"
-        },
+        "tencent": {"secret_id": "secret_id", "secret_key": "secret_key"},
         "saucenao_api_key": "saucenao_api_key",
         "lolicon_api_key": "lolicon_api_key",
         "wolfram_alpha_key": "wolfram_alpha_key",
-        "github": {
-            "username": "username",
-            "token": "token"
-        },
+        "github": {"username": "username", "token": "token"},
     }
-    log_related: dict = {
-        "error_retention": 14,
-        "common_retention": 7
-    }
+    log_related: dict = {"error_retention": 14, "common_retention": 7}
     data_related: dict = {
         "lolicon_image_cache": True,
         "network_data_cache": False,
         "automatic_update": False,
-        "data_retention": False
+        "data_retention": False,
     }
 
 
 class ConfigClassCreator(AbstractCreator, ABC):
-    targets = (
-        CreateTargetInfo("sagiri_bot.config", "GlobalConfig"),
-    )
+    targets = (CreateTargetInfo("sagiri_bot.config", "GlobalConfig"),)
 
     @staticmethod
     def available() -> bool:
@@ -88,7 +77,7 @@ class ConfigClassCreator(AbstractCreator, ABC):
 
     @staticmethod
     def create(create_type: Type[GlobalConfig]) -> GlobalConfig:
-        with open(Path(os.getcwd()) / "config.yaml", "r", encoding='utf-8') as f:
+        with open(Path(os.getcwd()) / "config.yaml", "r", encoding="utf-8") as f:
             configs = yaml.safe_load(f.read())
             return GlobalConfig(**configs)
 

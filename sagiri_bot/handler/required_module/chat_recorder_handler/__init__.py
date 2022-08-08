@@ -23,7 +23,7 @@ channel.description("一个记录聊天记录的插件，可配合词云等插�
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        decorators=[UserCalledCountControl.add(UserCalledCountControl.CHAT)]
+        decorators=[UserCalledCountControl.add(UserCalledCountControl.CHAT)],
     )
 )
 async def chat_record(message: MessageChain, group: Group, member: Member):
@@ -31,7 +31,7 @@ async def chat_record(message: MessageChain, group: Group, member: Member):
     filter_words = re.findall(r"\[mirai:(.*?)\]", content, re.S)
     for i in filter_words:
         content = content.replace(f"[mirai:{i}]", "")
-    seg_result = jieba.lcut(content) if content else ''
+    seg_result = jieba.lcut(content) if content else ""
     await orm.add(
         ChatRecord,
         {
@@ -39,6 +39,6 @@ async def chat_record(message: MessageChain, group: Group, member: Member):
             "group_id": group.id,
             "member_id": member.id,
             "persistent_string": message.as_persistent_string(),
-            "seg": "|".join(seg_result) if seg_result else ''
-        }
+            "seg": "|".join(seg_result) if seg_result else "",
+        },
     )

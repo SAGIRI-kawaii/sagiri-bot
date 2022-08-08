@@ -55,7 +55,8 @@ async def install_browser():
     logger.info("正在安装 chromium")
     import sys
     from playwright.__main__ import main
-    sys.argv = ['', 'install', 'chromium']
+
+    sys.argv = ["", "install", "chromium"]
     try:
         main()
     except SystemExit:

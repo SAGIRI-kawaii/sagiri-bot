@@ -14,7 +14,12 @@ from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.internal_utils import group_setting, get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -28,21 +33,26 @@ channel.description("一个网络编译器插件，在群中发送 `super langua
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                RegexMatch(r"[^\s]+") @ "language", RegexMatch(r"[\s]+", optional=True),
-                RegexMatch(r"[\s\S]+") @ "code"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    RegexMatch(r"[^\s]+") @ "language",
+                    RegexMatch(r"[\s]+", optional=True),
+                    RegexMatch(r"[\s\S]+") @ "code",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("network_compiler", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def network_compiler(app: Ariadne, group: Group, source: Source, language: RegexResult, code: RegexResult):
+async def network_compiler(
+    app: Ariadne, group: Group, source: Source, language: RegexResult, code: RegexResult
+):
     if not await group_setting.get_setting(group.id, Setting.compile):
         await app.send_group_message(group, MessageChain("网络编译器功能关闭了呐~去联系管理员开启吧~"))
         return
@@ -55,14 +65,14 @@ async def network_compiler(app: Ariadne, group: Group, source: Source, language:
         try:
             await app.send_group_message(
                 group,
-                MessageChain(result["output"] if result["output"] else result["errors"]),
-                quote=source
+                MessageChain(
+                    result["output"] if result["output"] else result["errors"]
+                ),
+                quote=source,
             )
         except MessageTooLong:
             await app.send_group_message(
-                group,
-                MessageChain("MessageTooLong"),
-                quote=source
+                group, MessageChain("MessageTooLong"), quote=source
             )
 
 
@@ -89,7 +99,7 @@ async def get_result(language: str, code: str):
         "java": 8,
         "py3": 15,
         "py": 0,
-        "php": 3
+        "php": 3,
     }
     if language not in legal_language:
         return f"支持的语言：{', '.join(list(legal_language.keys()))}"
@@ -99,22 +109,18 @@ async def get_result(language: str, code: str):
         "token": "4381fe197827ec87cbac9552f14ec62a",
         "stdin": "",
         "language": legal_language[language],
-        "fileext": language
+        "fileext": language,
     }
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/87.0.4280.141 Safari/537.36 "
+        "Chrome/87.0.4280.141 Safari/537.36 "
     }
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.post(url=url, headers=headers, data=payload, timeout=3) as resp:
+            async with session.post(
+                url=url, headers=headers, data=payload, timeout=3
+            ) as resp:
                 res = await resp.json()
     except asyncio.TimeoutError:
-        return {
-            "output": "",
-            "errors": "Network Time Limit Exceeded"
-        }
-    return {
-        "output": res["output"],
-        "errors": res["errors"]
-    }
+        return {"output": "", "errors": "Network Time Limit Exceeded"}
+    return {"output": res["output"], "errors": res["errors"]}

@@ -17,7 +17,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from utils.browser import get_browser
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.internal_utils import BuildImage, get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -27,7 +32,7 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个可以查询原神每日可获取素材的插件，在群中发送 `原神今日素材` 即可")
 
 config = create(GlobalConfig)
-proxy = config.proxy if config.proxy != "proxy" else ''
+proxy = config.proxy if config.proxy != "proxy" else ""
 IMAGE_PATH = Path.cwd() / "statics" / "genshin" / "material"
 
 
@@ -39,16 +44,14 @@ IMAGE_PATH = Path.cwd() / "statics" / "genshin" / "material"
             FrequencyLimit.require("genshin_material_remind", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def genshin_material_remind(app: Ariadne, group: Group, source: Source):
     if time.strftime("%w") == "0":
         return await app.send_group_message(
-            group,
-            MessageChain("今天是周日，所有材料副本都开放了。"),
-            quote=source
+            group, MessageChain("今天是周日，所有材料副本都开放了。"), quote=source
         )
     file_name = str((datetime.now() - timedelta(hours=4)).date())
     if not (Path(IMAGE_PATH) / f"{file_name}.png").exists():
@@ -57,11 +60,13 @@ async def genshin_material_remind(app: Ariadne, group: Group, source: Source):
         print(_)
     await app.send_group_message(
         group,
-        MessageChain([
-            Image(path=Path(IMAGE_PATH) / f"{file_name}.png"),
-            Plain(text="\n※ 每日素材数据来源于 genshin.pub")
-        ]),
-        quote=source
+        MessageChain(
+            [
+                Image(path=Path(IMAGE_PATH) / f"{file_name}.png"),
+                Plain(text="\n※ 每日素材数据来源于 genshin.pub"),
+            ]
+        ),
+        quote=source,
     )
 
 
@@ -88,7 +93,7 @@ async def update_image():
     await page.click("button")
     div = await page.query_selector(".GSContainer_content_box__1sIXz")
     for i, card in enumerate(
-            await page.query_selector_all(".GSTraitCotainer_trait_section__1f3bc")
+        await page.query_selector_all(".GSTraitCotainer_trait_section__1f3bc")
     ):
         index = 0
         type_ = "char" if not i else "weapons"
@@ -105,16 +110,8 @@ async def update_image():
         for _ in range(index * 3):
             await div.press("PageUp")
     file_list = os.listdir(str(IMAGE_PATH))
-    char_imgs = [
-        f"{IMAGE_PATH}/{x}"
-        for x in file_list
-        if x.startswith("char")
-    ]
-    weapons_imgs = [
-        f"{IMAGE_PATH}/{x}"
-        for x in file_list
-        if x.startswith("weapons")
-    ]
+    char_imgs = [f"{IMAGE_PATH}/{x}" for x in file_list if x.startswith("char")]
+    weapons_imgs = [f"{IMAGE_PATH}/{x}" for x in file_list if x.startswith("weapons")]
     char_imgs.sort()
     weapons_imgs.sort()
     height = await asyncio.get_event_loop().run_in_executor(
@@ -142,8 +139,7 @@ async def update_image():
 
 def get_background_height(weapons_imgs: List[str]) -> int:
     height = sum(
-        BuildImage(0, 0, background=weapons).size[1]
-        for weapons in weapons_imgs
+        BuildImage(0, 0, background=weapons).size[1] for weapons in weapons_imgs
     )
 
     last_weapon = BuildImage(0, 0, background=weapons_imgs[-1])

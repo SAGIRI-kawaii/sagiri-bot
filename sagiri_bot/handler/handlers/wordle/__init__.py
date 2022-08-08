@@ -12,12 +12,22 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import ArgumentMatch, RegexMatch, RegexResult, ArgResult
+from graia.ariadne.message.parser.twilight import (
+    ArgumentMatch,
+    RegexMatch,
+    RegexResult,
+    ArgResult,
+)
 
 from .wordle import Wordle, word_list, word_dics
 from sagiri_bot.internal_utils import get_command
 from .utils import update_member_statistic, StatisticType, get_member_statistic
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -36,22 +46,36 @@ DEFAULT_DIC = "CET4"
 
 class TimeWaiter(Waiter.create([GroupMessage])):
 
-    """ 超时Waiter """
+    """超时Waiter"""
 
-    def __init__(self, wordle_instance: Wordle, group: Union[Group, int], member: Optional[Union[Member, int]] = None):
+    def __init__(
+        self,
+        wordle_instance: Wordle,
+        group: Union[Group, int],
+        member: Optional[Union[Member, int]] = None,
+    ):
         self.wordle = wordle_instance
         self.group = group if isinstance(group, int) else group.id
-        self.member = (member if isinstance(member, int) else member.id) if member else None
+        self.member = (
+            (member if isinstance(member, int) else member.id) if member else None
+        )
 
 
 class WordleWaiter(Waiter.create([GroupMessage])):
 
-    """ wordle Waiter """
+    """wordle Waiter"""
 
-    def __init__(self, wordle_instance: Wordle, group: Union[Group, int], member: Optional[Union[Member, int]] = None):
+    def __init__(
+        self,
+        wordle_instance: Wordle,
+        group: Union[Group, int],
+        member: Optional[Union[Member, int]] = None,
+    ):
         self.wordle = wordle_instance
         self.group = group if isinstance(group, int) else group.id
-        self.member = (member if isinstance(member, int) else member.id) if member else None
+        self.member = (
+            (member if isinstance(member, int) else member.id) if member else None
+        )
         self.member_list = set()
         self.member_list_mutex = Semaphore(1)
 
@@ -61,24 +85,23 @@ class WordleWaiter(Waiter.create([GroupMessage])):
         group: Group,
         member: Member,
         message: MessageChain,
-        message_source: Source
+        message_source: Source,
     ):
         word = message.display.strip()
         if self.group == group.id and (self.member == member.id or not self.member):
             if message.display.strip() in ("/wordle -giveup", "/wordle -g"):
                 dic = group_word_dic[group.id]
                 word_data = word_list[dic][len(self.wordle.word)][self.wordle.word]
-                explain = '\n'.join(f"【{key}】：{word_data[key]}" for key in word_data)
+                explain = "\n".join(f"【{key}】：{word_data[key]}" for key in word_data)
                 await app.send_group_message(
                     group,
-                    MessageChain([
-                        Image(data_bytes=self.wordle.get_board_bytes()),
-                        Plain(
-                            "很遗憾，没有人猜出来呢"
-                            f"单词：{self.wordle.word}\n{explain}"
-                        )
-                    ]),
-                    quote=message_source
+                    MessageChain(
+                        [
+                            Image(data_bytes=self.wordle.get_board_bytes()),
+                            Plain("很遗憾，没有人猜出来呢" f"单词：{self.wordle.word}\n{explain}"),
+                        ]
+                    ),
+                    quote=message_source,
                 )
                 await self.member_list_mutex.acquire()
                 for member in self.member_list:
@@ -98,10 +121,12 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     )
                 else:
                     await app.send_group_message(
-                        group, MessageChain([Image(data_bytes=self.wordle.draw_hint())]), quote=message_source
+                        group,
+                        MessageChain([Image(data_bytes=self.wordle.draw_hint())]),
+                        quote=message_source,
                     )
                 return False
-            if len(word) == self.wordle.length and word.encode('utf-8').isalpha():
+            if len(word) == self.wordle.length and word.encode("utf-8").isalpha():
                 await self.member_list_mutex.acquire()
                 self.member_list.add(member.id)
                 self.member_list_mutex.release()
@@ -115,28 +140,36 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     return True
                 if result[0]:
                     await update_member_statistic(
-                        group, member, StatisticType.correct if result[1] else StatisticType.wrong
+                        group,
+                        member,
+                        StatisticType.correct if result[1] else StatisticType.wrong,
                     )
                     await self.member_list_mutex.acquire()
                     for member in self.member_list:
                         await update_member_statistic(
-                            group, member, StatisticType.win if result[1] else StatisticType.lose
+                            group,
+                            member,
+                            StatisticType.win if result[1] else StatisticType.lose,
                         )
                         await update_member_statistic(group, member, StatisticType.game)
                     self.member_list_mutex.release()
                     dic = group_word_dic[group.id]
                     word_data = word_list[dic][len(self.wordle.word)][self.wordle.word]
-                    explain = '\n'.join(f"【{key}】：{word_data[key]}" for key in word_data)
+                    explain = "\n".join(
+                        f"【{key}】：{word_data[key]}" for key in word_data
+                    )
                     await app.send_group_message(
                         group,
-                        MessageChain([
-                            Image(data_bytes=self.wordle.get_board_bytes()),
-                            Plain(
-                                f"\n{'恭喜你猜出了单词！' if result[1] else '很遗憾，没有人猜出来呢'}\n"
-                                f"【单词】：{self.wordle.word}\n{explain}"
-                            )
-                        ]),
-                        quote=message_source
+                        MessageChain(
+                            [
+                                Image(data_bytes=self.wordle.get_board_bytes()),
+                                Plain(
+                                    f"\n{'恭喜你猜出了单词！' if result[1] else '很遗憾，没有人猜出来呢'}\n"
+                                    f"【单词】：{self.wordle.word}\n{explain}"
+                                ),
+                            ]
+                        ),
+                        quote=message_source,
                     )
                     await mutex.acquire()
                     group_running[group.id] = False
@@ -144,14 +177,20 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     return True
                 elif not result[2]:
                     await app.send_group_message(
-                        group, MessageChain(f"你确定 {word} 是一个合法的单词吗？"), quote=message_source
+                        group,
+                        MessageChain(f"你确定 {word} 是一个合法的单词吗？"),
+                        quote=message_source,
                     )
                 elif result[3]:
-                    await app.send_group_message(group, MessageChain("你已经猜过这个单词了呢"), quote=message_source)
+                    await app.send_group_message(
+                        group, MessageChain("你已经猜过这个单词了呢"), quote=message_source
+                    )
                 else:
                     await update_member_statistic(group, member, StatisticType.wrong)
                     await app.send_group_message(
-                        group, MessageChain([Image(data_bytes=self.wordle.get_board_bytes())]), quote=message_source
+                        group,
+                        MessageChain([Image(data_bytes=self.wordle.get_board_bytes())]),
+                        quote=message_source,
                     )
                 return False
 
@@ -160,23 +199,32 @@ class WordleWaiter(Waiter.create([GroupMessage])):
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                ArgumentMatch("-single", action="store_true", optional=True) @ "single_game",
-                ArgumentMatch("-group", action="store_true", optional=True) @ "group_game",
-                RegexMatch(r"-(l|length)=[0-9]+", optional=True) @ "length",
-                RegexMatch(r"-(d|dic)=\w+", optional=True) @ "dic",
-                ArgumentMatch("-help", "-h", action="store_true", optional=True) @ "get_help",
-                ArgumentMatch("-giveup", "-g", action="store_true", optional=True) @ "give_up",
-                ArgumentMatch("-s", "-statistic", action="store_true", optional=True) @ "statistic"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    ArgumentMatch("-single", action="store_true", optional=True)
+                    @ "single_game",
+                    ArgumentMatch("-group", action="store_true", optional=True)
+                    @ "group_game",
+                    RegexMatch(r"-(l|length)=[0-9]+", optional=True) @ "length",
+                    RegexMatch(r"-(d|dic)=\w+", optional=True) @ "dic",
+                    ArgumentMatch("-help", "-h", action="store_true", optional=True)
+                    @ "get_help",
+                    ArgumentMatch("-giveup", "-g", action="store_true", optional=True)
+                    @ "give_up",
+                    ArgumentMatch(
+                        "-s", "-statistic", action="store_true", optional=True
+                    )
+                    @ "statistic",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("wordle", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def wordle(
@@ -189,7 +237,7 @@ async def wordle(
     length: ArgResult,
     get_help: ArgResult,
     give_up: ArgResult,
-    statistic: ArgResult
+    statistic: ArgResult,
 ) -> NoReturn:
     if get_help.matched:
         await app.send_group_message(
@@ -206,7 +254,7 @@ async def wordle(
                 "查看数据统计：/wordle -s 或 /wordle -statistic\n"
                 "查看提示：/wordle -hint\n"
                 f"注：目前包含词典：{'、'.join(word_dics)}"
-            )
+            ),
         )
         return None
     if statistic.matched:
@@ -218,7 +266,7 @@ async def wordle(
                 f"共参与{data[4]}场游戏，其中胜利{data[0]}场，失败{data[1]}场\n"
                 f"一共猜对{data[2]}次，猜错{data[3]}次，共使用过{data[5]}次提示，再接再厉哦~"
             ),
-            quote=source
+            quote=source,
         )
         return None
     if give_up.matched:
@@ -230,9 +278,11 @@ async def wordle(
         return None
     else:
         if dic.matched:
-            dic = dic.result.display.split('=')[1].strip()
+            dic = dic.result.display.split("=")[1].strip()
             if dic not in word_dics:
-                await app.send_group_message(group, MessageChain(f"没有找到名为{dic}的字典！已有字典：{'、'.join(word_dics)}"))
+                await app.send_group_message(
+                    group, MessageChain(f"没有找到名为{dic}的字典！已有字典：{'、'.join(word_dics)}")
+                )
                 mutex.release()
                 return None
             else:
@@ -242,14 +292,15 @@ async def wordle(
         group_running[group.id] = True
         mutex.release()
     single = single_game.matched
-    length = int(length.result.display.split('=')[1].strip()) if length.matched else 5
+    length = int(length.result.display.split("=")[1].strip()) if length.matched else 5
     if length not in word_list[group_word_dic[group.id]].keys():
         await app.send_group_message(
-            group, MessageChain(
+            group,
+            MessageChain(
                 f"单词长度错误，词库中没有长度为{length}的单词=！"
                 f"目前词库（{group_word_dic[group.id]}）中"
                 f"只有长度为{'、'.join([str(i) for i in sorted(word_list[group_word_dic[group.id]].keys())])}的单词！"
-            )
+            ),
         )
         await mutex.acquire()
         group_running[group.id] = False
@@ -259,16 +310,23 @@ async def wordle(
     logger.success(f"成功创建 Wordle 实例，单词为：{wordle_instance.word}")
     await app.send_group_message(
         group,
-        MessageChain([
-            Image(data_bytes=wordle_instance.get_board_bytes()),
-            Plain(f"\n你有{wordle_instance.row}次机会猜出单词，单词长度为{wordle_instance.length}，请发送单词")
-        ]),
-        quote=source
+        MessageChain(
+            [
+                Image(data_bytes=wordle_instance.get_board_bytes()),
+                Plain(
+                    f"\n你有{wordle_instance.row}次机会猜出单词，单词长度为{wordle_instance.length}，请发送单词"
+                ),
+            ]
+        ),
+        quote=source,
     )
     game_end = False
     try:
         while not game_end:
-            game_end = await inc.wait(WordleWaiter(wordle_instance, group, member if single else None), timeout=300)
+            game_end = await inc.wait(
+                WordleWaiter(wordle_instance, group, member if single else None),
+                timeout=300,
+            )
     except asyncio.exceptions.TimeoutError:
         await app.send_group_message(group, MessageChain("游戏超时，进程结束"), quote=source)
         await mutex.acquire()

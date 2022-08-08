@@ -10,12 +10,17 @@ from graia.ariadne.message.parser.twilight import (
     RegexResult,
     ElementMatch,
     ElementResult,
-    RegexMatch
+    RegexMatch,
 )
 
 from .xslist import search
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -29,23 +34,30 @@ channel.description("一个查老师的插件，发送 `/查老师 {作品名/�
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module), RegexMatch(r"[\s]+", optional=True),
-                ElementMatch(Image, optional=True) @ "image",
-                WildcardMatch(optional=True) @ "keyword"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    RegexMatch(r"[\s]+", optional=True),
+                    ElementMatch(Image, optional=True) @ "image",
+                    WildcardMatch(optional=True) @ "keyword",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("xslist", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def xslist_handler(app: Ariadne, group: Group, keyword: RegexResult, image: ElementResult):
+async def xslist_handler(
+    app: Ariadne, group: Group, keyword: RegexResult, image: ElementResult
+):
     if image.matched:
-        await app.send_group_message(group, await search(data_bytes=await image.result.get_bytes()))
+        await app.send_group_message(
+            group, await search(data_bytes=await image.result.get_bytes())
+        )
     elif keyword.matched:
         keyword = keyword.result.display.strip()
         await app.send_group_message(group, await search(keyword=keyword))

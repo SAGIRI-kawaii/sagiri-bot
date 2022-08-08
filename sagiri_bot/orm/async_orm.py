@@ -14,8 +14,8 @@ from creart import create
 from .adapter import get_adapter
 
 
-yaml.warnings({'YAMLLoadWarning': False})
-environ['NLS_LANG'] = 'AMERICAN_AMERICA.AL32UTF8'
+yaml.warnings({"YAMLLoadWarning": False})
+environ["NLS_LANG"] = "AMERICAN_AMERICA.AL32UTF8"
 
 
 # DB_LINK = 'oracle://test:123456@localhost:1521/xe'
@@ -24,7 +24,7 @@ environ['NLS_LANG'] = 'AMERICAN_AMERICA.AL32UTF8'
 
 
 def get_config(config: str):
-    with open('config.yaml', 'r', encoding='utf-8') as f:  # 从json读配置
+    with open("config.yaml", "r", encoding="utf-8") as f:  # 从json读配置
         configs = yaml.safe_load(f.read())
     if config in configs.keys():
         return configs[config]
@@ -35,16 +35,16 @@ def get_config(config: str):
 DB_LINK = get_config("db_link")
 # DB_LINK = "sqlite+aiosqlite:///data.db"
 
-db_mutex = Semaphore(1, loop=create(asyncio.AbstractEventLoop)) if DB_LINK.startswith("sqlite") else None
+db_mutex = (
+    Semaphore(1, loop=create(asyncio.AbstractEventLoop))
+    if DB_LINK.startswith("sqlite")
+    else None
+)
 
 
 class AsyncEngine:
     def __init__(self, db_link):
-        self.engine = create_async_engine(
-            db_link,
-            **get_adapter(db_link),
-            echo=False
-        )
+        self.engine = create_async_engine(db_link, **get_adapter(db_link), echo=False)
 
     async def execute(self, sql, **kwargs):
         async with AsyncSession(self.engine) as session:
@@ -86,11 +86,11 @@ class AsyncEngine:
 
     @staticmethod
     def warning(x):
-        print('\033[033m{}\033[0m'.format(x))
+        print("\033[033m{}\033[0m".format(x))
 
     @staticmethod
     def error(x):
-        print('\033[031m{}\033[0m'.format(x))
+        print("\033[031m{}\033[0m".format(x))
 
 
 class AsyncORM(AsyncEngine):
@@ -100,7 +100,9 @@ class AsyncORM(AsyncEngine):
         super().__init__(conn)
         self.session = AsyncSession(bind=self.engine)
         self.Base = declarative_base(self.engine)
-        self.async_session = sessionmaker(self.engine, expire_on_commit=False, class_=AsyncSession)
+        self.async_session = sessionmaker(
+            self.engine, expire_on_commit=False, class_=AsyncSession
+        )
         # self.create_all()
 
     # def __del__(self):
@@ -162,7 +164,8 @@ Base = orm.Base
 
 
 class ChatRecord(Base):
-    """ 聊天记录表 """
+    """聊天记录表"""
+
     __tablename__ = "chat_record"
 
     id = Column(Integer, primary_key=True)
@@ -174,7 +177,8 @@ class ChatRecord(Base):
 
 
 class BlackList(Base):
-    """ 黑名单表 """
+    """黑名单表"""
+
     __tablename__ = "black_list"
 
     member_id = Column(BIGINT, primary_key=True)
@@ -183,7 +187,8 @@ class BlackList(Base):
 
 
 class UserPermission(Base):
-    """ 用户等级表（管理权限） """
+    """用户等级表（管理权限）"""
+
     __tablename__ = "user_permission"
 
     group_id = Column(BIGINT, primary_key=True)
@@ -192,7 +197,8 @@ class UserPermission(Base):
 
 
 class Setting(Base):
-    """ 群组设置 """
+    """群组设置"""
+
     __tablename__ = "setting"
 
     group_id = Column(BIGINT, primary_key=True)
@@ -225,7 +231,8 @@ class Setting(Base):
 
 
 class UserCalledCount(Base):
-    """ 群员调用记录 """
+    """群员调用记录"""
+
     __tablename__ = "user_called_count"
 
     group_id = Column(BIGINT, primary_key=True)
@@ -241,7 +248,8 @@ class UserCalledCount(Base):
 
 
 class KeywordReply(Base):
-    """ 关键词回复 """
+    """关键词回复"""
+
     __tablename__ = "keyword_reply"
 
     keyword = Column(String(length=200), primary_key=True)
@@ -252,7 +260,8 @@ class KeywordReply(Base):
 
 
 class TriggerKeyword(Base):
-    """ 关键词触发功能 """
+    """关键词触发功能"""
+
     __tablename__ = "trigger_keyword"
 
     keyword = Column(String(length=60), primary_key=True)
@@ -260,7 +269,8 @@ class TriggerKeyword(Base):
 
 
 class FunctionCalledRecord(Base):
-    """ 功能调用记录 """
+    """功能调用记录"""
+
     __tablename__ = "function_called_record"
 
     id = Column(Integer, primary_key=True)
@@ -272,7 +282,8 @@ class FunctionCalledRecord(Base):
 
 
 class LoliconData(Base):
-    """ lolicon api数据 """
+    """lolicon api数据"""
+
     __tablename__ = "lolicon_data"
 
     pid = Column(BIGINT, primary_key=True)
@@ -290,7 +301,8 @@ class LoliconData(Base):
 
 
 class WordleStatistic(Base):
-    """ wordle 游戏数据 """
+    """wordle 游戏数据"""
+
     __tablename__ = "wordle_statistic"
 
     group_id = Column(BIGINT, primary_key=True)
@@ -304,7 +316,8 @@ class WordleStatistic(Base):
 
 
 class GroupTeam(Base):
-    """ group_team 群小组 """
+    """group_team 群小组"""
+
     __tablename__ = "group_team"
 
     creator = Column(BIGINT)

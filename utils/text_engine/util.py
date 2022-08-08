@@ -10,7 +10,9 @@ DEFAULT_FONT = ImageFont.truetype(DEFAULT_FONT_NAME, 40)
 fonts = {DEFAULT_FONT_NAME: {40: DEFAULT_FONT}}
 
 
-def get_font(font: Optional[Union[str, Path, FreeTypeFont]] = None, size: int = 40) -> FreeTypeFont:
+def get_font(
+    font: Optional[Union[str, Path, FreeTypeFont]] = None, size: int = 40
+) -> FreeTypeFont:
     if not font:
         if size in fonts[DEFAULT_FONT_NAME]:
             return DEFAULT_FONT

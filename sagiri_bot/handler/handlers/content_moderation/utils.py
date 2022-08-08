@@ -36,7 +36,9 @@ def text_moderation(text: str):
 
 async def text_moderation_async(text: str) -> dict:
     try:
-        resp = await asyncio.get_running_loop().run_in_executor(None, text_moderation, text)
+        resp = await asyncio.get_running_loop().run_in_executor(
+            None, text_moderation, text
+        )
         if resp["Suggestion"] != "Pass":
             return {"status": False, "message": resp["Label"]}
         else:

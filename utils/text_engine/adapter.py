@@ -26,15 +26,15 @@ class GraiaAdapter(AbstractAdapter):
 
     font: Union[str, Path, FreeTypeFont]
 
-    color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]    # 字体颜色
+    color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]  # 字体颜色
 
-    size: int   # 字体大小
+    size: int  # 字体大小
 
-    spacing: int    # 字间距
+    spacing: int  # 字间距
 
-    center: bool    # 是否居中
+    center: bool  # 是否居中
 
-    end: str    # 结尾字符
+    end: str  # 结尾字符
 
     def __init__(
         self,
@@ -45,7 +45,7 @@ class GraiaAdapter(AbstractAdapter):
         spacing: int = 1,
         text_type: Optional[TextType] = None,
         center: bool = False,
-        end: str = ''
+        end: str = "",
     ):
         self.data = []
         if not isinstance(elements, list):
@@ -71,14 +71,26 @@ class GraiaAdapter(AbstractAdapter):
             elif any(isinstance(element, el_type) for el_type in (Plain, At, AtAll)):
                 self.data.append(
                     Text(
-                        element.display, self.font, self.color, self.size, self.spacing, None, self.center, self.end
+                        element.display,
+                        self.font,
+                        self.color,
+                        self.size,
+                        self.spacing,
+                        None,
+                        self.center,
+                        self.end,
                     )
                 )
             elif isinstance(element, GraiaImage):
                 if element.base64:
                     self.data.append(Image(base64=element.base64, center=self.center))
                 elif element.url:
-                    self.data.append(Image(data_bytes=requests.get(element.url, verify=False).content, center=self.center))
+                    self.data.append(
+                        Image(
+                            data_bytes=requests.get(element.url, verify=False).content,
+                            center=self.center,
+                        )
+                    )
                 else:
                     raise ValueError("Can't init Image without url or base64!")
             else:

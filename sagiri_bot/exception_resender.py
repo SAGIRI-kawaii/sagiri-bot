@@ -21,12 +21,13 @@ def singleton(cls):
 @singleton
 class ExceptionReSender(object):
     """
-        错误重发模块，用于捕获发送失败的消息并进行重发，默认最大进行5次重发
+    错误重发模块，用于捕获发送失败的消息并进行重发，默认最大进行5次重发
 
-        Attributes:
-            app: Ariadne实例
-            max_retries: 最大重试次数
+    Attributes:
+        app: Ariadne实例
+        max_retries: 最大重试次数
     """
+
     # task: [MessageItem, received_message, group, member, resendCount]
     __instance = None
     __first_init = False
@@ -66,13 +67,26 @@ class ExceptionReSender(object):
         return len(self.__tasks)
 
 
-def exception_resender_listener(app: Ariadne, exception_resender_instance: ExceptionReSender, loop):
+def exception_resender_listener(
+    app: Ariadne, exception_resender_instance: ExceptionReSender, loop
+):
     while True:
         task = exception_resender_instance.get()
         if task:
-            logger.warning("task caught! " + "len:" + str(exception_resender_instance.getLen()) + "task: " + str(task))
+            logger.warning(
+                "task caught! "
+                + "len:"
+                + str(exception_resender_instance.getLen())
+                + "task: "
+                + str(task)
+            )
             try:
-                asyncio.run_coroutine_threadsafe(task[0].strategy.send(app, task[0].message, task[1], task[2], task[3]), loop)
+                asyncio.run_coroutine_threadsafe(
+                    task[0].strategy.send(
+                        app, task[0].message, task[1], task[2], task[3]
+                    ),
+                    loop,
+                )
                 logger.success(f"task resend successfully! task: {str(task)}")
             except Exception:
                 task[4] += 1
@@ -80,11 +94,22 @@ def exception_resender_listener(app: Ariadne, exception_resender_instance: Excep
                     exception_resender_instance.addTask(task)
                 else:
                     logger.error("Maximum number of retries exceeded! Task cancelled!")
-                    asyncio.run_coroutine_threadsafe(app.send_group_message(task[4], MessageChain([
-                        Plain(text="Maximum number of retries exceeded! Task cancelled!")
-                    ]), quote=task[1][Source][0]), loop)
+                    asyncio.run_coroutine_threadsafe(
+                        app.send_group_message(
+                            task[4],
+                            MessageChain(
+                                [
+                                    Plain(
+                                        text="Maximum number of retries exceeded! Task cancelled!"
+                                    )
+                                ]
+                            ),
+                            quote=task[1][Source][0],
+                        ),
+                        loop,
+                    )
         time.sleep(2)
 
 
 class ExceptionReSenderNotInitialized(Exception):
-    """ 错误重发模块未实例化 """
+    """错误重发模块未实例化"""

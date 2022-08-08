@@ -12,7 +12,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -29,20 +34,29 @@ with open(f"{os.getcwd()}/statics/cp_data.json", "r", encoding="utf-8") as r:
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                RegexMatch(r"[^\s]+") @ "attack", RegexMatch(r"[^\s]+") @ "defence"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    RegexMatch(r"[^\s]+") @ "attack",
+                    RegexMatch(r"[^\s]+") @ "defence",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("cp_generator", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def cp_generator(app: Ariadne, group: Group, source: Source, attack: RegexResult, defence: RegexResult):
+async def cp_generator(
+    app: Ariadne,
+    group: Group,
+    source: Source,
+    attack: RegexResult,
+    defence: RegexResult,
+):
     attack = attack.result.display
     defence = defence.result.display
     template = random.choice(cp_data["data"])

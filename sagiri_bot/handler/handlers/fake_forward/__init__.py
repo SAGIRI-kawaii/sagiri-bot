@@ -9,7 +9,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.element import ForwardNode, Plain, Forward, At
 
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -27,8 +32,8 @@ channel.description("一个生成转发消息的插件，发送 '/fake [@目标]
             FrequencyLimit.require("fake_forward", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def fake_forward(app: Ariadne, message: MessageChain, group: Group):
@@ -45,4 +50,6 @@ async def fake_forward(app: Ariadne, message: MessageChain, group: Group):
                 message_chain=MessageChain(Plain(text=content)),
             )
         ]
-        await app.send_group_message(group, MessageChain(Forward(node_list=forward_nodes)))
+        await app.send_group_message(
+            group, MessageChain(Forward(node_list=forward_nodes))
+        )

@@ -11,8 +11,18 @@ from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, RegexRe
 
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
-from .query_resource import get_resource_type_list, query_resource, init, check_resource_exists
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from .query_resource import (
+    get_resource_type_list,
+    query_resource,
+    init,
+    check_resource_exists,
+)
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 
 saya = Saya.current()
@@ -34,35 +44,38 @@ channel.description(
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                FullMatch("原神"), RegexMatch(r"哪里?有", optional=True),
-                RegexMatch(r"[^\s]+") @ "resource_name", RegexMatch(r"在哪里?")
-            ])
+            Twilight(
+                [
+                    FullMatch("原神"),
+                    RegexMatch(r"哪里?有", optional=True),
+                    RegexMatch(r"[^\s]+") @ "resource_name",
+                    RegexMatch(r"在哪里?"),
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("genshin_resource_points", 4),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def genshin_resource_points(
-    app: Ariadne,
-    group: Group,
-    source: Source,
-    resource_name: RegexResult
+    app: Ariadne, group: Group, source: Source, resource_name: RegexResult
 ):
     resource_name = resource_name.result.display.strip()
     if check_resource_exists(resource_name):
         await get_resource_list()
         await app.send_group_message(group, MessageChain("正在生成位置...."))
-        await app.send_group_message(group, await query_resource(resource_name), quote=source)
+        await app.send_group_message(
+            group, await query_resource(resource_name), quote=source
+        )
     else:
         await app.send_group_message(
             group,
             MessageChain(f"未查找到 {resource_name} 资源，可通过 “原神资源列表” 获取全部资源名称.."),
-            quote=source
+            quote=source,
         )
 
 
@@ -74,8 +87,8 @@ async def genshin_resource_points(
             FrequencyLimit.require("genshin_resource_point_list", 3),
             Function.require(channel.module),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def genshin_resource_point_list(app: Ariadne, group: Group):
@@ -89,4 +102,12 @@ async def resource_init():
 
 async def get_resource_list() -> MessageChain:
     content = get_resource_type_list()
-    return MessageChain([Image(data_bytes=TextEngine([GraiaAdapter(MessageChain(content))], min_width=4096).draw())])
+    return MessageChain(
+        [
+            Image(
+                data_bytes=TextEngine(
+                    [GraiaAdapter(MessageChain(content))], min_width=4096
+                ).draw()
+            )
+        ]
+    )

@@ -17,4 +17,5 @@ def error_catcher(func):
             return await func(*args, **kwargs)
         except Exception as e:
             return MessageChain(f"{func.__name__}运行出错：{str(e)}")
+
     return wrapper

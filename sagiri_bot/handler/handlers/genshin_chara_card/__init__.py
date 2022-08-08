@@ -16,7 +16,12 @@ from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 from utils.browser import get_browser
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -35,31 +40,37 @@ characters = {}
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                RegexMatch(r"[12][0-9]{8}") @ "uid",
-                RegexMatch(r".*") @ "chara"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    RegexMatch(r"[12][0-9]{8}") @ "uid",
+                    RegexMatch(r".*") @ "chara",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("genshin_chara_card", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def genshin_chara_card(app: Ariadne, group: Group, source: Source, uid: RegexResult, chara: RegexResult):
+async def genshin_chara_card(
+    app: Ariadne, group: Group, source: Source, uid: RegexResult, chara: RegexResult
+):
     start_time = time.time()
     uid = uid.result.display
     chara = chara.result.display.strip()
-    chara_pinyin = ''.join(pypinyin.lazy_pinyin(chara))
+    chara_pinyin = "".join(pypinyin.lazy_pinyin(chara))
     if not characters:
         await app.send_group_message(group, MessageChain("正在初始化角色列表"))
         _ = await init_chara_list()
         await app.send_group_message(group, MessageChain("初始化完成"))
     if chara_pinyin not in characters:
-        return await app.send_group_message(group, MessageChain(f"角色列表中未找到角色：{chara}，请检查拼写"))
+        return await app.send_group_message(
+            group, MessageChain(f"角色列表中未找到角色：{chara}，请检查拼写")
+        )
     url = f"https://enka.shinshin.moe/u/{uid}"
     if proxy:
         browser = await get_browser(proxy={"server": proxy})
@@ -87,7 +98,7 @@ async def genshin_chara_card(app: Ariadne, group: Group, source: Source, uid: Re
                     f"未找到角色{chara} | {chara_pinyin}！只查询到这几个呢（只能查到展柜里有的呢）："
                     f"{'、'.join([k for k, v in characters.items() if any(v in style.lower() for style in styles)])}"
                 ),
-                quote=source
+                quote=source,
             )
         else:
             index = -1
@@ -99,21 +110,23 @@ async def genshin_chara_card(app: Ariadne, group: Group, source: Source, uid: Re
                     break
             if index == -1 or not chara_src:
                 return await app.send_group_message(group, MessageChain("获取角色头像div失败！"))
-            await page.locator(f'div.avatar.svelte-188i0pk >> nth={index}').click()
-            await page.locator('div.Card.svelte-m3ch8z').wait_for()
+            await page.locator(f"div.avatar.svelte-188i0pk >> nth={index}").click()
+            await page.locator("div.Card.svelte-m3ch8z").wait_for()
             # await page.locator('canvas.svelte-d1gpxk').wait_for()
             # await page.locator('img.WeaponIcon.svelte-gp6viv').wait_for()
             # await page.locator('canvas.ArtifactIcon').wait_for()
-            buffer = await page.locator('div.Card.svelte-m3ch8z').screenshot()
+            buffer = await page.locator("div.Card.svelte-m3ch8z").screenshot()
             await page.close()
             await browser.close()
             await app.send_group_message(
                 group,
-                MessageChain([
-                    f"use: {round(time.time() - start_time, 2)}s\n",
-                    Image(data_bytes=buffer)
-                ]),
-                quote=source
+                MessageChain(
+                    [
+                        f"use: {round(time.time() - start_time, 2)}s\n",
+                        Image(data_bytes=buffer),
+                    ]
+                ),
+                quote=source,
             )
     except:
         await browser.close()
@@ -129,8 +142,8 @@ async def init_chara_list():
     divs = soup.find_all("div", {"class": "char_sea_cont"})
     for div in divs:
         a = div.find_all("a")
-        name = ''.join(pypinyin.lazy_pinyin(a[1].get_text().strip()))
-        eng_name = a[0]["href"].split('/')[3]
+        name = "".join(pypinyin.lazy_pinyin(a[1].get_text().strip()))
+        eng_name = a[0]["href"].split("/")[3]
         characters[name] = eng_name.lower()
     print(characters)
 

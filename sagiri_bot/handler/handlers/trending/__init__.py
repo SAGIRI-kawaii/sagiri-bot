@@ -12,7 +12,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import UnionMatch, RegexResult
 
 from sagiri_bot.config import GlobalConfig
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 
 saya = Saya.current()
@@ -28,19 +33,21 @@ channel.description(
 )
 
 config = create(GlobalConfig)
-proxy = config.proxy if config.proxy != "proxy" else ''
+proxy = config.proxy if config.proxy != "proxy" else ""
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([UnionMatch("微博热搜", "知乎热搜", "github热搜") @ "trending_type"])],
+        inline_dispatchers=[
+            Twilight([UnionMatch("微博热搜", "知乎热搜", "github热搜") @ "trending_type"])
+        ],
         decorators=[
             FrequencyLimit.require("trending", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def trending(app: Ariadne, group: Group, trending_type: RegexResult):
@@ -54,7 +61,6 @@ async def trending(app: Ariadne, group: Group, trending_type: RegexResult):
 
 
 class Trending(object):
-
     @staticmethod
     async def get_weibo_trending() -> MessageChain:
         weibo_hot_url = "http://api.weibo.cn/2/guest/search/hot/word"
@@ -86,7 +92,7 @@ class Trending(object):
         url = "https://github.com/trending"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/87.0.4280.141 Safari/537.36 "
+            "Chrome/87.0.4280.141 Safari/537.36 "
         }
         async with aiohttp.ClientSession() as session:
             async with session.get(url=url, headers=headers, proxy=proxy) as resp:
@@ -99,7 +105,13 @@ class Trending(object):
         for i in articles:
             try:
                 index += 1
-                title = i.find('h1').get_text().replace('\n', '').replace(' ', '').replace('\\', ' \\ ')
+                title = (
+                    i.find("h1")
+                    .get_text()
+                    .replace("\n", "")
+                    .replace(" ", "")
+                    .replace("\\", " \\ ")
+                )
                 text_list.append(f"\n{index}. {title}\n")
                 text_list.append(f"\n    {i.find('p').get_text().strip()}\n")
             except:

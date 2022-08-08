@@ -13,7 +13,12 @@ from graia.ariadne.message.parser.twilight import WildcardMatch, RegexResult
 
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -30,10 +35,12 @@ proxy = config.proxy if config.proxy != "proxy" else ""
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module).space(SpacePolicy.FORCE),
-                WildcardMatch().flags(re.DOTALL) @ "keyword",
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module).space(SpacePolicy.FORCE),
+                    WildcardMatch().flags(re.DOTALL) @ "keyword",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("steam_game_info_searcher", 2),
@@ -47,7 +54,9 @@ async def steam_game_info_searcher(
     app: Ariadne, group: Group, keyword: RegexResult, source: Source
 ):
     keyword = keyword.result.display
-    await app.send_group_message(group, await get_steam_game_search(keyword), quote=source)
+    await app.send_group_message(
+        group, await get_steam_game_search(keyword), quote=source
+    )
 
 
 async def get_steam_game_description(game_id: int) -> str:

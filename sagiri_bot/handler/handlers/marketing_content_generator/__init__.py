@@ -8,7 +8,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, RegexResult
 
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -22,20 +27,24 @@ channel.description("一个营销号内容生成器插件，在群中发送 `营
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                FullMatch("#"),
-                RegexMatch(r"[^\s]+") @ "somebody", FullMatch("#"),
-                RegexMatch(r"[^\s]+") @ "something", FullMatch("#"),
-                RegexMatch(r"[^\s]+") @ "other_word"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    FullMatch("#"),
+                    RegexMatch(r"[^\s]+") @ "somebody",
+                    FullMatch("#"),
+                    RegexMatch(r"[^\s]+") @ "something",
+                    FullMatch("#"),
+                    RegexMatch(r"[^\s]+") @ "other_word",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("marketing_content_generator", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def marketing_content_generator(
@@ -44,14 +53,16 @@ async def marketing_content_generator(
     source: Source,
     somebody: RegexResult,
     something: RegexResult,
-    other_word: RegexResult
+    other_word: RegexResult,
 ):
     somebody = somebody.result.display
     something = something.result.display
     other_word = other_word.result.display
-    content = f"{somebody}{something}是怎么回事呢？" \
-              f"{somebody}相信大家都很熟悉，但是{somebody}{something}是怎么回事呢，下面就让小编带大家一起了解下吧。\n" \
-              f"{somebody}{something}，其实就是{somebody}{other_word}，大家可能会很惊讶{somebody}怎么会{something}呢？" \
-              f"但事实就是这样，小编也感到非常惊讶。\n" \
-              f"这就是关于{somebody}{something}的事情了，大家有什么想法呢，欢迎在评论区告诉小编一起讨论哦！ "
+    content = (
+        f"{somebody}{something}是怎么回事呢？"
+        f"{somebody}相信大家都很熟悉，但是{somebody}{something}是怎么回事呢，下面就让小编带大家一起了解下吧。\n"
+        f"{somebody}{something}，其实就是{somebody}{other_word}，大家可能会很惊讶{somebody}怎么会{something}呢？"
+        f"但事实就是这样，小编也感到非常惊讶。\n"
+        f"这就是关于{somebody}{something}的事情了，大家有什么想法呢，欢迎在评论区告诉小编一起讨论哦！ "
+    )
     await app.send_group_message(group, MessageChain(content), quote=source)

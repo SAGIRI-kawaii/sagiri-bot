@@ -27,9 +27,7 @@ host_qq = create(GlobalConfig).host_qq
 channel.name("DailyNewspaper")
 channel.author("SAGIRI-kawaii")
 channel.description(
-    "一个定时发送每日日报的插件\n"
-    "主人私聊bot发送 `发送早报` 可在群中发送早报\n"
-    "在群中发送 `今日早报` 可在群中发送早报"
+    "一个定时发送每日日报的插件\n" "主人私聊bot发送 `发送早报` 可在群中发送早报\n" "在群中发送 `今日早报` 可在群中发送早报"
 )
 
 
@@ -41,7 +39,7 @@ async def something_scheduled(app: Ariadne):
 @channel.use(
     ListenerSchema(
         listening_events=[FriendMessage],
-        inline_dispatchers=[Twilight([FullMatch("发送早报")])]
+        inline_dispatchers=[Twilight([FullMatch("发送早报")])],
     )
 )
 async def main(app: Ariadne, friend: Friend):
@@ -53,7 +51,7 @@ async def main(app: Ariadne, friend: Friend):
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([get_command(__file__, channel.module)])]
+        inline_dispatchers=[Twilight([get_command(__file__, channel.module)])],
     )
 )
 async def send(app: Ariadne, group: Group):

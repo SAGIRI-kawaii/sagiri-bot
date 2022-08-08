@@ -7,6 +7,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.orm.async_orm import Setting
+
 saya = Saya.current()
 channel = Channel.current()
 
@@ -17,7 +18,12 @@ channel.description("闪照转换插件，发送闪照自动转换")
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def flash_image_catcher(app: Ariadne, message: MessageChain, group: Group):
-    if message.has(FlashImage) and await group_setting.get_setting(group.id, Setting.anti_flash_image):
+    if message.has(FlashImage) and await group_setting.get_setting(
+        group.id, Setting.anti_flash_image
+    ):
         await app.send_group_message(
-            group, MessageChain([Plain(text="FlashImage => Image\n"), message[FlashImage][0].to_image()])
+            group,
+            MessageChain(
+                [Plain(text="FlashImage => Image\n"), message[FlashImage][0].to_image()]
+            ),
         )

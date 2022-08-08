@@ -19,10 +19,21 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, GroupMessage, Member
 from graia.ariadne.message.element import Image, Source, Plain, At, Quote
-from graia.ariadne.message.parser.twilight import ElementMatch, RegexMatch, ElementResult, RegexResult, ArgumentMatch
+from graia.ariadne.message.parser.twilight import (
+    ElementMatch,
+    RegexMatch,
+    ElementResult,
+    RegexResult,
+    ArgumentMatch,
+)
 
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 
 saya = Saya.current()
@@ -44,26 +55,29 @@ inc = InterruptControl(bcc)
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                ElementMatch(At, optional=True),
-                get_command(__file__, channel.module),
-                ArgumentMatch("-h", "-help", optional=True, action="store_true") @ "need_help",
-                RegexMatch(r"-(s|size)=[0-9]+", optional=True) @ "size",
-                RegexMatch(r"-(m|mode)=\w+", optional=True) @ "mode",
-                RegexMatch(r"-(t|text)", optional=True) @ "text",
-                RegexMatch(r"[\n\r]?", optional=True),
-                ElementMatch(Image, optional=True) @ "image",
-                ElementMatch(At, optional=True) @ "at",
-                RegexMatch(r"[1-9][0-9]+", optional=True) @ "qq",
-                RegexMatch(r"[\n\r]?", optional=True)
-            ])
+            Twilight(
+                [
+                    ElementMatch(At, optional=True),
+                    get_command(__file__, channel.module),
+                    ArgumentMatch("-h", "-help", optional=True, action="store_true")
+                    @ "need_help",
+                    RegexMatch(r"-(s|size)=[0-9]+", optional=True) @ "size",
+                    RegexMatch(r"-(m|mode)=\w+", optional=True) @ "mode",
+                    RegexMatch(r"-(t|text)", optional=True) @ "text",
+                    RegexMatch(r"[\n\r]?", optional=True),
+                    ElementMatch(Image, optional=True) @ "image",
+                    ElementMatch(At, optional=True) @ "at",
+                    RegexMatch(r"[1-9][0-9]+", optional=True) @ "qq",
+                    RegexMatch(r"[\n\r]?", optional=True),
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("color_card", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def color_card(
@@ -78,7 +92,7 @@ async def color_card(
     text: RegexResult,
     image: ElementResult,
     at: ElementResult,
-    qq: RegexResult
+    qq: RegexResult,
 ):
     if need_help.matched:
         await app.send_group_message(
@@ -97,18 +111,20 @@ async def color_card(
                 "   -t/-text：是否在下方附加色块RGB即十六进制值文本，在群中发送 `/色卡 -t {图片/@成员/qq号/回复有图片的消息}` 即可\n"
                 "上述参数可同步使用，并按照 -s、-m、-t的顺序添加，如 `/色卡 -s=10 -m=pure -t {图片/@成员/qq号/回复有图片的消息}`"
             ),
-            quote=source
+            quote=source,
         )
         return
-    size = int(size.result.display.split('=')[1].strip()) if size.matched else 5
+    size = int(size.result.display.split("=")[1].strip()) if size.matched else 5
     if size <= 0:
-        await app.send_group_message(group, MessageChain(f"蛤？size为{size}我还给你什么色卡阿，爪巴巴！"), quote=source)
+        await app.send_group_message(
+            group, MessageChain(f"蛤？size为{size}我还给你什么色卡阿，爪巴巴！"), quote=source
+        )
         return
     elif size > 30:
         await app.send_group_message(group, MessageChain("太多了啦，要溢出了！"), quote=source)
         return
     if mode.matched:
-        mode = mode.result.display.split('=')[1].strip().lower()
+        mode = mode.result.display.split("=")[1].strip().lower()
         if mode == "center_vertical":
             mode = CardType.CENTER_VERTICAL
         elif mode == "center_horizon":
@@ -122,8 +138,10 @@ async def color_card(
         else:
             await app.send_group_message(
                 group,
-                MessageChain("mode参数错误！合法的参数如下：center_vertical、center_horizon、center、pure、below"),
-                quote=source
+                MessageChain(
+                    "mode参数错误！合法的参数如下：center_vertical、center_horizon、center、pure、below"
+                ),
+                quote=source,
             )
             return
     else:
@@ -142,25 +160,37 @@ async def color_card(
     if image.matched:
         image_bytes = await image.result.get_bytes()
     elif at.matched or qq.matched:
-        url = f'http://q1.qlogo.cn/g?b=qq&nk={at.result.target if at.matched else qq.result.display.strip()}&s=640'
+        url = f"http://q1.qlogo.cn/g?b=qq&nk={at.result.target if at.matched else qq.result.display.strip()}&s=640"
         async with aiohttp.ClientSession() as session:
             async with session.get(url=url) as resp:
                 image_bytes = await resp.read()
     else:
         try:
-            if message.get_first(Quote) and (await app.get_message_from_id(message.get_first(Quote).id)).message_chain.get(Image):
-                image_bytes = await (await app.get_message_from_id(message.get_first(Quote).id)).message_chain.get_first(Image).get_bytes()
+            if message.get_first(Quote) and (
+                await app.get_message_from_id(message.get_first(Quote).id)
+            ).message_chain.get(Image):
+                image_bytes = (
+                    await (await app.get_message_from_id(message.get_first(Quote).id))
+                    .message_chain.get_first(Image)
+                    .get_bytes()
+                )
             else:
                 raise AttributeError()
         except (IndexError, AttributeError):
             try:
-                await app.send_message(group, MessageChain("请在30s内发送要处理的图片"), quote=source)
+                await app.send_message(
+                    group, MessageChain("请在30s内发送要处理的图片"), quote=source
+                )
                 image_bytes = await asyncio.wait_for(inc.wait(image_waiter), 30)
                 if not image_bytes:
-                    await app.send_group_message(group, MessageChain("未检测到图片，请重新发送，进程退出"), quote=source)
+                    await app.send_group_message(
+                        group, MessageChain("未检测到图片，请重新发送，进程退出"), quote=source
+                    )
                     return
             except asyncio.TimeoutError:
-                await app.send_group_message(group, MessageChain("图片等待超时，进程退出"), quote=source)
+                await app.send_group_message(
+                    group, MessageChain("图片等待超时，进程退出"), quote=source
+                )
                 return
 
     result = await loop.run_in_executor(None, draw, image_bytes, mode, size)
@@ -169,18 +199,26 @@ async def color_card(
     if text.matched:
         await app.send_group_message(
             group,
-            MessageChain([
-                Image(data_bytes=bytes_io.getvalue()),
-                Plain("\n"),
-                Plain("\n".join([
-                    f"rgb{str(i).ljust(15, ' ')} #{''.join(hex(i[j]).upper()[2:] for j in range(3))}"
-                    for i in result[1]
-                ]))
-            ]),
-            quote=source
+            MessageChain(
+                [
+                    Image(data_bytes=bytes_io.getvalue()),
+                    Plain("\n"),
+                    Plain(
+                        "\n".join(
+                            [
+                                f"rgb{str(i).ljust(15, ' ')} #{''.join(hex(i[j]).upper()[2:] for j in range(3))}"
+                                for i in result[1]
+                            ]
+                        )
+                    ),
+                ]
+            ),
+            quote=source,
         )
     else:
-        await app.send_group_message(group, MessageChain([Image(data_bytes=bytes_io.getvalue())]), quote=source)
+        await app.send_group_message(
+            group, MessageChain([Image(data_bytes=bytes_io.getvalue())]), quote=source
+        )
 
 
 class CardType(Enum):
@@ -194,12 +232,11 @@ class CardType(Enum):
 
 def draw_ellipse(image, bounds, width=1, antialias=4):
     mask = PIL.Image.new(
-        size=[int(dim * antialias) for dim in image.size],
-        mode='L', color='black'
+        size=[int(dim * antialias) for dim in image.size], mode="L", color="black"
     )
     canvas = ImageDraw.Draw(mask)
 
-    for offset, fill in (width / -2.0, 'black'), (width / 2.0, 'white'):
+    for offset, fill in (width / -2.0, "black"), (width / 2.0, "white"):
         left, top = [(value + offset) * antialias for value in bounds[:2]]
         right, bottom = [(value - offset) * antialias for value in bounds[2:]]
         canvas.ellipse([left, top, right, bottom], fill=fill)
@@ -213,7 +250,7 @@ def get_circle_color(
     color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]],
     size: Tuple[int, int],
     border: bool = True,
-    border_color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]] = "white"
+    border_color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]] = "white",
 ) -> PIL.Image:
     canvas_back = None
     if border:
@@ -247,7 +284,7 @@ def get_dominant_colors(image: PIL.Image, size: int = 5):
 
     for i in range(size):
         palette_index = color_counts[i][1]
-        dominant_color = palette[palette_index * 3: palette_index * 3 + 3]
+        dominant_color = palette[palette_index * 3 : palette_index * 3 + 3]
         colors.append(tuple(dominant_color))
 
     return colors
@@ -271,7 +308,11 @@ def draw(
     image = image.convert("RGBA")
     colors = get_dominant_colors(image, color_size)
     if card_type == CardType.CENTER:
-        card_type = CardType.CENTER_HORIZON if image.size[0] > image.size[1] else CardType.CENTER_VERTICAL
+        card_type = (
+            CardType.CENTER_HORIZON
+            if image.size[0] > image.size[1]
+            else CardType.CENTER_VERTICAL
+        )
     if card_type == CardType.PURE:
         height = 100
         width = 100 * len(colors)
@@ -280,7 +321,9 @@ def draw(
             block = PIL.Image.new("RGB", (100, 100), color)
             canvas.paste(block, (i * 100, 0))
     elif resize:
-        raise TypeError("The resize option cannot be used in drawing modes other than CardType.PURE!")
+        raise TypeError(
+            "The resize option cannot be used in drawing modes other than CardType.PURE!"
+        )
     elif card_type == CardType.BELOW_BLOCK:
         width, height = image.size
         block_width = int(width / color_size)
@@ -294,16 +337,31 @@ def draw(
     elif card_type in [CardType.CENTER_HORIZON, CardType.CENTER_VERTICAL]:
         width, height = image.size
         canvas = PIL.Image.new("RGBA", image.size)
-        draw_size = int(width * 0.7) if card_type == CardType.CENTER_HORIZON else int(height * 0.7)
-        padding = int(width * 0.02) if card_type == CardType.CENTER_HORIZON else int(height * 0.02)
+        draw_size = (
+            int(width * 0.7)
+            if card_type == CardType.CENTER_HORIZON
+            else int(height * 0.7)
+        )
+        padding = (
+            int(width * 0.02)
+            if card_type == CardType.CENTER_HORIZON
+            else int(height * 0.02)
+        )
         block_size = int((draw_size - (color_size - 1) * padding) / color_size)
-        stable_x = int((height if card_type == CardType.CENTER_HORIZON else width) / 2 - block_size / 2)
+        stable_x = int(
+            (height if card_type == CardType.CENTER_HORIZON else width) / 2
+            - block_size / 2
+        )
         for i, color in enumerate(colors):
             block = get_circle_color(color, (block_size, block_size))
             if card_type == CardType.CENTER_HORIZON:
-                canvas.paste(block, (int(width * 0.15) + i * (block_size + padding), stable_x))
+                canvas.paste(
+                    block, (int(width * 0.15) + i * (block_size + padding), stable_x)
+                )
             else:
-                canvas.paste(block, (stable_x, int(height * 0.15) + i * (block_size + padding)))
+                canvas.paste(
+                    block, (stable_x, int(height * 0.15) + i * (block_size + padding))
+                )
         canvas = PIL.Image.alpha_composite(image, canvas)
     if show:
         canvas.show()

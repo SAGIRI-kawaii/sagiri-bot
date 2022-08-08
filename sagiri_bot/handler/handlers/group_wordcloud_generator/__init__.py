@@ -26,13 +26,18 @@ from graia.ariadne.message.parser.twilight import (
     RegexMatch,
     MatchResult,
     ElementMatch,
-    ElementResult
+    ElementResult,
 )
 
 from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.orm.async_orm import ChatRecord
 from sagiri_bot.internal_utils import user_permission_require
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -51,12 +56,13 @@ loop = create(asyncio.AbstractEventLoop)
             Twilight(
                 [
                     UnionMatch("我的", "本群") @ "scope",
-                    UnionMatch("年内", "月内", "日内", "今日", "本月", "本年", "年度", "月度") @ "period",
+                    UnionMatch("年内", "月内", "日内", "今日", "本月", "本年", "年度", "月度")
+                    @ "period",
                     UnionMatch("总结", "词云"),
                     RegexMatch(r"[0-9]+", optional=True) @ "topK",
                     RegexMatch(r"[\s]", optional=True),
                     ElementMatch(Image, optional=True) @ "mask",
-                    RegexMatch(r"[\s]", optional=True)
+                    RegexMatch(r"[\s]", optional=True),
                 ]
             )
         ],
@@ -76,27 +82,26 @@ async def group_wordcloud_generator(
     scope: MatchResult,
     period: MatchResult,
     topK: MatchResult,
-    mask: ElementResult
+    mask: ElementResult,
 ):
     scope = "group" if scope.result.display == "本群" else "member"
     if scope == "group" and not await user_permission_require(group, member, 2):
         return await app.send_group_message(
-            group,
-            MessageChain([Plain(text="权限不足呢~爪巴!")]),
-            quote=source
+            group, MessageChain([Plain(text="权限不足呢~爪巴!")]), quote=source
         )
 
     period = period.result.display
     topK = min(int(topK.result.display), 100000) if topK.matched else 1000
     await app.send_group_message(
         group,
-        await GroupWordCloudGenerator.get_review(group, member, period, scope, topK, mask.result),
-        quote=source
+        await GroupWordCloudGenerator.get_review(
+            group, member, period, scope, topK, mask.result
+        ),
+        quote=source,
     )
 
 
 class GroupWordCloudGenerator:
-
     @staticmethod
     async def filter_label(label_list: list) -> list:
         not_filter = ["草"]
@@ -137,7 +142,9 @@ class GroupWordCloudGenerator:
             path = random.sample(path_dir, 1)[0]
             return base_path + path
 
-        mask = np.array(mask if mask else IMG.open(random_pic(f"{os.getcwd()}/statics/wordcloud/")))
+        mask = np.array(
+            mask if mask else IMG.open(random_pic(f"{os.getcwd()}/statics/wordcloud/"))
+        )
         wc = WordCloud(
             font_path=f"{os.getcwd()}/statics/fonts/STKAITI.TTF",
             background_color="white",
@@ -166,7 +173,12 @@ class GroupWordCloudGenerator:
 
     @staticmethod
     async def get_review(
-        group: Group, member: Member, review_type: str, target: str, topK: int, mask: Optional[Image]
+        group: Group,
+        member: Member,
+        review_type: str,
+        target: str,
+        topK: int,
+        mask: Optional[Image],
     ) -> MessageChain:
         group_id = group.id
         member_id = member.id
@@ -239,7 +251,7 @@ class GroupWordCloudGenerator:
                         jieba.analyse.extract_tags(
                             " ".join(texts), topK=topK, withWeight=True, allowPOS=()
                         ),
-                        mask
+                        mask,
                     )
                 ),
             ]
@@ -279,7 +291,7 @@ class TfIdf:
             doc_dict = doc[1]
             for k, v in query_dict.items():
                 if k in doc_dict:
-                    score += (v / self.corpus_dict[k] + doc_dict[k] / self.corpus_dict[k])
+                    score += v / self.corpus_dict[k] + doc_dict[k] / self.corpus_dict[k]
             sims.append([doc[0], score])
 
         return sims

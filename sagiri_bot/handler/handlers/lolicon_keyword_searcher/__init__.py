@@ -68,7 +68,9 @@ async def lolicon_keyword_searcher(
 ):
     keyword = keyword.result.display
     if not await group_setting.get_setting(group, Setting.setu):
-        return await app.send_group_message(group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"))
+        return await app.send_group_message(
+            group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
+        )
     msg_chain = await get_image(group, keyword)
     if msg_chain.only(Plain):
         return await app.send_group_message(group, msg_chain, quote=source)
@@ -80,9 +82,7 @@ async def lolicon_keyword_searcher(
         with contextlib.suppress(UnknownTarget):
             await app.recall_message(msg)
     elif mode == "flashImage" and r18:
-        await app.send_group_message(
-            group, msg_chain.exclude(Image), quote=source
-        )
+        await app.send_group_message(group, msg_chain.exclude(Image), quote=source)
         await app.send_group_message(
             group, MessageChain([msg_chain.get_first(Image).to_flash_image()])
         )

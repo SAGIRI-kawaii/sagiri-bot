@@ -14,12 +14,16 @@ from .models import User
 
 
 def md5(content: str) -> str:
-    return hashlib.md5(content.encode(encoding='utf-8')).hexdigest()
+    return hashlib.md5(content.encode(encoding="utf-8")).hexdigest()
 
 
 def get_all_channels() -> List[str]:
     ignore = ["__init__.py", "__pycache__"]
-    dirs = ["modules", "sagiri_bot/handler/required_module", "sagiri_bot/handler/handlers"]
+    dirs = [
+        "modules",
+        "sagiri_bot/handler/required_module",
+        "sagiri_bot/handler/handlers",
+    ]
     modules = []
     for path in dirs:
         for module in os.listdir(path):
@@ -85,7 +89,12 @@ def parse_messagechain(message: list) -> Union[MessageChain, list]:
             elif path := element.get("path"):
                 elements.append(Image(path=path))
             else:
-                exceptions.append((element, "missing parameter: content(bytes) / url(str) / path(str)"))
+                exceptions.append(
+                    (
+                        element,
+                        "missing parameter: content(bytes) / url(str) / path(str)",
+                    )
+                )
     return MessageChain(elements) if not exceptions else exceptions
 
 

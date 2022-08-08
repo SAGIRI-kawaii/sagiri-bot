@@ -29,12 +29,16 @@ async def except_handle(event: ExceptionThrowed):
         return
     return await app.send_friend_message(
         config.host_qq,
-        MessageChain(Image(data_bytes=TextEngine(
-            generate_reports(event.exception),
-            min_width=4096,
-            spacing=5,
-            line_spacing=10
-        ).draw()))
+        MessageChain(
+            Image(
+                data_bytes=TextEngine(
+                    generate_reports(event.exception),
+                    min_width=4096,
+                    spacing=5,
+                    line_spacing=10,
+                ).draw()
+            )
+        ),
     )
 
 

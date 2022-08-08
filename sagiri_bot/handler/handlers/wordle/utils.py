@@ -20,7 +20,7 @@ async def update_member_statistic(
     group: Union[int, Group],
     member: Union[int, Member],
     statistic_type: StatisticType,
-    value: int = 1
+    value: int = 1,
 ):
     if isinstance(member, Member):
         member = member.id
@@ -33,11 +33,8 @@ async def update_member_statistic(
             WordleStatistic.correct_count,
             WordleStatistic.wrong_count,
             WordleStatistic.game_count,
-            WordleStatistic.hint_count
-        ).where(
-            WordleStatistic.member_id == member,
-            WordleStatistic.group_id == group
-        )
+            WordleStatistic.hint_count,
+        ).where(WordleStatistic.member_id == member, WordleStatistic.group_id == group)
     )
     if statistic_type == StatisticType.win:
         new_value_dict = {"win_count": old_value[0] + value if old_value else value}
@@ -56,11 +53,15 @@ async def update_member_statistic(
     new_value_dict["group_id"] = group
     new_value_dict["member_id"] = member
     await orm.insert_or_update(
-        WordleStatistic, [WordleStatistic.member_id == member, WordleStatistic.group_id == group], new_value_dict
+        WordleStatistic,
+        [WordleStatistic.member_id == member, WordleStatistic.group_id == group],
+        new_value_dict,
     )
 
 
-async def get_member_statistic(group: Union[int, Group], member: Union[int, Member]) -> Tuple:
+async def get_member_statistic(
+    group: Union[int, Group], member: Union[int, Member]
+) -> Tuple:
     if isinstance(member, Member):
         member = member.id
     if isinstance(group, Group):
@@ -72,11 +73,8 @@ async def get_member_statistic(group: Union[int, Group], member: Union[int, Memb
             WordleStatistic.correct_count,
             WordleStatistic.wrong_count,
             WordleStatistic.game_count,
-            WordleStatistic.hint_count
-        ).where(
-            WordleStatistic.member_id == member,
-            WordleStatistic.group_id == group
-        )
+            WordleStatistic.hint_count,
+        ).where(WordleStatistic.member_id == member, WordleStatistic.group_id == group)
     ):
         return data
     else:

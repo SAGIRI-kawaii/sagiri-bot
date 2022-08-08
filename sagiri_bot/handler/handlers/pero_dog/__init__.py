@@ -9,7 +9,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from sagiri_bot.internal_utils import get_command
 from statics.pero_dog_contents import pero_dog_contents
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -27,9 +32,11 @@ channel.description("一个获取舔狗日记的插件，在群中发送 `舔` �
             FrequencyLimit.require("pero_dog", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def pero_dog(app: Ariadne, group: Group):
-    await app.send_group_message(group, MessageChain(random.choice(pero_dog_contents).replace('*', '')))
+    await app.send_group_message(
+        group, MessageChain(random.choice(pero_dog_contents).replace("*", ""))
+    )

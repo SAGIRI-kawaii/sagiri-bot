@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class TextType(Enum):
-    """ Text类型 """
+    """Text类型"""
 
     H1 = {"size": 32, "spacing": 3}
     H2 = {"size": 24, "spacing": 2}

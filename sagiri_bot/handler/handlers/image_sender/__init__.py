@@ -17,7 +17,14 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.element import Plain, Image, FlashImage, Forward, ForwardNode, Source
+from graia.ariadne.message.element import (
+    Plain,
+    Image,
+    FlashImage,
+    Forward,
+    ForwardNode,
+    Source,
+)
 
 from sagiri_bot.control import Function
 from sagiri_bot.orm.async_orm import orm
@@ -31,7 +38,7 @@ setting_column_index = {
     "real": Setting.real,
     "real_highq": Setting.real_high_quality,
     "bizhi": Setting.bizhi,
-    "sketch": Setting.setu
+    "sketch": Setting.setu,
 }
 
 user_called_column_index = {
@@ -39,7 +46,7 @@ user_called_column_index = {
     "real": UserCalledCount.real,
     "real_highq": UserCalledCount.real,
     "bizhi": UserCalledCount.bizhi,
-    "sketch": UserCalledCount.setu
+    "sketch": UserCalledCount.setu,
 }
 
 user_called_name_index = {
@@ -47,7 +54,7 @@ user_called_name_index = {
     "real": "real",
     "real_highq": "real",
     "bizhi": "bizhi",
-    "sketch": "setu"
+    "sketch": "setu",
 }
 url_pattern = r"((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?"
 
@@ -76,7 +83,7 @@ async def db_init():
             await orm.insert_or_ignore(
                 TriggerKeyword,
                 [TriggerKeyword.keyword == key, TriggerKeyword.function == key],
-                {"keyword": key, "function": key}
+                {"keyword": key, "function": key},
             )
         except Exception:
             pass
@@ -85,12 +92,12 @@ async def db_init():
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        decorators=[
-            Function.require(channel.module, log=False, notice=False)
-        ]
+        decorators=[Function.require(channel.module, log=False, notice=False)],
     )
 )
-async def image_sender(app: Ariadne, message: MessageChain, group: Group, member: Member, source: Source):
+async def image_sender(
+    app: Ariadne, message: MessageChain, group: Group, member: Member, source: Source
+):
     if re.match(r"[\w]+ -[0-9]+", message.as_persistent_string(), re.S):
         message_serialization = message.as_persistent_string().split(" -")[0]
         image_count = int(message.as_persistent_string().split(" -")[1])
@@ -100,36 +107,44 @@ async def image_sender(app: Ariadne, message: MessageChain, group: Group, member
 
     if re.match(r"添加图库关键词#[\s\S]*#[\s\S]*", message_serialization):
         if await user_permission_require(group, member, 2):
-            return await app.send_group_message(group, await update_keyword(message_serialization), quote=source)
+            return await app.send_group_message(
+                group, await update_keyword(message_serialization), quote=source
+            )
         else:
-            return await app.send_group_message(group, MessageChain("权限不足，爬"), quote=source)
+            return await app.send_group_message(
+                group, MessageChain("权限不足，爬"), quote=source
+            )
 
     elif re.match(r"删除图库关键词#[\s\S]*", message_serialization):
         if await user_permission_require(group, member, 2):
             return await app.send_group_message(
                 group,
                 await delete_keyword(app, group, member, message_serialization),
-                quote=source
+                quote=source,
             )
         else:
-            return await app.send_group_message(group, MessageChain("权限不足，爬"), quote=source)
+            return await app.send_group_message(
+                group, MessageChain("权限不足，爬"), quote=source
+            )
 
     elif re.match(r"查看图库关键词#[\s\S]*", message_serialization):
         return await app.send_group_message(
-            group,
-            await show_keywords(message.display[8:].strip()),
-            quote=source
+            group, await show_keywords(message.display[8:].strip()), quote=source
         )
 
     elif message.display.strip() == "查看已加载图库":
         return await app.send_group_message(group, show_functions(), quote=source)
 
     if re.match(r"\[mirai:image:{.*}\..*]", message_serialization):
-        message_serialization = re.findall(r"\[mirai:image:{(.*?)}\..*]", message_serialization, re.S)[0]
+        message_serialization = re.findall(
+            r"\[mirai:image:{(.*?)}\..*]", message_serialization, re.S
+        )[0]
 
     if resp_functions := list(
         await orm.fetchall(
-            select(TriggerKeyword.function).where(TriggerKeyword.keyword == message_serialization)
+            select(TriggerKeyword.function).where(
+                TriggerKeyword.keyword == message_serialization
+            )
         )
     ):
         resp_functions = resp_functions[0]
@@ -147,7 +162,7 @@ async def image_sender(app: Ariadne, message: MessageChain, group: Group, member
                     member,
                     user_called_column_index[tfunc],
                     user_called_name_index[tfunc],
-                    image_count
+                    image_count,
                 )
             if tfunc == "setu" or tfunc == "setu18":
                 if await group_setting.get_setting(group.id, Setting.setu):
@@ -155,42 +170,56 @@ async def image_sender(app: Ariadne, message: MessageChain, group: Group, member
                         return await app.send_group_message(
                             group,
                             await get_image_message(group, "setu18", image_count),
-                            quote=source
+                            quote=source,
                         )
                     elif tfunc == "setu":
                         return await app.send_group_message(
                             group,
                             await get_image_message(group, tfunc, image_count),
-                            quote=source
+                            quote=source,
                         )
                     else:
-                        return await app.send_group_message(group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"))
+                        return await app.send_group_message(
+                            group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
+                        )
                 else:
-                    return await app.send_group_message(group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"))
-            elif tfunc == "real_highq":
-                if all([
-                    await group_setting.get_setting(group.id, Setting.real),
-                    await group_setting.get_setting(group.id, Setting.real_high_quality)
-                ]):
                     return await app.send_group_message(
-                        group,
-                        await get_image_message(group, tfunc, image_count),
-                        quote=source
+                        group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
                     )
-                else:
-                    return await app.send_group_message(group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"))
-            else:
-                if (
-                    tfunc not in setting_column_index or
-                    await group_setting.get_setting(group.id, setting_column_index[tfunc])
+            elif tfunc == "real_highq":
+                if all(
+                    [
+                        await group_setting.get_setting(group.id, Setting.real),
+                        await group_setting.get_setting(
+                            group.id, Setting.real_high_quality
+                        ),
+                    ]
                 ):
                     return await app.send_group_message(
                         group,
                         await get_image_message(group, tfunc, image_count),
-                        quote=source
+                        quote=source,
                     )
                 else:
-                    return await app.send_group_message(group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！"))
+                    return await app.send_group_message(
+                        group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
+                    )
+            else:
+                if (
+                    tfunc not in setting_column_index
+                    or await group_setting.get_setting(
+                        group.id, setting_column_index[tfunc]
+                    )
+                ):
+                    return await app.send_group_message(
+                        group,
+                        await get_image_message(group, tfunc, image_count),
+                        quote=source,
+                    )
+                else:
+                    return await app.send_group_message(
+                        group, MessageChain("这是正规群哦~没有那种东西的呢！lsp爬！")
+                    )
 
 
 def random_pic(base_path: str) -> str:
@@ -204,19 +233,16 @@ async def get_pic(image_type: str, image_count: int) -> Union[List[Image], str]:
         raise ValueError(f"Invalid image_type: {image_type}")
     if os.path.exists(paths[image_type]):
         return [Image(path=random_pic(paths[image_type])) for _ in range(image_count)]
-    elif re.match(
-        r"json:([\w\W]+\.)+([\w\W]+)\$" + url_pattern,
-        paths[image_type]
-    ):
-        path = paths[image_type].split('$')[0].split(':')[1].split('.')
+    elif re.match(r"json:([\w\W]+\.)+([\w\W]+)\$" + url_pattern, paths[image_type]):
+        path = paths[image_type].split("$")[0].split(":")[1].split(".")
         result = []
         async with aiohttp.ClientSession() as session:
             for _ in range(image_count):
-                async with session.get(paths[image_type].split('$')[-1]) as resp:
+                async with session.get(paths[image_type].split("$")[-1]) as resp:
                     res = await resp.json()
                 for p in path:
                     try:
-                        if p[0] == '|' and p[1:].isnumeric():
+                        if p[0] == "|" and p[1:].isnumeric():
                             res = res[int(p[1:])]
                         else:
                             res = res.get(p)
@@ -237,7 +263,9 @@ async def get_pic(image_type: str, image_count: int) -> Union[List[Image], str]:
         return [Image(path=f"{os.getcwd()}/statics/error/path_not_exists.png")]
 
 
-async def get_message(images: Union[List[Image], str], image_count: int) -> MessageChain:
+async def get_message(
+    images: Union[List[Image], str], image_count: int
+) -> MessageChain:
     if isinstance(images, str):
         return MessageChain(images)
     if image_count == 1:
@@ -248,7 +276,8 @@ async def get_message(images: Union[List[Image], str], image_count: int) -> Mess
             time=datetime.now(),
             sender_name="SAGIRI BOT",
             message_chain=MessageChain([image]),
-        ) for image in images
+        )
+        for image in images
     ]
     return MessageChain([Forward(node_list)])
 
@@ -269,12 +298,13 @@ async def get_image_message(group: Group, func: str, image_count: int) -> Messag
             return await get_message(await get_pic(func, image_count), image_count)
         else:
             return await get_message(
-                [FlashImage.from_image(image) for image in await get_pic(func, image_count)],
-                image_count
+                [
+                    FlashImage.from_image(image)
+                    for image in await get_pic(func, image_count)
+                ],
+                image_count,
             )
-    return await get_message(
-        await get_pic(func, image_count), image_count
-    )
+    return await get_message(await get_pic(func, image_count), image_count)
 
 
 async def update_keyword(message_serialization: str) -> MessageChain:
@@ -283,13 +313,15 @@ async def update_keyword(message_serialization: str) -> MessageChain:
         keyword = re.findall(r"\[mirai:image:{(.*?)}\..*]", keyword, re.S)[0]
     if function not in functions:
         return MessageChain("非法方法名！")
-    if await orm.fetchone(select(TriggerKeyword.keyword).where(TriggerKeyword.keyword == keyword)):
+    if await orm.fetchone(
+        select(TriggerKeyword.keyword).where(TriggerKeyword.keyword == keyword)
+    ):
         return MessageChain("已存在的关键词！请先删除！")
     try:
         await orm.insert_or_ignore(
             TriggerKeyword,
             [TriggerKeyword.keyword == keyword, TriggerKeyword.function == function],
-            {"keyword": keyword, "function": function}
+            {"keyword": keyword, "function": function},
         )
         return MessageChain(f"关键词添加成功！\n{keyword} -> {function}")
     except:
@@ -297,25 +329,28 @@ async def update_keyword(message_serialization: str) -> MessageChain:
         return MessageChain("发生错误！请查看日志！")
 
 
-async def delete_keyword(app: Ariadne, group: Group, member: Member, message_serialization: str) -> MessageChain:
+async def delete_keyword(
+    app: Ariadne, group: Group, member: Member, message_serialization: str
+) -> MessageChain:
     _, keyword = message_serialization.split("#")
     if re.match(r"\[mirai:image:{.*}\..*]", keyword):
         keyword = re.findall(r"\[mirai:image:{(.*?)}\..*]", keyword, re.S)[0]
-    if record := await orm.fetchone(select(TriggerKeyword.function).where(TriggerKeyword.keyword == keyword)):
+    if record := await orm.fetchone(
+        select(TriggerKeyword.function).where(TriggerKeyword.keyword == keyword)
+    ):
         await app.send_group_message(
             group,
-            MessageChain([
-                Plain(text=f"查找到以下信息：\n{keyword} -> {record[0]}\n是否删除？（是/否）")
-            ])
+            MessageChain(
+                [Plain(text=f"查找到以下信息：\n{keyword} -> {record[0]}\n是否删除？（是/否）")]
+            ),
         )
         inc = InterruptControl(saya.broadcast)
 
         @Waiter.create_using_function([GroupMessage])
-        def confirm_waiter(waiter_group: Group, waiter_member: Member, waiter_message: MessageChain):
-            if all([
-                waiter_group.id == group.id,
-                waiter_member.id == member.id
-            ]):
+        def confirm_waiter(
+            waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
+        ):
+            if all([waiter_group.id == group.id, waiter_member.id == member.id]):
                 if re.match(r"[是否]", waiter_message.display):
                     return waiter_message.display
                 else:
@@ -339,17 +374,18 @@ async def delete_keyword(app: Ariadne, group: Group, member: Member, message_ser
 
 
 async def show_keywords(function: str) -> MessageChain:
-    if keywords := await orm.fetchall(select(TriggerKeyword.keyword).where(TriggerKeyword.function == function)):
-        return MessageChain('\n'.join([keyword[0] for keyword in keywords]))
+    if keywords := await orm.fetchall(
+        select(TriggerKeyword.keyword).where(TriggerKeyword.function == function)
+    ):
+        return MessageChain("\n".join([keyword[0] for keyword in keywords]))
     else:
         return MessageChain(f"未找到图库{function}对应关键词或图库名错误！")
 
 
 def show_functions() -> MessageChain:
     if loaded_functions := config.image_path.keys():
-        return MessageChain([
-            "当前已加载图库：\n",
-            '\n'.join([func for func in loaded_functions])
-        ])
+        return MessageChain(
+            ["当前已加载图库：\n", "\n".join([func for func in loaded_functions])]
+        )
     else:
         return MessageChain("未检测到已加载图库！请检查配置！")

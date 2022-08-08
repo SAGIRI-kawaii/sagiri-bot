@@ -14,7 +14,7 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.connection.config import (
     HttpClientConfig,
     WebsocketClientConfig,
-    config
+    config,
 )
 from graia.ariadne.event.message import (
     GroupMessage,
@@ -23,7 +23,7 @@ from graia.ariadne.event.message import (
     StrangerMessage,
     ActiveMessage,
     ActiveGroupMessage,
-    ActiveFriendMessage
+    ActiveFriendMessage,
 )
 from graia.ariadne.model import LogConfig
 from graia.saya.builtins.broadcast import BroadcastBehaviour
@@ -51,7 +51,7 @@ non_log = {
     StrangerMessage,
     ActiveMessage,
     ActiveGroupMessage,
-    ActiveFriendMessage
+    ActiveFriendMessage,
 }
 
 
@@ -59,6 +59,7 @@ class AppCore(object):
     """
     应用核心，用于管理所有相关组件
     """
+
     __instance = None
     __first_init: bool = False
     __app: Ariadne = None
@@ -91,7 +92,7 @@ class AppCore(object):
                 HttpClientConfig(host=g_config.mirai_host),
                 WebsocketClientConfig(host=g_config.mirai_host),
             ),
-            log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO")
+            log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO"),
         )
         self.__saya = create(Saya)
         self.__saya.install_behaviours(BroadcastBehaviour(self.__bcc))
@@ -107,7 +108,7 @@ class AppCore(object):
         return self.__app
 
     def launch(self) -> None:
-        """ 启动 Ariadne 实例 """
+        """启动 Ariadne 实例"""
         try:
             self.__app.launch_blocking()
         except KeyboardInterrupt:
@@ -115,7 +116,7 @@ class AppCore(object):
 
     @logger.catch
     async def bot_launch_init(self) -> None:
-        """ 机器人启动初始化 """
+        """机器人启动初始化"""
         self.config_check()
         try:
             await orm.init_check()
@@ -128,7 +129,9 @@ class AppCore(object):
                 alembic_env_py_content = r.read()
             with open(f"{os.getcwd()}/alembic/env.py", "w") as w:
                 w.write(alembic_env_py_content)
-            logger.warning(f"请前往更改 {os.getcwd()}/alembic.ini 文件，将其中的 sqlalchemy.url 替换为自己的数据库url（不需注明引擎）后重启机器人")
+            logger.warning(
+                f"请前往更改 {os.getcwd()}/alembic.ini 文件，将其中的 sqlalchemy.url 替换为自己的数据库url（不需注明引擎）后重启机器人"
+            )
             exit()
         if not os.path.exists(f"{os.getcwd()}/alembic/versions"):
             os.mkdir(f"{os.getcwd()}/alembic/versions")
@@ -142,9 +145,11 @@ class AppCore(object):
             await orm.insert_or_update(
                 Setting,
                 [Setting.group_id == group.id],
-                {"group_id": group.id, "group_name": group.name, "active": True}
+                {"group_id": group.id, "group_name": group.name, "active": True},
             )
-        results = await orm.fetchall(select(Setting.group_id, Setting.group_name).where(Setting.active == True))
+        results = await orm.fetchall(
+            select(Setting.group_id, Setting.group_name).where(Setting.active == True)
+        )
         self.load_required_saya_modules()
         logger.info("本次启动活动群组如下：")
         for result in results:
@@ -152,15 +157,20 @@ class AppCore(object):
         for result in results:
             await orm.insert_or_update(
                 UserPermission,
-                [UserPermission.member_id == self.__config.host_qq, UserPermission.group_id == result[0]],
-                {"member_id": self.__config.host_qq, "group_id": result[0], "level": 4}
+                [
+                    UserPermission.member_id == self.__config.host_qq,
+                    UserPermission.group_id == result[0],
+                ],
+                {"member_id": self.__config.host_qq, "group_id": result[0], "level": 4},
             )
         self.__frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
-        threading.Thread(target=frequency_limit, args=(self.__frequency_limit_instance,)).start()
+        threading.Thread(
+            target=frequency_limit, args=(self.__frequency_limit_instance,)
+        ).start()
         exception_resender_instance = ExceptionReSender(self.__app)
         listener = threading.Thread(
             target=exception_resender_listener,
-            args=(self.__app, exception_resender_instance, self.__loop)
+            args=(self.__app, exception_resender_instance, self.__loop),
         )
         listener.start()
         await group_setting.data_init()
@@ -172,20 +182,28 @@ class AppCore(object):
                 logger.success(f"{' ' * indent}{key}:")
                 AppCore.dict_check(dictionary[key], indent + 4)
             elif dictionary[key] == key:
-                logger.warning(f"{' ' * indent}Unchanged initial value detected: {key} - {dictionary[key]}")
+                logger.warning(
+                    f"{' ' * indent}Unchanged initial value detected: {key} - {dictionary[key]}"
+                )
             else:
                 logger.success(f"{' ' * indent}{key} - {dictionary[key]}")
 
     def config_check(self) -> None:
-        """ 配置检查 """
+        """配置检查"""
         required_key = ("bot_qq", "host_qq", "mirai_host", "verify_key")
         logger.info("Start checking configuration")
         father_properties = tuple(dir(BaseModel))
-        properties = [_ for _ in dir(self.__config) if _ not in father_properties and not _.startswith("_")]
+        properties = [
+            _
+            for _ in dir(self.__config)
+            if _ not in father_properties and not _.startswith("_")
+        ]
         for key in properties:
             value = self.__config.__getattribute__(key)
             if key in required_key and key == value:
-                logger.error(f"Required initial value not changed detected: {key} - {value}")
+                logger.error(
+                    f"Required initial value not changed detected: {key} - {value}"
+                )
                 exit(0)
             elif isinstance(value, dict):
                 logger.success(f"{key}:")
@@ -197,7 +215,7 @@ class AppCore(object):
         logger.info("Configuration check completed")
 
     def load_saya_modules(self) -> None:
-        """ 加载自定义 saya 模块 """
+        """加载自定义 saya 模块"""
         ignore = ["__init__.py", "__pycache__"]
         with self.__saya.module_context():
             for module in os.listdir("modules"):
@@ -212,7 +230,7 @@ class AppCore(object):
                     logger.error(f"saya模块：{module} - {e}")
 
     def load_required_saya_modules(self) -> None:
-        """ 加载必要 saya 模块 """
+        """加载必要 saya 模块"""
         ignore = ["__init__.py", "__pycache__"]
         with self.__saya.module_context():
             for module in os.listdir("sagiri_bot/handler/required_module"):
@@ -220,9 +238,13 @@ class AppCore(object):
                     continue
                 try:
                     if os.path.isdir(module):
-                        self.__saya.require(f"sagiri_bot.handler.required_module.{module}")
+                        self.__saya.require(
+                            f"sagiri_bot.handler.required_module.{module}"
+                        )
                     else:
-                        self.__saya.require(f"sagiri_bot.handler.required_module.{module.split('.')[0]}")
+                        self.__saya.require(
+                            f"sagiri_bot.handler.required_module.{module.split('.')[0]}"
+                        )
                 except ModuleNotFoundError as e:
                     logger.error(f"saya模块：{module} - {e}")
 

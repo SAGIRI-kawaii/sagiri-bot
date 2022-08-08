@@ -11,7 +11,12 @@ from graia.ariadne.message.parser.twilight import RegexResult, WildcardMatch
 
 from .utils import get_reply, update_vtb_list
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -24,23 +29,29 @@ channel.description("一个查成分的插件，在群中发送 /查成分 {B站
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([get_command(__file__, channel.module), WildcardMatch() @ "username"])],
+        inline_dispatchers=[
+            Twilight(
+                [get_command(__file__, channel.module), WildcardMatch() @ "username"]
+            )
+        ],
         decorators=[
             FrequencyLimit.require("dd_check", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.SEARCH)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.SEARCH),
+        ],
     )
 )
 async def dd_check(app: Ariadne, group: Group, source: Source, username: RegexResult):
     if not username.result.display.strip():
-        return await app.send_group_message(group, MessageChain("空白名怎么查啊kora！"), quote=source)
+        return await app.send_group_message(
+            group, MessageChain("空白名怎么查啊kora！"), quote=source
+        )
     res = await get_reply(username.result.display.strip())
     await app.send_group_message(
         group,
         MessageChain(res if isinstance(res, str) else [Image(data_bytes=res)]),
-        quote=source
+        quote=source,
     )
 
 

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 
 class DailyNumberLimiter:
-    tz = pytz.timezone('Asia/Shanghai')
+    tz = pytz.timezone("Asia/Shanghai")
 
     def __init__(self, max_num):
         self.today = -1

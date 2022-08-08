@@ -149,21 +149,38 @@ class Map:
         # line_points = []
         teleport_list = self.teleport_anchor_point + self.teleport_god_point
         for teleport in teleport_list:
-            current_res, res_min_distance = teleport.get_resource_distance(self.resource_point)
-            current_teleport, teleport_min_distance = current_res.get_resource_distance(teleport_list)
+            current_res, res_min_distance = teleport.get_resource_distance(
+                self.resource_point
+            )
+            current_teleport, teleport_min_distance = current_res.get_resource_distance(
+                teleport_list
+            )
             if current_teleport == teleport:
                 self.map.line(
-                    (current_teleport.x, current_teleport.y, current_res.x, current_res.y), (255, 0, 0), width=1
+                    (
+                        current_teleport.x,
+                        current_teleport.y,
+                        current_res.x,
+                        current_res.y,
+                    ),
+                    (255, 0, 0),
+                    width=1,
                 )
         is_used_res_points = []
         for res in self.resource_point:
             if res in is_used_res_points:
                 continue
-            current_teleport, teleport_min_distance = res.get_resource_distance(teleport_list)
-            current_res, res_min_distance = res.get_resource_distance(self.resource_point)
+            current_teleport, teleport_min_distance = res.get_resource_distance(
+                teleport_list
+            )
+            current_res, res_min_distance = res.get_resource_distance(
+                self.resource_point
+            )
             if teleport_min_distance < res_min_distance:
                 self.map.line(
-                    (current_teleport.x, current_teleport.y, res.x, res.y), (255, 0, 0), width=1
+                    (current_teleport.x, current_teleport.y, res.x, res.y),
+                    (255, 0, 0),
+                    width=1,
                 )
             else:
                 is_used_res_points.append(current_res)
@@ -178,11 +195,15 @@ class Map:
                 current_res, res_min_distance = res.get_resource_distance(res_cp)
                 if teleport_min_distance < res_min_distance:
                     self.map.line(
-                        (current_teleport.x, current_teleport.y, res.x, res.y), (255, 0, 0), width=1
+                        (current_teleport.x, current_teleport.y, res.x, res.y),
+                        (255, 0, 0),
+                        width=1,
                     )
                 else:
                     self.map.line(
-                        (current_res.x, current_res.y, res.x, res.y), (255, 0, 0), width=1
+                        (current_res.x, current_res.y, res.x, res.y),
+                        (255, 0, 0),
+                        width=1,
                     )
                     is_used_res_points.append(current_res)
             is_used_res_points.append(res)
@@ -199,7 +220,7 @@ class Map:
         #     self.map.line(
         #         (current_res.x, current_res.y, res.x, res.y), (255, 0, 0), width=1
         #     )
-            # resources_route.append((current_res, res))
+        # resources_route.append((current_res, res))
         # teleport_list = self.teleport_anchor_point + self.teleport_god_point
         # for res1, res2 in resources_route:
         #     point_list = [x for x in resources_route if res1 in x or res2 in x]

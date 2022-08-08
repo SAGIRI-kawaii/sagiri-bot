@@ -9,9 +9,19 @@ from graia.ariadne.message.element import Source
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import Twilight, RegexMatch, UnionMatch, MatchResult
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    RegexMatch,
+    UnionMatch,
+    MatchResult,
+)
 
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -29,17 +39,14 @@ with open(str(Path(__file__).parent.joinpath("food.json")), "r", encoding="utf-8
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                RegexMatch(r"[随隨][机機]"),
-                UnionMatch("早餐", "午餐", "晚餐") @ "option"
-            ])
+            Twilight([RegexMatch(r"[随隨][机機]"), UnionMatch("早餐", "午餐", "晚餐") @ "option"])
         ],
         decorators=[
             FrequencyLimit.require("random_meal", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def random_meal(app: Ariadne, group: Group, source: Source, option: MatchResult):
@@ -67,17 +74,14 @@ async def random_meal(app: Ariadne, group: Group, source: Source, option: MatchR
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                RegexMatch(r"[随隨][机機]"),
-                UnionMatch("奶茶", "果茶") @ "option"
-            ])
+            Twilight([RegexMatch(r"[随隨][机機]"), UnionMatch("奶茶", "果茶") @ "option"])
         ],
         decorators=[
             FrequencyLimit.require("random_tea", 1),
             Function.require(channel.module),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def random_tea(app: Ariadne, group: Group, source: Source, option: MatchResult):

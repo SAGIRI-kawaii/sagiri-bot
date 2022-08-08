@@ -13,7 +13,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import WildcardMatch, RegexResult
 
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 
 saya = Saya.current()
@@ -28,29 +33,33 @@ channel.description("一个生成二维码的插件，在群中发送 `qrcode �
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                WildcardMatch().flags(re.DOTALL) @ "content"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    WildcardMatch().flags(re.DOTALL) @ "content",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("qrcode_generator", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def qrcode_generator(app: Ariadne, group: Group, source: Source, content: RegexResult):
+async def qrcode_generator(
+    app: Ariadne, group: Group, source: Source, content: RegexResult
+):
     content = content.result.display
     try:
         qrcode_img = qrcode.make(content)
     except DataOverflowError:
-        return await app.send_group_message(group, MessageChain("数据超大了捏~"), quote=source)
+        return await app.send_group_message(
+            group, MessageChain("数据超大了捏~"), quote=source
+        )
     bytes_io = BytesIO()
     qrcode_img.save(bytes_io)
     await app.send_group_message(
-        group,
-        MessageChain([Image(data_bytes=bytes_io.getvalue())]),
-        quote=source
+        group, MessageChain([Image(data_bytes=bytes_io.getvalue())]), quote=source
     )

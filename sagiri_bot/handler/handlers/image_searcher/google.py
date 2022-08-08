@@ -9,9 +9,10 @@ from .utils import get_thumb, error_catcher
 
 @error_catcher
 async def google_search(
-    proxies: Optional[str] = None, *,
+    proxies: Optional[str] = None,
+    *,
     url: Optional[str] = None,
-    file: Optional[BinaryIO] = None
+    file: Optional[BinaryIO] = None,
 ) -> MessageChain:
     if not url and not file:
         raise ValueError("You should offer url or file!")
@@ -24,9 +25,11 @@ async def google_search(
         if not resp.raw:
             return MessageChain("GOOGLE未搜索到结果！")
         resp = resp.raw[2]
-        return MessageChain([
-            Plain("GOOGLE搜索到以下结果：\n"),
-            Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
-            Plain(f"\n标题：{resp.title}\n"),
-            Plain(f"链接：{resp.url}")
-        ])
+        return MessageChain(
+            [
+                Plain("GOOGLE搜索到以下结果：\n"),
+                Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
+                Plain(f"\n标题：{resp.title}\n"),
+                Plain(f"链接：{resp.url}"),
+            ]
+        )
