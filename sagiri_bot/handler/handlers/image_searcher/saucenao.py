@@ -9,9 +9,11 @@ from .utils import get_thumb, error_catcher
 
 @error_catcher
 async def saucenao_search(
-    api_key: str, proxies: Optional[str] = None, *,
+    api_key: str,
+    proxies: Optional[str] = None,
+    *,
     url: Optional[str] = None,
-    file: Optional[BinaryIO] = None
+    file: Optional[BinaryIO] = None,
 ) -> MessageChain:
     if not url and not file:
         raise ValueError("You should give url or file!")
@@ -26,13 +28,15 @@ async def saucenao_search(
         if not resp.raw:
             return MessageChain("SAUCENAO未搜索到结果！")
         resp = resp.raw[0]
-        return MessageChain([
-            Plain("SAUCENAO搜索到以下结果：\n"),
-            Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
-            Plain(f"\n标题：{resp.title}\n"),
-            Plain(f"相似度：{resp.similarity}%\n"),
-            Plain(f"作者：{resp.author}\n"),
-            Plain(f"pixiv图像 id：{resp.pixiv_id}\n" if resp.pixiv_id else ''),
-            Plain(f"pixiv画师 id：{resp.member_id}\n" if resp.member_id else ''),
-            Plain(f"链接：{resp.url}")
-        ])
+        return MessageChain(
+            [
+                Plain("SAUCENAO搜索到以下结果：\n"),
+                Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
+                Plain(f"\n标题：{resp.title}\n"),
+                Plain(f"相似度：{resp.similarity}%\n"),
+                Plain(f"作者：{resp.author}\n"),
+                Plain(f"pixiv图像 id：{resp.pixiv_id}\n" if resp.pixiv_id else ""),
+                Plain(f"pixiv画师 id：{resp.member_id}\n" if resp.member_id else ""),
+                Plain(f"链接：{resp.url}"),
+            ]
+        )

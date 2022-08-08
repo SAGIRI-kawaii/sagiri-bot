@@ -11,7 +11,12 @@ from graia.ariadne.message.parser.twilight import WildcardMatch, FullMatch, Rege
 
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -24,20 +29,32 @@ channel.description("将收到的消息合并为图片，在群中发送 `/merge
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([FullMatch("/merge"), WildcardMatch().flags(re.S) @ "msg_to_merge"])],
+        inline_dispatchers=[
+            Twilight(
+                [FullMatch("/merge"), WildcardMatch().flags(re.S) @ "msg_to_merge"]
+            )
+        ],
         decorators=[
             FrequencyLimit.require("message_merger", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def message_merger(app: Ariadne, group: Group, source: Source, msg_to_merge: RegexResult):
+async def message_merger(
+    app: Ariadne, group: Group, source: Source, msg_to_merge: RegexResult
+):
     await app.send_group_message(
         group,
-        MessageChain([Image(
-            data_bytes=TextEngine([GraiaAdapter(msg_to_merge.result)], min_width=1080).draw()
-        )]),
-        quote=source
+        MessageChain(
+            [
+                Image(
+                    data_bytes=TextEngine(
+                        [GraiaAdapter(msg_to_merge.result)], min_width=1080
+                    ).draw()
+                )
+            ]
+        ),
+        quote=source,
     )

@@ -22,7 +22,12 @@ from sagiri_bot.internal_utils import get_command
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
 from utils.daily_number_limiter import DailyNumberLimiter
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -62,7 +67,7 @@ limit_text = {
     "download": "今天已经达到每日下载上限啦~\n明天再来吧~\n❤你❤这❤个❤小❤色❤批❤~",
     "search": "今天已经达到每日搜索上限啦~\n明天再来吧~\n想找本子的话，自己去下载个哔咔好咯~",
     "random": "今天已经达到每日随机本子上限啦~\n明天再来吧~\n你这个人对本子真是挑剔呢~",
-    "rank": "今天已经达到每日排行榜查询上限啦~\n明天再来吧~\n排行榜一次还看不够嘛~"
+    "rank": "今天已经达到每日排行榜查询上限啦~\n明天再来吧~\n排行榜一次还看不够嘛~",
 }
 
 
@@ -70,21 +75,26 @@ limit_text = {
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                UnionMatch("download", "search", "random", "rank", "init") @ "operation",
-                ArgumentMatch("-forward", action="store_true", optional=True) @ "forward_type",
-                ArgumentMatch("-message", action="store_true", optional=True) @ "message_type",
-                UnionMatch("-H24", "-D7", "-D30", optional=True) @ "rank_time",
-                RegexMatch(r".+", optional=True) @ "content"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    UnionMatch("download", "search", "random", "rank", "init")
+                    @ "operation",
+                    ArgumentMatch("-forward", action="store_true", optional=True)
+                    @ "forward_type",
+                    ArgumentMatch("-message", action="store_true", optional=True)
+                    @ "message_type",
+                    UnionMatch("-H24", "-D7", "-D30", optional=True) @ "rank_time",
+                    RegexMatch(r".+", optional=True) @ "content",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("pica_function", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def pica_function(
@@ -97,18 +107,22 @@ async def pica_function(
     message_type: ArgResult,
     forward_type: ArgResult,
     rank_time: RegexResult,
-    content: RegexResult
+    content: RegexResult,
 ):
-    if any([
-        operation.result.display == "download" and not DAILY_DOWNLOAD_LIMITER.check(member.id),
-        operation.result.display == "search" and not DAILY_SEARCH_LIMITER.check(member.id),
-        operation.result.display == "random" and not DAILY_RANDOM_LIMITER.check(member.id),
-        operation.result.display == "rank" and not DAILY_RANK_LIMITER.check(member.id)
-    ]):
+    if any(
+        [
+            operation.result.display == "download"
+            and not DAILY_DOWNLOAD_LIMITER.check(member.id),
+            operation.result.display == "search"
+            and not DAILY_SEARCH_LIMITER.check(member.id),
+            operation.result.display == "random"
+            and not DAILY_RANDOM_LIMITER.check(member.id),
+            operation.result.display == "rank"
+            and not DAILY_RANK_LIMITER.check(member.id),
+        ]
+    ):
         return await app.send_group_message(
-            group,
-            MessageChain(limit_text[str(operation.result.display)]),
-            quote=source
+            group, MessageChain(limit_text[str(operation.result.display)]), quote=source
         )
 
     if operation.result.display == "download":
@@ -126,8 +140,7 @@ async def pica_function(
         try:
             res = await pica.check()
             return await app.send_group_message(
-                group,
-                MessageChain("pica初始化成功" if res else "pica实例初始化失败，请重启机器人或重载插件！")
+                group, MessageChain("pica初始化成功" if res else "pica实例初始化失败，请重启机器人或重载插件！")
             )
         except aiohttp.ClientConnectorError:
             await app.send_group_message(group, MessageChain("pica初始化失败，请检查代理"))
@@ -135,8 +148,14 @@ async def pica_function(
             await app.send_group_message(group, MessageChain("pica初始化失败，请检查账号密码是否配置正确"))
 
     if not pica.init:
-        return await app.send_group_message(group, MessageChain("pica实例初始化失败，请重启机器人或重载插件！"))
-    elif operation.result.display == "download" and forward_type.matched and content.matched:
+        return await app.send_group_message(
+            group, MessageChain("pica实例初始化失败，请重启机器人或重载插件！")
+        )
+    elif (
+        operation.result.display == "download"
+        and forward_type.matched
+        and content.matched
+    ):
         comic_id = content.result.display
         await app.send_message(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
         info = await pica.download_comic(comic_id, False)
@@ -148,12 +167,14 @@ async def pica_function(
         node_count = 0
         time_count = 0
         time_base = datetime.now() - timedelta(seconds=len(image_list))
-        forward_nodes = [ForwardNode(
-            sender_id=bot_qq,
-            time=time_base + timedelta(seconds=time_count),
-            sender_name="纱雾酱",
-            message_chain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！")
-        )]
+        forward_nodes = [
+            ForwardNode(
+                sender_id=bot_qq,
+                time=time_base + timedelta(seconds=time_count),
+                sender_name="纱雾酱",
+                message_chain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！"),
+            )
+        ]
         for path in image_list:
             node_count += 1
             time_count += 1
@@ -162,26 +183,38 @@ async def pica_function(
                     sender_id=bot_qq,
                     time=time_base + timedelta(seconds=time_count),
                     sender_name="纱雾酱",
-                    message_chain=MessageChain([
-                        Image(path=path),
-                        Plain(f"\n{path.replace(info[0], '')}\n{time_base + timedelta(seconds=time_count)}")
-                    ])
+                    message_chain=MessageChain(
+                        [
+                            Image(path=path),
+                            Plain(
+                                f"\n{path.replace(info[0], '')}\n{time_base + timedelta(seconds=time_count)}"
+                            ),
+                        ]
+                    ),
                 )
             )
             if node_count == 20:
-                await app.send_message(group, MessageChain([Forward(node_list=forward_nodes)]))
+                await app.send_message(
+                    group, MessageChain([Forward(node_list=forward_nodes)])
+                )
                 forward_nodes = [
                     ForwardNode(
                         sender_id=bot_qq,
                         time=time_base + timedelta(seconds=time_count),
                         sender_name="纱雾酱",
-                        message_chain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！")
+                        message_chain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！"),
                     )
                 ]
                 node_count = 0
-        await app.send_group_message(group, MessageChain([Forward(node_list=forward_nodes)]))
+        await app.send_group_message(
+            group, MessageChain([Forward(node_list=forward_nodes)])
+        )
 
-    elif operation.result.display == "download" and message_type.matched and content.matched:
+    elif (
+        operation.result.display == "download"
+        and message_type.matched
+        and content.matched
+    ):
         comic_id = content.result.display
         await app.send_message(group, MessageChain(f"收到请求，正在下载{comic_id}..."))
         info = await pica.download_comic(comic_id, False)
@@ -190,7 +223,9 @@ async def pica_function(
             for file in files:
                 if file[-3:] != "zip":
                     image_list.append(os.path.join(root, file))
-        await app.send_group_message(group, MessageChain([Image(path=path) for path in image_list]))
+        await app.send_group_message(
+            group, MessageChain([Image(path=path) for path in image_list])
+        )
 
     elif operation.result.display == "download" and content.matched:
         comic_id = message.display[14:]
@@ -201,77 +236,126 @@ async def pica_function(
                 data=info[1],
                 method=UploadMethod.Group,
                 target=group,
-                name=f"{info[0].replace(' ', '')}.zip"
+                name=f"{info[0].replace(' ', '')}.zip",
             )
         except RemoteException:
             await app.upload_file(
                 data=info[1],
                 method=UploadMethod.Group,
                 target=group,
-                name=f"pica_{comic_id}.zip"
+                name=f"pica_{comic_id}.zip",
             )
         return None
 
     elif operation.result.display in ("search", "random"):
         search = operation.result.display == "search"
-        keyword = content.result.display.strip() if content.matched else ''
+        keyword = content.result.display.strip() if content.matched else ""
         if search and content.matched:
             await app.send_message(group, MessageChain(f"收到请求，正在搜索{keyword}..."))
-        data = (await pica.search(keyword))[:10] \
-            if search else (await pica.random())[:10]
+        data = (
+            (await pica.search(keyword))[:10] if search else (await pica.random())[:10]
+        )
         forward_nodes = []
         if not data:
             return await app.send_group_message(group, MessageChain("没有搜索到捏"))
         for comic in data:
-            comic_info = await pica.comic_info(comic["id"]) if operation.result.display == "search" else comic
+            comic_info = (
+                await pica.comic_info(comic["id"])
+                if operation.result.display == "search"
+                else comic
+            )
             try:
                 forward_nodes.append(
                     ForwardNode(
                         sender_id=bot_qq,
                         time=datetime.now(),
                         sender_name="纱雾酱",
-                        message_chain=MessageChain([
-                            Image(data_bytes=TextEngine(
-                                [GraiaAdapter(
-                                    MessageChain([
-                                        await get_thumb(comic_info),
-                                        Plain(f"\n名称：{comic_info['title']}\n"),
-                                        Plain(f"作者：{comic_info['author']}\n"),
-                                        Plain(f"描述：{comic_info['description']}\n") if search else Plain(''),
-                                        Plain(f"分类：{'、'.join(comic_info['categories'])}\n"),
-                                        Plain(f"标签：{'、'.join(comic_info['tags'])}\n") if search else Plain(''),
-                                        Plain(f"页数：{comic_info['pagesCount']}\n"),
-                                        Plain(f"章节数：{comic_info['epsCount']}\n"),
-                                        Plain(f"完结状态：{'已完结' if comic_info['finished'] else '未完结'}\n"),
-                                        Plain(f"喜欢: {comic_info['totalLikes']}    "),
-                                        Plain(f"浏览次数: {comic_info['totalViews']}    ")
-                                    ])
-                                )], max_width=2160
-                            ).draw())
-                        ]).extend([
-                            Plain(text="\n发送下列命令下载：\n"),
-                            Plain(text=f"转发消息形式：pica download -forward {comic_info['_id']}\n"),
-                            Plain(text=f"消息图片形式：pica download -message {comic_info['_id']}\n"),
-                            Plain(text=f"压缩包形式：pica download {comic_info['_id']}")
-                        ])
+                        message_chain=MessageChain(
+                            [
+                                Image(
+                                    data_bytes=TextEngine(
+                                        [
+                                            GraiaAdapter(
+                                                MessageChain(
+                                                    [
+                                                        await get_thumb(comic_info),
+                                                        Plain(
+                                                            f"\n名称：{comic_info['title']}\n"
+                                                        ),
+                                                        Plain(
+                                                            f"作者：{comic_info['author']}\n"
+                                                        ),
+                                                        Plain(
+                                                            f"描述：{comic_info['description']}\n"
+                                                        )
+                                                        if search
+                                                        else Plain(""),
+                                                        Plain(
+                                                            f"分类：{'、'.join(comic_info['categories'])}\n"
+                                                        ),
+                                                        Plain(
+                                                            f"标签：{'、'.join(comic_info['tags'])}\n"
+                                                        )
+                                                        if search
+                                                        else Plain(""),
+                                                        Plain(
+                                                            f"页数：{comic_info['pagesCount']}\n"
+                                                        ),
+                                                        Plain(
+                                                            f"章节数：{comic_info['epsCount']}\n"
+                                                        ),
+                                                        Plain(
+                                                            f"完结状态：{'已完结' if comic_info['finished'] else '未完结'}\n"
+                                                        ),
+                                                        Plain(
+                                                            f"喜欢: {comic_info['totalLikes']}    "
+                                                        ),
+                                                        Plain(
+                                                            f"浏览次数: {comic_info['totalViews']}    "
+                                                        ),
+                                                    ]
+                                                )
+                                            )
+                                        ],
+                                        max_width=2160,
+                                    ).draw()
+                                )
+                            ]
+                        ).extend(
+                            [
+                                Plain(text="\n发送下列命令下载：\n"),
+                                Plain(
+                                    text=f"转发消息形式：pica download -forward {comic_info['_id']}\n"
+                                ),
+                                Plain(
+                                    text=f"消息图片形式：pica download -message {comic_info['_id']}\n"
+                                ),
+                                Plain(text=f"压缩包形式：pica download {comic_info['_id']}"),
+                            ]
+                        ),
                     )
                 )
             except Exception as e:
                 logger.error(e)
                 continue
-        await app.send_group_message(group, MessageChain([Forward(node_list=forward_nodes)]))
+        await app.send_group_message(
+            group, MessageChain([Forward(node_list=forward_nodes)])
+        )
 
     elif operation.result.display == "rank":
         rank_time = rank_time.result.display if rank_time.matched else "-H24"
         if rank_time not in ("-H24", "-D7", "-D30"):
             await app.send_group_message(
-                group, MessageChain([
-                    Plain(text="错误的时间！支持的选项：\n"),
-                    Plain(text="H24：24小时排行榜\n"),
-                    Plain(text="D7：一周排行榜\n"),
-                    Plain(text="D30：一月排行榜\n"),
-                    Plain(text="命令格式：pica random -{time}")
-                ])
+                group,
+                MessageChain(
+                    [
+                        Plain(text="错误的时间！支持的选项：\n"),
+                        Plain(text="H24：24小时排行榜\n"),
+                        Plain(text="D7：一周排行榜\n"),
+                        Plain(text="D30：一月排行榜\n"),
+                        Plain(text="命令格式：pica random -{time}"),
+                    ]
+                ),
             )
             return
         data = (await pica.rank(rank_time[1:]))[:10]
@@ -285,35 +369,68 @@ async def pica_function(
                         sender_id=bot_qq,
                         time=datetime.now(),
                         sender_name="纱雾酱",
-                        message_chain=MessageChain([
-                            Image(data_bytes=TextEngine(
-                                [GraiaAdapter(
-                                    MessageChain([
-                                        await get_thumb(comic_info),
-                                        Plain(text=f"\n排名：{rank}\n"),
-                                        Plain(text=f"名称：{comic_info['title']}\n"),
-                                        Plain(text=f"作者：{comic_info['author']}\n"),
-                                        Plain(text=f"分类：{'、'.join(comic_info['categories'])}\n"),
-                                        Plain(text=f"页数：{comic_info['pagesCount']}\n"),
-                                        Plain(text=f"章节数：{comic_info['epsCount']}\n"),
-                                        Plain(text=f"完结状态：{'已完结' if comic_info['finished'] else '未完结'}\n"),
-                                        Plain(text=f"喜欢: {comic_info['totalLikes']}    "),
-                                        Plain(text=f"浏览次数: {comic_info['totalViews']}    ")
-                                    ])
-                                )], max_width=2160
-                            ).draw())
-                        ]).extend([
-                            Plain(text="\n发送下列命令下载：\n"),
-                            Plain(text=f"转发消息形式：pica download -forward {comic_info['_id']}\n"),
-                            Plain(text=f"消息图片形式：pica download -message {comic_info['_id']}\n"),
-                            Plain(text=f"压缩包形式：pica download {comic_info['_id']}")
-                        ])
+                        message_chain=MessageChain(
+                            [
+                                Image(
+                                    data_bytes=TextEngine(
+                                        [
+                                            GraiaAdapter(
+                                                MessageChain(
+                                                    [
+                                                        await get_thumb(comic_info),
+                                                        Plain(text=f"\n排名：{rank}\n"),
+                                                        Plain(
+                                                            text=f"名称：{comic_info['title']}\n"
+                                                        ),
+                                                        Plain(
+                                                            text=f"作者：{comic_info['author']}\n"
+                                                        ),
+                                                        Plain(
+                                                            text=f"分类：{'、'.join(comic_info['categories'])}\n"
+                                                        ),
+                                                        Plain(
+                                                            text=f"页数：{comic_info['pagesCount']}\n"
+                                                        ),
+                                                        Plain(
+                                                            text=f"章节数：{comic_info['epsCount']}\n"
+                                                        ),
+                                                        Plain(
+                                                            text=f"完结状态：{'已完结' if comic_info['finished'] else '未完结'}\n"
+                                                        ),
+                                                        Plain(
+                                                            text=f"喜欢: {comic_info['totalLikes']}    "
+                                                        ),
+                                                        Plain(
+                                                            text=f"浏览次数: {comic_info['totalViews']}    "
+                                                        ),
+                                                    ]
+                                                )
+                                            )
+                                        ],
+                                        max_width=2160,
+                                    ).draw()
+                                )
+                            ]
+                        ).extend(
+                            [
+                                Plain(text="\n发送下列命令下载：\n"),
+                                Plain(
+                                    text=f"转发消息形式：pica download -forward {comic_info['_id']}\n"
+                                ),
+                                Plain(
+                                    text=f"消息图片形式：pica download -message {comic_info['_id']}\n"
+                                ),
+                                Plain(text=f"压缩包形式：pica download {comic_info['_id']}"),
+                            ]
+                        ),
                     )
                 )
             except Exception as e:
                 logger.error(e)
                 continue
-        await app.send_group_message(group, MessageChain([Forward(node_list=forward_nodes)]))
+        await app.send_group_message(
+            group, MessageChain([Forward(node_list=forward_nodes)])
+        )
 
 
 async def get_thumb(comic_info: dict) -> Image:
@@ -323,6 +440,8 @@ async def get_thumb(comic_info: dict) -> Image:
         return Image(
             data_bytes=await pica.download_image(
                 url=f"{comic_info['thumb']['fileServer']}/static/{comic_info['thumb']['path']}",
-                path=f"{SEARCH_CACHE_PATH}/{comic_info['_id']}.jpg" if SEARCH_CACHE else None
+                path=f"{SEARCH_CACHE_PATH}/{comic_info['_id']}.jpg"
+                if SEARCH_CACHE
+                else None,
             )
         )

@@ -69,10 +69,14 @@ async def query_resource(resource_name: str) -> Optional[MessageChain]:
     rand = await asyncio.get_event_loop().run_in_executor(
         None, map_.generate_resource_icon_in_map
     )
-    return MessageChain([
-        Image(path=str(IMAGE_PATH / "genshin" / "temp" / f"genshin_map_{rand}.png")),
-        Plain(text=f"\n\n※ {resource_name} 一共找到 {count} 个位置点\n※ 数据来源于米游社wiki")
-    ])
+    return MessageChain(
+        [
+            Image(
+                path=str(IMAGE_PATH / "genshin" / "temp" / f"genshin_map_{rand}.png")
+            ),
+            Plain(text=f"\n\n※ {resource_name} 一共找到 {count} 个位置点\n※ 数据来源于米游社wiki"),
+        ]
+    )
 
 
 # 原神资源列表
@@ -97,7 +101,7 @@ def check_resource_exists(resource: str) -> bool:
     检查资源是否存在
     :param resource: 资源名称
     """
-    resource = resource.replace('路径', '').replace('路线', '')
+    resource = resource.replace("路径", "").replace("路线", "")
     return resource in resource_name_list
 
 
@@ -137,7 +141,9 @@ async def download_resource_data(semaphore: Semaphore):
                                 resource_data[id_] = x
                             await asyncio.gather(*tasks)
                             with open(file, "w", encoding="utf8") as f:
-                                json.dump(resource_data, f, ensure_ascii=False, indent=4)
+                                json.dump(
+                                    resource_data, f, ensure_ascii=False, indent=4
+                                )
                     else:
                         logger.warning(f'获取原神资源失败 msg: {data["message"]}')
                 else:
@@ -150,9 +156,7 @@ async def download_resource_data(semaphore: Semaphore):
 
 
 # 下载原神地图并拼图
-async def download_map_init(
-    semaphore: Semaphore, flag: bool = False
-):
+async def download_map_init(semaphore: Semaphore, flag: bool = False):
     global CENTER_POINT, MAP_RATIO
     map_path.mkdir(exist_ok=True, parents=True)
     _map = map_path / "map.png"
@@ -170,20 +174,29 @@ async def download_map_init(
                             data = data["slices"]
                             idx = 0
                             for _map_data in data[0]:
-                                map_url = _map_data['url']
+                                map_url = _map_data["url"]
                                 await download_image(
                                     map_url,
                                     f"{map_path}/{idx}.png",
                                     semaphore,
                                     force_flag=flag,
                                 )
-                                BuildImage(0, 0, background=f"{map_path}/{idx}.png", ratio=MAP_RATIO).save()
+                                BuildImage(
+                                    0,
+                                    0,
+                                    background=f"{map_path}/{idx}.png",
+                                    ratio=MAP_RATIO,
+                                ).save()
                                 idx += 1
-                            _w, h = BuildImage(0, 0, background=f"{map_path}/0.png").size
+                            _w, h = BuildImage(
+                                0, 0, background=f"{map_path}/0.png"
+                            ).size
                             w = _w * len(os.listdir(map_path))
                             map_file = BuildImage(w, h, _w, h, ratio=MAP_RATIO)
                             for i in range(idx):
-                                map_file.paste(BuildImage(0, 0, background=f"{map_path}/{i}.png"))
+                                map_file.paste(
+                                    BuildImage(0, 0, background=f"{map_path}/{i}.png")
+                                )
                             map_file.save(f"{map_path}/map.png")
                     else:
                         logger.warning(f'获取原神地图失败 msg: {data["message"]}')
@@ -278,4 +291,4 @@ async def init(flag: bool = False):
             for x in data[id_]["children"]:
                 resource_name_list.append(x["name"])
     except asyncio.TimeoutError:
-        logger.warning('原神资源查询信息初始化超时....')
+        logger.warning("原神资源查询信息初始化超时....")

@@ -9,18 +9,22 @@ from loguru import logger
 from PIL import Image, ImageFont, ImageDraw, ImageMath
 
 FILE_PATH = os.path.dirname(__file__)
-ICON_PATH = os.path.join(FILE_PATH, 'icon')
+ICON_PATH = os.path.join(FILE_PATH, "icon")
 FONT_PATH = os.path.join(FILE_PATH, "zh-cn.ttf")
 AUTO_UPDATE = True
 
 POOL_API = "https://webstatic.mihoyo.com/hk4e/gacha_info/cn_gf01/gacha/list.json"
-ROLES_API = ['https://genshin.honeyhunterworld.com/db/char/characters/?lang=CHS',
-             'https://genshin.honeyhunterworld.com/db/char/unreleased-and-upcoming-characters/?lang=CHS']
-ARMS_API = ['https://genshin.honeyhunterworld.com/db/weapon/sword/?lang=CHS',
-            'https://genshin.honeyhunterworld.com/db/weapon/claymore/?lang=CHS',
-            'https://genshin.honeyhunterworld.com/db/weapon/polearm/?lang=CHS',
-            'https://genshin.honeyhunterworld.com/db/weapon/bow/?lang=CHS',
-            'https://genshin.honeyhunterworld.com/db/weapon/catalyst/?lang=CHS']
+ROLES_API = [
+    "https://genshin.honeyhunterworld.com/db/char/characters/?lang=CHS",
+    "https://genshin.honeyhunterworld.com/db/char/unreleased-and-upcoming-characters/?lang=CHS",
+]
+ARMS_API = [
+    "https://genshin.honeyhunterworld.com/db/weapon/sword/?lang=CHS",
+    "https://genshin.honeyhunterworld.com/db/weapon/claymore/?lang=CHS",
+    "https://genshin.honeyhunterworld.com/db/weapon/polearm/?lang=CHS",
+    "https://genshin.honeyhunterworld.com/db/weapon/bow/?lang=CHS",
+    "https://genshin.honeyhunterworld.com/db/weapon/catalyst/?lang=CHS",
+]
 ROLES_HTML_LIST = None
 ARMS_HTML_LIST = None
 
@@ -29,12 +33,13 @@ FONT = ImageFont.truetype(FONT_PATH, size=20)
 # 这个字典记录的是3个不同的卡池，每个卡池的抽取列表
 POOL = collections.defaultdict(
     lambda: {
-        '5_star_UP': [],
-        '5_star_not_UP': [],
-        '4_star_UP': [],
-        '4_star_not_UP': [],
-        '3_star_not_UP': []
-    })
+        "5_star_UP": [],
+        "5_star_not_UP": [],
+        "4_star_UP": [],
+        "4_star_not_UP": [],
+        "3_star_not_UP": [],
+    }
+)
 
 
 async def get_url_data(url):
@@ -74,12 +79,12 @@ async def get_arm_id(ch_name):
             data = await get_url_data(api)
             ARMS_HTML_LIST.append(data.decode("utf-8"))
 
-    pattern = '.{40}' + str(ch_name)
+    pattern = ".{40}" + str(ch_name)
     for html in ARMS_HTML_LIST:
         txt = re.search(pattern, html)
         if txt is None:
             continue
-        txt = re.search('weapon/.+?/\?lang', txt.group()).group()
+        txt = re.search("weapon/.+?/\?lang", txt.group()).group()
         return txt[7:-6]
     raise NameError(f"没有找到武器 {ch_name} 的 ID")
 
@@ -96,13 +101,13 @@ async def get_icon(url):
 
 async def get_role_element(en_name):
     # 获取角色属性，直接返回属性图标 Image
-    url = f'https://genshin.honeyhunterworld.com/db/char/{en_name}/?lang=CHS'
+    url = f"https://genshin.honeyhunterworld.com/db/char/{en_name}/?lang=CHS"
     data = await get_url_data(url)
     data = data.decode("utf-8")
-    element = re.search('/img/icons/element/.+?_35.png', data).group()
+    element = re.search("/img/icons/element/.+?_35.png", data).group()
     element = element[19:-7]
 
-    element_path = os.path.join(FILE_PATH, 'icon', f'{element}.png')
+    element_path = os.path.join(FILE_PATH, "icon", f"{element}.png")
     return Image.open(element_path)
 
 
@@ -114,7 +119,7 @@ async def paste_role_icon(ch_name, star):
     avatar_icon = await get_icon(url)
     element_icon = await get_role_element(en_name)
 
-    bg = Image.open(os.path.join(FILE_PATH, 'icon', f'{star}_star_bg.png'))
+    bg = Image.open(os.path.join(FILE_PATH, "icon", f"{star}_star_bg.png"))
     bg_a = bg.getchannel("A")
     bg1 = Image.new("RGBA", bg.size)
     txt_bg = Image.new("RGBA", (160, 35), "#e9e5dc")
@@ -126,7 +131,9 @@ async def paste_role_icon(ch_name, star):
     bg.paste(element_icon, (2, 3), element_icon)
     bg.paste(txt_bg, (0, 163))
     draw = ImageDraw.Draw(bg)
-    draw.text((80, 180), ch_name, fill="#4a5466ff", font=FONT, anchor="mm", align="center")
+    draw.text(
+        (80, 180), ch_name, fill="#4a5466ff", font=FONT, anchor="mm", align="center"
+    )
     bg1.paste(bg, (0, 0), bg_a)
     return bg1
 
@@ -134,11 +141,11 @@ async def paste_role_icon(ch_name, star):
 async def paste_arm_icon(ch_name, star):
     # 拼接武器图鉴图
     arm_id = await get_arm_id(ch_name)
-    url = f'https://genshin.honeyhunterworld.com/img/weapon/{arm_id}_a.png'
+    url = f"https://genshin.honeyhunterworld.com/img/weapon/{arm_id}_a.png"
     arm_icon = await get_icon(url)
-    star_icon = Image.open(os.path.join(FILE_PATH, 'icon', f'{star}_star.png'))
+    star_icon = Image.open(os.path.join(FILE_PATH, "icon", f"{star}_star.png"))
 
-    bg = Image.open(os.path.join(FILE_PATH, 'icon', f'{star}_star_bg.png'))
+    bg = Image.open(os.path.join(FILE_PATH, "icon", f"{star}_star_bg.png"))
     bg_a = bg.getchannel("A")
     bg1 = Image.new("RGBA", bg.size)
     txt_bg = Image.new("RGBA", (160, 35), "#e9e5dc")
@@ -148,7 +155,9 @@ async def paste_arm_icon(ch_name, star):
     bg.paste(arm_icon, (x_pos, 3), arm_icon)
     bg.paste(txt_bg, (0, 163))
     draw = ImageDraw.Draw(bg)
-    draw.text((80, 180), ch_name, fill="#4a5466ff", font=FONT, anchor="mm", align="center")
+    draw.text(
+        (80, 180), ch_name, fill="#4a5466ff", font=FONT, anchor="mm", align="center"
+    )
     bg.paste(star_icon, (6, 135), star_icon)
     bg1.paste(bg, (0, 0), bg_a)
     return bg1
@@ -160,8 +169,8 @@ async def up_role_icon(name, star):
     if os.path.exists(role_name_path):
         return
     logger.info(f"正在更新 {name} 角色图标")
-    if not os.path.exists(os.path.join(ICON_PATH, '角色图鉴')):
-        os.makedirs(os.path.join(ICON_PATH, '角色图鉴'))
+    if not os.path.exists(os.path.join(ICON_PATH, "角色图鉴")):
+        os.makedirs(os.path.join(ICON_PATH, "角色图鉴"))
 
     try:
         role_icon = await paste_role_icon(name, star)
@@ -177,8 +186,8 @@ async def up_arm_icon(name, star):
     if os.path.exists(arm_name_path):
         return
     logger.info(f"正在更新 {name} 武器图标")
-    if not os.path.exists(os.path.join(ICON_PATH, '武器图鉴')):
-        os.makedirs(os.path.join(ICON_PATH, '武器图鉴'))
+    if not os.path.exists(os.path.join(ICON_PATH, "武器图鉴")):
+        os.makedirs(os.path.join(ICON_PATH, "武器图鉴"))
 
     try:
         arm_icon = await paste_arm_icon(name, star)
@@ -202,27 +211,27 @@ async def init_pool_list():
     data = json.loads(data.decode("utf-8"))
     for d in data["data"]["list"]:
 
-        begin_time = time.mktime(time.strptime(d['begin_time'], "%Y-%m-%d %H:%M:%S"))
-        end_time = time.mktime(time.strptime(d['end_time'], "%Y-%m-%d %H:%M:%S"))
+        begin_time = time.mktime(time.strptime(d["begin_time"], "%Y-%m-%d %H:%M:%S"))
+        end_time = time.mktime(time.strptime(d["end_time"], "%Y-%m-%d %H:%M:%S"))
         if not (begin_time < time.time() < end_time):
             continue
 
-        pool_name = str(d['gacha_name'])
+        pool_name = str(d["gacha_name"])
         pool_url = f"https://webstatic.mihoyo.com/hk4e/gacha_info/cn_gf01/{d['gacha_id']}/zh-cn.json"
         pool_data = await get_url_data(pool_url)
         pool_data = json.loads(pool_data.decode("utf-8"))
 
-        for prob_list in ['r3_prob_list', 'r4_prob_list', 'r5_prob_list']:
+        for prob_list in ["r3_prob_list", "r4_prob_list", "r5_prob_list"]:
             for i in pool_data[prob_list]:
-                item_name = i['item_name']
+                item_name = i["item_name"]
                 item_type = i["item_type"]
                 item_star = str(i["rank"])
-                key = ''
+                key = ""
                 key += item_star
                 key += "_star_UP" if str(i["is_up"]) == "1" else "_star_not_UP"
                 POOL[pool_name][key].append(item_name)
 
-                if item_type == '角色':
+                if item_type == "角色":
                     await up_role_icon(name=item_name, star=item_star)
                 else:
                     await up_arm_icon(name=item_name, star=item_star)

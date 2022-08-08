@@ -8,12 +8,22 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import ArgumentMatch, RegexResult, RegexMatch, ArgResult
+from graia.ariadne.message.parser.twilight import (
+    ArgumentMatch,
+    RegexResult,
+    RegexMatch,
+    ArgResult,
+)
 
 from sagiri_bot.internal_utils import get_command
 from utils.text_engine.adapter import GraiaAdapter
 from utils.text_engine.text_engine import TextEngine
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -27,21 +37,26 @@ channel.description("可以搜索Github项目信息的插件，在群中发送 `
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                ArgumentMatch("-i", "-image", action="store_true", optional=True) @ "image",
-                RegexMatch(r"[^\s]+") @ "keyword"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    ArgumentMatch("-i", "-image", action="store_true", optional=True)
+                    @ "image",
+                    RegexMatch(r"[^\s]+") @ "keyword",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("github_info", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def github_info(app: Ariadne, group: Group, source: Source, image: ArgResult, keyword: RegexResult):
+async def github_info(
+    app: Ariadne, group: Group, source: Source, image: ArgResult, keyword: RegexResult
+):
     image = image.matched
     keyword = keyword.result.display
     url = "https://api.github.com/search/repositories?q="
@@ -56,7 +71,9 @@ async def github_info(app: Ariadne, group: Group, source: Source, image: ArgResu
         async with aiohttp.ClientSession() as session:
             async with session.get(img_url) as resp:
                 content = await resp.read()
-        await app.send_group_message(group, MessageChain([Image(data_bytes=content)]), quote=source)
+        await app.send_group_message(
+            group, MessageChain([Image(data_bytes=content)]), quote=source
+        )
     else:
         result = result[0]
         name = result["name"]
@@ -69,23 +86,27 @@ async def github_info(app: Ariadne, group: Group, source: Source, image: ArgResu
         forks = result["forks"]
         issues = result["open_issues"]
         repo_license = result["license"]["key"] if result["license"] else "无"
-        msg = MessageChain([
-            Plain(text=f"名称：{name}\n"),
-            Plain(text=f"作者：{owner}\n"),
-            Plain(text=f"描述：{description}\n"),
-            Plain(text=f"链接：{repo_url}\n"),
-            Plain(text=f"stars：{stars}\n"),
-            Plain(text=f"watchers：{watchers}\n"),
-            Plain(text=f"forks：{forks}\n"),
-            Plain(text=f"issues：{issues}\n"),
-            Plain(text=f"language：{language}\n"),
-            Plain(text=f"license：{repo_license}")
-        ])
+        msg = MessageChain(
+            [
+                Plain(text=f"名称：{name}\n"),
+                Plain(text=f"作者：{owner}\n"),
+                Plain(text=f"描述：{description}\n"),
+                Plain(text=f"链接：{repo_url}\n"),
+                Plain(text=f"stars：{stars}\n"),
+                Plain(text=f"watchers：{watchers}\n"),
+                Plain(text=f"forks：{forks}\n"),
+                Plain(text=f"issues：{issues}\n"),
+                Plain(text=f"language：{language}\n"),
+                Plain(text=f"license：{repo_license}"),
+            ]
+        )
         try:
             await app.send_group_message(group, msg, quote=source)
         except MessageTooLong:
             await app.send_group_message(
                 group,
-                MessageChain([Image(data_bytes=TextEngine([GraiaAdapter(msg)]).draw())]),
-                quote=source
+                MessageChain(
+                    [Image(data_bytes=TextEngine([GraiaAdapter(msg)]).draw())]
+                ),
+                quote=source,
             )

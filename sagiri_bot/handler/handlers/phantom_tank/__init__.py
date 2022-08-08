@@ -12,9 +12,20 @@ from graia.ariadne.message.element import Image, Source
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, ElementMatch, RegexResult, ElementResult, RegexMatch
+from graia.ariadne.message.parser.twilight import (
+    FullMatch,
+    ElementMatch,
+    RegexResult,
+    ElementResult,
+    RegexMatch,
+)
 
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 
 saya = Saya.current()
@@ -29,18 +40,23 @@ channel.description("一个幻影坦克生成器，在群中发送 `幻影 [显�
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                FullMatch("彩色", optional=True) @ "colorful", FullMatch("幻影"),
-                RegexMatch(r'[\s]?', optional=True),
-                ElementMatch(Image) @ "img1", RegexMatch(r'[\s]?', optional=True), ElementMatch(Image) @ "img2"
-            ])
+            Twilight(
+                [
+                    FullMatch("彩色", optional=True) @ "colorful",
+                    FullMatch("幻影"),
+                    RegexMatch(r"[\s]?", optional=True),
+                    ElementMatch(Image) @ "img1",
+                    RegexMatch(r"[\s]?", optional=True),
+                    ElementMatch(Image) @ "img2",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("phantom_tank", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def phantom_tank(
@@ -49,7 +65,7 @@ async def phantom_tank(
     source: Source,
     colorful: RegexResult,
     img1: ElementResult,
-    img2: ElementResult
+    img2: ElementResult,
 ):
     async with aiohttp.ClientSession() as session:
         async with session.get(url=img1.result.url) as resp:
@@ -57,14 +73,17 @@ async def phantom_tank(
         async with session.get(url=img2.result.url) as resp:
             hide_img = PIL.Image.open(BytesIO(await resp.read()))
     if colorful.matched:
-        msg = MessageChain([Image(data_bytes=await PhantomTank.colorful_tank(display_img, hide_img))])
+        msg = MessageChain(
+            [Image(data_bytes=await PhantomTank.colorful_tank(display_img, hide_img))]
+        )
     else:
-        msg = MessageChain([Image(data_bytes=await PhantomTank.make_tank(display_img, hide_img))])
+        msg = MessageChain(
+            [Image(data_bytes=await PhantomTank.make_tank(display_img, hide_img))]
+        )
     await app.send_group_message(group, msg, quote=source)
 
 
 class PhantomTank(object):
-
     @staticmethod
     def get_max_size(a, b):
         return a if a[0] * a[1] >= b[0] * b[1] else b
@@ -88,7 +107,7 @@ class PhantomTank(object):
         if arr_new.shape[0] == 3:
             arr_new = (np.transpose(arr_new, (1, 2, 0)) + 1) / 2.0 * 255.0
         bytesIO = BytesIO()
-        PIL.Image.fromarray(arr_new).save(bytesIO, format='PNG')
+        PIL.Image.fromarray(arr_new).save(bytesIO, format="PNG")
         return bytesIO.getvalue()
 
     @staticmethod
@@ -99,7 +118,7 @@ class PhantomTank(object):
         blight: float = 0.18,
         wcolor: float = 0.5,
         bcolor: float = 0.7,
-        chess: bool = False
+        chess: bool = False,
     ):
         wimg = ImageEnhance.Brightness(wimg).enhance(wlight).convert("RGB")
         bimg = ImageEnhance.Brightness(bimg).enhance(blight).convert("RGB")
@@ -117,30 +136,32 @@ class PhantomTank(object):
         bpix = np.array(bimg).astype("float64")
 
         if chess:
-            wpix[::2, ::2] = [255., 255., 255.]
-            bpix[1::2, 1::2] = [0., 0., 0.]
+            wpix[::2, ::2] = [255.0, 255.0, 255.0]
+            bpix[1::2, 1::2] = [0.0, 0.0, 0.0]
 
-        wpix /= 255.
-        bpix /= 255.
+        wpix /= 255.0
+        bpix /= 255.0
 
         wgray = wpix[:, :, 0] * 0.334 + wpix[:, :, 1] * 0.333 + wpix[:, :, 2] * 0.333
         wpix *= wcolor
-        wpix[:, :, 0] += wgray * (1. - wcolor)
-        wpix[:, :, 1] += wgray * (1. - wcolor)
-        wpix[:, :, 2] += wgray * (1. - wcolor)
+        wpix[:, :, 0] += wgray * (1.0 - wcolor)
+        wpix[:, :, 1] += wgray * (1.0 - wcolor)
+        wpix[:, :, 2] += wgray * (1.0 - wcolor)
 
         bgray = bpix[:, :, 0] * 0.334 + bpix[:, :, 1] * 0.333 + bpix[:, :, 2] * 0.333
         bpix *= bcolor
-        bpix[:, :, 0] += bgray * (1. - bcolor)
-        bpix[:, :, 1] += bgray * (1. - bcolor)
-        bpix[:, :, 2] += bgray * (1. - bcolor)
+        bpix[:, :, 0] += bgray * (1.0 - bcolor)
+        bpix[:, :, 1] += bgray * (1.0 - bcolor)
+        bpix[:, :, 2] += bgray * (1.0 - bcolor)
 
-        d = 1. - wpix + bpix
+        d = 1.0 - wpix + bpix
 
-        d[:, :, 0] = d[:, :, 1] = d[:, :, 2] = d[:, :, 0] * 0.222 + d[:, :, 1] * 0.707 + d[:, :, 2] * 0.071
+        d[:, :, 0] = d[:, :, 1] = d[:, :, 2] = (
+            d[:, :, 0] * 0.222 + d[:, :, 1] * 0.707 + d[:, :, 2] * 0.071
+        )
 
-        p = np.where(d != 0, bpix / d * 255., 255.)
-        a = d[:, :, 0] * 255.
+        p = np.where(d != 0, bpix / d * 255.0, 255.0)
+        a = d[:, :, 0] * 255.0
 
         colors = np.zeros((p.shape[0], p.shape[1], 4))
         colors[:, :, :3] = p
@@ -149,6 +170,8 @@ class PhantomTank(object):
         colors[colors > 255] = 255
 
         bytesIO = BytesIO()
-        PIL.Image.fromarray(colors.astype("uint8")).convert("RGBA").save(bytesIO, format='PNG')
+        PIL.Image.fromarray(colors.astype("uint8")).convert("RGBA").save(
+            bytesIO, format="PNG"
+        )
 
         return bytesIO.getvalue()

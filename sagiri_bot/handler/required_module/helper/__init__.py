@@ -12,7 +12,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from utils.html2pic import html_to_pic
 from sagiri_bot.handler.required_module.saya_manager.utils import saya_data
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -22,9 +27,11 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个获取英文缩写意思的插件，在群中发送 `缩 内容` 即可")
 
 env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(r"W:\Python workspace\RE-SAGIRIBOT\sagiri_bot\handler\required_module\helper"),
+    loader=jinja2.FileSystemLoader(
+        r"W:\Python workspace\RE-SAGIRIBOT\sagiri_bot\handler\required_module\helper"
+    ),
     enable_async=True,
-    autoescape=True
+    autoescape=True,
 )
 
 saya_data_instance = None
@@ -57,20 +64,29 @@ def judge(name: str, group: Union[int, Group]):
             FrequencyLimit.require("helper", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def helper(app: Ariadne, group: Group, source: Source):
     modules = [
-        (saya.channels[c].meta['name'] if saya.channels[c].meta['name'] else c.split('.')[-1], judge(c, group))
+        (
+            saya.channels[c].meta["name"]
+            if saya.channels[c].meta["name"]
+            else c.split(".")[-1],
+            judge(c, group),
+        )
         for c in saya.channels
     ]
     if len(modules) % 15:
         modules.extend([(None, None) for _ in range(15 - len(modules) % 15)])
     print(modules)
     template = env.get_template("group_info_template.html")
-    root_div_width = (len(modules) // 25) * 520 + 60 if len(modules) % 25 else (len(modules) // 25) * 520 + 540
+    root_div_width = (
+        (len(modules) // 25) * 520 + 60
+        if len(modules) % 25
+        else (len(modules) // 25) * 520 + 540
+    )
     html = await template.render_async(
         settings=modules,
         background_image=r"W:\Python workspace\RE-SAGIRIBOT\sagiri_bot\handler\required_module\helper\background.png",
@@ -78,10 +94,18 @@ async def helper(app: Ariadne, group: Group, source: Source):
         name=group.name,
         gid=group.id,
         count=len(await app.get_member_list(group)) + 1,
-        root_div_width=root_div_width
+        root_div_width=root_div_width,
     )
     await app.send_group_message(
         group,
-        MessageChain([Image(data_bytes=await html_to_pic(html, wait=0, viewport={"width": 1920, "height": 1080}))]),
-        quote=source
+        MessageChain(
+            [
+                Image(
+                    data_bytes=await html_to_pic(
+                        html, wait=0, viewport={"width": 1920, "height": 1080}
+                    )
+                )
+            ]
+        ),
+        quote=source,
     )

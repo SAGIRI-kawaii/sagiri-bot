@@ -11,7 +11,11 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.element import Source, Image, Forward, ForwardNode
-from graia.ariadne.message.parser.twilight import RegexMatch, ElementMatch, ElementResult
+from graia.ariadne.message.parser.twilight import (
+    RegexMatch,
+    ElementMatch,
+    ElementResult,
+)
 
 from .baidu import baidu_search
 from .google import google_search
@@ -22,7 +26,12 @@ from sagiri_bot.config import GlobalConfig
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.internal_utils import get_command
 from sagiri_bot.internal_utils import group_setting
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -42,22 +51,25 @@ SAUCENAO_API_KEY = config.functions.get("saucenao_api_key", None)
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                RegexMatch(r"[\s]+", optional=True),
-                ElementMatch(Image, optional=True) @ "image"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    RegexMatch(r"[\s]+", optional=True),
+                    ElementMatch(Image, optional=True) @ "image",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("image_searcher", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def image_searcher(app: Ariadne, group: Group, member: Member, source: Source, image: ElementResult):
-
+async def image_searcher(
+    app: Ariadne, group: Group, member: Member, source: Source, image: ElementResult
+):
     @Waiter.create_using_function(listening_events=[GroupMessage])
     async def image_waiter(
         waiter_group: Group, waiter_member: Member, waiter_message: MessageChain
@@ -67,13 +79,12 @@ async def image_searcher(app: Ariadne, group: Group, member: Member, source: Sou
                 return waiter_message.get_first(Image).url
             else:
                 return False
+
     if not await group_setting.get_setting(group, Setting.img_search):
         return await app.send_group_message(group, MessageChain("搜图功能已经关闭了，请联系管理员哦~"))
     if not image.matched:
         try:
-            await app.send_message(
-                group, MessageChain("请在30s内发送要处理的图片"), quote=source
-            )
+            await app.send_message(group, MessageChain("请在30s内发送要处理的图片"), quote=source)
             image = await asyncio.wait_for(inc.wait(image_waiter), 30)
             if not image:
                 return await app.send_group_message(
@@ -91,16 +102,24 @@ async def image_searcher(app: Ariadne, group: Group, member: Member, source: Sou
         asyncio.create_task(ascii2d_search(proxy, url=image)),
         asyncio.create_task(ehentai_search(proxy, url=image)),
         asyncio.create_task(google_search(proxy, url=image)),
-        asyncio.create_task(baidu_search(url=image))
+        asyncio.create_task(baidu_search(url=image)),
     ]
     msgs = await asyncio.gather(*tasks)
-    await app.send_group_message(group, MessageChain([
-        Forward([
-            ForwardNode(
-                sender_id=config.bot_qq,
-                time=datetime.now(),
-                sender_name="SAGIRI BOT",
-                message_chain=msg,
-            ) for msg in msgs
-        ])
-    ]))
+    await app.send_group_message(
+        group,
+        MessageChain(
+            [
+                Forward(
+                    [
+                        ForwardNode(
+                            sender_id=config.bot_qq,
+                            time=datetime.now(),
+                            sender_name="SAGIRI BOT",
+                            message_chain=msg,
+                        )
+                        for msg in msgs
+                    ]
+                )
+            ]
+        ),
+    )

@@ -11,9 +11,10 @@ from .utils import get_thumb, error_catcher
 async def ehentai_search(
     proxies: Optional[str] = None,
     cookies: Optional[str] = None,
-    ex: bool = False, *,
+    ex: bool = False,
+    *,
     url: Optional[str] = None,
-    file: Optional[BinaryIO] = None
+    file: Optional[BinaryIO] = None,
 ) -> MessageChain:
     if not url and not file:
         raise ValueError("You should offer url or file!")
@@ -28,12 +29,14 @@ async def ehentai_search(
         if not resp.raw:
             return MessageChain("EHentai未搜索到结果！")
         resp = resp.raw[0]
-        return MessageChain([
-            Plain("EHentai搜索到以下结果：\n"),
-            Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
-            Plain(f"\n标题：{resp.title}\n"),
-            Plain(f"类别：{resp.type}\n"),
-            Plain(f"上传日期：{resp.date}\n"),
-            Plain(f"标签：{', '.join(resp.tags)}\n"),
-            Plain(f"链接：{resp.url}")
-        ])
+        return MessageChain(
+            [
+                Plain("EHentai搜索到以下结果：\n"),
+                Image(data_bytes=await get_thumb(resp.thumbnail, proxies)),
+                Plain(f"\n标题：{resp.title}\n"),
+                Plain(f"类别：{resp.type}\n"),
+                Plain(f"上传日期：{resp.date}\n"),
+                Plain(f"标签：{', '.join(resp.tags)}\n"),
+                Plain(f"链接：{resp.url}"),
+            ]
+        )

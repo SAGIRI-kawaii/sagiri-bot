@@ -10,7 +10,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -30,8 +35,8 @@ config = create(GlobalConfig)
             FrequencyLimit.require("poisonous_chicken_soup", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def poisonous_chicken_soup(app: Ariadne, group: Group):

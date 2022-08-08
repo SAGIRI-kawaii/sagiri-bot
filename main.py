@@ -72,7 +72,9 @@ async def friend_message_listener(friend: Friend, message: MessageChain):
 @bcc.receiver("TempMessage")
 async def temp_message_listener(member: Member, message: MessageChain):
     message_text_log = message.display.replace("\n", "\\n").strip()
-    logger.info(f"收到来自群 <{member.group.name.strip()}> 中成员 <{member.name.strip()}> 的临时消息：{message_text_log}")
+    logger.info(
+        f"收到来自群 <{member.group.name.strip()}> 中成员 <{member.name.strip()}> 的临时消息：{message_text_log}"
+    )
 
 
 @bcc.receiver("StrangerMessage")

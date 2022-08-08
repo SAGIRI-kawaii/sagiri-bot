@@ -10,10 +10,12 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image, Forward, ForwardNode
 
 config = create(GlobalConfig)
-proxy = config.proxy if config.proxy != "proxy" else ''
+proxy = config.proxy if config.proxy != "proxy" else ""
 
 
-async def search(*, keyword: Optional[str] = None, data_bytes: Optional[bytes] = None) -> MessageChain:
+async def search(
+    *, keyword: Optional[str] = None, data_bytes: Optional[bytes] = None
+) -> MessageChain:
     search_url = "https://xslist.org/search?lg=en&query="
     pic_search_url = "https://xslist.org/search/pic"
     if not keyword and not data_bytes:
@@ -40,21 +42,32 @@ async def search(*, keyword: Optional[str] = None, data_bytes: Optional[bytes] =
             async with session.get(avatar, proxy=proxy) as resp:
                 avatar = await resp.read()
         msgs.append(
-            MessageChain([
-                Image(data_bytes=avatar),
-                Plain('\n'),
-                Plain(li.find("h3").find("a")["title"]),
-                Plain('\n'),
-                Plain(li.find("p").get_text().replace("<br />", '\n'))
-            ])
+            MessageChain(
+                [
+                    Image(data_bytes=avatar),
+                    Plain("\n"),
+                    Plain(li.find("h3").find("a")["title"]),
+                    Plain("\n"),
+                    Plain(li.find("p").get_text().replace("<br />", "\n")),
+                ]
+            )
         )
-    return msgs[0] if len(msgs) == 1 else MessageChain([
-        Forward([
-            ForwardNode(
-                sender_id=config.bot_qq,
-                time=datetime.now(),
-                sender_name="SAGIRI BOT",
-                message_chain=msg,
-            ) for msg in msgs
-        ])
-    ])
+    return (
+        msgs[0]
+        if len(msgs) == 1
+        else MessageChain(
+            [
+                Forward(
+                    [
+                        ForwardNode(
+                            sender_id=config.bot_qq,
+                            time=datetime.now(),
+                            sender_name="SAGIRI BOT",
+                            message_chain=msg,
+                        )
+                        for msg in msgs
+                    ]
+                )
+            ]
+        )
+    )

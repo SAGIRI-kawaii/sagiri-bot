@@ -14,7 +14,12 @@ from graia.ariadne.message.parser.twilight import WildcardMatch, RegexResult
 
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -31,13 +36,17 @@ url = base_url + "/s/{keyword}.html"
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([get_command(__file__, channel.module), WildcardMatch() @ "keyword"])],
+        inline_dispatchers=[
+            Twilight(
+                [get_command(__file__, channel.module), WildcardMatch() @ "keyword"]
+            )
+        ],
         decorators=[
             FrequencyLimit.require("bt_searcher", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def bt_searcher(app: Ariadne, group: Group, source: Source, keyword: RegexResult):
@@ -55,7 +64,7 @@ async def bt_searcher(app: Ariadne, group: Group, source: Source, keyword: Regex
     forward_list = []
     for div in divs[:5]:
         title = div.find("h3").get_text().strip()[1:]
-        items = div.find("div", {"class": "item-list"}).get_text().strip().split(';')
+        items = div.find("div", {"class": "item-list"}).get_text().strip().split(";")
         spans = div.find("div", {"class": "item-bar"}).find_all("span")
         file_type = spans[0].get_text().strip()
         create_time = spans[1].find("b").get_text().strip()
@@ -63,7 +72,9 @@ async def bt_searcher(app: Ariadne, group: Group, source: Source, keyword: Regex
         file_trend = spans[3].find("b").get_text().strip()
         async with aiohttp.ClientSession() as session:
             async with session.get(base_url + div.find("a")["href"]) as resp:
-                magnet = BeautifulSoup(await resp.text(), "html.parser").find("input", {"id": "m_link"})["value"]
+                magnet = BeautifulSoup(await resp.text(), "html.parser").find(
+                    "input", {"id": "m_link"}
+                )["value"]
         forward_list.append(
             ForwardNode(
                 sender_id=config.bot_qq,
@@ -76,9 +87,8 @@ async def bt_searcher(app: Ariadne, group: Group, source: Source, keyword: Regex
                     f"文件种类：{file_type}\n"
                     f"文件热度：{file_trend}\n"
                     f"磁力链接：{magnet}\n"
-                    f"文件列表：\n    " +
-                    "\n    ".join(items)
-                )
+                    f"文件列表：\n    " + "\n    ".join(items)
+                ),
             )
         )
     await app.send_group_message(group, MessageChain([Forward(forward_list)]))

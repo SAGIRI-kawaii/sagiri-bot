@@ -9,7 +9,12 @@ from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
 from sagiri_bot.internal_utils import get_command
 from statics.abstract_message_transformer_data import pinyin, emoji
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 
 def get_pinyin(char: str):
@@ -31,26 +36,33 @@ channel.description("一个普通话转抽象话的插件，在群中发送 `/�
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                RegexMatch(r".*").help("要转抽象的内容") @ "content"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    RegexMatch(r".*").help("要转抽象的内容") @ "content",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("abstract_message_transformer", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def abstract_message_transformer(app: Ariadne, group: Group, source: Source, content: RegexResult):
+async def abstract_message_transformer(
+    app: Ariadne, group: Group, source: Source, content: RegexResult
+):
     result = ""
     content = content.result.display
     length = len(content)
     index = 0
     while index < length:
-        if index < length - 1 and (get_pinyin(content[index]) + get_pinyin(content[index + 1])) in emoji:
+        if (
+            index < length - 1
+            and (get_pinyin(content[index]) + get_pinyin(content[index + 1])) in emoji
+        ):
             result += emoji[get_pinyin(content[index]) + get_pinyin(content[index + 1])]
             index += 1
         elif get_pinyin(content[index]) in emoji:

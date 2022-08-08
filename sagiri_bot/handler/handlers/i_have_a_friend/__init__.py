@@ -8,11 +8,22 @@ from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.message.element import Image, At, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import RegexMatch, FullMatch, ElementMatch, RegexResult, ElementResult
+from graia.ariadne.message.parser.twilight import (
+    RegexMatch,
+    FullMatch,
+    ElementMatch,
+    RegexResult,
+    ElementResult,
+)
 
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.internal_utils import BuildImage, get_avatar, get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -33,21 +44,23 @@ config = create(GlobalConfig)
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                RegexMatch(r"(想问问|说|让我问问|想问|让我问|想知道|让我帮他问问|让我帮他问|让我帮忙问|让我帮忙问问|问)"),
-                FullMatch(" ", optional=True),
-                FullMatch("-dark", optional=True) @ "dark",
-                ElementMatch(At, optional=True) @ "target",
-                RegexMatch(".+", optional=True) @ "content"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    RegexMatch(r"(想问问|说|让我问问|想问|让我问|想知道|让我帮他问问|让我帮他问|让我帮忙问|让我帮忙问问|问)"),
+                    FullMatch(" ", optional=True),
+                    FullMatch("-dark", optional=True) @ "dark",
+                    ElementMatch(At, optional=True) @ "target",
+                    RegexMatch(".+", optional=True) @ "content",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("i_have_a_friend", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def i_have_a_friend(
@@ -57,7 +70,7 @@ async def i_have_a_friend(
     source: Source,
     content: RegexResult,
     target: ElementResult,
-    dark: RegexResult
+    dark: RegexResult,
 ):
     if content.matched and content.result.display.strip():
         content = content.result.display
@@ -66,9 +79,7 @@ async def i_have_a_friend(
             member = await app.get_member(group, target)
             if not member:
                 return await app.send_group_message(
-                    group,
-                    MessageChain("获取成员信息失败！"),
-                    quote=source
+                    group, MessageChain("获取成员信息失败！"), quote=source
                 )
 
         else:
@@ -78,16 +89,24 @@ async def i_have_a_friend(
         else:
             avatar = BuildImage(200, 100, color=(0, 0, 0))
         avatar.circle_new()
-        text = BuildImage(300, 30, font_size=30, color="white" if not dark.matched else "black")
-        text.text((0, 0), member.name, (0, 0, 0) if not dark.matched else (141, 141, 146))
-        A = BuildImage(700, 150, font_size=25, color="white" if not dark.matched else "black")
+        text = BuildImage(
+            300, 30, font_size=30, color="white" if not dark.matched else "black"
+        )
+        text.text(
+            (0, 0), member.name, (0, 0, 0) if not dark.matched else (141, 141, 146)
+        )
+        A = BuildImage(
+            700, 150, font_size=25, color="white" if not dark.matched else "black"
+        )
         A.paste(avatar, (30, 25), True)
         A.paste(text, (150, 38))
-        A.text((150, 85), content.strip(), (125, 125, 125) if not dark.matched else (255, 255, 255))
+        A.text(
+            (150, 85),
+            content.strip(),
+            (125, 125, 125) if not dark.matched else (255, 255, 255),
+        )
         await app.send_group_message(
-            group,
-            MessageChain([Image(data_bytes=A.pic2bytes())]),
-            quote=source
+            group, MessageChain([Image(data_bytes=A.pic2bytes())]), quote=source
         )
     else:
         await app.send_group_message(group, MessageChain("都不知道问什么"), quote=source)

@@ -38,19 +38,23 @@ def manageable(name: str, group_events: bool = True) -> Depend:
             saya_data.add_group(group)
         if not saya_data.is_turned_on(name, group):
             if saya_data.is_notice_on(name, group):
-                await app.send_message(group, MessageChain([Plain(text=f"{name}插件已关闭，请联系管理员")]))
+                await app.send_message(
+                    group, MessageChain([Plain(text=f"{name}插件已关闭，请联系管理员")])
+                )
             raise ExecutionStop()
 
     async def manage_mirai_events(app: Ariadne, event: MiraiEvent):
-        group = event.group_id if hasattr(event, "group_id") else '0'
+        group = event.group_id if hasattr(event, "group_id") else "0"
         if name not in saya_data.switch:
             saya_data.add_saya(name)
         if group not in saya_data.switch[name]:
             saya_data.add_group(group)
         if not saya_data.is_turned_on(name, group):
             if saya_data.is_notice_on(name, group):
-                if group != '0':
-                    await app.send_group_message(int(group), MessageChain([Plain(text=f"{name}插件已关闭，请联系管理员")]))
+                if group != "0":
+                    await app.send_group_message(
+                        int(group), MessageChain([Plain(text=f"{name}插件已关闭，请联系管理员")])
+                    )
             raise ExecutionStop()
 
     return Depend(manage_group_events) if group_events else Depend(manage_mirai_events)
@@ -65,7 +69,9 @@ def saya_init():
         for cube in cubes:
             if isinstance(cube.metaclass, ListenerSchema):
                 bcc.removeListener(bcc.getListener(cube.content))
-                if all([issubclass(i, GroupEvent) for i in cube.metaclass.listening_events]):
+                if all(
+                    [issubclass(i, GroupEvent) for i in cube.metaclass.listening_events]
+                ):
                     cube.metaclass.decorators.append(manageable(channel.module))
                 else:
                     cube.metaclass.decorators.append(manageable(channel.module, False))
@@ -74,7 +80,9 @@ def saya_init():
                     listener.namespace = bcc.getDefaultNamespace()
                 bcc.listeners.append(listener)
                 if not cube.metaclass.inline_dispatchers:
-                    logger.warning(f"插件{channel._name}未使用inline_dispatchers！默认notice为False！")
+                    logger.warning(
+                        f"插件{channel._name}未使用inline_dispatchers！默认notice为False！"
+                    )
                     saya_data.add_saya(channel.module, notice=False)
                 else:
                     saya_data.add_saya(channel.module)
@@ -104,7 +112,7 @@ class SayaData:
     def __init__(
         self,
         permission: Dict[str, Dict[int, int]] = None,
-        switch: Dict[str, Dict[str, Dict[str, bool]]] = None
+        switch: Dict[str, Dict[str, Dict[str, bool]]] = None,
     ):
         self.permission = permission or {}
         self.switch = switch or {}
@@ -117,7 +125,10 @@ class SayaData:
             self.permission[group] = {}
         for key in self.switch:
             if group not in self.switch[key]:
-                self.switch[key][group] = {"switch": DEFAULT_SWITCH, "notice": DEFAULT_NOTICE}
+                self.switch[key][group] = {
+                    "switch": DEFAULT_SWITCH,
+                    "notice": DEFAULT_NOTICE,
+                }
         self.save()
 
     def remove_group(self, group: Union[Group, int, str]) -> None:
@@ -131,7 +142,9 @@ class SayaData:
                 del self.switch[key][group]
         self.save()
 
-    def add_saya(self, name: str, switch: bool = DEFAULT_SWITCH, notice: bool = DEFAULT_NOTICE) -> None:
+    def add_saya(
+        self, name: str, switch: bool = DEFAULT_SWITCH, notice: bool = DEFAULT_NOTICE
+    ) -> None:
         if name not in self.switch:
             self.switch[name] = {}
             for group in self.permission:
@@ -150,7 +163,7 @@ class SayaData:
             group = group.id
         group = str(group)
         if self.switch.get(name):
-            if '0' in self.switch[name] and self.switch[name]['0'] is False:
+            if "0" in self.switch[name] and self.switch[name]["0"] is False:
                 return False
             if group in self.switch[name]:
                 return self.switch[name][group]["switch"]
@@ -179,7 +192,9 @@ class SayaData:
                 self.add_group(group)
             return DEFAULT_NOTICE
 
-    def value_change(self, name: str, group: Union[Group, int, str], key: str, value: bool) -> None:
+    def value_change(
+        self, name: str, group: Union[Group, int, str], key: str, value: bool
+    ) -> None:
         if isinstance(group, Group):
             group = group.id
         group = str(group)
@@ -207,9 +222,15 @@ class SayaData:
 
     def save(self, path: str = str(Path(__file__).parent.joinpath("saya_data.json"))):
         with open(path, "w") as w:
-            w.write(json.dumps({"switch": self.switch, "permission": self.permission}, indent=4))
+            w.write(
+                json.dumps(
+                    {"switch": self.switch, "permission": self.permission}, indent=4
+                )
+            )
 
-    def load(self, path: str = str(Path(__file__).parent.joinpath("saya_data.json"))) -> "SayaData":
+    def load(
+        self, path: str = str(Path(__file__).parent.joinpath("saya_data.json"))
+    ) -> "SayaData":
         try:
             with open(path, "r") as r:
                 data = json.load(r)

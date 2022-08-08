@@ -7,8 +7,14 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from sagiri_bot.control import BlackListControl, Switch
-from sagiri_bot.command_parse.utils import execute_setting_update, execute_grant_permission
-from sagiri_bot.command_parse.utils import execute_blacklist_append, execute_blacklist_remove
+from sagiri_bot.command_parse.utils import (
+    execute_setting_update,
+    execute_grant_permission,
+)
+from sagiri_bot.command_parse.utils import (
+    execute_blacklist_append,
+    execute_blacklist_remove,
+)
 
 
 saya = Saya.current()
@@ -24,11 +30,13 @@ channel.description("bot管理插件，必要插件，请勿卸载！否则会�
         listening_events=[GroupMessage],
         decorators=[
             Switch.enable(response_administrator=True),
-            BlackListControl.enable()
-        ]
+            BlackListControl.enable(),
+        ],
     )
 )
-async def bot_manager_handler(app: Ariadne, message: MessageChain, group: Group, member: Member, source: Source):
+async def bot_manager_handler(
+    app: Ariadne, message: MessageChain, group: Group, member: Member, source: Source
+):
     message_text = message.display
     if message_text.startswith("setting -set "):
         msg = await execute_setting_update(group, member, message_text)

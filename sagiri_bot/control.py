@@ -18,12 +18,16 @@ from sagiri_bot.orm.async_orm import UserCalledCount
 from sagiri_bot.frequency_limit_module import GlobalFrequencyLimitDict
 from sagiri_bot.orm.async_orm import orm, Setting, BlackList, UserPermission
 from sagiri_bot.handler.required_module.saya_manager.utils import saya_data, SayaData
-from sagiri_bot.internal_utils import group_setting, user_permission_require, update_user_call_count_plus
+from sagiri_bot.internal_utils import (
+    group_setting,
+    user_permission_require,
+    update_user_call_count_plus,
+)
 
 
 class Permission(object):
 
-    """ 用于管理权限的类，不应被实例化 """
+    """用于管理权限的类，不应被实例化"""
 
     MASTER = 4
     SUPER_ADMIN = 3
@@ -44,11 +48,8 @@ class Permission(object):
         member = member.id if isinstance(member, Member) else member
         group = group.id if isinstance(group, Group) else group
         if result := await orm.fetchone(
-            select(
-                UserPermission.level
-            ).where(
-                UserPermission.group_id == group,
-                UserPermission.member_id == member
+            select(UserPermission.level).where(
+                UserPermission.group_id == group, UserPermission.member_id == member
             )
         ):
             return result[0]
@@ -56,7 +57,7 @@ class Permission(object):
             await orm.insert_or_ignore(
                 UserPermission,
                 [UserPermission.group_id == group, UserPermission.member_id == member],
-                {"group_id": group, "member_id": member, "level": 1}
+                {"group_id": group, "member_id": member, "level": 1},
             )
             return Permission.DEFAULT
 
@@ -67,7 +68,9 @@ class Permission(object):
         :param level: 限制等级
         """
 
-        async def perm_check(event: GroupMessage, group: Group, source: Source) -> NoReturn:
+        async def perm_check(
+            event: GroupMessage, group: Group, source: Source
+        ) -> NoReturn:
             if not Permission.DEFAULT <= level <= Permission.MASTER:
                 raise ValueError(f"invalid level: {level}")
             member_level = await cls.get(event.sender.group, event.sender)
@@ -77,7 +80,7 @@ class Permission(object):
                 await ariadne_ctx.get().send_group_message(
                     group,
                     MessageChain(f"权限不足，爬！需要达到等级{level}，你的等级是{member_level}"),
-                    quote=source
+                    quote=source,
                 )
                 raise ExecutionStop()
 
@@ -99,7 +102,7 @@ class FrequencyLimit(object):
         weight: int,
         total_weight: int = 15,
         override_level: int = Permission.MASTER,
-        group_admin_override: bool = False
+        group_admin_override: bool = False,
     ) -> Depend:
         async def limit(event: GroupMessage) -> NoReturn:
             if await Permission.get(event.sender.group, event.sender) >= override_level:
@@ -114,12 +117,19 @@ class FrequencyLimit(object):
                 if not frequency_limit_instance.announce_judge(group, member):
                     await frequency_limit_instance.blacklist_announced(group, member)
                     await ariadne_ctx.get().send_group_message(
-                        group, MessageChain("检测到大量请求，加入黑名单一小时！"), quote=event.message_chain.get_first(Source)
+                        group,
+                        MessageChain("检测到大量请求，加入黑名单一小时！"),
+                        quote=event.message_chain.get_first(Source),
                     )
                 raise ExecutionStop()
-            if frequency_limit_instance.get(group, member, func_name) + weight >= total_weight:
+            if (
+                frequency_limit_instance.get(group, member, func_name) + weight
+                >= total_weight
+            ):
                 await ariadne_ctx.get().send_group_message(
-                    group, MessageChain("超过频率调用限制！"), quote=event.message_chain.get_first(Source)
+                    group,
+                    MessageChain("超过频率调用限制！"),
+                    quote=event.message_chain.get_first(Source),
                 )
                 raise ExecutionStop()
             else:
@@ -136,7 +146,9 @@ class Switch(object):
             member = event.sender.id
             group = event.sender.group.id
             if not await group_setting.get_setting(group, Setting.switch):
-                if response_administrator and await user_permission_require(group, member, 2):
+                if response_administrator and await user_permission_require(
+                    group, member, 2
+                ):
                     return
                 raise ExecutionStop()
             return
@@ -151,18 +163,12 @@ class BlackListControl(object):
             member = event.sender.id
             group = event.sender.group.id
             if await orm.fetchone(
-                    select(
-                        BlackList.member_id
-                    ).where(
-                        BlackList.member_id == member,
-                        BlackList.group_id == group
-                    )
+                select(BlackList.member_id).where(
+                    BlackList.member_id == member, BlackList.group_id == group
+                )
             ) or await orm.fetchone(
-                select(
-                    BlackList.member_id
-                ).where(
-                    BlackList.member_id == member,
-                    BlackList.is_global is True
+                select(BlackList.member_id).where(
+                    BlackList.member_id == member, BlackList.is_global is True
                 )
             ):
                 raise ExecutionStop()
@@ -173,7 +179,7 @@ class BlackListControl(object):
 
 class Interval(object):
 
-    """ 用于冷却管理的类，不应被实例化 """
+    """用于冷却管理的类，不应被实例化"""
 
     last_exec: DefaultDict[int, Tuple[int, float]] = defaultdict(lambda: (1, 0.0))
     sent_alert: Set[int] = set()
@@ -187,11 +193,11 @@ class Interval(object):
 
     @classmethod
     def require(
-            cls,
-            suspend_time: float = 10,
-            max_exec: int = 1,
-            override_level: int = Permission.MASTER,
-            silent: bool = False,
+        cls,
+        suspend_time: float = 10,
+        max_exec: int = 1,
+        override_level: int = Permission.MASTER,
+        silent: bool = False,
     ) -> Depend:
         """
         指示用户每执行 `max_exec` 次后需要至少相隔 `suspend_time` 秒才能再次触发功能
@@ -250,7 +256,10 @@ class UserCalledCountControl(object):
     @staticmethod
     def add(data_type: tuple, value: int = 1) -> Depend:
         async def update(event: GroupMessage) -> NoReturn:
-            await update_user_call_count_plus(event.sender.group, event.sender, data_type[1], data_type[0], value)
+            await update_user_call_count_plus(
+                event.sender.group, event.sender, data_type[1], data_type[0], value
+            )
+
         return Depend(update)
 
 
@@ -265,7 +274,11 @@ class Function(object):
 
     @classmethod
     def require(
-        cls, name: str, response_administrator: bool = False, log: bool = True, notice: bool = False
+        cls,
+        name: str,
+        response_administrator: bool = False,
+        log: bool = True,
+        notice: bool = False,
     ) -> Optional[Depend]:
         async def judge(event: GroupMessage) -> NoReturn:
             member = event.sender
@@ -283,7 +296,9 @@ class Function(object):
                     )
                 raise ExecutionStop()
             if not await group_setting.get_setting(group, Setting.switch):
-                if response_administrator and await user_permission_require(group, member, 2):
+                if response_administrator and await user_permission_require(
+                    group, member, 2
+                ):
                     return
                 raise ExecutionStop()
             return

@@ -23,47 +23,61 @@ def camel_to_underscore(s: str) -> str:
     for i in range(1, len(s)):
         if s[i].isupper():
             if not s[i - 1].isupper():
-                result += '_'
+                result += "_"
             elif s[i - 1].isupper() and s[i + 1].islower():
-                result += '_'
+                result += "_"
         result += s[i]
     return result.lower()
 
 
-async def execute_setting_update(group: Group, member: Member, command: str) -> MessageChain:
+async def execute_setting_update(
+    group: Group, member: Member, command: str
+) -> MessageChain:
     """
-        setting -set setu=True real=True
-        多命令执行
+    setting -set setu=True real=True
+    多命令执行
     """
     commands = command[13:].split(" ")
     error_commands = []
     success_commands = []
     for command in commands:
         try:
-            command = command.strip()    # .replace("-", "")
+            command = command.strip()  # .replace("-", "")
             if not command:
                 continue
             func, value = command.split("=")
             func = camel_to_underscore(func)
-            value = (True if value == "True" else False) if value in ["True", "False"] else value
+            value = (
+                (True if value == "True" else False)
+                if value in ["True", "False"]
+                else value
+            )
             if func in command_index.keys():
                 if command_index[func].is_valid(value):
-                    """ update """
-                    if await user_permission_require(group, member, command_index[func].level):
+                    """update"""
+                    if await user_permission_require(
+                        group, member, command_index[func].level
+                    ):
                         try:
-                            await orm.insert_or_update(Setting, [Setting.group_id == group.id], {func: value})
+                            await orm.insert_or_update(
+                                Setting, [Setting.group_id == group.id], {func: value}
+                            )
                             await group_setting.modify_setting(group, func, value)
                             success_commands.append(f"{func} -> {value}")
                         except Exception as e:
                             error_commands.append((command, str(e)))
                             logger.error(traceback.format_exc())
                     else:
-                        error_commands.append((command, f"权限不足，要求权限等级{command_index[func].level}"))
+                        error_commands.append(
+                            (command, f"权限不足，要求权限等级{command_index[func].level}")
+                        )
                 else:
-                    error_commands.append((
-                        f"{func} -> {value}",
-                        f"期望值：{'，'.join([str(valid_value) for valid_value in command_index[func].valid_values])}"
-                    ))
+                    error_commands.append(
+                        (
+                            f"{func} -> {value}",
+                            f"期望值：{'，'.join([str(valid_value) for valid_value in command_index[func].valid_values])}",
+                        )
+                    )
             else:
                 error_commands.append((command, "未找到此命令"))
         except ValueError:
@@ -80,7 +94,9 @@ async def execute_setting_update(group: Group, member: Member, command: str) -> 
     return MessageChain(response_text)
 
 
-async def execute_grant_permission(group: Group, member: Member, message_text: str) -> MessageChain:
+async def execute_grant_permission(
+    group: Group, member: Member, message_text: str
+) -> MessageChain:
     if await user_permission_require(group, member, 3):
         message_text = message_text[13:]
         try:
@@ -90,27 +106,35 @@ async def execute_grant_permission(group: Group, member: Member, message_text: s
         target = int(target)
         if level.isdigit():
             level = int(level)
-            if member.id == target and level != 4 and await user_permission_require(group, member, 4):
+            if (
+                member.id == target
+                and level != 4
+                and await user_permission_require(group, member, 4)
+            ):
                 return MessageChain("怎么有master想给自己改权限欸？纱雾很关心你呢~快去脑科看看吧！")
             if 1 <= level <= 2:
                 if result := await orm.fetchone(
-                    select(
-                        UserPermission.level
-                    ).where(
+                    select(UserPermission.level).where(
                         UserPermission.group_id == group.id,
-                        UserPermission.member_id == target
+                        UserPermission.member_id == target,
                     )
                 ):
                     if result[0] == 4:
                         if await user_permission_require(group, member, 4):
-                            return MessageChain("就算是master也不能修改master哦！（怎么会有两个master，怪耶）")
+                            return MessageChain(
+                                "就算是master也不能修改master哦！（怎么会有两个master，怪耶）"
+                            )
                         else:
                             return MessageChain("master level 不可更改！若想进行修改请直接修改数据库！")
                     if result[0] == 3:
                         if await user_permission_require(group, member, 4):
-                            return await grant_permission_process(group.id, target, level)
+                            return await grant_permission_process(
+                                group.id, target, level
+                            )
                         else:
-                            return MessageChain("权限不足，你必须达到权限等级4(master level)才可对超级管理员权限进行修改！")
+                            return MessageChain(
+                                "权限不足，你必须达到权限等级4(master level)才可对超级管理员权限进行修改！"
+                            )
                     else:
                         return await grant_permission_process(group.id, target, level)
                 else:
@@ -119,16 +143,22 @@ async def execute_grant_permission(group: Group, member: Member, message_text: s
                 if await user_permission_require(group, member, 4):
                     return await grant_permission_process(group.id, target, level)
                 else:
-                    return MessageChain("格式错误！权限不足，你必须达到权限等级4(master level)才可对超级管理员进行授权！")
+                    return MessageChain(
+                        "格式错误！权限不足，你必须达到权限等级4(master level)才可对超级管理员进行授权！"
+                    )
             else:
-                return MessageChain("level值非法！合法level值：1-3\n1: user\n2: administrator\n3: super administrator")
+                return MessageChain(
+                    "level值非法！合法level值：1-3\n1: user\n2: administrator\n3: super administrator"
+                )
         else:
             return MessageChain("格式错误！使用方法：user -grant @user level[1-3]")
     else:
         return MessageChain("权限不足，爬!")
 
 
-async def grant_permission_process(group_id: int, member_id: int, new_level: int) -> MessageChain:
+async def grant_permission_process(
+    group_id: int, member_id: int, new_level: int
+) -> MessageChain:
     if await grant_permission(group_id, member_id, new_level):
         return MessageChain(f"修改成功！\n{member_id} permission level: {new_level}")
     else:
@@ -139,8 +169,11 @@ async def grant_permission(group_id: int, member_id: int, new_level: int) -> boo
     try:
         await orm.insert_or_update(
             UserPermission,
-            [UserPermission.group_id == group_id, UserPermission.member_id == member_id],
-            {"group_id": group_id, "member_id": member_id, "level": new_level}
+            [
+                UserPermission.group_id == group_id,
+                UserPermission.member_id == member_id,
+            ],
+            {"group_id": group_id, "member_id": member_id, "level": new_level},
         )
         return True
     except:
@@ -148,25 +181,24 @@ async def grant_permission(group_id: int, member_id: int, new_level: int) -> boo
         return False
 
 
-async def execute_blacklist_append(member_id: int, group: Group, operator: Member) -> MessageChain:
+async def execute_blacklist_append(
+    member_id: int, group: Group, operator: Member
+) -> MessageChain:
     try:
         if not await user_permission_require(group, operator, 2):
             return MessageChain("权限不足，爬！")
         if await check_admin(member_id, group):
             return MessageChain("用户权限等级>=2的用户无法被加入黑名单！若想将其加入黑名单请先将其权限等级将为1！")
         if await orm.fetchone(
-            select(
-                BlackList.member_id, BlackList.group_id
-            ).where(
-                BlackList.member_id == member_id,
-                BlackList.group_id == group.id
+            select(BlackList.member_id, BlackList.group_id).where(
+                BlackList.member_id == member_id, BlackList.group_id == group.id
             )
         ):
             return MessageChain(f"{member_id} 已经在本群黑名单中了！")
         await orm.insert_or_ignore(
             BlackList,
             [BlackList.member_id == member_id, BlackList.group_id == group.id],
-            {"member_id": member_id, "group_id": group.id}
+            {"member_id": member_id, "group_id": group.id},
         )
         return MessageChain(f"{member_id} 添加本群黑名单成功")
     except Exception as e:
@@ -174,22 +206,21 @@ async def execute_blacklist_append(member_id: int, group: Group, operator: Membe
         return MessageChain(str(e))
 
 
-async def execute_blacklist_remove(member_id: int, group: Group, operator: Member) -> MessageChain:
+async def execute_blacklist_remove(
+    member_id: int, group: Group, operator: Member
+) -> MessageChain:
     try:
         if not await user_permission_require(group, operator, 2):
             return MessageChain("权限不足，爬！")
         if not await orm.fetchone(
-            select(
-                BlackList.member_id, BlackList.group_id
-            ).where(
-                BlackList.member_id == member_id,
-                BlackList.group_id == group.id
+            select(BlackList.member_id, BlackList.group_id).where(
+                BlackList.member_id == member_id, BlackList.group_id == group.id
             )
         ):
             return MessageChain(f"{member_id} 不在本群黑名单中！")
         await orm.delete(
             BlackList,
-            [BlackList.member_id == member_id, BlackList.group_id == group.id]
+            [BlackList.member_id == member_id, BlackList.group_id == group.id],
         )
         return MessageChain(f"{member_id} 移除本群黑名单成功")
     except Exception as e:
@@ -203,11 +234,8 @@ async def check_admin(member: Union[int, Member], group: Union[int, Group]) -> b
     if isinstance(group, Group):
         group = group.id
     if res := await orm.fetchone(
-        select(
-            UserPermission.level
-        ).where(
-            UserPermission.group_id == group,
-            UserPermission.member_id == member
+        select(UserPermission.level).where(
+            UserPermission.group_id == group, UserPermission.member_id == member
         )
     ):
         return res[0] >= 2

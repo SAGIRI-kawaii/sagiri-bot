@@ -14,7 +14,7 @@ env = jinja2.Environment(
     extensions=["jinja2.ext.loopcontrols"],
     loader=jinja2.FileSystemLoader(TEMPLATES_PATH),
     enable_async=True,
-    autoescape=True
+    autoescape=True,
 )
 
 
@@ -77,7 +77,7 @@ async def template_to_pic(
         "viewport": {"width": 500, "height": 10},
         "base_url": f"file://{os.getcwd()}",
     },
-    wait: int = 0
+    wait: int = 0,
 ) -> bytes:
     """使用jinja2模板引擎通过html生成图片
     Args:
@@ -93,7 +93,7 @@ async def template_to_pic(
     template_env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_path),
         enable_async=True,
-        autoescape=True
+        autoescape=True,
     )
     template = template_env.get_template(template_name)
 
@@ -134,7 +134,7 @@ async def md_to_pic(
             "mdx_math",
             "pymdownx.tilde",
         ],
-        extension_configs={"mdx_math": {"enable_dollar_delimiter": True}}
+        extension_configs={"mdx_math": {"enable_dollar_delimiter": True}},
     )
 
     logger.debug(md)

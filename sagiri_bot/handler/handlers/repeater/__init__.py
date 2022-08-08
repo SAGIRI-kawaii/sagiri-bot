@@ -14,7 +14,7 @@ from graia.ariadne.message.element import (
     Json,
     Xml,
     MarketFace,
-    MultimediaElement
+    MultimediaElement,
 )
 from graia.saya import Saya, Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema

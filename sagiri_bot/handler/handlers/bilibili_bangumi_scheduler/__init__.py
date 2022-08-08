@@ -13,7 +13,12 @@ from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexRe
 
 from utils.text_engine.elements import Text
 from utils.text_engine.text_engine import TextEngine
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -26,13 +31,15 @@ channel.description("一个可以获取BiliBili7日内新番时间表的插件�
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        inline_dispatchers=[Twilight([RegexMatch("[1-7]") @ "days", FullMatch("日内新番")])],
+        inline_dispatchers=[
+            Twilight([RegexMatch("[1-7]") @ "days", FullMatch("日内新番")])
+        ],
         decorators=[
             FrequencyLimit.require("bilibili_bangumi_scheduler", 2),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def bilibili_bangumi_scheduler(app: Ariadne, group: Group, days: RegexResult):
@@ -63,7 +70,7 @@ async def get_new_bangumi_json() -> dict:
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-site",
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/85.0.4183.121 Safari/537.36 "
+        "Chrome/85.0.4183.121 Safari/537.36 ",
     }
     async with aiohttp.ClientSession() as session:
         async with session.post(url=url, headers=headers) as resp:
@@ -132,7 +139,9 @@ async def formatted_output_bangumi(days: int) -> MessageChain:
         temp_output_substring.append(now.strftime("%m-%d"))
         temp_output_substring.append("即将播出：")
         for data in formatted_bangumi_data[index]:
-            temp_output_substring.append("\n%s %s %s\n" % (data["pub_time"], data["title"], data["pub_index"]))
+            temp_output_substring.append(
+                "\n%s %s %s\n" % (data["pub_time"], data["title"], data["pub_index"])
+            )
         temp_output_substring.append("\n\n----------------\n\n")
         now += datetime.timedelta(days=1)
 

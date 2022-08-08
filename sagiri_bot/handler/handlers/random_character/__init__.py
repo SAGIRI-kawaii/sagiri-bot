@@ -10,7 +10,12 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from statics.character_dict import character_dict
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -28,13 +33,20 @@ channel.description("随机生成人设插件，在群中发送 `随机人设` �
             FrequencyLimit.require("random_character", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
 async def random_character(app: Ariadne, group: Group, source: Source):
     await app.send_group_message(
         group,
-        MessageChain("\n".join([f"{k}：{random.choice(character_dict[k])}" for k in character_dict.keys()])),
-        quote=source
+        MessageChain(
+            "\n".join(
+                [
+                    f"{k}：{random.choice(character_dict[k])}"
+                    for k in character_dict.keys()
+                ]
+            )
+        ),
+        quote=source,
     )

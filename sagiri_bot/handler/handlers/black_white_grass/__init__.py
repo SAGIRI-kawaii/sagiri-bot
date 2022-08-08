@@ -9,12 +9,22 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import RegexMatch, ElementMatch, RegexResult, ElementResult
+from graia.ariadne.message.parser.twilight import (
+    RegexMatch,
+    ElementMatch,
+    RegexResult,
+    ElementResult,
+)
 
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.internal_utils import BuildImage
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 
 saya = Saya.current()
@@ -31,20 +41,25 @@ config = create(GlobalConfig)
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module),
-                RegexMatch(r".+") @ "content", ElementMatch(Image) @ "image"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module),
+                    RegexMatch(r".+") @ "content",
+                    ElementMatch(Image) @ "image",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("black_white_grass", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS)
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+        ],
     )
 )
-async def black_white_grass(app: Ariadne, group: Group, content: RegexResult, image: ElementResult):
+async def black_white_grass(
+    app: Ariadne, group: Group, content: RegexResult, image: ElementResult
+):
     msg = content.result.display
     img = await image.result.get_bytes()
     msg = await get_translate(msg)
@@ -68,7 +83,9 @@ async def black_white_grass(app: Ariadne, group: Group, content: RegexResult, im
         add_h = add_h * ratio
         bg.resize(ratio)
         centered_text(bg, msg, add_h)
-    await app.send_group_message(group, MessageChain([Image(data_bytes=bg.pic2bytes())]))
+    await app.send_group_message(
+        group, MessageChain([Image(data_bytes=bg.pic2bytes())])
+    )
 
 
 def centered_text(img: BuildImage, text: str, add_h: int):

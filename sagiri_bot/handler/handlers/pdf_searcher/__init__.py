@@ -15,7 +15,12 @@ from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult, Space
 
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.internal_utils import get_command
-from sagiri_bot.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from sagiri_bot.control import (
+    FrequencyLimit,
+    Function,
+    BlackListControl,
+    UserCalledCountControl,
+)
 
 saya = Saya.current()
 channel = Channel.current()
@@ -25,43 +30,49 @@ channel.author("SAGIRI-kawaii")
 channel.description("可以搜索pdf的插件，在群中发送 `pdf 书名` 即可")
 
 config = create(GlobalConfig)
-proxy = config.proxy if config.proxy != "proxy" else ''
+proxy = config.proxy if config.proxy != "proxy" else ""
 
 
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight([
-                get_command(__file__, channel.module).space(SpacePolicy.FORCE),
-                RegexMatch(r".+") @ "keyword"
-            ])
+            Twilight(
+                [
+                    get_command(__file__, channel.module).space(SpacePolicy.FORCE),
+                    RegexMatch(r".+") @ "keyword",
+                ]
+            )
         ],
         decorators=[
             FrequencyLimit.require("pdf_searcher", 4),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
-            UserCalledCountControl.add(UserCalledCountControl.SEARCH)
-
-        ]
+            UserCalledCountControl.add(UserCalledCountControl.SEARCH),
+        ],
     )
 )
-async def pdf_searcher(app: Ariadne, group: Group, source: Source, keyword: RegexResult):
+async def pdf_searcher(
+    app: Ariadne, group: Group, source: Source, keyword: RegexResult
+):
     base_url = "https://zh.1lib.tw"
     keyword = keyword.result.display.strip()
     url = f"{base_url}/s/?q={keyword}"
-    async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
+    async with aiohttp.ClientSession(
+        connector=TCPConnector(verify_ssl=False)
+    ) as session:
         async with session.get(url=url, proxy=proxy) as resp:
             html = await resp.read()
     soup = BeautifulSoup(html, "html.parser")
     try:
-        divs = soup.find(
-            "div", {"id": "searchResultBox"}
-        ).find_all(
+        divs = soup.find("div", {"id": "searchResultBox"}).find_all(
             "div", {"class": "resItemBox resItemBoxBooks exactMatch"}
         )
     except AttributeError:
-        await app.send_group_message(group, MessageChain(f"请检查{base_url}是否可以正常访问！若不可以请检查代理是否正常，若代理正常可能为域名更换，请向仓库提出PR"))
+        await app.send_group_message(
+            group,
+            MessageChain(f"请检查{base_url}是否可以正常访问！若不可以请检查代理是否正常，若代理正常可能为域名更换，请向仓库提出PR"),
+        )
         return
     count = 0
     books = []
@@ -74,7 +85,11 @@ async def pdf_searcher(app: Ariadne, group: Group, source: Source, keyword: Rege
         href = div.find("h3").find("a", href=True)["href"]
         # cover = div.find("table").find("img")["src"]
         first_div = div.find("table").find("table").find("div")
-        publisher = first_div.get_text().strip() if re.search('.*?title="Publisher".*?', str(first_div)) else None
+        publisher = (
+            first_div.get_text().strip()
+            if re.search('.*?title="Publisher".*?', str(first_div))
+            else None
+        )
         authors = div.find("div", {"class": "authors"}).get_text().strip()
 
         text += f"{count}.\n"
@@ -83,13 +98,15 @@ async def pdf_searcher(app: Ariadne, group: Group, source: Source, keyword: Rege
         text += f"出版社：{publisher}\n" if publisher else ""
         text += f"页面链接：{base_url + href}\n\n"
 
-        books.append({
-            "name": name,
-            # "cover": cover,
-            "href": base_url + href,
-            "publisher": publisher,
-            "authors": authors
-        })
+        books.append(
+            {
+                "name": name,
+                # "cover": cover,
+                "href": base_url + href,
+                "publisher": publisher,
+                "authors": authors,
+            }
+        )
 
     if not books:
         text = "未搜索到结果呢 >A<\n要不要换个关键词试试呢~"
