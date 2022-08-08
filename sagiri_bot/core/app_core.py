@@ -147,21 +147,17 @@ class AppCore(object):
                 [Setting.group_id == group.id],
                 {"group_id": group.id, "group_name": group.name, "active": True},
             )
-        results = await orm.fetchall(
-            select(Setting.group_id, Setting.group_name).where(Setting.active == True)
-        )
         self.load_required_saya_modules()
         logger.info("本次启动活动群组如下：")
-        for result in results:
-            logger.info(f"群ID: {str(result.group_id).ljust(14)}群名: {result.group_name}")
-        for result in results:
+        for group in group_list:
+            logger.info(f"群ID: {str(group.id).ljust(14)}群名: {group.name}")
             await orm.insert_or_update(
                 UserPermission,
                 [
                     UserPermission.member_id == self.__config.host_qq,
-                    UserPermission.group_id == result[0],
+                    UserPermission.group_id == group.id,
                 ],
-                {"member_id": self.__config.host_qq, "group_id": result[0], "level": 4},
+                {"member_id": self.__config.host_qq, "group_id": group.id, "level": 4},
             )
         self.__frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
         threading.Thread(
@@ -246,6 +242,8 @@ class AppCore(object):
                             f"sagiri_bot.handler.required_module.{module.split('.')[0]}"
                         )
                 except ModuleNotFoundError as e:
+                    logger.error(f"saya模块：{module} - {e}")
+                except Exception as e:
                     logger.error(f"saya模块：{module} - {e}")
 
     def load_schedulers(self):
