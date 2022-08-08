@@ -89,7 +89,7 @@ class ConfigClassCreator(AbstractCreator, ABC):
     @staticmethod
     def create(create_type: Type[GlobalConfig]) -> GlobalConfig:
         with open(Path(os.getcwd()) / "config.yaml", "r", encoding='utf-8') as f:
-            configs = yaml.load(f.read(), Loader=yaml.BaseLoader)
+            configs = yaml.safe_load(f.read())
             return GlobalConfig(**configs)
 
 

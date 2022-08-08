@@ -14,6 +14,7 @@ env = jinja2.Environment(
     extensions=["jinja2.ext.loopcontrols"],
     loader=jinja2.FileSystemLoader(TEMPLATES_PATH),
     enable_async=True,
+    autoescape=True
 )
 
 
@@ -92,6 +93,7 @@ async def template_to_pic(
     template_env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_path),
         enable_async=True,
+        autoescape=True
     )
     template = template_env.get_template(template_name)
 
@@ -132,7 +134,7 @@ async def md_to_pic(
             "mdx_math",
             "pymdownx.tilde",
         ],
-        extension_configs={"mdx_math": {"enable_dollar_delimiter": True}},
+        extension_configs={"mdx_math": {"enable_dollar_delimiter": True}}
     )
 
     logger.debug(md)

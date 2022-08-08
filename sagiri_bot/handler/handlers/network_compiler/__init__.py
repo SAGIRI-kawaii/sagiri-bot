@@ -1,5 +1,5 @@
 import aiohttp
-from asyncio.exceptions import TimeoutError
+import asyncio
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
@@ -10,7 +10,7 @@ from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
+from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
 from sagiri_bot.orm.async_orm import Setting
 from sagiri_bot.internal_utils import group_setting, get_command
@@ -109,7 +109,7 @@ async def get_result(language: str, code: str):
         async with aiohttp.ClientSession() as session:
             async with session.post(url=url, headers=headers, data=payload, timeout=3) as resp:
                 res = await resp.json()
-    except TimeoutError:
+    except asyncio.TimeoutError:
         return {
             "output": "",
             "errors": "Network Time Limit Exceeded"

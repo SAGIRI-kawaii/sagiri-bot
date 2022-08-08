@@ -226,14 +226,16 @@ class TextEngine(object):
                     elements.extend(self.text_merge(temp_element))
                     temp_element = []
                 elements.append(element)
-        else:
-            elements.extend(self.text_merge(temp_element))
+        elements.extend(self.text_merge(temp_element))
         temp_element = elements[:]
         elements = []
         for element in temp_element:
             if isinstance(element, Text):
                 elements.extend(element.split(sep))
-            elif any([isinstance(element, element_type) for element_type in (Image, Enter, EmptyLine)]):
+            elif any(
+                isinstance(element, element_type)
+                for element_type in (Image, Enter, EmptyLine)
+            ):
                 elements.append(element)
         self.elements = elements
 
@@ -258,6 +260,5 @@ class TextEngine(object):
             else:
                 result.append(text_list[0])
                 text_list.pop(0)
-        else:
-            result.append(text_list[0])
+        result.append(text_list[0])
         return result

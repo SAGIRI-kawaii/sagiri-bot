@@ -8,7 +8,6 @@ from dateutil.relativedelta import relativedelta
 from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.ariadne.message.element import Plain
 from graia.ariadne.event.mirai import NudgeEvent
 from graia.ariadne.exception import UnknownTarget
 from graia.ariadne.message.chain import MessageChain
@@ -26,9 +25,11 @@ config = create(GlobalConfig)
 
 channel.name("Nudge")
 channel.author("nullqwertyuiop")
-channel.description("1. 被戳时自动触发\n"
-                    "2. `戳我[n次]`\n"
-                    "3. `戳{@目标}[n次]")
+channel.description(
+    "1. 被戳时自动触发\n"
+    "2. `戳我[n次]`\n"
+    "3. `戳{@目标}[n次]"
+)
 
 nudge_data = {}
 nudged_data = {}
@@ -58,11 +59,7 @@ async def nudged(app: Ariadne, event: NudgeEvent):
                         elif count == 2:
                             try:
                                 await app.send_nudge(member)
-                                await app.send_message(
-                                    member.group, MessageChain([
-                                        Plain(text=f"不许戳了！")
-                                    ])
-                                )
+                                await app.send_message(member.group, MessageChain("不许戳了！"))
                             except UnknownTarget:
                                 pass
                             nudged_data[member.group.id][member.id] = {"count": count, "time": datetime.now()}
@@ -70,9 +67,7 @@ async def nudged(app: Ariadne, event: NudgeEvent):
                             try:
                                 await app.send_nudge(member)
                                 await app.send_message(
-                                    member.group, MessageChain([
-                                        Plain(text=f"说了不许再戳了！")
-                                    ])
+                                    member.group, MessageChain("说了不许再戳了！")
                                 )
                             except UnknownTarget:
                                 pass
@@ -87,9 +82,7 @@ async def nudged(app: Ariadne, event: NudgeEvent):
                             try:
                                 await app.send_nudge(member)
                                 await app.send_message(
-                                    member.group, MessageChain([
-                                        Plain(text=f"呜呜呜你欺负我，不理你了！")
-                                    ])
+                                    member.group, MessageChain("呜呜呜你欺负我，不理你了！")
                                 )
                             except UnknownTarget:
                                 pass
@@ -99,11 +92,7 @@ async def nudged(app: Ariadne, event: NudgeEvent):
                         elif count == 10:
                             try:
                                 await app.send_nudge(member)
-                                await app.send_message(
-                                    member.group, MessageChain([
-                                        Plain(text="你真的很有耐心欸。")
-                                    ])
-                                )
+                                await app.send_message(member.group, MessageChain("你真的很有耐心欸。"))
                             except UnknownTarget:
                                 pass
                     else:

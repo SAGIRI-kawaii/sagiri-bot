@@ -1,24 +1,25 @@
 import os
 import yaml
+from pathlib import Path
 from loguru import logger
 
 from creart import create
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.mirai import *
-from graia.ariadne.message.element import *
 from graia.ariadne.event.message import Group
+from graia.ariadne.message.element import Plain, At
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.exception import AccountMuted, UnknownTarget
 
-from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.config import GlobalConfig
+from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.orm.async_orm import orm, UserPermission, Setting
 from sagiri_bot.frequency_limit_module import GlobalFrequencyLimitDict
 
 config = create(GlobalConfig)
 
 with open(str(Path(os.path.dirname(__file__)) / "event_config.yaml"), "r", encoding='utf-8') as f:
-    event_config = yaml.load(f.read(), Loader=yaml.BaseLoader)
+    event_config = yaml.safe_load(f.read())
 
 
 async def member_join_event(app: Ariadne, group: Group, event: MemberJoinEvent):
@@ -29,9 +30,10 @@ async def member_join_event(app: Ariadne, group: Group, event: MemberJoinEvent):
             event.member.group, MessageChain([
                 At(target=event.member.id),
                 Plain(
-                    event_config["member_join_event"]
-                        .get(str(group.id), event_config["member_join_event"]
-                             .get("default")).replace("\\n", "\n").format(group_name=group.name)
+                    event_config["member_join_event"].get(
+                        str(group.id),
+                        event_config["member_join_event"].get("default")
+                    ).replace("\\n", "\n").format(group_name=group.name)
                 )
             ])
         )
@@ -59,7 +61,7 @@ async def member_mute_event(app: Ariadne, group: Group, event: MemberMuteEvent):
         if event.member.id == config.host_qq:
             try:
                 await app.unmute_member(event.member.group, event.member)
-                await app.send_message(event.member.group, MessageChain([Plain(text="保护！保护！")]))
+                await app.send_message(event.member.group, MessageChain("保护！保护！"))
             except PermissionError:
                 pass
         else:
@@ -68,12 +70,10 @@ async def member_mute_event(app: Ariadne, group: Group, event: MemberMuteEvent):
                 h, m = divmod(m, 60)
                 d, h = divmod(h, 24)
                 await app.send_message(
-                    event.member.group, MessageChain([
-                        Plain(text="哦~看看是谁被关进小黑屋了？\n"),
-                        Plain(
-                            text=f"哦我的上帝啊~是{event.member.name}！他将在小黑屋里呆{'%d天%02d小时%02d分钟%02d秒' % (d, h, m, s)}哦~"
-                        )
-                    ])
+                    event.member.group, MessageChain(
+                        "哦~看看是谁被关进小黑屋了？\n"
+                        f"哦我的上帝啊~是{event.member.name}！他将在小黑屋里呆{'%d天%02d小时%02d分钟%02d秒' % (d, h, m, s)}哦~"
+                    )
                 )
             except AccountMuted:
                 pass
@@ -83,11 +83,7 @@ async def member_unmute_event(app: Ariadne, group: Group, event: MemberUnmuteEve
     try:
         if not await group_setting.get_setting(group, Setting.switch):
             return None
-        await app.send_message(
-            event.member.group, MessageChain([
-                Plain(text=f"啊嘞嘞？{event.member.name}被放出来了呢~")
-            ])
-        )
+        await app.send_message(event.member.group, MessageChain(f"啊嘞嘞？{event.member.name}被放出来了呢~"))
     except AccountMuted:
         pass
 
@@ -97,9 +93,7 @@ async def member_leave_event_kick(app: Ariadne, group: Group, event: MemberLeave
         if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.send_message(
-            event.member.group, MessageChain([
-                Plain(text=f"<{event.member.name}> 被 <{event.operator.name}> 🐏辣~")
-            ])
+            event.member.group, MessageChain(f"<{event.member.name}> 被 <{event.operator.name}> 🐏辣~")
         )
     except AccountMuted:
         pass
@@ -110,9 +104,8 @@ async def member_special_title_change_event(app: Ariadne, group: Group, event: M
         if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.send_message(
-            event.member.group, MessageChain([
-                Plain(text="啊嘞嘞？%s的群头衔从%s变成%s了呐~" % (event.member.name, event.origin, event.current))
-            ])
+            event.member.group,
+            MessageChain(f"啊嘞嘞？{event.member.name}的群头衔从{event.origin}变成{event.current}了呐~")
         )
     except AccountMuted:
         pass
@@ -123,9 +116,7 @@ async def member_permission_change_event(app: Ariadne, group: Group, event: Memb
         if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.send_message(
-            event.member.group, MessageChain([
-                Plain(text=f"啊嘞嘞？{event.member.name}的权限变成{event.current}了呐~")
-            ])
+            event.member.group, MessageChain(f"啊嘞嘞？{event.member.name}的权限变成{event.current}了呐~")
         )
     except AccountMuted:
         pass
@@ -133,11 +124,7 @@ async def member_permission_change_event(app: Ariadne, group: Group, event: Memb
 
 async def bot_leave_event_kick(app: Ariadne, event: BotLeaveEventKick):
     logger.warning("bot has been kicked!")
-    await app.send_friend_message(
-        config.host_qq, MessageChain([
-            Plain(text=f"呜呜呜主人我被踢出{event.group.name}群了")
-        ])
-    )
+    await app.send_friend_message(config.host_qq, MessageChain(f"呜呜呜主人我被踢出{event.group.name}群了"))
 
 
 async def group_name_change_event(app: Ariadne, group: Group, event: GroupNameChangeEvent):
@@ -145,9 +132,8 @@ async def group_name_change_event(app: Ariadne, group: Group, event: GroupNameCh
         if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.send_message(
-            event.group, MessageChain([
-                Plain(text=f"群名改变啦！告别过去，迎接未来哟~\n本群名称由{event.origin}变为{event.current}辣！")
-            ])
+            event.group,
+            MessageChain(f"群名改变啦！告别过去，迎接未来哟~\n本群名称由{event.origin}变为{event.current}辣！")
         )
     except AccountMuted:
         pass
@@ -162,9 +148,8 @@ async def group_entrance_announcement_change_event(
         if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.send_message(
-            event.group, MessageChain([
-                Plain(text=f"入群公告改变啦！注意查看呐~\n原公告：{event.origin}\n新公告：{event.current}")
-            ])
+            event.group,
+            MessageChain(f"入群公告改变啦！注意查看呐~\n原公告：{event.origin}\n新公告：{event.current}")
         )
     except AccountMuted:
         pass
@@ -175,9 +160,8 @@ async def group_allow_anonymous_chat_event(app: Ariadne, group: Group, event: Gr
         if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.send_message(
-            event.group, MessageChain([
-                Plain(text=f"匿名功能现在{'开启辣！畅所欲言吧！' if event.current else '关闭辣！光明正大做人吧！'}")
-            ])
+            event.group,
+            MessageChain(f"匿名功能现在{'开启辣！畅所欲言吧！' if event.current else '关闭辣！光明正大做人吧！'}")
         )
     except AccountMuted:
         pass
@@ -188,9 +172,10 @@ async def group_allow_confess_talk_event(app: Ariadne, group: Group, event: Grou
         if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.send_message(
-            event.group, MessageChain([
-                Plain(text=f"坦白说功能现在{'开启辣！快来让大家更加了解你吧！' if event.current else '关闭辣！有时候也要给自己留点小秘密哟~'}")
-            ])
+            event.group,
+            MessageChain(
+                f"坦白说功能现在{'开启辣！快来让大家更加了解你吧！' if event.current else '关闭辣！有时候也要给自己留点小秘密哟~'}"
+            )
         )
     except AccountMuted:
         pass
@@ -201,9 +186,8 @@ async def group_allow_member_invite_event(app: Ariadne, group: Group, event: Gro
         if not await group_setting.get_setting(group, Setting.switch):
             return None
         await app.send_message(
-            event.group, MessageChain([
-                Plain(text=f"现在{'允许邀请成员加入辣！快把朋友拉进来玩叭！' if event.current else '不允许邀请成员加入辣！要注意哦~'}")
-            ])
+            event.group,
+            MessageChain(f"现在{'允许邀请成员加入辣！快把朋友拉进来玩叭！' if event.current else '不允许邀请成员加入辣！要注意哦~'}")
         )
     except AccountMuted:
         pass
@@ -213,26 +197,22 @@ async def member_card_change_event(app: Ariadne, group: Group, event: MemberCard
     try:
         if not await group_setting.get_setting(group, Setting.switch):
             return None
-        if event.operator:
-            if event.member.name == event.origin or event.origin == "" or event.current == "":
-                pass
-            else:
+        if (
+            event.member.name != event.origin
+            and event.origin != ""
+            and event.current != ""
+        ):
+            if event.operator:
                 await app.send_message(
-                    group, MessageChain([
-                        Plain(
-                            f"啊嘞嘞？{event.origin}的群名片被{event.operator.name}"
-                            f"改为{event.current}了呢！"
-                        )
-                    ])
+                    group, MessageChain(
+                        f"啊嘞嘞？{event.origin}的群名片被{event.operator.name}"
+                        f"改为{event.current}了呢！"
+                    )
                 )
-        else:
-            if event.member.name == event.origin or event.origin == "" or event.current == "":
-                pass
             else:
                 await app.send_message(
-                    group, MessageChain([
-                        Plain(text=f"啊嘞嘞？{event.origin}的群名片改为{event.current}了呢！")
-                    ])
+                    group,
+                    MessageChain(f"啊嘞嘞？{event.origin}的群名片改为{event.current}了呢！")
                 )
     except AccountMuted:
         pass
@@ -241,7 +221,7 @@ async def member_card_change_event(app: Ariadne, group: Group, event: MemberCard
 async def new_friend_request_event(app: Ariadne, event: NewFriendRequestEvent):
     await app.send_friend_message(
         config.host_qq, MessageChain([
-            Plain(text=f"主人主人，有个人来加我好友啦！\n"),
+            Plain(text="主人主人，有个人来加我好友啦！\n"),
             Plain(text=f"ID：{event.supplicant}\n"),
             Plain(text=f"来自：{event.nickname}\n"),
             Plain(text=f"描述：{event.message}\n"),
@@ -256,7 +236,7 @@ async def member_join_request_event(app: Ariadne, event: MemberJoinRequestEvent)
             return None
         await app.send_group_message(
             event.source_group, MessageChain([
-                Plain(text=f"有个新的加群加群请求哟~管理员们快去看看叭！\n"),
+                Plain(text="有个新的加群加群请求哟~管理员们快去看看叭！\n"),
                 Plain(text=f"ID：{event.supplicant}\n"),
                 Plain(text=f"昵称：{event.nickname}\n"),
                 Plain(text=f"描述：{event.message}\n")
@@ -270,7 +250,7 @@ async def bot_invited_join_group_request_event(app: Ariadne, event: BotInvitedJo
     if event.supplicant != config.host_qq:
         await app.send_friend_message(
             config.host_qq, MessageChain([
-                Plain(text=f"主人主人，有个人拉我进群啦！\n"),
+                Plain(text="主人主人，有个人拉我进群啦！\n"),
                 Plain(text=f"ID：{event.supplicant}\n"),
                 Plain(text=f"来自：{event.nickname}\n"),
                 Plain(text=f"描述：{event.message}\n")
@@ -287,8 +267,8 @@ async def group_recall_event(app: Ariadne, group: Group, event: GroupRecallEvent
             revoked_msg = msg.message_chain.as_sendable()
             author_member = await app.get_member(event.group.id, event.author_id)
             author_name = "自己" if event.operator.id == event.author_id else author_member.name
-            resend_msg = MessageChain([Plain(text=f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦：\n\n")]) \
-                .extend(revoked_msg)
+            resend_msg = MessageChain(f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦：\n\n").extend(revoked_msg)
+
             await app.send_message(
                 event.group,
                 resend_msg.as_sendable()

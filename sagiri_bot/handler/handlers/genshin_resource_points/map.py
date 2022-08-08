@@ -146,7 +146,7 @@ class Map:
 
     # 生成最优路线（说是最优其实就是直线最短）
     def _generate_best_route(self):
-        line_points = []
+        # line_points = []
         teleport_list = self.teleport_anchor_point + self.teleport_god_point
         for teleport in teleport_list:
             current_res, res_min_distance = teleport.get_resource_distance(self.resource_point)
@@ -173,7 +173,8 @@ class Map:
                 res_cp = self.resource_point[:]
                 res_cp.remove(current_res)
                 # for _ in res_cp:
-                current_teleport_, teleport_min_distance = res.get_resource_distance(teleport_list)
+                # current_teleport_
+                _, teleport_min_distance = res.get_resource_distance(teleport_list)
                 current_res, res_min_distance = res.get_resource_distance(res_cp)
                 if teleport_min_distance < res_min_distance:
                     self.map.line(

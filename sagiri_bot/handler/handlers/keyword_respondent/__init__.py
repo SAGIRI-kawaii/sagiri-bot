@@ -1,24 +1,26 @@
 import re
 import random
 import hashlib
+from typing import Union
 from sqlalchemy import select
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
+from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.lifecycle import ApplicationLaunched
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Source, MultimediaElement
 from graia.ariadne.event.message import Group, GroupMessage, Member
+from graia.ariadne.message.element import Source, MultimediaElement, Plain
 from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, WildcardMatch, RegexResult
 
-from utils.message_chain import *
 from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.orm.async_orm import KeywordReply
-from sagiri_bot.internal_utils import user_permission_require
 from sagiri_bot.control import BlackListControl, Function
+from sagiri_bot.internal_utils import user_permission_require
+from utils.message_chain import message_chain_to_json, json_to_message_chain
 
 saya = Saya.current()
 channel = Channel.current()
@@ -49,7 +51,8 @@ class NumberWaiter(Waiter.create([GroupMessage])):
 
     async def detected_event(self, group: Group, member: Member, message: MessageChain):
         if group.id == self.group and member.id == self.member:
-            return int(message.display) if message.display.isnumeric() and 0 < int(message.display) <= self.max_length else -1
+            display = message.display
+            return int(display) if display.isnumeric() and 0 < int(display) <= self.max_length else -1
 
 
 class ConfirmWaiter(Waiter.create([GroupMessage])):
@@ -133,7 +136,11 @@ async def add_keyword(
     if op_type != "fullmatch":
         regex_list.append(
             (
-                keyword if op_type == "regex" else f"(.*){keyword.replace('[', parse_mid_bracket).replace('{', parse_big_bracket).replace('(', parse_bracket)}(.*)",
+                keyword
+                if op_type == "regex" else
+                f"(.*)"
+                f"{keyword.replace('[', parse_mid_bracket).replace('{', parse_big_bracket).replace('(', parse_bracket)}"
+                f"(.*)",
                 reply_md5,
                 group.id if group_only else -1
             )
@@ -219,7 +226,9 @@ async def delete_keyword(
             global regex_list
             for i in regex_list:
                 if all([
-                    i[0] == keyword if op_type == "regex" else f"(.*){keyword.replace('[', parse_mid_bracket).replace('{', parse_big_bracket).replace('(', parse_bracket)}(.*)",
+                    i[0] == keyword
+                    if op_type == "regex" else
+                    f"(.*){keyword.replace('[', parse_mid_bracket).replace('{', parse_big_bracket).replace('(', parse_bracket)}(.*)",
                     i[1] == replies[number - 1][2],
                     i[2] == (-1 if group_only.matched else group.id)
                 ]):
@@ -292,7 +301,9 @@ async def regex_init():
             list(
                 [(
                     i[0] if i[2] == "regex" else
-                    f"(.*){i[0].replace('[', parse_mid_bracket).replace('{', parse_big_bracket).replace('(', parse_bracket)}(.*)",
+                    f"(.*)"
+                    f"{i[0].replace('[', parse_mid_bracket).replace('{', parse_big_bracket).replace('(', parse_bracket)}"
+                    f"(.*)",
                     i[1],
                     i[3]
                 ) for i in result]

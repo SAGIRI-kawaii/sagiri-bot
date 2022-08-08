@@ -35,7 +35,7 @@ config = create(GlobalConfig)
     )
 )
 async def poisonous_chicken_soup(app: Ariadne, group: Group):
-    url = f"https://api.shadiao.app/du"
+    url = "https://api.shadiao.app/du"
     async with aiohttp.ClientSession() as session:
         async with session.get(url=url) as resp:
             text = (await resp.json())["data"].get("text", "未找到数据")

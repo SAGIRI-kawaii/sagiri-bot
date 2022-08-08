@@ -7,7 +7,7 @@ from sqlalchemy import select
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.message import Group, Member
 
-from .commands import *
+from .commands import command_index
 from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.internal_utils import user_permission_require
@@ -60,7 +60,10 @@ async def execute_setting_update(group: Group, member: Member, command: str) -> 
                     else:
                         error_commands.append((command, f"权限不足，要求权限等级{command_index[func].level}"))
                 else:
-                    error_commands.append((f"{func} -> {value}", f"期望值：{'，'.join([str(valid_value) for valid_value in command_index[func].valid_values])}"))
+                    error_commands.append((
+                        f"{func} -> {value}",
+                        f"期望值：{'，'.join([str(valid_value) for valid_value in command_index[func].valid_values])}"
+                    ))
             else:
                 error_commands.append((command, "未找到此命令"))
         except ValueError:
@@ -90,7 +93,14 @@ async def execute_grant_permission(group: Group, member: Member, message_text: s
             if member.id == target and level != 4 and await user_permission_require(group, member, 4):
                 return MessageChain("怎么有master想给自己改权限欸？纱雾很关心你呢~快去脑科看看吧！")
             if 1 <= level <= 2:
-                if result := await orm.fetchone(select(UserPermission.level).where(UserPermission.group_id == group.id, UserPermission.member_id == target)):
+                if result := await orm.fetchone(
+                    select(
+                        UserPermission.level
+                    ).where(
+                        UserPermission.group_id == group.id,
+                        UserPermission.member_id == target
+                    )
+                ):
                     if result[0] == 4:
                         if await user_permission_require(group, member, 4):
                             return MessageChain("就算是master也不能修改master哦！（怎么会有两个master，怪耶）")
@@ -133,8 +143,8 @@ async def grant_permission(group_id: int, member_id: int, new_level: int) -> boo
             {"group_id": group_id, "member_id": member_id, "level": new_level}
         )
         return True
-    except Exception:
-        logger.error(traceback.format_exc())
+    except:
+        logger.exception("")
         return False
 
 

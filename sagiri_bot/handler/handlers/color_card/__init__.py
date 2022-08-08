@@ -30,7 +30,10 @@ channel = Channel.current()
 
 channel.name("ColorCard")
 channel.author("SAGIRI-kawaii")
-channel.description("一个获取图片色卡的插件，在群中发送 `/色卡 -s={size} -m={mode} -t {图片/@成员/qq号/回复有图片的消息}` 即可，发送 `/色卡 -h` 查看帮助")
+channel.description(
+    "一个获取图片色卡的插件，"
+    "在群中发送 `/色卡 -s={size} -m={mode} -t {图片/@成员/qq号/回复有图片的消息}` 即可，发送 `/色卡 -h` 查看帮助"
+)
 
 loop = create(asyncio.AbstractEventLoop)
 bcc = saya.broadcast
@@ -44,7 +47,7 @@ inc = InterruptControl(bcc)
             Twilight([
                 ElementMatch(At, optional=True),
                 get_command(__file__, channel.module),
-                ArgumentMatch("-h", "-help", optional=True, action="store_true") @ "help",
+                ArgumentMatch("-h", "-help", optional=True, action="store_true") @ "need_help",
                 RegexMatch(r"-(s|size)=[0-9]+", optional=True) @ "size",
                 RegexMatch(r"-(m|mode)=\w+", optional=True) @ "mode",
                 RegexMatch(r"-(t|text)", optional=True) @ "text",
@@ -69,7 +72,7 @@ async def color_card(
     member: Member,
     message: MessageChain,
     source: Source,
-    help: RegexResult,
+    need_help: RegexResult,
     size: RegexResult,
     mode: RegexResult,
     text: RegexResult,
@@ -77,7 +80,7 @@ async def color_card(
     at: ElementResult,
     qq: RegexResult
 ):
-    if help.matched:
+    if need_help.matched:
         await app.send_group_message(
             group,
             MessageChain(
@@ -102,7 +105,7 @@ async def color_card(
         await app.send_group_message(group, MessageChain(f"蛤？size为{size}我还给你什么色卡阿，爪巴巴！"), quote=source)
         return
     elif size > 30:
-        await app.send_group_message(group, MessageChain(f"太多了啦，要溢出了！"), quote=source)
+        await app.send_group_message(group, MessageChain("太多了啦，要溢出了！"), quote=source)
         return
     if mode.matched:
         mode = mode.result.display.split('=')[1].strip().lower()
@@ -169,7 +172,10 @@ async def color_card(
             MessageChain([
                 Image(data_bytes=bytes_io.getvalue()),
                 Plain("\n"),
-                Plain("\n".join([f"rgb{str(i).ljust(15, ' ')} #{''.join(hex(i[j]).upper()[2:] for j in range(3))}" for i in result[1]]))
+                Plain("\n".join([
+                    f"rgb{str(i).ljust(15, ' ')} #{''.join(hex(i[j]).upper()[2:] for j in range(3))}"
+                    for i in result[1]
+                ]))
             ]),
             quote=source
         )
@@ -270,8 +276,8 @@ def draw(
         height = 100
         width = 100 * len(colors)
         canvas = PIL.Image.new("RGBA", (width, height), (0, 0, 0, 0))
-        for i in range(len(colors)):
-            block = PIL.Image.new("RGB", (100, 100), colors[i])
+        for i, color in enumerate(colors):
+            block = PIL.Image.new("RGB", (100, 100), color)
             canvas.paste(block, (i * 100, 0))
     elif resize:
         raise TypeError("The resize option cannot be used in drawing modes other than CardType.PURE!")
@@ -280,8 +286,8 @@ def draw(
         block_width = int(width / color_size)
         canvas = PIL.Image.new("RGBA", (width, height + block_width), "white")
         canvas.paste(image, (0, 0))
-        for i in range(len(colors)):
-            block = PIL.Image.new("RGBA", (block_width, block_width), colors[i])
+        for i, color in enumerate(colors):
+            block = PIL.Image.new("RGBA", (block_width, block_width), color)
             canvas.paste(block, (i * block_width, height))
             if i == len(colors) - 1:
                 canvas.paste(block, ((i + 1) * block_width, height))

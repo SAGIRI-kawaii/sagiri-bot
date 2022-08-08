@@ -1,10 +1,8 @@
 import os
-import sys
 import time
 import threading
 from loguru import logger
 from pydantic import BaseModel
-from typing import Union, Optional
 from asyncio.events import AbstractEventLoop
 from sqlalchemy.exc import InternalError, ProgrammingError
 
@@ -27,7 +25,7 @@ from graia.ariadne.event.message import (
     ActiveGroupMessage,
     ActiveFriendMessage
 )
-from graia.ariadne.model import Group, Friend, LogConfig
+from graia.ariadne.model import LogConfig
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 
 try:
@@ -202,7 +200,7 @@ class AppCore(object):
         """ 加载自定义 saya 模块 """
         ignore = ["__init__.py", "__pycache__"]
         with self.__saya.module_context():
-            for module in os.listdir(f"modules"):
+            for module in os.listdir("modules"):
                 if module in ignore:
                     continue
                 try:
@@ -217,7 +215,7 @@ class AppCore(object):
         """ 加载必要 saya 模块 """
         ignore = ["__init__.py", "__pycache__"]
         with self.__saya.module_context():
-            for module in os.listdir(f"sagiri_bot/handler/required_module"):
+            for module in os.listdir("sagiri_bot/handler/required_module"):
                 if module in ignore:
                     continue
                 try:
@@ -230,8 +228,3 @@ class AppCore(object):
 
     def load_schedulers(self):
         pass
-
-    @staticmethod
-    def restart(notice_target: Optional[Union[Friend, Group]] = None):
-        print(sys.executable, *sys.argv)
-        os.execv(sys.executable, sys.argv)

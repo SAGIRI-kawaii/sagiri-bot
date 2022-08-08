@@ -7,7 +7,6 @@ from loguru import logger
 from PIL import Image as IMG
 from asyncio import Semaphore
 from typing import Tuple, Optional, List
-from asyncio.exceptions import TimeoutError
 from PIL.Image import UnidentifiedImageError
 
 from creart import create
@@ -143,7 +142,7 @@ async def download_resource_data(semaphore: Semaphore):
                         logger.warning(f'获取原神资源失败 msg: {data["message"]}')
                 else:
                     logger.warning(f"获取原神资源失败 code：{resp.status}")
-    except TimeoutError:
+    except asyncio.TimeoutError:
         logger.warning("获取原神资源数据超时...已再次尝试...")
         await download_resource_data(semaphore)
     except Exception as e:
@@ -190,7 +189,7 @@ async def download_map_init(
                         logger.warning(f'获取原神地图失败 msg: {data["message"]}')
                 else:
                     logger.warning(f"获取原神地图失败 code：{resp.status}")
-    except TimeoutError:
+    except asyncio.TimeoutError:
         logger.warning("下载原神地图数据超时....")
     except Exception as e:
         logger.error(f"下载原神地图数据超时 {type(e)}：{e}")
@@ -212,12 +211,12 @@ async def download_resource_type():
                             resource_data[id_] = x
                         with open(resource_type_file, "w", encoding="utf8") as f:
                             json.dump(resource_data, f, ensure_ascii=False, indent=4)
-                        logger.info(f"更新原神资源类型成功...")
+                        logger.info("更新原神资源类型成功...")
                     else:
                         logger.warning(f'获取原神资源类型失败 msg: {data["message"]}')
                 else:
                     logger.warning(f"获取原神资源类型失败 code：{resp.status}")
-    except TimeoutError:
+    except asyncio.TimeoutError:
         logger.warning("下载原神资源类型数据超时....")
     except Exception as e:
         logger.error(f"载原神资源类型数据超时 {type(e)}：{e}")
@@ -278,5 +277,5 @@ async def init(flag: bool = False):
         for id_ in data:
             for x in data[id_]["children"]:
                 resource_name_list.append(x["name"])
-    except TimeoutError:
+    except asyncio.TimeoutError:
         logger.warning('原神资源查询信息初始化超时....')

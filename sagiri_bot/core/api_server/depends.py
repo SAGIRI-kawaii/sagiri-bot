@@ -1,7 +1,6 @@
 import hmac
 import time
 import base64
-from fastapi import HTTPException
 
 
 def generate_token(user_name: str, nonce: str, expire: int = 86400):
@@ -40,6 +39,4 @@ def certify_token(user_name: str, nonce: str, token: str = None):
     known_sha1_tsstr = token_list[1]
     sha1 = hmac.new((user_name + nonce).encode("utf-8"), ts_str.encode('utf-8'), 'sha1')
     calc_sha1_tsstr = sha1.hexdigest()
-    if calc_sha1_tsstr != known_sha1_tsstr:
-        return False
-    return True
+    return calc_sha1_tsstr == known_sha1_tsstr
