@@ -57,6 +57,8 @@ async def apex_stat(
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             data = await resp.json()
+    if error := data.get("error"):
+        return await app.send_group_message(group, MessageChain(error), quote=source)
     user = data["user"]
     user_name = user.get("username", "null")
     status = user.get("status", {})
