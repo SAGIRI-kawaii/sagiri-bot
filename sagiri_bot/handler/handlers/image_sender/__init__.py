@@ -100,7 +100,8 @@ async def image_sender(
 ):
     if re.match(r"[\w]+ -[0-9]+", message.as_persistent_string(), re.S):
         message_serialization = message.as_persistent_string().split(" -")[0]
-        image_count = int(message.as_persistent_string().split(" -")[1])
+        image_count = message.as_persistent_string().split(" -")[1]
+        image_count = int(image_count) if image_count.isnumeric() else 1
     else:
         message_serialization = message.as_persistent_string()
         image_count = 1
@@ -239,7 +240,10 @@ async def get_pic(image_type: str, image_count: int) -> Union[List[Image], str]:
         async with aiohttp.ClientSession() as session:
             for _ in range(image_count):
                 async with session.get(paths[image_type].split("$")[-1]) as resp:
-                    res = await resp.json()
+                    # try:
+                    res = await resp.json(content_type=resp.content_type)
+                    # except ContentTypeError:
+                    #     res = await resp.json(content_type="text/json")
                 for p in path:
                     try:
                         if p[0] == "|" and p[1:].isnumeric():
