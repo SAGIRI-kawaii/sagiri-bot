@@ -4,7 +4,7 @@ import random
 import PIL.Image
 from io import BytesIO
 from pathlib import Path
-from asyncio import Semaphore
+from asyncio import Lock
 from PIL import ImageFont, ImageDraw
 from typing import Tuple, List, Union, Optional
 
@@ -55,7 +55,7 @@ class Wordle(object):
 
     guess_word: List[str]  # 记录已猜单词
 
-    draw_mutex: Semaphore  # 绘图信号量
+    draw_mutex: Lock  # 绘图信号量
 
     game_end: bool = False  # 一局游戏是否结束
 
@@ -98,7 +98,7 @@ class Wordle(object):
         self.font_color = font_color
         self.hint_set = set()
         self.guess_word = []
-        self.draw_mutex = Semaphore(1)
+        self.draw_mutex = Lock()
         self.game_end = False
         self.row = self.get_retry_times(self.length)
         board_side_width = (

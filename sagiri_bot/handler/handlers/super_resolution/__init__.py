@@ -6,7 +6,7 @@ from io import BytesIO
 from pathlib import Path
 from PIL import Image as IMG
 from PIL import ImageSequence
-from asyncio import Semaphore
+from asyncio import Lock
 from aiohttp.client_exceptions import ClientResponseError
 
 try:
@@ -52,7 +52,7 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个图片超分插件，在群中发送 `/超分 图片` 即可")
 
 max_size = 2073600
-mutex = Semaphore(1)
+mutex = Lock()
 processing = False
 
 
@@ -121,9 +121,8 @@ async def super_resolution(
                 group, MessageChain("图片等待超时，进程退出"), quote=source
             )
         except ClientResponseError:
-            await mutex.acquire()
-            processing = False
-            mutex.release()
+            async with mutex:
+                processing = False
             return await app.send_group_message(
                 group, MessageChain("图片获取错误，进程退出"), quote=source
             )
@@ -131,9 +130,8 @@ async def super_resolution(
         return await app.send_group_message(
             group, MessageChain("有任务正在处理中，请稍后重试"), quote=source
         )
-    await mutex.acquire()
-    processing = True
-    mutex.release()
+    async with mutex:
+        processing = True
     await app.send_message(group, MessageChain("已收到图片，启动处理进程"), quote=source)
     try:
         await app.send_group_message(
@@ -144,9 +142,8 @@ async def super_resolution(
             quote=source,
         )
     except RuntimeError as e:
-        await mutex.acquire()
-        processing = False
-        mutex.release()
+        async with mutex:
+            processing = False
         await app.send_group_message(group, MessageChain(str(e)), quote=source)
 
 
@@ -159,9 +156,8 @@ async def do_super_resolution(
     image_size = image.size[0] * image.size[1]
 
     # if len(image_data) >= 4 * (1024 ** 2):
-    #     await mutex.acquire()
-    #     processing = False
-    #     mutex.release()
+    #     async with mutex:
+    #         processing = False
     #     return MessageChain("鉴于QQ对图片文件最大约20M的限制，对图片进行默认超分后预期大小将超过此限制，请尝试缩小图片后再超分")
 
     upsampler = RealESRGANer(
@@ -185,9 +181,8 @@ async def do_super_resolution(
 
     if image_size > max_size:
         if not resize:
-            await mutex.acquire()
-            processing = False
-            mutex.release()
+            async with mutex:
+                processing = False
             return MessageChain(
                 [
                     Plain(text="图片尺寸过大！请发送1080p以内即像素数小于 1920×1080=2073600的照片！\n"),
@@ -226,9 +221,8 @@ async def do_super_resolution(
         img.save(result, format="PNG")  # format: PNG / JPEG
     end = time.time()
     use_time = round(end - start, 2)
-    await mutex.acquire()
-    processing = False
-    mutex.release()
+    async with mutex:
+        processing = False
     del upsampler
     return MessageChain(
         [
