@@ -1,9 +1,9 @@
 import yaml
 import asyncio
 from os import environ
+from asyncio import Lock
 from loguru import logger
 from typing import NoReturn
-from asyncio import Lock
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import select, update, insert, delete, inspect
