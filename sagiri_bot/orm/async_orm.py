@@ -1,9 +1,9 @@
 import yaml
 import asyncio
 from os import environ
+from asyncio import Lock
 from loguru import logger
 from typing import NoReturn
-from asyncio import Semaphore
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import select, update, insert, delete, inspect
@@ -36,7 +36,7 @@ DB_LINK = get_config("db_link")
 # DB_LINK = "sqlite+aiosqlite:///data.db"
 
 db_mutex = (
-    Semaphore(1, loop=create(asyncio.AbstractEventLoop))
+    Lock()
     if DB_LINK.startswith("sqlite")
     else None
 )
