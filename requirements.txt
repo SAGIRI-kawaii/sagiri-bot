@@ -27,7 +27,6 @@ pytz
 psutil
 pyzipper
 python-dateutil
-bs4
 aiofiles
 jinja2
 markdown
