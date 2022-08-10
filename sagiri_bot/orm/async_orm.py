@@ -21,6 +21,7 @@ environ["NLS_LANG"] = "AMERICAN_AMERICA.AL32UTF8"
 # DB_LINK = 'oracle://test:123456@localhost:1521/xe'
 # DB_LINK = "mysql+aiomysql://root:pass@localhost:3306/test"
 # DB_LINK = "sqlite:///data.db"
+# DB_LINK = "sqlite+aiosqlite:///data.db"
 
 
 def get_config(config: str):
@@ -33,7 +34,7 @@ def get_config(config: str):
 
 
 DB_LINK = get_config("db_link")
-# DB_LINK = "sqlite+aiosqlite:///data.db"
+create(asyncio.AbstractEventLoop)
 
 db_mutex = (
     Lock()
