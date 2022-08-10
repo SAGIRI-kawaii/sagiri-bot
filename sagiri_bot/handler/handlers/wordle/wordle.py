@@ -130,7 +130,7 @@ class Wordle(object):
                 )
 
     def random_word(self) -> str:
-        return random.choice([i for i in word_list[self.dic][self.length].keys()])
+        return random.choice(list(word_list[self.dic][self.length].keys()))
 
     @staticmethod
     def get_retry_times(length: int) -> int:
@@ -335,9 +335,9 @@ for dic in word_dics:
             else:
                 word_list[dic][len(word)] = {word: data[word]}
 root = TrieNode()
-for key in word_list.keys():
+for key in word_list:
     for length in word_list[key].keys():
-        root.insert_many(*[i for i in word_list[key][length].keys()])
+        root.insert_many(*list(word_list[key][length].keys()))
 
 with open(
     Path(os.path.dirname(__file__)) / "words" / "words.txt", "r", encoding="utf-8"
