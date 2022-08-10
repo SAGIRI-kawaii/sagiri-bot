@@ -45,7 +45,7 @@ jobs:
     
     # 构建 并 推送镜像
     - name: build and push docker image
-      uses: docker/build-push-action@v3.0.0
+      uses: docker/build-push-action@v3.1.1
       with:
         context: .
         push: true
