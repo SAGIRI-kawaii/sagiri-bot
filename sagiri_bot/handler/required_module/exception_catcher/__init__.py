@@ -8,6 +8,7 @@ from graia.ariadne.message.element import Image
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.builtin.event import ExceptionThrowed
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.exception import AccountMuted, UnknownTarget
 
 from sagiri_bot.config import GlobalConfig
 from utils.text_engine.text_engine import TextEngine
@@ -26,6 +27,11 @@ config: GlobalConfig = create(GlobalConfig)
 async def except_handle(event: ExceptionThrowed):
     app = Ariadne.current()
     if isinstance(event.event, ExceptionThrowed):
+        return
+    if isinstance(
+        event.exception,
+        (AccountMuted, UnknownTarget)
+    ):
         return
     return await app.send_friend_message(
         config.host_qq,
