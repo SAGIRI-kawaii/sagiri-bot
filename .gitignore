@@ -30,3 +30,9 @@ test.py
 /statics/genshin/material/*
 /statics/genshin/temp/*
 migrator.py
+
+.venv/
+
+# mockingbird 模型，太大了
+/statics/models/mockingbird/*
+!/statics/models/mockingbird/tips.txt

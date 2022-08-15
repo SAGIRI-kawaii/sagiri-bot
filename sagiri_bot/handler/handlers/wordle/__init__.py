@@ -1,6 +1,6 @@
 import asyncio
 from loguru import logger
-from asyncio import Semaphore
+from asyncio import Lock
 from typing import Union, Optional, NoReturn
 
 from graia.saya import Saya, Channel
@@ -37,7 +37,7 @@ channel.author("SAGIRI-kawaii")
 channel.description("wordle猜单词游戏，发送 /wordle -h 查看帮助")
 
 inc = InterruptControl(saya.broadcast)
-mutex = Semaphore(1)
+mutex = Lock()
 
 group_running = {}
 group_word_dic = {}
@@ -77,7 +77,7 @@ class WordleWaiter(Waiter.create([GroupMessage])):
             (member if isinstance(member, int) else member.id) if member else None
         )
         self.member_list = set()
-        self.member_list_mutex = Semaphore(1)
+        self.member_list_mutex = Lock()
 
     async def detected_event(
         self,
@@ -103,14 +103,14 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     ),
                     quote=message_source,
                 )
-                await self.member_list_mutex.acquire()
-                for member in self.member_list:
-                    await update_member_statistic(group, member, StatisticType.lose)
-                    await update_member_statistic(group, member, StatisticType.game)
-                self.member_list_mutex.release()
-                await mutex.acquire()
-                group_running[group.id] = False
-                mutex.release()
+
+                async with self.member_list_mutex:
+                    for member in self.member_list:
+                        await update_member_statistic(group, member, StatisticType.lose)
+                        await update_member_statistic(group, member, StatisticType.game)
+                async with mutex:
+                    group_running[group.id] = False
+
                 return True
             if message.display.strip() == "/wordle -hint":
                 await update_member_statistic(group, member, StatisticType.hint)
@@ -127,15 +127,13 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                     )
                 return False
             if len(word) == self.wordle.length and word.encode("utf-8").isalpha():
-                await self.member_list_mutex.acquire()
-                self.member_list.add(member.id)
-                self.member_list_mutex.release()
-                await self.wordle.draw_mutex.acquire()
-                print("required")
-                result = self.wordle.guess(word)
-                print(result)
-                print("released")
-                self.wordle.draw_mutex.release()
+                
+                async with self.member_list_mutex:
+                    self.member_list.add(member.id)
+
+                async with self.wordle.draw_mutex:
+                    result = self.wordle.guess(word)
+
                 if not result:
                     return True
                 if result[0]:
@@ -144,15 +142,16 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                         member,
                         StatisticType.correct if result[1] else StatisticType.wrong,
                     )
-                    await self.member_list_mutex.acquire()
-                    for member in self.member_list:
-                        await update_member_statistic(
-                            group,
-                            member,
-                            StatisticType.win if result[1] else StatisticType.lose,
-                        )
-                        await update_member_statistic(group, member, StatisticType.game)
-                    self.member_list_mutex.release()
+                    
+                    async with self.member_list_mutex:
+                        for member in self.member_list:
+                            await update_member_statistic(
+                                group,
+                                member,
+                                StatisticType.win if result[1] else StatisticType.lose,
+                            )
+                            await update_member_statistic(group, member, StatisticType.game)
+
                     dic = group_word_dic[group.id]
                     word_data = word_list[dic][len(self.wordle.word)][self.wordle.word]
                     explain = "\n".join(
@@ -171,9 +170,8 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                         ),
                         quote=message_source,
                     )
-                    await mutex.acquire()
-                    group_running[group.id] = False
-                    mutex.release()
+                    async with mutex:
+                        group_running[group.id] = False
                     return True
                 elif not result[2]:
                     await app.send_group_message(
@@ -302,9 +300,8 @@ async def wordle(
                 f"只有长度为{'、'.join([str(i) for i in sorted(word_list[group_word_dic[group.id]].keys())])}的单词！"
             ),
         )
-        await mutex.acquire()
-        group_running[group.id] = False
-        mutex.release()
+        async with mutex:
+            group_running[group.id] = False
         return None
     wordle_instance = Wordle(length, dic=group_word_dic[group.id])
     logger.success(f"成功创建 Wordle 实例，单词为：{wordle_instance.word}")
@@ -329,6 +326,5 @@ async def wordle(
             )
     except asyncio.exceptions.TimeoutError:
         await app.send_group_message(group, MessageChain("游戏超时，进程结束"), quote=source)
-        await mutex.acquire()
-        group_running[group.id] = False
-        mutex.release()
+        async with mutex:
+            group_running[group.id] = False
