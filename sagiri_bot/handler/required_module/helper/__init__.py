@@ -30,14 +30,14 @@ channel.description("一个获取英文缩写意思的插件，在群中发送 `
 
 env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(
-        r"W:\Python workspace\RE-SAGIRIBOT\sagiri_bot\handler\required_module\helper\templates"
+        Path(__file__).parent / "templates"
     ),
     enable_async=True,
     autoescape=True,
 )
 
 saya_data_instance = None
-BANNER_PATH = r"W:\Python workspace\RE-SAGIRIBOT\sagiri_bot\handler\required_module\helper\banners"
+BANNER_PATH = Path(__file__).parent / "banners"
 
 
 def get_saya_data():
