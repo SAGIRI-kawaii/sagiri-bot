@@ -1,6 +1,6 @@
 {
   "name": "MockingBird",
-  "version": "0.1",
+  "version": "0.2",
   "display_name": "MockingBird语音生成",
   "authors": [
     "SAGIRI-kawaii",
@@ -9,6 +9,6 @@
   "description": "MockingBird语音生成",
   "usage": "在群中发送 `纱雾说 {content}` 即可",
   "icon": "",
-  "prefix": [""],
+  "prefix": ["", "/"],
   "triggers": ["纱雾说"]
 }
