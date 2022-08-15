@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>group_info_template</title>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+        }
+        body {
+            padding-top: 20px;
+        }
+
+        .setting-name {
+            font-size: 34px;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .flex-space-between {
+            display: flex;
+            justify-content: space-between;
+            align-content: center;
+        }
+
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .setting-item {
+            margin: 0 10px;
+            height: 54px;
+            width: 500px;
+        }
+        table {
+            margin: 0;
+            padding: 0;
+        }
+        .root-div {
+            width: auto;
+            margin: 0 100px 20px 100px;
+            padding: 20px;
+            background-color: whitesmoke;
+            border-radius: 20px;
+            -webkit-box-shadow: 0 4px 24px 0 rgba(233, 32, 99, .5);
+            box-shadow: 0 4px 24px 0 rgba(233, 32, 99, .5);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .title {
+            width: 100%;
+            height: 200px;
+        }
+
+        .info-box {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .face {
+            border-radius: 50%;
+            margin-right: 20px;
+            width: 180px;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .face img {
+            max-width: 100%;
+            height: auto;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .name {
+            font-size: 60px;
+            font-weight: bold;
+        }
+
+        .gid {
+            font-size: 40px;
+        }
+
+        .counts {
+            font-size: 34px;
+        }
+    </style>
+</head>
+<body background="{{ background_image }}">
+<div>
+    <div class="title flex">
+        <div class="face">
+            <img src="{{ avatar }}">
+        </div>
+        <div>
+            <div class="name">{{ name }}</div>
+            <div class="gid">{{ gid }}</div>
+            <div class="counts"><b>人数：</b>{{ count }}</div>
+        </div>
+    </div>
+    <div class="flex root-div">
+        {% for i in range(0, (settings | length), 25) %}
+        <table>
+            {% for setting in settings[i: i + 25] %}
+            <tr>
+                <td class="flex">
+                    <div class="flex-space-between setting-item">
+                        {% if setting[0] %}
+                        <div class="setting-name">{{setting[0]}}</div>
+                        <div class="flex">
+                            <label class="switch">
+                                <input type="checkbox" {{ 'checked' if setting[1] else '' }}>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        {% else %}
+                        <p class="setting-name">&nbsp;</p>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

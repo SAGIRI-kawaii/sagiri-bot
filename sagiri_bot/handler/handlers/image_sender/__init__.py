@@ -3,6 +3,7 @@ import os
 import random
 import aiohttp
 import traceback
+from pathlib import Path
 from loguru import logger
 from datetime import datetime
 from sqlalchemy import select
@@ -223,10 +224,12 @@ async def image_sender(
                     )
 
 
-def random_pic(base_path: str) -> str:
+def random_pic(base_path: Union[Path, str]) -> str:
+    if isinstance(base_path, str):
+        base_path = Path(base_path)
     path_dir = os.listdir(base_path)
     path = random.sample(path_dir, 1)[0]
-    return base_path + path
+    return str(base_path / path)
 
 
 async def get_pic(image_type: str, image_count: int) -> Union[List[Image], str]:

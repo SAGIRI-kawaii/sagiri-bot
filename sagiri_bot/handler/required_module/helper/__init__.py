@@ -1,6 +1,8 @@
+import os
 import jinja2
+import random
+from pathlib import Path
 from typing import Union
-
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -28,13 +30,14 @@ channel.description("一个获取英文缩写意思的插件，在群中发送 `
 
 env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(
-        r"W:\Python workspace\RE-SAGIRIBOT\sagiri_bot\handler\required_module\helper"
+        r"W:\Python workspace\RE-SAGIRIBOT\sagiri_bot\handler\required_module\helper\templates"
     ),
     enable_async=True,
     autoescape=True,
 )
 
 saya_data_instance = None
+BANNER_PATH = r"W:\Python workspace\RE-SAGIRIBOT\sagiri_bot\handler\required_module\helper\banners"
 
 
 def get_saya_data():
@@ -52,8 +55,15 @@ def judge(name: str, group: Union[int, Group]):
         saya_data.add_saya(name)
     if group not in saya_data.switch[name]:
         saya_data.add_group(group)
-    print(name, group, saya_data.is_turned_on(name, group))
     return saya_data.is_turned_on(name, group)
+
+
+def random_pic(base_path: Union[Path, str]) -> Path:
+    if isinstance(base_path, str):
+        base_path = Path(base_path)
+    path_dir = os.listdir(base_path)
+    path = random.sample(path_dir, 1)[0]
+    return base_path / path
 
 
 @channel.use(
@@ -78,23 +88,18 @@ async def helper(app: Ariadne, group: Group, source: Source):
         )
         for c in saya.channels
     ]
-    if len(modules) % 15:
-        modules.extend([(None, None) for _ in range(15 - len(modules) % 15)])
-    print(modules)
-    template = env.get_template("group_info_template.html")
-    root_div_width = (
-        (len(modules) // 25) * 520 + 60
-        if len(modules) % 25
-        else (len(modules) // 25) * 520 + 540
-    )
+    if len(modules) % 3:
+        modules.extend([(None, None) for _ in range(3 - len(modules) % 3)])
+    template = env.get_template("plugin_detail.html")
     html = await template.render_async(
         settings=modules,
-        background_image=r"W:\Python workspace\RE-SAGIRIBOT\sagiri_bot\handler\required_module\helper\background.png",
+        banner=random_pic(BANNER_PATH),
         avatar=f"https://p.qlogo.cn/gh/{group.id}/{group.id}_1/",
         name=group.name,
         gid=group.id,
         count=len(await app.get_member_list(group)) + 1,
-        root_div_width=root_div_width,
+        title="SAGIRI-BOT帮助菜单",
+        subtitle="CREATED BY SAGIRI-BOT"
     )
     await app.send_group_message(
         group,
@@ -102,7 +107,7 @@ async def helper(app: Ariadne, group: Group, source: Source):
             [
                 Image(
                     data_bytes=await html_to_pic(
-                        html, wait=0, viewport={"width": 1920, "height": 1080}
+                        html, wait=0, viewport={"width": 1000, "height": 1080}
                     )
                 )
             ]
