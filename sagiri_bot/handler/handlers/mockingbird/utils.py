@@ -9,23 +9,26 @@ except ImportError:
     mockingbird_available = False
 
 model_path = Path.cwd() / "statics" / "models" / "mockingbird"
-models = [i.stem for i in model_path.iterdir() if i.is_dir()]
-
-try:
-    if mockingbird_available:
-        mockingbird = MockingBird()
-        mockingbird.load_model(
-            model_path / "encoder.pt",
-            model_path / "hifigan.pt"
-        )
-        current_model = "azusa"
-        mockingbird.set_synthesizer(model_path / current_model / f"{current_model}.pt")
-        generate_accuracy = 9
-        models_available = True
-    else:
-        models_available = False
-except FileNotFoundError:
+if not model_path.exists():
     models_available = False
+else:
+    models = [i.stem for i in model_path.iterdir() if i.is_dir()]
+
+    try:
+        if mockingbird_available:
+            mockingbird = MockingBird()
+            mockingbird.load_model(
+                model_path / "encoder.pt",
+                model_path / "hifigan.pt"
+            )
+            current_model = "azusa"
+            mockingbird.set_synthesizer(model_path / current_model / f"{current_model}.pt")
+            generate_accuracy = 9
+            models_available = True
+        else:
+            models_available = False
+    except FileNotFoundError:
+        models_available = False
 
 
 def get_voice(content: str):
