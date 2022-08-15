@@ -3,7 +3,7 @@ from pathlib import Path
 from loguru import logger
 
 try:
-    from mockingbirdforuse import MockingBird
+    from .MockingBirdForUse.mockingbirdforuse import MockingBird
     mockingbird_available = True
 except ImportError:
     mockingbird_available = False
