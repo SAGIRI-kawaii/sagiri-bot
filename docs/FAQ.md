@@ -14,11 +14,11 @@
 
 > ## Mysql / PostgreSQL 相关
 
-目前只官方适配了 `sqlite`，使用 `Mysql` 以及 `PostgreSQL` 产生的bug可能会很多甚至会导致程序无法运行，若您需要稳定的运行请使用 `sqlite`
+目前只官方适配了 `SQLite`，使用 `MySQL` 以及 `PostgreSQL` 产生的bug可能会很多甚至会导致程序无法运行，若您需要稳定的运行请使用 `SQLite`
 
-若您有好的解决方法可以PR，但请保证 `sqlite` 的兼容性
+若您有好的解决方法可以PR，但请保证 `SQLite` 的兼容性
 
-其他支持的数据库类型请查看 `sqlalchemy` 文档
+其他支持的数据库类型请查看 `SQLAlchemy` 文档
 
 > ## PlayWright 报错
 
@@ -65,13 +65,31 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 - 打开数据库，删除名为 `alembic_version` 的数据表
 - 重启机器人
 
-> ## adapter down
+??? question "不知道如何删除数据表？"
+
+    你可以直接删除生成的数据库，**该操作会删除数据库的所有数据，如有需要，请提前备份**
+
+    - SQLite
+
+        > 假设你在 `config.yaml` 配置的链接为 `sqlite+aiosqlite:///data.db`
+
+        > 则你可以直接删除生成的 `data.db`
+
+    - MySQL
+
+        > <del>都用 `MySQL` 了还不会删库？</del>
+
+    - 其他数据库
+
+        > 不知道捏，自己探索吧
+
+
+> ## ClientConnectorError
 
 若在运行时出现如下报错：
 ```text
-2022-01-29 14:39:32.456 | WARNING  | graia.ariadne.app:daemon:1357 - daemon: adapter down, restart in 5.0s
-2022-01-29 14:39:37.456 | INFO     | graia.ariadne.app:daemon:1359 - daemon: restarting adapter
-2022-01-29 14:39:42.450 | CRITICAL | graia.ariadne.app:daemon:1343 - Timeout when connecting to mirai-api-http. Configuration problem?
+2022-08-16 13:16:41.372 | WARNING  | graia.amnesia.builtins.aiohttp:connection_manage:277 - ClientConnectorError(ConnectionKey(host='127.0.0.1', port=8899, is_ssl=False, ssl=None, proxy=None, proxy_auth=None, proxy_headers_hash=None), ConnectionRefusedError(22, 'The remote computer refused the network connection', None, 1225, None))
+2022-08-16 13:16:41.372 | WARNING  | graia.ariadne.connection.ws:_:79 - Websocket reconnecting in 5s...
 ```
 请执行以下几步：
 
@@ -91,13 +109,23 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 2022-04-30 18:34:34 E/net.mamoe.mirai-api-http: net.mamoe.yamlkt.YamlDecodingException:There must be a COLON between class key and value but found null for 'setting'
 ```
 
-请尝试重新粘贴配置，或更换端口，可能是有不可见字符混入配置文件
+请尝试重新粘贴 `mirai-api-http` 配置，或更换端口，可能是有不可见字符混入配置文件
 
 > ## Address in use
 
 1. 检查是否开启了多个 `mirai-console-loader(mcl)`
 2. 检查 `mirai-api-http(mah)` 使用的端口是否为常用端口，如 `80` `443` `8080` `8000` 等，该情况下请更换为非常用端口，如 `11451` `14514` 等
 3. 检查 `mirai-api-http(mah)` 使用的端口是否被其他软件占用
+
+??? question "如何检查是否开启了多个 `mcl`？"
+
+    - Windows
+
+        > 打开任务管理器，检查是否有多个 Java 正在运行
+
+    - Linux / macOS
+
+        > 打开终端，输入 `ps -ef | grep "mcl" | grep -v "grep"`，检查是否有多个 `mcl` 正在运行
 
 > ## 内存占用问题
 
@@ -107,22 +135,9 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 
 关闭全局代理，重新执行命令
 
-> ## Exception in thread "DefaultDispatcher-worker-2"...
-
-- 方法一：检查 `mirai-api-http` 版本，若为 `2.5.0+` 请降级为 `2.4.0`
-- 方法二：检查 `mirai-api-http` 版本，若为 `2.5.0+` 并且 `mirai` 版本低于 `2.11`，请将 `mirai` 升级到 `2.11+`
-
-> ## java.lang.NoSuchMethodError: void kotlinx.serialization.internal.ObjectSerializer...
-
-检查 `mirai-api-http` 版本，若为 `2.5.0+` 请降级为 `2.4.0`
-
-详情请看 [mirai-api-http #568](https://github.com/project-mirai/mirai-api-http/issues/568)
-
 > ## java.lang.illegalStateException: plugin 'net.mamoe.mirai-api-http' is already loaded and cannot be reloaded
 
-前往 `mirai-console-loader` 的 `plugin` 文件夹下删除 `2.5.0` 版本的 `mirai-api-http` （以 `2.5.0.jar` 结尾的）（当且仅当 `mirai-api-http-v2.5.0` 的序列化bug未解决且正在降级至 `2.4.0` 时此条生效）
-
-前往 `mirai-console-loader` 的 `plugin` 文件夹下删除重复的 `mirai-api-http` 插件 （常规状况）
+前往 `mirai-console-loader` 的 `plugin` 文件夹下删除重复的 `mirai-api-http` 插件
 
 > ## command "python" not found
 
@@ -199,6 +214,14 @@ bot_qq
 > ## 日志显示已发送图片，但是QQ无法显示
 
 账号被腾讯风险控制，尝试开关设备锁、重新登录、或者登录满一至两周后再试。
+
+> ## 消息时提示 RemoteException
+
+账号被冻结群消息发送，可手动登录机器人账号发送群消息解除冻结。
+
+> ## macOS 部署教程
+
+大部分可参考 Linux 部署教程
 
 > ## 代理相关
 
