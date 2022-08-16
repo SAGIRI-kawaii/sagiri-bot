@@ -19,6 +19,7 @@ class PluginMeta(BaseModel):
     authors: List[str] = []
     description: str = ""
     usage: str = ""
+    example: str = ""
     icon: str = ""
     prefix: List[str] = []
     triggers: List[str] = []
@@ -34,6 +35,14 @@ def load_plugin_meta(path: Union[Path, str]) -> PluginMeta:
             data = json.load(r)
             return PluginMeta(**data)
     return PluginMeta()
+
+
+def load_plugin_meta_by_module(module: str) -> PluginMeta:
+    paths = module.split('.')
+    base_path = Path().cwd()
+    for path in paths:
+        base_path = base_path / path
+    return load_plugin_meta(base_path)
 
 
 class PluginConfig(TypedDict):
