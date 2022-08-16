@@ -90,6 +90,8 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 ```text
 2022-08-16 13:16:41.372 | WARNING  | graia.amnesia.builtins.aiohttp:connection_manage:277 - ClientConnectorError(ConnectionKey(host='127.0.0.1', port=8899, is_ssl=False, ssl=None, proxy=None, proxy_auth=None, proxy_headers_hash=None), ConnectionRefusedError(22, 'The remote computer refused the network connection', None, 1225, None))
 2022-08-16 13:16:41.372 | WARNING  | graia.ariadne.connection.ws:_:79 - Websocket reconnecting in 5s...
+2022-08-16 15:16:46.592 | WARNING | graia.ariadne.connection.ws::84 - Websocket reconnecting...
+2022-08-16 15:16:46.626 | INFO | graia.ariadne.connection.ws::91 - Websocket connection closed
 ```
 请执行以下几步：
 
