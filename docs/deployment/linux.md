@@ -160,7 +160,7 @@ adapterSettings:
 
 ### 配置自动登录
 
-!!!warning "注意"
+!!! warning "注意"
 
     为防止因填入不当数据导致无法启动 mirai-console-loader (MCL) 的问题，**建议在部署时通过 mirai-console-loader (MCL) 内建的 `autoLogin` 指令配置自动登录**，而非直接修改 Console 配置文件
 
@@ -170,7 +170,7 @@ adapterSettings:
 
 #### 修改 Console 配置文件实现自动登录（不推荐）
 
-!!!warning "仅可在 mirai-console-loader (MCL) 已关闭的情况下更改配置文件"
+!!! warning "仅可在 mirai-console-loader (MCL) 已关闭的情况下更改配置文件"
 
 使用合适的编辑器打开位于 mirai-console-loader (MCL) 安装目录下的 `config/Console/AutoLogin.yml` 文件，应类似于如下内容：
 
@@ -186,7 +186,7 @@ accounts:
 
 修改 `account` `kind` `value` `protocol` 的值并保存即可完成自动登录的配置
 
-!!!note "如何实现手机和 mirai 同时在线？"
+??? note "如何实现手机和 mirai 同时在线？"
 
     可通过更改登录协议实现，操作如下：
 
@@ -225,7 +225,7 @@ url:http://xxx.xxx.xxx
 
 ## 安装python
 
-!!!note "部分主流 linux 发行版已内置python"
+!!! note "部分主流 linux 发行版已内置python"
 
     可直接在终端输入 `python` 并按 `tab` 键检查是否已安装 python
 
@@ -258,27 +258,27 @@ url:http://xxx.xxx.xxx
 - 输入 `git clone https://github.com/SAGIRI-kawaii/sagiri-bot.git`
 - 等待下载完成
 
-!!!note "什么？你问我为什么这个一输进去就报错？"
+!!! note "什么？你问我为什么这个一输进去就报错？"
 
     <del>不会还有人的 linux 发布版没安装 `git` 吧？</del>可输入 `sudo apt install git` 安装 `git` 命令，然后再运行克隆命令
 
     `apt` 可替换为其他发行版的安装命令，如 `yum`、`dnf`、`pacman` 等
 
-!!!note "什么？你问我太慢怎么办？"
+!!! note "什么？你问我太慢怎么办？"
     
     我的建议是，找一台可以快速链接 `github` 的机器下载再传过来
     
     或者你可以使用代理站：`git clone https://ghproxy.com/github.com/SAGIRI-kawaii/sagiri-bot.git`
 
-!!!danger "***真的非常不建议***直接从 GitHub 下载仓库的 zip 或 tar 文件"
+!!! danger "***真的非常不建议***直接从 GitHub 下载仓库的 zip 或 tar 文件"
 
     大部分情况下，直接使用 zip 或 tar 文件进行安装无法通过 `git pull` 进行更新，即使用该方法，可能无法正常更新且可能有稳定性问题
 
     <del>如果是因为直接下的 zip 或 tar 文件而且一直没更新导致的问题，就不要跑来群里或者发 issue 问了</del>
 
-## 配置python虚拟环境
+## 配置python虚拟环境并安装依赖
 
-!!!question "为什么要配置python虚拟环境？"
+!!! question "为什么要配置python虚拟环境？"
 
     防止出现依赖混乱或冲突等问题，常用的虚拟环境有 `conda` `venv` `poetry` 等
 
@@ -293,11 +293,11 @@ url:http://xxx.xxx.xxx
 
 ### 使用 poetry
 
-!!!warning "此处将默认你已经安装了 `poetry`"
+!!! warning "此处将默认你已经安装了 `poetry`"
 
 - 终端中进入bot所在目录，运行 `poetry install` 即可
 
-!!!note "`Resolving dependencies...` 部分耗时过长？"
+??? note "`Resolving dependencies...` 部分耗时过长？"
     
     不用慌张！<del>这是技术性调整</del>
 
@@ -307,7 +307,7 @@ url:http://xxx.xxx.xxx
 
     > 截至这个区块编写完成，已知的最长用时是 20 分钟。
 
-### 直接使用 pip
+### 不使用虚拟环境，直接安装依赖
 
 - 终端中进入bot所在目录，运行 `pip install -r requirements.txt` 即可
 
@@ -317,7 +317,7 @@ url:http://xxx.xxx.xxx
 - 按文件中注释更改
 - 将文件更名为 `config.yaml`
 
-!!!note "不知道怎么改数据库链接？"
+???+ note "不知道怎么改数据库链接？"
 
     **大部分情况下保持不变即可。**
 
@@ -349,7 +349,7 @@ url:http://xxx.xxx.xxx
 - 在目录下寻找 `alembic.ini` 文件并打开
 - 将其中 `sqlalchemy.url` 项更换为自己的连接（不需注明引擎否则会报错）（如 `sqlite:///data.db`）
 
-!!!note "不知道什么是引擎？"
+???+ note "不知道什么是引擎？"
 
     **如果你在上一步保持不变，这一步跳过即可。**
 
