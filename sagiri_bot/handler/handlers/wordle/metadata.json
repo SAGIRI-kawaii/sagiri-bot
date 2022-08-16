@@ -1,9 +1,10 @@
 {
   "name": "Wordle",
-  "version": "0.1",
+  "version": "0.2",
   "display_name": "Wordle猜单词",
   "authors": [
-    "SAGIRI-kawaii"
+    "SAGIRI-kawaii",
+    "I_love_study"
   ],
   "description": "wordle猜单词游戏",
   "usage": "发送 /wordle -h 查看帮助",
