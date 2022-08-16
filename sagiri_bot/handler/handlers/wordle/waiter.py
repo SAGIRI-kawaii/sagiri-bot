@@ -70,7 +70,7 @@ class WordleWaiter(Waiter.create([GroupMessage])):
             return True
 
         word = str(message).strip()
-        if word in ("/wordle -giveup", "/wordle -g"):
+        if word in {"/wordle -giveup", "/wordle -g"}:
             return await self.gameover(app, source)
 
         if word == "/wordle -hint":

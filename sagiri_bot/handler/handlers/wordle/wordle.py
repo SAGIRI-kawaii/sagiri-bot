@@ -7,10 +7,11 @@ from PIL import Image, ImageDraw, ImageFont
 
 word_path = Path(__file__).parent / "words"
 
-all_word = set(
+all_word = {
     w.upper()
     for w in (word_path / "words.txt").read_text(encoding="UTF-8").splitlines()
-)
+}
+
 word_dic = [p.stem for p in word_path.iterdir() if p.suffix == ".json"]
 
 font = ImageFont.truetype(r"statics/fonts/KarnakPro-Bold.ttf", 20)
