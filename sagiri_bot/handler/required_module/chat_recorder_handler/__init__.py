@@ -12,6 +12,9 @@ from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.orm.async_orm import ChatRecord
 from sagiri_bot.control import UserCalledCountControl
 
+# 关闭 jieba 的 Debug log
+jieba.setLogLevel(jieba.logging.INFO)
+
 saya = Saya.current()
 channel = Channel.current()
 
