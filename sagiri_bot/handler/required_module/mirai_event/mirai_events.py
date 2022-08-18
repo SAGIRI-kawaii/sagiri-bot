@@ -341,7 +341,7 @@ async def bot_join_group_event(app: Ariadne, group: Group):
             ],
             {"member_id": config.host_qq, "group_id": group.id, "level": 4},
         )
-        GlobalFrequencyLimitDict().add_group(group.id)
+        create(GlobalFrequencyLimitDict).add_group(group.id)
         await app.send_message(
             group, MessageChain([Plain(text="欸嘿嘿~我来啦！宇宙无敌小可爱纱雾酱华丽登场！")])
         )

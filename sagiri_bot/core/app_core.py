@@ -1,6 +1,5 @@
 import os
 import time
-import threading
 from loguru import logger
 from pydantic import BaseModel
 from asyncio.events import AbstractEventLoop
@@ -8,7 +7,6 @@ from sqlalchemy.exc import InternalError, ProgrammingError
 
 from creart import create
 from graia.saya import Saya
-from sqlalchemy import select
 from graia.broadcast import Broadcast
 from graia.ariadne.app import Ariadne
 from graia.ariadne.connection.config import (
@@ -41,8 +39,6 @@ from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.internal_utils import group_setting
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.orm.async_orm import Setting, UserPermission
-from sagiri_bot.frequency_limit_module import GlobalFrequencyLimitDict, frequency_limit
-from sagiri_bot.exception_resender import ExceptionReSender, exception_resender_listener
 
 non_log = {
     GroupMessage,
@@ -63,14 +59,7 @@ class AppCore(object):
     __instance = None
     __first_init: bool = False
     __app: Ariadne = None
-    __loop: AbstractEventLoop = None
-    __bcc = None
-    __saya = None
-    __thread_pool = None
     __config: GlobalConfig = None
-    __launched: bool = False
-    __exception_resender: ExceptionReSender = None
-    __frequency_limit_instance: GlobalFrequencyLimitDict = None
     start_time = time.time()
     necessary_parameters = ["miraiHost", "verify_key", "BotQQ"]
 
@@ -83,8 +72,8 @@ class AppCore(object):
         if self.__first_init:
             raise AppCoreAlreadyInitialized()
         logger.info("Initializing")
-        self.__loop = create(AbstractEventLoop)
-        self.__bcc = create(Broadcast)
+        loop = create(AbstractEventLoop)
+        bcc = create(Broadcast)
         self.__app = Ariadne(
             config(
                 g_config.bot_qq,
@@ -94,11 +83,11 @@ class AppCore(object):
             ),
             log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO"),
         )
-        self.__saya = create(Saya)
-        self.__saya.install_behaviours(BroadcastBehaviour(self.__bcc))
+        saya = create(Saya)
+        saya.install_behaviours(BroadcastBehaviour(bcc))
         if _install_scheduler:
-            self.__sche = GraiaScheduler(loop=self.__loop, broadcast=self.__bcc)
-            self.__saya.install_behaviours(GraiaSchedulerBehaviour(self.__sche))
+            self.__sche = GraiaScheduler(loop=loop, broadcast=bcc)
+            saya.install_behaviours(GraiaSchedulerBehaviour(self.__sche))
         self.__app.debug = False
         self.__config = g_config
         AppCore.__first_init = True
@@ -112,6 +101,7 @@ class AppCore(object):
         try:
             self.__app.launch_blocking()
         except KeyboardInterrupt:
+            print("stop")
             self.__app.stop()
 
     @logger.catch
@@ -159,16 +149,6 @@ class AppCore(object):
                 ],
                 {"member_id": self.__config.host_qq, "group_id": group.id, "level": 4},
             )
-        self.__frequency_limit_instance = GlobalFrequencyLimitDict(frequency_limit_dict)
-        threading.Thread(
-            target=frequency_limit, args=(self.__frequency_limit_instance,)
-        ).start()
-        exception_resender_instance = ExceptionReSender(self.__app)
-        listener = threading.Thread(
-            target=exception_resender_listener,
-            args=(self.__app, exception_resender_instance, self.__loop),
-        )
-        listener.start()
         await group_setting.data_init()
 
     @staticmethod
@@ -210,35 +190,39 @@ class AppCore(object):
                 logger.success(f"{key} - {value}")
         logger.info("Configuration check completed")
 
-    def load_saya_modules(self) -> None:
+    @staticmethod
+    def load_saya_modules() -> None:
         """加载自定义 saya 模块"""
         ignore = ["__init__.py", "__pycache__"]
-        with self.__saya.module_context():
+        saya = create(Saya)
+        with saya.module_context():
             for module in os.listdir("modules"):
                 if module in ignore:
                     continue
                 try:
                     if os.path.isdir(module):
-                        self.__saya.require(f"modules.{module}")
+                        saya.require(f"modules.{module}")
                     else:
-                        self.__saya.require(f"modules.{module.split('.')[0]}")
+                        saya.require(f"modules.{module.split('.')[0]}")
                 except ModuleNotFoundError as e:
                     logger.error(f"saya模块：{module} - {e}")
 
-    def load_required_saya_modules(self) -> None:
+    @staticmethod
+    def load_required_saya_modules() -> None:
         """加载必要 saya 模块"""
         ignore = ["__init__.py", "__pycache__"]
-        with self.__saya.module_context():
+        saya = create(Saya)
+        with saya.module_context():
             for module in os.listdir("sagiri_bot/handler/required_module"):
                 if module in ignore:
                     continue
                 try:
                     if os.path.isdir(module):
-                        self.__saya.require(
+                        saya.require(
                             f"sagiri_bot.handler.required_module.{module}"
                         )
                     else:
-                        self.__saya.require(
+                        saya.require(
                             f"sagiri_bot.handler.required_module.{module.split('.')[0]}"
                         )
                 except ModuleNotFoundError as e:

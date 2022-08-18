@@ -1,40 +1,27 @@
-import time
+import asyncio
 import datetime
+from abc import ABC
 from loguru import logger
+from typing import Optional, Type
 from dateutil.relativedelta import relativedelta
 
-
-def singleton(cls):
-    _instance = {}
-
-    def _singleton(*args, **kwargs):
-        if cls not in _instance:
-            _instance[cls] = cls(*args, **kwargs)
-        return _instance[cls]
-
-    return _singleton
+from creart import create
+from creart import add_creator
+from creart import exists_module
+from creart.creator import AbstractCreator, CreateTargetInfo
 
 
-@singleton
 class GlobalFrequencyLimitDict:
-    __instance = None
-    __first_init = False
     __temp_blacklist = {}
     __frequency_counter = {}
     __blacklist_announced = {}
     frequency_limit_dict = None
 
-    def __new__(cls, frequency_limit_dict: dict = None):
-        if not cls.__instance:
-            cls.__instance = object.__new__(cls)
-        return cls.__instance
-
-    def __init__(self, frequency_limit_dict: dict = None):
+    def __init__(self, frequency_limit_dict: Optional[dict] = None):
         if frequency_limit_dict is None:
-            frequency_limit_dict = {}
-        if not self.__first_init:
+            self.frequency_limit_dict = {}
+        else:
             self.frequency_limit_dict = frequency_limit_dict
-            GlobalFrequencyLimitDict.__first_init = True
 
     def get(self, group_id: int, member_id: int, func_name: str):
         if group_id in self.frequency_limit_dict:
@@ -53,7 +40,7 @@ class GlobalFrequencyLimitDict:
             for member in self.__frequency_counter[group]:
                 self.__frequency_counter[group][member] = 0
 
-    async def update(self, group_id: int, weight: int):
+    def update(self, group_id: int, weight: int):
         if group_id in self.frequency_limit_dict:
             self.frequency_limit_dict[group_id] += weight
 
@@ -89,7 +76,7 @@ class GlobalFrequencyLimitDict:
         else:
             return False
 
-    async def add_record(self, group_id: int, member_id: int, weight: int):
+    def add_record(self, group_id: int, member_id: int, weight: int):
         if group_id in self.__frequency_counter:
             if member_id in self.__frequency_counter[group_id]:
                 self.__frequency_counter[group_id][member_id] += weight
@@ -111,23 +98,27 @@ class GlobalFrequencyLimitDict:
             self.__blacklist_announced[group_id] = {member_id: False}
         return False
 
-    async def blacklist_announced(self, group_id: int, member_id: int):
+    def blacklist_announced(self, group_id: int, member_id: int):
         self.__blacklist_announced[group_id][member_id] = True
 
 
-def frequency_limit(frequency_limit_instance: GlobalFrequencyLimitDict) -> None:
-    """
-    Frequency limit module
+class FrequencyLimitClassCreator(AbstractCreator, ABC):
+    targets = (CreateTargetInfo("sagiri_bot.frequency_limit_module", "GlobalFrequencyLimitDict"),)
 
-    Args:
-        frequency_limit_instance: Frequency limit object
+    @staticmethod
+    def available() -> bool:
+        return exists_module("sagiri_bot.frequency_limit_module")
 
-    Examples:
-        limiter = Thread(target=frequency_limit, args=(frequency_limit_dict,))
+    @staticmethod
+    def create(create_type: Type[GlobalFrequencyLimitDict]) -> GlobalFrequencyLimitDict:
+        return GlobalFrequencyLimitDict({})
 
-    Return:
-        None
-    """
+
+add_creator(FrequencyLimitClassCreator)
+
+
+async def frequency_limit() -> None:
+    frequency_limit_instance = create(GlobalFrequencyLimitDict)
     while 1:
-        time.sleep(10)
+        await asyncio.sleep(10)
         frequency_limit_instance.set_zero()

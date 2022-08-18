@@ -15,6 +15,8 @@ _playwright: Optional[Playwright] = None
 async def init(**kwargs) -> Browser:
     global _browser
     global _playwright
+    if _browser:
+        return _browser
     _playwright = await async_playwright().start()
     # _browser = await _playwright.chromium.launch_persistent_context(
     #     user_data_dir,

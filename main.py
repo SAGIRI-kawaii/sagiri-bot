@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import threading
+from pathlib import Path
 from loguru import logger
 from datetime import time
-from pathlib import Path
 
 from creart import create
 from graia.saya import Saya
@@ -15,7 +14,8 @@ from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Str
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.core.app_core import AppCore
 from sagiri_bot.internal_utils import online_notice
-from sagiri_bot.core.api_server.app import run_api_server
+# from sagiri_bot.core.api_server.app import run_api_server
+from sagiri_bot.frequency_limit_module import frequency_limit
 
 config = create(GlobalConfig)
 core = AppCore(config)
@@ -99,7 +99,7 @@ async def active_friend_message_handler(event: ActiveFriendMessage):
 async def init():
     await core.bot_launch_init()
     await online_notice(app)
+    await frequency_limit()
 
 
-threading.Thread(target=run_api_server, args=()).start()
 core.launch()

@@ -6,6 +6,7 @@ from typing import DefaultDict, Set, Tuple
 from typing import Optional, Union, NoReturn
 from graia.ariadne.message.element import Plain
 
+from creart import create
 from graia.ariadne.model import Member, Group
 from graia.ariadne.context import ariadne_ctx
 from graia.ariadne.message.element import Source
@@ -91,9 +92,9 @@ class FrequencyLimit(object):
     frequency_limit_dict: Optional[GlobalFrequencyLimitDict] = None
 
     @classmethod
-    async def get_frequency_limit_dict(cls):
+    def get_frequency_limit_dict(cls):
         if not cls.frequency_limit_dict:
-            cls.frequency_limit_dict = GlobalFrequencyLimitDict()
+            cls.frequency_limit_dict = create(GlobalFrequencyLimitDict)
         return cls.frequency_limit_dict
 
     @staticmethod
@@ -111,11 +112,12 @@ class FrequencyLimit(object):
             group = event.sender.group.id
             if not await group_setting.get_setting(group, Setting.frequency_limit):
                 return
-            frequency_limit_instance = await FrequencyLimit.get_frequency_limit_dict()
-            await frequency_limit_instance.add_record(group, member, weight)
+            frequency_limit_instance = create(GlobalFrequencyLimitDict)
+            frequency_limit_instance.add_record(group, member, weight)
+            print(frequency_limit_instance.frequency_limit_dict)
             if frequency_limit_instance.blacklist_judge(group, member):
                 if not frequency_limit_instance.announce_judge(group, member):
-                    await frequency_limit_instance.blacklist_announced(group, member)
+                    frequency_limit_instance.blacklist_announced(group, member)
                     await ariadne_ctx.get().send_group_message(
                         group,
                         MessageChain("检测到大量请求，加入黑名单一小时！"),
@@ -133,7 +135,7 @@ class FrequencyLimit(object):
                 )
                 raise ExecutionStop()
             else:
-                await frequency_limit_instance.update(group, weight)
+                frequency_limit_instance.update(group, weight)
             return
 
         return Depend(limit)
