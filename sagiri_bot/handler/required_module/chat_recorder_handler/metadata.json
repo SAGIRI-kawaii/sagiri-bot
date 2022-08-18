@@ -1,0 +1,13 @@
+{
+  "name": "ChatRecorder",
+  "version": "0.1",
+  "display_name": "群聊记录存储",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个对聊天记录进行存储的插件，可配合词云等插件使用",
+  "usage": "自动触发",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

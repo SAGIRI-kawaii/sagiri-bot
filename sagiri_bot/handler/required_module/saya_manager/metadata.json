@@ -1,0 +1,13 @@
+{
+  "name": "SayaManager",
+  "version": "0.1",
+  "display_name": "插件管理",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以管理saya模块的插件",
+  "usage": "发送 `已加载插件` 查看已加载插件\n发送 `插件详情 [编号|名称]` 可查看插件详情\n发送 `[加载|重载|卸载|打开|关闭]插件 [编号|名称]` 可加载/重载/卸载/打开/关闭插件",
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

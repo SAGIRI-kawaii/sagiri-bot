@@ -21,6 +21,7 @@ from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, ArgR
 
 from sagiri_bot.orm.async_orm import orm
 from sagiri_bot.orm.async_orm import ChatRecord
+from sagiri_bot.internal_utils import get_command
 from sagiri_bot.control import (
     FrequencyLimit,
     Function,
@@ -46,9 +47,8 @@ zhfont1 = FontProperties(fname=font)
         inline_dispatchers=[
             Twilight(
                 [
-                    FullMatch("消息量统计"),
-                    ArgumentMatch("-group", action="store_true", optional=True)
-                    @ "group_only",
+                    get_command(__file__, channel.module),
+                    ArgumentMatch("-group", action="store_true", optional=True) @ "group_only",
                 ]
             )
         ],

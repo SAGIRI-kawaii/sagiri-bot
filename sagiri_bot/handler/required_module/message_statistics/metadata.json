@@ -1,0 +1,13 @@
+{
+  "name": "MessageStatics",
+  "version": "0.1",
+  "display_name": "消息量统计",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个对不同事件进行处理的插件",
+  "usage": "在群中发送 `消息量统计` 即可\n发送 `消息量统计 -group` 可查看本群统计",
+  "icon": "",
+  "prefix": ["", "/"],
+  "triggers": ["消息量统计"]
+}

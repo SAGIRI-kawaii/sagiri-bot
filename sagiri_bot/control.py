@@ -114,7 +114,6 @@ class FrequencyLimit(object):
                 return
             frequency_limit_instance = create(GlobalFrequencyLimitDict)
             frequency_limit_instance.add_record(group, member, weight)
-            print(frequency_limit_instance.frequency_limit_dict)
             if frequency_limit_instance.blacklist_judge(group, member):
                 if not frequency_limit_instance.announce_judge(group, member):
                     frequency_limit_instance.blacklist_announced(group, member)
