@@ -9,5 +9,9 @@
   "usage": "发送 /sys 或 '/sys -a' 或 '/sys -all' 查看CPU、内存以及图库占用信息\n发送 /sys -i 或 '/sys -info' 查看CPU、内存信息\n发送 /sys -s 或 '/sys -storage' 查看图库占用信息",
   "icon": "",
   "prefix": ["/"],
-  "triggers": ["sys", "system"]
+  "triggers": ["sys", "system"],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
 }

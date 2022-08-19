@@ -1,7 +1,8 @@
 import os
 import re
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Union
 
+from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.broadcast.interrupt.waiter import Waiter
@@ -11,11 +12,11 @@ from graia.ariadne.message.element import Plain, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
-from .utils import saya_data
+from .utils import saya_data, uninstallable, reloadable
 from sagiri_bot.internal_utils import MessageChainUtils
 from sagiri_bot.internal_utils import user_permission_require
 
-saya = Saya.current()
+saya = create(Saya)
 channel = Channel.current()
 
 channel.name("SayaManager")
@@ -28,10 +29,6 @@ channel.description(
 )
 
 inc = InterruptControl(saya.broadcast)
-
-
-def get_loaded_channels() -> Dict[str, Channel]:
-    return saya.channels
 
 
 def get_all_channels() -> List[str]:
@@ -54,13 +51,9 @@ def get_all_channels() -> List[str]:
 
 
 def get_unloaded_channels() -> List[str]:
-    loaded_channels = get_loaded_channels()
+    loaded_channels = saya.channels
     all_channels = get_all_channels()
-    return [channel for channel in all_channels if channel not in loaded_channels]
-
-
-def get_channel(name: str) -> Optional[Channel]:
-    return get_loaded_channels().get(name)
+    return [c for c in all_channels if c not in loaded_channels]
 
 
 def load_channel(modules: Union[str, List[str]]) -> Dict[str, Exception]:
@@ -83,18 +76,18 @@ def unload_channel(modules: Union[str, List[str]]) -> Dict[str, Exception]:
     exceptions = {}
     if isinstance(modules, str):
         modules = [modules]
-    loaded_channels = get_loaded_channels()
+    loaded_channels = saya.channels
     channels_to_unload = {
         module: loaded_channels[module]
         for module in modules
         if module in loaded_channels
     }
     with saya.module_context():
-        for channel, value in channels_to_unload.items():
+        for c, value in channels_to_unload.items():
             try:
                 saya.uninstall_channel(value)
             except Exception as e:
-                exceptions[channel] = e
+                exceptions[c] = e
     return exceptions
 
 
@@ -102,18 +95,18 @@ def reload_channel(modules: Union[str, List[str]]) -> Dict[str, Exception]:
     exceptions = {}
     if isinstance(modules, str):
         modules = [modules]
-    loaded_channels = get_loaded_channels()
+    loaded_channels = saya.channels
     channels_to_reload = {
         module: loaded_channels[module]
         for module in modules
         if module in loaded_channels
     }
     with saya.module_context():
-        for channel, value in channels_to_reload.items():
+        for c, value in channels_to_reload.items():
             try:
                 saya.reload_channel(value)
             except Exception as e:
-                exceptions[channel] = e
+                exceptions[c] = e
     return exceptions
 
 
@@ -122,7 +115,7 @@ async def saya_manager(
     app: Ariadne, message: MessageChain, group: Group, member: Member, source: Source
 ):
     if message.display.strip() == "已加载插件":
-        loaded_channels = get_loaded_channels()
+        loaded_channels = saya.channels
         keys = list(loaded_channels.keys())
         keys.sort()
         return await app.send_group_message(
@@ -143,7 +136,7 @@ async def saya_manager(
         )
     elif re.match(r"插件详情 .+", message.display):
         target = message.display[5:].strip()
-        loaded_channels = get_loaded_channels()
+        loaded_channels = saya.channels
         keys = list(loaded_channels.keys())
         if target.isdigit():
             keys.sort()
@@ -151,12 +144,12 @@ async def saya_manager(
                 return await app.send_group_message(
                     group, MessageChain("错误的编号！请检查后再发送！"), quote=source
                 )
-            channel = loaded_channels[keys[int(target) - 1]]
+            c = loaded_channels[keys[int(target) - 1]]
             channel_path = keys[int(target) - 1]
         else:
             for lchannel in loaded_channels.keys():
-                if loaded_channels[lchannel]._name == target:
-                    channel = loaded_channels[lchannel]
+                if loaded_channels[lchannel].meta["name"] == target:
+                    c = loaded_channels[lchannel]
                     channel_path = lchannel
                     break
             else:
@@ -167,9 +160,9 @@ async def saya_manager(
             group,
             MessageChain(
                 [
-                    Plain(text=f"插件名称：{channel._name}\n"),
-                    Plain(text=f"插件作者：{'、'.join(channel._author)}\n"),
-                    Plain(text=f"插件描述：{channel._description}\n"),
+                    Plain(text=f"插件名称：{c.meta['name']}\n"),
+                    Plain(text=f"插件作者：{'、'.join(c.meta['author'])}\n"),
+                    Plain(text=f"插件描述：{c.meta['description']}\n"),
                     Plain(text=f"插件包名：{channel_path}"),
                 ]
             ),
@@ -207,18 +200,18 @@ async def saya_manager(
                 return await app.send_group_message(
                     group, MessageChain("错误的编号！请检查后再发送！"), quote=source
                 )
-            channel = unloaded_channels[int(target) - 1]
+            c = unloaded_channels[int(target) - 1]
         else:
             for ulchannel in unloaded_channels:
                 if ulchannel == target:
-                    channel = ulchannel
+                    c = ulchannel
                     break
             else:
                 return await app.send_group_message(
                     group, MessageChain("错误的名称！请检查后再发送！"), quote=source
                 )
 
-        await app.send_message(group, MessageChain(f"你确定要加载插件 `{channel}` 吗？（是/否）"))
+        await app.send_message(group, MessageChain(f"你确定要加载插件 `{c}` 吗？（是/否）"))
 
         @Waiter.create_using_function([GroupMessage])
         def confirm_waiter(
@@ -236,10 +229,10 @@ async def saya_manager(
                 group, MessageChain("非预期回复，进程退出"), quote=source
             )
         elif result == "是":
-            result = load_channel(channel)
+            result = load_channel(c)
             if result:
                 return await app.send_group_message(
-                    group, MessageChain(f"发生错误：{result[channel]}"), quote=source
+                    group, MessageChain(f"发生错误：{result[c]}"), quote=source
                 )
             else:
                 return await app.send_group_message(
@@ -256,7 +249,7 @@ async def saya_manager(
             )
         load_type = "reload" if message.display[0] == "重" else "unload"
         target = message.display[5:].strip()
-        loaded_channels = get_loaded_channels()
+        loaded_channels = saya.channels
         keys = list(loaded_channels.keys())
         keys.sort()
         if target.isdigit():
@@ -264,22 +257,29 @@ async def saya_manager(
                 return await app.send_group_message(
                     group, MessageChain("错误的编号！请检查后再发送！"), quote=source
                 )
-            channel = loaded_channels[keys[int(target) - 1]]
+            c = loaded_channels[keys[int(target) - 1]]
             channel_path = keys[int(target) - 1]
         else:
             for lchannel in loaded_channels.keys():
-                if loaded_channels[lchannel]._name == target:
-                    channel = loaded_channels[lchannel]
+                if loaded_channels[lchannel].meta["name"] == target:
+                    c = loaded_channels[lchannel]
                     channel_path = lchannel
                     break
             else:
                 return await app.send_group_message(
                     group, MessageChain("错误的名称！请检查后再发送！"), quote=source
                 )
-
+        if load_type == "reload" and not reloadable(c.module):
+            return await app.send_group_message(
+                group, MessageChain(f"插件 `{c.meta['name']}` 不可重载！"), quote=source
+            )
+        if load_type == "unload" and not uninstallable(c.module):
+            return await app.send_group_message(
+                group, MessageChain(f"插件 `{c.meta['name']}` 不可卸载！"), quote=source
+            )
         await app.send_message(
             group,
-            MessageChain(f"你确定要{message.display[0]}载插件 `{channel._name}` 吗？（是/否）"),
+            MessageChain(f"你确定要{message.display[0]}载插件 `{c.meta['name']}` 吗？（是/否）"),
         )
 
         @Waiter.create_using_function([GroupMessage])
@@ -322,7 +322,7 @@ async def saya_manager(
             )
         switch_type = "on" if message.display[:2] == "打开" else "off"
         target = message.display[5:].strip()
-        loaded_channels = get_loaded_channels()
+        loaded_channels = saya.channels
         keys = list(loaded_channels.keys())
         keys.sort()
         channel_path = ""
@@ -334,7 +334,7 @@ async def saya_manager(
             channel_path = keys[int(target) - 1]
         else:
             for lchannel in loaded_channels.keys():
-                if loaded_channels[lchannel]._name == target:
+                if loaded_channels[lchannel].meta["name"] == target:
                     channel_path = lchannel
                     break
         saya_data.switch_on(

@@ -15,6 +15,8 @@ from graia.ariadne.message.chain import MessageChain, Plain
 from graia.ariadne.event.mirai import MiraiEvent, GroupEvent
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
+from sagiri_bot.config import load_plugin_meta_by_module
+
 DEFAULT_SWITCH = True
 DEFAULT_NOTICE = False
 
@@ -70,7 +72,8 @@ def saya_init():
             if isinstance(cube.metaclass, ListenerSchema):
                 bcc.removeListener(bcc.getListener(cube.content))
                 if all(
-                    [issubclass(i, GroupEvent) for i in cube.metaclass.listening_events]
+                    issubclass(i, GroupEvent)
+                    for i in cube.metaclass.listening_events
                 ):
                     cube.metaclass.decorators.append(manageable(channel.module))
                 else:
@@ -239,6 +242,16 @@ class SayaData:
         except (FileNotFoundError, JSONDecodeError):
             pass
         return self
+
+
+def reloadable(module: str) -> bool:
+    plugin_meta = load_plugin_meta_by_module(module)
+    return plugin_meta.metadata.get("reloadable", True)
+
+
+def uninstallable(module: str) -> bool:
+    plugin_meta = load_plugin_meta_by_module(module)
+    return plugin_meta.metadata.get("uninstallable", True)
 
 
 saya_data = SayaData().load()

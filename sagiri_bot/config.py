@@ -5,7 +5,7 @@ from abc import ABC
 from pathlib import Path
 from pydantic import BaseModel
 from typing_extensions import TypedDict
-from typing import Type, List, Dict, Union
+from typing import Type, List, Dict, Union, Any
 
 from creart import add_creator
 from creart import exists_module
@@ -23,6 +23,7 @@ class PluginMeta(BaseModel):
     icon: str = ""
     prefix: List[str] = []
     triggers: List[str] = []
+    metadata: Dict[str, Any] = {}
 
 
 def load_plugin_meta(path: Union[Path, str]) -> PluginMeta:

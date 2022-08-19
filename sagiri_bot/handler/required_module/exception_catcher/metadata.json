@@ -9,5 +9,9 @@
   "usage": "后台发生错误时自动触发",
   "icon": "",
   "prefix": [],
-  "triggers": []
+  "triggers": [],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
 }

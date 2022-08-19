@@ -9,5 +9,9 @@
   "usage": "在群中发送 `消息量统计` 即可\n发送 `消息量统计 -group` 可查看本群统计",
   "icon": "",
   "prefix": ["", "/"],
-  "triggers": ["消息量统计"]
+  "triggers": ["消息量统计"],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
 }

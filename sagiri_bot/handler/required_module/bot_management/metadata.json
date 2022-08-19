@@ -9,5 +9,9 @@
   "usage": "发送 setting -set key1=value1 key2=value2 ... 改变群内设置\n发送 user -grant @target [1-3] 改变成员权限等级\n发送 blacklist -add @target 添加群内黑名单\n发送 blacklist -remove @target 移除群内黑名单",
   "icon": "",
   "prefix": [],
-  "triggers": []
+  "triggers": [],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": false
+  }
 }

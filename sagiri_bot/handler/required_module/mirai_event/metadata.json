@@ -9,5 +9,9 @@
   "usage": "自动触发",
   "icon": "",
   "prefix": [],
-  "triggers": []
+  "triggers": [],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
 }
