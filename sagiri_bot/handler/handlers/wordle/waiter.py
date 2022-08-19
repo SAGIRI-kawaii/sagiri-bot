@@ -1,5 +1,4 @@
 import asyncio
-from tkinter import N
 from typing import Dict, Union, Optional
 
 from graia.saya import Saya, Channel
