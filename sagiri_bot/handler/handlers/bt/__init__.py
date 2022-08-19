@@ -63,6 +63,10 @@ async def bt_searcher(app: Ariadne, group: Group, source: Source, keyword: Regex
         )
     forward_list = []
     for div in divs[:5]:
+        if "没有找到记录" in str(div):
+            return await app.send_group_message(
+                group, MessageChain(f"没有找到有关{keyword}的结果呢~"), quote=source
+            )
         title = div.find("h3").get_text().strip()[1:]
         items = div.find("div", {"class": "item-list"}).get_text().strip().split(";")
         spans = div.find("div", {"class": "item-bar"}).find_all("span")
