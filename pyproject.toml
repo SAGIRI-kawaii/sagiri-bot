@@ -52,7 +52,7 @@ realesrgan = { version = ">=0.2.5.0", optional = true }
 # mockingbird所需模块
 # 因为最新版numba与torch所需要的numpy版本不同，所以只能锁定了
 mockingbirdforuse = { version = ">=0.2.3", optional = true }
-torch = { version = "1.11.0", optional = true }
+torch = { version = "1.12.1", optional = true }
 
 [tool.poetry.extras]
 # 跟 pytorch 什么的扯上关系的，还是都选装吧
