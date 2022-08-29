@@ -52,7 +52,8 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 await update_member_statistic(self.group, m, StatisticType.lose)
                 await update_member_statistic(self.group, m, StatisticType.game)
         async with running_mutex:
-            running_group.remove(self.group)
+            if self.group in running_group:
+                running_group.remove(self.group)
 
         return False
 
@@ -94,6 +95,10 @@ class WordleWaiter(Waiter.create([GroupMessage])):
 
         word = word.upper()
 
+        legal_chars = "'-./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        if not all(c in legal_chars for c in word):
+            return True
+
         if word not in all_word:
             await app.send_group_message(
                 group,
@@ -125,12 +130,13 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 quote=source,
             )
             async with running_mutex:
-                running_group.remove(group.id)
+                if group.id in running_group:
+                    running_group.remove(group.id)
             return False
         elif game_end:
             async with self.member_list_mutex:
                 await update_member_statistic(group, member, StatisticType.wrong)
-            return await self.gameover(app, source)
+            return await self.gameover(app, source) if group.id in running_group else False
         else:
             await app.send_group_message(
                 group, MessageChain(Image(data_bytes=self.wordle.get_img()))
