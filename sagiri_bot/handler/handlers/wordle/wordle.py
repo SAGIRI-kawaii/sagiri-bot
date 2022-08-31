@@ -147,7 +147,7 @@ class Wordle:
             )
         self.pointer += 1
 
-        game_end = self.pointer > self.row
+        game_end = self.pointer >= self.row
         game_win = answer == self.word_upper
 
         return game_end, game_win

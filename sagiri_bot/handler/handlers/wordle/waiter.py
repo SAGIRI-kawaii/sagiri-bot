@@ -1,4 +1,5 @@
 import asyncio
+import time
 from typing import Dict, Union, Optional
 
 from graia.saya import Saya, Channel
@@ -52,7 +53,8 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 await update_member_statistic(self.group, m, StatisticType.lose)
                 await update_member_statistic(self.group, m, StatisticType.game)
         async with running_mutex:
-            running_group.remove(self.group)
+            if self.group in running_group:
+                running_group.remove(self.group)
 
         return False
 
@@ -66,8 +68,9 @@ class WordleWaiter(Waiter.create([GroupMessage])):
     ):
         # 判断是否是服务范围
         if self.group != group.id or (self.member and self.member != member.id):
-            return True
+            return
 
+        # 什么，放弃了？GiveUp!
         word = str(message).strip()
         if word in ("/wordle -giveup", "/wordle -g"):
             return await self.gameover(app, source)
@@ -86,13 +89,13 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 )
             return True
 
-        if len(word) != self.wordle.length or not word.isalpha():
-            return True
+        # 应该是聊其他的，直接 return
+        legal_chars = "'-./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        if len(word) != self.wordle.length or not all(c in legal_chars for c in word):
+            return
 
         async with self.member_list_mutex:
             self.member_list.add(member.id)
-
-        word = word.upper()
 
         if word not in all_word:
             await app.send_group_message(
@@ -125,12 +128,13 @@ class WordleWaiter(Waiter.create([GroupMessage])):
                 quote=source,
             )
             async with running_mutex:
-                running_group.remove(group.id)
+                if group.id in running_group:
+                    running_group.remove(group.id)
             return False
         elif game_end:
             async with self.member_list_mutex:
                 await update_member_statistic(group, member, StatisticType.wrong)
-            return await self.gameover(app, source)
+            return await self.gameover(app, source) if group.id in running_group else False
         else:
             await app.send_group_message(
                 group, MessageChain(Image(data_bytes=self.wordle.get_img()))
