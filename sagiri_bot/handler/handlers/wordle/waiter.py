@@ -72,7 +72,7 @@ class WordleWaiter(Waiter.create([GroupMessage])):
 
         # 什么，放弃了？GiveUp!
         word = str(message).strip()
-        if word in ("/wordle -giveup", "/wordle -g"):
+        if word in {"/wordle -giveup", "/wordle -g"}:
             return await self.gameover(app, source)
 
         if word == "/wordle -hint":
@@ -91,7 +91,9 @@ class WordleWaiter(Waiter.create([GroupMessage])):
 
         # 应该是聊其他的，直接 return
         legal_chars = "'-./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        if len(word) != self.wordle.length or not all(c in legal_chars for c in word):
+        if len(word) != self.wordle.length or any(
+            c not in legal_chars for c in word
+        ):
             return
 
         async with self.member_list_mutex:
