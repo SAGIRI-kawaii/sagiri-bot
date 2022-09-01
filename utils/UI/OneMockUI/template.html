@@ -228,7 +228,7 @@
                     {% if element.rows[i].right_element %}
                     <div>
                         <label class="switch">
-                            <input type="checkbox" {{ element.rows[i].right_element.checked }}>
+                            <input type="checkbox" {{ "checked" if element.rows[i].right_element.switch else "" }}>
                             <span class="slider round"></span>
                         </label>
                     </div>

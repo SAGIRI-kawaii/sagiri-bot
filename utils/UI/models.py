@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional, Union, Literal
+from typing import List, Literal
 
 
 class HTMLElement(BaseModel):
@@ -33,9 +33,16 @@ class ColumnListItemIcon(BaseModel):
 class ColumnListItem(BaseModel):
     subtitle: str = ""
     content: str = ""
-    right_element: Optional[Union[ColumnListItemSwitch, ColumnListItemCheck]] = None
+    right_element: BaseModel = None
     style: str = ""
     el_name: str = "ColumnListItem"
+
+
+class ColumnListTextWithItem(BaseModel):
+    text: str = ""
+    right_element: BaseModel = None
+    style: str = ""
+    el_name: str = "ColumnListTextWithItem"
 
 
 class ColumnList(BaseModel):

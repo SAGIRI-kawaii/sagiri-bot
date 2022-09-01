@@ -1,7 +1,7 @@
 import jinja2
 from pathlib import Path
 
-from .models import *
+from utils.UI.models import *
 from utils.html2pic import html_to_pic
 
 
