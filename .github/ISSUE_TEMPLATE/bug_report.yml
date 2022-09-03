@@ -1,0 +1,62 @@
+name: 🐞 反馈 Bug
+description: 反馈一个 Bug
+title: "[Bug Report] <title>"
+labels: [bug]
+body:
+- type: textarea
+  id: error
+  attributes:
+    label: 问题
+    description: 你遇到的问题
+  validations:
+    required: false
+- type: textarea
+  id: reproduce
+  attributes:
+    label: 如何复现
+    description: 如何复现错误
+    placeholder: |
+      1. 使用环境...
+      2. 使用配置...
+      3. 运行了 '...'
+      4. 发生了错误...
+  validations:
+    required: false
+- type: textarea
+  id: expected
+  attributes:
+    label: 预期行为
+    description: 你希望如何更改/原本应该是怎样的
+  validations:
+    required: false
+- type: textarea
+  id: enviroment
+  attributes:
+    label: 使用环境
+    description: |
+      examples:
+        - **系统**: Ubuntu 20.04
+        - **mirai 版本**: 2.11.0
+        - **mirai-api-http 版本**: 2.5.2
+        - **Python 版本**: 3.10
+        - **源码版本**: 3262bc51dd8d49469e02a6cc5385ad3a7c8fd585
+        - **其他 Graia 库版本**: graia-ariadne==0.8.2, ...
+        - **其他 有关 库版本**: ...
+    value: |
+        - 系统: 
+        - mirai 版本: 
+        - mirai-api-http 版本: 
+        - Python 版本: 
+        - 源码版本: 
+        - 其他 Graia 库版本:
+        - 其他 有关 库版本:
+    render: markdown
+  validations:
+    required: false
+- type: textarea
+  id: other
+  attributes:
+    label: 日志/截图
+    description: 将任何有关的日志/截图放到这里（控制台输出/MAH 输出/...)
+  validations:
+    required: false
