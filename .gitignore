@@ -36,3 +36,5 @@ migrator.py
 # mockingbird 模型，太大了
 /statics/models/mockingbird/*
 !/statics/models/mockingbird/tips.txt
+
+/test
