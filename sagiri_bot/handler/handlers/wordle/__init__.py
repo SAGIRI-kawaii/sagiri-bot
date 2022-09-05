@@ -1,38 +1,27 @@
 import asyncio
-import random
 import json
-from loguru import logger
-from asyncio import Lock
-from typing import Union, Optional, NoReturn
+import random
 
-from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
-from graia.broadcast.interrupt.waiter import Waiter
+from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Image, Source
+from graia.ariadne.message.parser.twilight import (ArgResult, ArgumentMatch,
+                                                   Twilight)
+from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt import InterruptControl
-from graia.ariadne.message.parser.twilight import Twilight
-from graia.ariadne.message.element import Plain, Image, Source
+from graia.saya import Channel, Saya
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import (
-    ArgumentMatch,
-    RegexMatch,
-    RegexResult,
-    ArgResult,
-)
+from loguru import logger
 
+from sagiri_bot.control import (BlackListControl, FrequencyLimit, Function,
+                                UserCalledCountControl)
 from sagiri_bot.internal_utils import get_command
-from .utils import get_member_statistic
-from .wordle import Wordle, word_dic, word_path
-from .waiter import WordleWaiter
-from .gb import running_group, running_mutex
 
-from sagiri_bot.control import (
-    FrequencyLimit,
-    Function,
-    BlackListControl,
-    UserCalledCountControl,
-)
+from .gb import running_group, running_mutex
+from .utils import get_member_statistic
+from .waiter import WordleWaiter
+from .wordle import Wordle, word_dic, word_path
 
 saya = Saya.current()
 channel = Channel.current()
@@ -41,6 +30,7 @@ channel.name("Wordle")
 channel.author("SAGIRI-kawaii I_love_study")
 channel.description("wordle猜单词游戏，发送 /wordle -h 查看帮助")
 
+assert saya.broadcast is not None
 inc = InterruptControl(saya.broadcast)
 
 DEFAULT_DIC = "CET4"

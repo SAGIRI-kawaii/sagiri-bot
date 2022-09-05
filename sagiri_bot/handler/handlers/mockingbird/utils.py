@@ -10,13 +10,14 @@ except ImportError:
 
 model_path = Path.cwd() / "statics" / "models" / "mockingbird"
 if not model_path.exists():
+    models = []
     models_available = False
 else:
     models = [i.stem for i in model_path.iterdir() if i.is_dir()]
 
     try:
         if mockingbird_available:
-            mockingbird = MockingBird()
+            mockingbird = MockingBird() #type: ignore
             mockingbird.load_model(
                 model_path / "encoder.pt",
                 model_path / "hifigan.pt"
