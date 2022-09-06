@@ -12,7 +12,7 @@ EMOJI_URL: str = (
 
 def read_data() -> List[Tuple[int, str, str]]:
     data: List[Tuple[int, str, str]] = []
-    with open(DATA_JS_PATH, "r", encoding="utf-8") as f:
+    with DATA_JS_PATH.open("r", encoding="utf-8") as f:
         for line in f:
             if match := re.findall(r"((?:[0-9a-f-]+/){3})", line):
                 for _match in match:

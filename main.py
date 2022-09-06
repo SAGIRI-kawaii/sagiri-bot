@@ -9,7 +9,12 @@ from graia.saya import Saya
 from graia.broadcast import Broadcast
 from graia.ariadne.event.lifecycle import ApplicationLaunch
 from graia.ariadne.event.message import ActiveFriendMessage, ActiveGroupMessage
-from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Stranger
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Group, Member, Friend, Stranger
+
+# 确保在工作目录内
+if Path(__file__).parent != Path.cwd():
+    os.chdir(Path(__file__).parent)
 
 from sagiri_bot.config import GlobalConfig
 from sagiri_bot.core.app_core import AppCore
@@ -24,14 +29,14 @@ bcc = create(Broadcast)
 saya = create(Saya)
 
 logger.add(
-    Path(os.getcwd()) / "log" / "{time:YYYY-MM-DD}" / "common.log",
+    Path() / "log" / "{time:YYYY-MM-DD}" / "common.log",
     level="INFO",
     retention=f"{config.log_related['common_retention']} days",
     encoding="utf-8",
     rotation=time(),
 )
 logger.add(
-    Path(os.getcwd()) / "log" / "{time:YYYY-MM-DD}" / "error.log",
+    Path() / "log" / "{time:YYYY-MM-DD}" / "error.log",
     level="ERROR",
     retention=f"{config.log_related['error_retention']} days",
     encoding="utf-8",

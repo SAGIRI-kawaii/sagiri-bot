@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import re
 import numpy
 import random
@@ -50,7 +51,7 @@ squish_factor = [
 
 squish_translation_factor = [0, 20, 34, 21, 0]
 
-frames = tuple([f"{os.getcwd()}/statics/PetPetFrames/frame{i}.png" for i in range(5)])
+frames = tuple("statics/PetPetFrames/frame{i}.png" for i in range(5))
 
 
 saya = Saya.current()
@@ -412,8 +413,7 @@ async def petpet(image: Union[int, str], flip=False, squish=0, fps=20) -> Messag
         await make_frame(avatar, i, squish=squish, flip=flip) for i in range(5)
     ]
 
-    if not os.path.exists(f"{os.getcwd()}/statics/temp/"):
-        os.mkdir(f"{os.getcwd()}/statics/temp/")
+    Path("/statics/temp/").mkdir(exist_ok=True)
     image_bytes = save_gif(gif_frames, fps=fps)
 
     return MessageChain([Image(data_bytes=image_bytes)])
@@ -470,7 +470,7 @@ async def kiss(
 
 
 async def ripped(image: Union[int, str]) -> MessageChain:
-    ripped = IMG.open(f"{os.getcwd()}/statics/ripped.png")
+    ripped = IMG.open("statics/ripped.png")
     frame = IMG.new("RGBA", (1080, 804), (255, 255, 255, 0))
     avatar = await get_pil_avatar(image)
     left = avatar.resize((385, 385)).rotate(24, expand=True)
@@ -514,8 +514,8 @@ async def crawl(image: Union[int, str]) -> MessageChain:
     )
     mask = mask.filter(ImageFilter.GaussianBlur(0))
     avatar.putalpha(mask)
-    images = [i for i in os.listdir(f"{os.getcwd()}/statics/crawl")]
-    crawl = IMG.open(f"{os.getcwd()}/statics/crawl/{random.choice(images)}").resize(
+    images = [i for i in os.listdir("statics/crawl")]
+    crawl = IMG.open(f"statics/crawl/{random.choice(images)}").resize(
         (500, 500), IMG.ANTIALIAS
     )
     avatar = avatar.resize((100, 100), IMG.ANTIALIAS)
@@ -578,7 +578,7 @@ async def rub(
 
 async def support(image: Union[int, str]) -> MessageChain:
     avatar = await get_pil_avatar(image)
-    support = IMG.open(f"{os.getcwd()}/statics/support.png")
+    support = IMG.open("statics/support.png")
     frame = IMG.new("RGBA", (1293, 1164), (255, 255, 255, 0))
     avatar = avatar.resize((815, 815), IMG.ANTIALIAS).rotate(23, expand=True)
     frame.paste(avatar, (-172, -17))
@@ -612,7 +612,7 @@ async def swallowed(image: Union[int, str]) -> MessageChain:
         (180, 131, 92, 101),
     ]
     raw_frames = [
-        f"{os.getcwd()}/statics/SwallowedFrames/frame{i}.png" for i in range(23)
+        f"statics/SwallowedFrames/frame{i}.png" for i in range(23)
     ]
     raw_frames = [IMG.open(i).convert("RGBA") for i in raw_frames]
 

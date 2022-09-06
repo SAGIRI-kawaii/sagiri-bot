@@ -251,7 +251,7 @@ def get_circle_color(
     size: Tuple[int, int],
     border: bool = True,
     border_color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]] = "white",
-) -> PIL.Image:
+) -> PIL.Image.Image:
     canvas_back = None
     if border:
         canvas_back = PIL.Image.new("RGBA", size, border_color)
@@ -275,7 +275,7 @@ def get_circle_color(
     return canvas
 
 
-def get_dominant_colors(image: PIL.Image, size: int = 5):
+def get_dominant_colors(image: PIL.Image.Image, size: int = 5):
     result = image.convert("P", palette=PIL.Image.ADAPTIVE, colors=size)
 
     palette = result.getpalette()
@@ -284,25 +284,25 @@ def get_dominant_colors(image: PIL.Image, size: int = 5):
 
     for i in range(size):
         palette_index = color_counts[i][1]
-        dominant_color = palette[palette_index * 3 : palette_index * 3 + 3]
+        dominant_color = palette[palette_index * 3: palette_index * 3 + 3]
         colors.append(tuple(dominant_color))
 
     return colors
 
 
 def draw(
-    image: Union[str, bytes, Path],
+    image_content: Union[str, bytes, Path],
     card_type: CardType = CardType.CENTER,
     color_size: int = 5,
     show: bool = False,
     resize: bool = False,
 ):
-    if isinstance(image, bytes):
-        image = PIL.Image.open(BytesIO(image))
-    elif not os.path.exists(image):
-        raise ValueError(f"{image} is not exist!")
+    if isinstance(image_content, bytes):
+        image = PIL.Image.open(BytesIO(image_content))
+    elif not os.path.exists(image_content):
+        raise ValueError(f"{image_content} is not exist!")
     else:
-        image = PIL.Image.open(image)
+        image = PIL.Image.open(image_content)
     if resize:
         image = image.resize((100, 100))
     image = image.convert("RGBA")
