@@ -7,7 +7,7 @@ from loguru import logger
 from PIL import Image as IMG
 from asyncio import Semaphore
 from typing import Tuple, Optional, List
-from PIL.Image import UnidentifiedImageError
+from PIL import UnidentifiedImageError
 
 from creart import create
 from graia.ariadne.message.chain import MessageChain
@@ -24,11 +24,11 @@ POINT_LIST_URL = "https://api-static.mihoyo.com/common/blackboard/ys_obc/v1/map/
 MAP_URL = "https://api-static.mihoyo.com/common/map_user/ys_obc/v1/map/info?map_id=2&app_sn=ys_obc&lang=zh-cn"
 
 IMAGE_PATH = TEXT_PATH = Path.cwd() / "statics"
-icon_path = Path(IMAGE_PATH) / "genshin" / "genshin_icon"
-map_path = Path(IMAGE_PATH) / "genshin" / "map"
-resource_label_file = Path(TEXT_PATH) / "genshin" / "resource_label_file.json"
-resource_point_file = Path(TEXT_PATH) / "genshin" / "resource_point_file.json"
-resource_type_file = Path(TEXT_PATH) / "genshin" / "resource_type_file.json"
+icon_path = IMAGE_PATH / "genshin" / "genshin_icon"
+map_path = IMAGE_PATH / "genshin" / "map"
+resource_label_file = TEXT_PATH / "genshin" / "resource_label_file.json"
+resource_point_file = TEXT_PATH / "genshin" / "resource_point_file.json"
+resource_type_file = TEXT_PATH / "genshin" / "resource_type_file.json"
 
 # 地图中心坐标
 CENTER_POINT: Optional[Tuple[int, int]] = None
@@ -90,8 +90,7 @@ def get_resource_type_list():
             temp[data[id_]["name"]].append(x["name"])
 
     mes = "当前资源列表如下：\n"
-
-    for resource_type in temp.keys():
+    for resource_type in temp:
         mes += f"{resource_type}：{'，'.join(temp[resource_type])}\n"
     return mes
 
@@ -132,7 +131,7 @@ async def download_resource_data(semaphore: Semaphore):
                                         asyncio.ensure_future(
                                             download_image(
                                                 img_url,
-                                                f"{icon_path}/{id_}.png",
+                                                icon_path / f"{id_}.png",
                                                 semaphore,
                                                 True,
                                             )
@@ -160,7 +159,7 @@ async def download_map_init(semaphore: Semaphore, flag: bool = False):
     global CENTER_POINT, MAP_RATIO
     map_path.mkdir(exist_ok=True, parents=True)
     _map = map_path / "map.png"
-    if _map.exists() and os.path.getsize(_map) > 1024 * 1024 * 30:
+    if _map.exists() and _map.stat().st_size > 1024 * 1024 * 30:
         _map.unlink()
     try:
         async with aiohttp.ClientSession() as session:
@@ -177,7 +176,7 @@ async def download_map_init(semaphore: Semaphore, flag: bool = False):
                                 map_url = _map_data["url"]
                                 await download_image(
                                     map_url,
-                                    f"{map_path}/{idx}.png",
+                                    map_path / f"{idx}.png",
                                     semaphore,
                                     force_flag=flag,
                                 )
@@ -197,7 +196,7 @@ async def download_map_init(semaphore: Semaphore, flag: bool = False):
                                 map_file.paste(
                                     BuildImage(0, 0, background=f"{map_path}/{i}.png")
                                 )
-                            map_file.save(f"{map_path}/map.png")
+                            map_file.save(map_path / "map.png")
                     else:
                         logger.warning(f'获取原神地图失败 msg: {data["message"]}')
                 else:
@@ -222,8 +221,10 @@ async def download_resource_type():
                         for x in data:
                             id_ = x["id"]
                             resource_data[id_] = x
-                        with open(resource_type_file, "w", encoding="utf8") as f:
-                            json.dump(resource_data, f, ensure_ascii=False, indent=4)
+                        resource_type_file.write_text(
+                            json.dumps(resource_data, ensure_ascii=False, indent=4),
+                            encoding="utf8"
+                        )
                         logger.info("更新原神资源类型成功...")
                     else:
                         logger.warning(f'获取原神资源类型失败 msg: {data["message"]}')
@@ -236,42 +237,41 @@ async def download_resource_type():
 
 
 # 初始化资源图标
-def gen_icon(icon: str):
-    A = BuildImage(0, 0, background=f"{icon_path}/box.png")
-    B = BuildImage(0, 0, background=f"{icon_path}/box_alpha.png")
+def gen_icon(icon: Path):
+    A = BuildImage(0, 0, background=icon_path / "box.png")
+    B = BuildImage(0, 0, background=icon_path / "box_alpha.png")
     icon_ = icon_path / f"{icon}"
     icon_img = BuildImage(115, 115, background=icon_)
     icon_img.circle()
     B.paste(icon_img, (17, 10), True)
     B.paste(A, alpha=True)
     B.save(icon)
-    logger.info(f"生成图片成功 file：{str(icon)}")
+    logger.info(f"生成图片成功 file：{icon}")
 
 
 # 下载图片
 async def download_image(
     img_url: str,
-    path: str,
+    path: Path,
     semaphore: Semaphore,
     gen_flag: bool = False,
     force_flag: bool = False,
 ):
     async with semaphore:
         try:
-            if not os.path.exists(path) or not is_valid or force_flag:
+            if not path.exists() or not is_valid or force_flag:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(img_url) as resp:
                         if resp.status != 200:
                             logger.warning(f"下载原神资源图标：{img_url} 失败，等待下次更新...")
                         with open(path, "wb") as w:
                             w.write(await resp.read())
-                            logger.info(f"下载原神资源图标：{img_url}")
-                            if gen_flag:
-                                gen_icon(path)
+                        logger.info(f"下载原神资源图标：{img_url}")
+                        if gen_flag:
+                            gen_icon(path)
         except UnidentifiedImageError:
             logger.warning(f"原神图片打开错误..已删除，等待下次更新... file: {path}")
-            if os.path.exists(path):
-                os.remove(path)
+            path.unlink(missing_ok=True)
 
 
 async def init(flag: bool = False):
@@ -282,11 +282,10 @@ async def init(flag: bool = False):
         await download_resource_data(semaphore)
         await download_resource_type()
         if not CENTER_POINT:
-            CENTER_POINT = json.load(open(resource_label_file, "r", encoding="utf8"))[
+            CENTER_POINT = json.loads(resource_label_file.read_text(encoding="utf8"))[
                 "CENTER_POINT"
             ]
-        with open(resource_type_file, "r", encoding="utf8") as f:
-            data = json.load(f)
+        data = json.loads(resource_type_file.read_text(encoding="utf8"))
         for id_ in data:
             for x in data[id_]["children"]:
                 resource_name_list.append(x["name"])

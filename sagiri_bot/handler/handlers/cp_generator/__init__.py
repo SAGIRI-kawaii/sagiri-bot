@@ -26,7 +26,7 @@ channel.name("CPGenerator")
 channel.author("SAGIRI-kawaii")
 channel.description("生成CP文的插件，在群中发送 `/cp {攻名字} {受名字}` 即可")
 
-with open(f"{os.getcwd()}/statics/cp_data.json", "r", encoding="utf-8") as r:
+with open("statics/cp_data.json", "r", encoding="utf-8") as r:
     cp_data = json.loads(r.read())
 
 

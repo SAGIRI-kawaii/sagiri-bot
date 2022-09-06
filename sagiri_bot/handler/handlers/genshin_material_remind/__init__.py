@@ -10,7 +10,8 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
-from graia.ariadne.event.message import Group, GroupMessage
+from graia.ariadne.model import Group
+from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.element import Source, Image, Plain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
@@ -71,11 +72,9 @@ async def genshin_material_remind(app: Ariadne, group: Group, source: Source):
 
 
 async def update_image():
-    # try:
-    if not os.path.exists(str(IMAGE_PATH)):
-        os.makedirs(str(IMAGE_PATH))
-    for file in os.listdir(str(IMAGE_PATH)):
-        os.remove(str(IMAGE_PATH / file))
+    IMAGE_PATH.mkdir(parents=True, exist_ok=True)
+    for file in IMAGE_PATH.iterdir():
+        file.unlink()
     browser = await get_browser()
     if not browser:
         raise ValueError("获取browser失败！")
@@ -83,40 +82,33 @@ async def update_image():
     page = await browser.new_page()
     await page.goto(url, wait_until="networkidle", timeout=100000)
     await page.set_viewport_size({"width": 2560, "height": 1080})
-    await page.evaluate(
-        """
+    await page.evaluate("""
         document.getElementsByClassName('GSTitleBar_gs_titlebar__2IJqy')[0].remove();
         e = document.getElementsByClassName('GSContainer_gs_container__2FbUz')[0];
         e.setAttribute("style", "height:880px");
-    """
-    )
+    """)
+
     await page.click("button")
     div = await page.query_selector(".GSContainer_content_box__1sIXz")
-    for i, card in enumerate(
-        await page.query_selector_all(".GSTraitCotainer_trait_section__1f3bc")
-    ):
+    assert div is not None
+    for i, card in enumerate(await page.query_selector_all(".GSTraitCotainer_trait_section__1f3bc")):
         index = 0
-        type_ = "char" if not i else "weapons"
+        type_ = "weapons" if i else "char"
         for x in await card.query_selector_all("xpath=child::*"):
-            await x.screenshot(
-                path=f"{IMAGE_PATH}/{type_}_{index}.png",
-                timeout=100000,
-            )
-            # 下滑两次
+            await x.screenshot(path=f"{IMAGE_PATH}/{type_}_{index}.png", timeout=100000)
             for _ in range(3):
                 await div.press("PageDown")
             index += 1
-        # 结束后上滑至顶
         for _ in range(index * 3):
             await div.press("PageUp")
     file_list = os.listdir(str(IMAGE_PATH))
     char_imgs = [f"{IMAGE_PATH}/{x}" for x in file_list if x.startswith("char")]
     weapons_imgs = [f"{IMAGE_PATH}/{x}" for x in file_list if x.startswith("weapons")]
+
     char_imgs.sort()
     weapons_imgs.sort()
-    height = await asyncio.get_event_loop().run_in_executor(
-        None, get_background_height, weapons_imgs
-    )
+    height = await asyncio.get_event_loop().run_in_executor(None, get_background_height, weapons_imgs)
+
     background_img = BuildImage(1200, height + 100, color="#f6f2ee")
     current_width = 50
     for imgs in [char_imgs, weapons_imgs]:
