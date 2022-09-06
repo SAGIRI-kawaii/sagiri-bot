@@ -61,7 +61,7 @@ async def mockingbird(app: Ariadne, group: Group, member: Member, source: Source
     #         group, MessageChain("要我说的话太长了啦，要是纱雾真的努力去说的话可能会被OS杀掉的呜呜QAQ"),
     #         quote=message.getFirst(Source)
     #     )
-    
+
     if member.id == host_qq:
         if not mockingbird_available:
             await app.send_group_message(group, MessageChain("有没有可能，不一定对，你忘记安装所需的第三方库了"))
@@ -86,7 +86,7 @@ async def mockingbird(app: Ariadne, group: Group, member: Member, source: Source
     finally:
         async with mutex:
             running = False
-    
+
     await app.send_group_message(
         group,
         MessageChain([Voice(data_bytes=await silkcoder.async_encode(voice, ios_adaptive=True))])
