@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Flag, auto
 from sqlalchemy import select
 from typing import Union, Tuple
 
@@ -7,13 +7,23 @@ from graia.ariadne.model import Group, Member
 from sagiri_bot.orm.async_orm import orm, WordleStatistic
 
 
-class StatisticType(Enum):
-    win = "win"
-    lose = "lose"
-    wrong = "wrong"
-    correct = "correct"
-    game = "game"
-    hint = "hint"
+class StatisticType(Flag):
+    win = auto()
+    lose = auto()
+    wrong = auto()
+    correct = auto()
+    game = auto()
+    hint = auto()
+
+
+count = {
+    "win_count": StatisticType.win,
+    "lose_count": StatisticType.lose,
+    "correct_count": StatisticType.correct,
+    "wrong_count": StatisticType.wrong,
+    "game_count": StatisticType.game,
+    "hint_count": StatisticType.hint,
+}
 
 
 async def update_member_statistic(
@@ -26,36 +36,18 @@ async def update_member_statistic(
         member = member.id
     if isinstance(group, Group):
         group = group.id
-    old_value = await orm.fetchone(
-        select(
-            WordleStatistic.win_count,
-            WordleStatistic.lose_count,
-            WordleStatistic.correct_count,
-            WordleStatistic.wrong_count,
-            WordleStatistic.game_count,
-            WordleStatistic.hint_count,
-        ).where(WordleStatistic.member_id == member, WordleStatistic.group_id == group)
-    )
-    if statistic_type == StatisticType.win:
-        new_value_dict = {"win_count": old_value[0] + value if old_value else value}
-    elif statistic_type == StatisticType.lose:
-        new_value_dict = {"lose_count": old_value[1] + value if old_value else value}
-    elif statistic_type == StatisticType.correct:
-        new_value_dict = {"correct_count": old_value[2] + value if old_value else value}
-    elif statistic_type == StatisticType.wrong:
-        new_value_dict = {"wrong_count": old_value[3] + value if old_value else value}
-    elif statistic_type == StatisticType.game:
-        new_value_dict = {"game_count": old_value[4] + value if old_value else value}
-    elif statistic_type == StatisticType.hint:
-        new_value_dict = {"hint_count": old_value[5] + value if old_value else value}
-    else:
-        raise ValueError(f"Unknown statistic_type: {statistic_type}")
-    new_value_dict["group_id"] = group
-    new_value_dict["member_id"] = member
+
+    old_value = await get_member_statistic(group, member)
+
+    new_value = {"group_id": group, "member_id": member}
+    for num, (name, stype) in enumerate(count.items()):
+        if stype in statistic_type:
+            new_value[name] = old_value[num] + value
+
     await orm.insert_or_update(
         WordleStatistic,
         [WordleStatistic.member_id == member, WordleStatistic.group_id == group],
-        new_value_dict,
+        new_value,
     )
 
 
