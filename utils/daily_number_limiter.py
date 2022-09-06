@@ -17,7 +17,7 @@ class DailyNumberLimiter:
         if day != self.today:
             self.today = day
             self.count.clear()
-        return bool(self.count[key] < self.max)
+        return self.count[key] < self.max
 
     def get_num(self, key):
         return self.count[key]

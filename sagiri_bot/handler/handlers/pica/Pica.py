@@ -1,29 +1,25 @@
-import os
-import hmac
-import time
-import json
-import uuid
-import shutil
-import aiohttp
-import zipfile
 import asyncio
-import pyzipper
+import hmac
+import json
+import time
+import uuid
+from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
-from urllib import parse
-from loguru import logger
-from hashlib import sha256
-from PIL import Image as IMG
-from aiohttp import TCPConnector
 from typing import Literal, Optional, Tuple, Union
 
+import aiohttp
+from aiohttp import TCPConnector
 from creart import create
+from loguru import logger
+from PIL import Image as IMG
+from yarl import URL
 
 from sagiri_bot.config import GlobalConfig
 
-BASE_PATH = os.path.dirname(__file__)
-CACHE_PATH = BASE_PATH + "/cache/download"
-global_url = "https://picaapi.picacomic.com/"
+BASE_PATH = Path(__file__).parent
+CACHE_PATH = BASE_PATH / "cache" / "download"
+global_url = URL("https://picaapi.picacomic.com/")
 api_key = "C69BAF41DA5ABD1FFEDC6D2FEA56B"
 uuid_s = str(uuid.uuid4()).replace("-", "")
 header = {
@@ -46,7 +42,7 @@ path_filter = ["\\", "/", ":", "*", "?", '"', "<", ">", "|"]
 config = create(GlobalConfig)
 loop = create(asyncio.AbstractEventLoop)
 proxy = config.proxy if config.proxy != "proxy" else ""
-pica_config = config.functions.get("pica")
+pica_config = config.functions.get("pica", {})
 username = pica_config.get("username", None)
 password = pica_config.get("password", None)
 compress_password = pica_config.get("compress_password", "i_luv_sagiri")
@@ -55,8 +51,7 @@ DOWNLOAD_CACHE = pica_config.get("download_cache", True)
 
 class Pica:
     def __init__(self, account, pwd):
-        if not os.path.exists(CACHE_PATH):
-            os.makedirs(CACHE_PATH)
+        CACHE_PATH.mkdir(parents=True, exist_ok=True)
         self.init = False
         self.account = account
         self.password = pwd
@@ -65,7 +60,7 @@ class Pica:
         asyncio.run_coroutine_threadsafe(self.check(), loop)
 
     @logger.catch
-    async def check(self) -> bool:
+    async def check(self) -> Optional[bool]:
         try:
             token = await self.login()
             self.header["authorization"] = token
@@ -76,7 +71,10 @@ class Pica:
         except KeyError:
             logger.error("pica 账号密码可能错误，请检查")
 
-    def update_signature(self, url: str, method: Literal["GET", "POST"]) -> dict:
+    def update_signature(
+        self, url: Union[URL, str], method: Literal["GET", "POST"]
+    ) -> dict:
+        url = str(url)
         ts = str(int(time.time()))
         temp_header = self.header.copy()
         temp_header["time"] = ts
@@ -123,8 +121,7 @@ class Pica:
 
     async def login(self):
         """登录获取token"""
-        api = "auth/sign-in"
-        url = global_url + api
+        url = global_url / "auth" / "sign-in"
         send = {"email": self.account, "password": self.password}
         temp_header = self.update_signature(url, "POST")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
@@ -136,8 +133,7 @@ class Pica:
 
     async def categories(self):
         """获取所有目录"""
-        api = "categories"
-        url = global_url + api
+        url = global_url / "categories"
         temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
@@ -145,38 +141,33 @@ class Pica:
 
     async def search(self, keyword: str):
         """关键词搜索"""
-        api = (
-            global_url
-            + "comics/search?page={0}"
-            + "&q={0}".format(parse.quote(keyword))
-        )
-        url = api.format(1)
+        url = global_url / "comics" / "search" % {"page": keyword, "q": 1}
         # temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             # async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
             #     __pages = (await resp.json())["data"]["comics"]["pages"]
             _return = []
             for _ in range(1, 3):
-                url = api.format(_)
+                url = url % {"q": _}
                 temp_header = self.update_signature(url, "GET")
                 async with session.get(
                     url=url, headers=temp_header, proxy=proxy
                 ) as resp:
                     __res = (await resp.json())["data"]["comics"]["docs"]
-                    for __ in __res:
-                        if __["likesCount"] < 200:
-                            continue
-                        if (
+                    _return += [
+                        {"name": __["title"], "id": __["_id"]}
+                        for __ in __res
+                        if __["likesCount"] < 200
+                        and (
                             __["pagesCount"] / __["epsCount"] > 60
                             or __["epsCount"] > 10
-                        ):
-                            continue
-                        _return.append({"name": __["title"], "id": __["_id"]})
+                        )
+                    ]
         return _return
 
     async def random(self):
         """随机本子"""
-        url = global_url + "comics/random"
+        url = global_url / "comics" / "random"
         temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
@@ -184,7 +175,7 @@ class Pica:
 
     async def rank(self, tt: Literal["H24", "D7", "D30"] = "H24"):
         """排行榜"""
-        url = global_url + f"comics/leaderboard?ct=VC&tt={tt}"
+        url = global_url / "comics" / "leaderboard" % {"ct": "VC", "tt": tt}
         temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
@@ -192,7 +183,7 @@ class Pica:
 
     async def comic_info(self, book_id: str):
         """漫画详情"""
-        url = global_url + f"comics/{book_id}"
+        url = global_url / "comics" / book_id
         temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
@@ -207,26 +198,22 @@ class Pica:
                 if resp.status != 200:
                     resp.raise_for_status()
                 image_bytes = await resp.read()
-                if not path:
-                    return image_bytes
-                else:
-                    IMG.open(BytesIO(image_bytes)).save(str(path))
-                    return image_bytes
 
-    async def download_comic(
-        self, book_id: str, return_zip: bool = True
-    ) -> Optional[Tuple[str, Union[str, bytes]]]:
+        if path:
+            IMG.open(BytesIO(image_bytes)).save(str(path))
+        return image_bytes
+
+    async def download_comic(self, book_id: str) -> Tuple[Path, str]:
         info = await self.comic_info(book_id)
         episodes = info["epsCount"]
         comic_name = f"{info['title']} - {info['author']}"
         tasks = []
         for char in path_filter:
             comic_name = comic_name.replace(char, " ")
-        comic_path = CACHE_PATH + f"/{comic_name}"
-        if not os.path.exists(comic_path):
-            os.mkdir(comic_path)
+        comic_path = CACHE_PATH / comic_name
+        comic_path.mkdir(exist_ok=True)
         for episode in range(episodes):
-            url = global_url + f"comics/{book_id}/order/{episode + 1}/pages"
+            url = global_url / "comics" / book_id / "order" / str(episode + 1) / "pages"
             temp_header = self.update_signature(url, "GET")
             async with aiohttp.ClientSession(
                 connector=TCPConnector(ssl=False)
@@ -235,60 +222,20 @@ class Pica:
                     url=url, headers=temp_header, proxy=proxy
                 ) as resp:
                     data = (await resp.json())["data"]
-            episode_title = data["ep"]["title"]
-            episode_path = comic_path + f"/{episode_title}"
-            if not os.path.exists(episode_path):
-                os.mkdir(episode_path)
+            episode_title: str = data["ep"]["title"]
+            episode_path = comic_path / episode_title
+            episode_path.mkdir(exist_ok=True)
             for img in data["pages"]["docs"]:
                 media = img["media"]
                 img_url = f"{media['fileServer']}/static/{media['path']}"
-                image_path = episode_path + f"/{media['originalName']}"
-                print(comic_name, episode_title, media["originalName"], sep=" - ")
-                if os.path.exists(image_path):
+                image_path: Path = episode_path / media["originalName"]
+                if image_path.exists():
                     continue
-                # _ = await self.download_image(img_url, image_path)
                 tasks.append(
                     asyncio.create_task((self.download_image(img_url, image_path)))
                 )
         _ = await asyncio.gather(*tasks)
-        if return_zip:
-            return self.zip_directory(comic_path, comic_name, compress_password)
-        else:
-            return comic_path, comic_name
-
-    @staticmethod
-    def zip_file(
-        path: str, zip_name: str, pwd: str = "i_luv_sagiri"
-    ) -> Optional[Tuple[str, bytes]]:
-        shutil.make_archive(f"{path}/{zip_name}", "zip", path)
-        with open(f"{path}/{zip_name}_密码{pwd}.zip", "rb") as r:
-            return zip_name, r.read()
-
-    @staticmethod
-    def zip_directory(
-        path, zip_name, pwd: str = "i_luv_sagiri"
-    ) -> Optional[Tuple[str, bytes]]:
-        if not os.path.exists(f"{path}/{zip_name}_密码{pwd}.zip"):
-            if not os.path.exists(f"{path}/{zip_name}.zip"):
-                with zipfile.ZipFile(Path(path) / f"{zip_name}.zip", mode="w") as zip_w:
-                    len_dir_path = len(path)
-                    for root, _, files in os.walk(path):
-                        for file in files:
-                            if file[-3:] == "zip":
-                                continue
-                            file_path = os.path.join(root, file)
-                            zip_w.write(file_path, file_path[len_dir_path:])
-            with pyzipper.AESZipFile(
-                f"{path}/{zip_name}_密码{pwd}.zip",
-                "w",
-                compression=pyzipper.ZIP_LZMA,
-                encryption=pyzipper.WZ_AES,
-            ) as zf:
-                zf.setpassword(pwd.encode())
-                zf.setencryption(pyzipper.WZ_AES, nbits=128)
-                zf.write(Path(path) / f"{zip_name}.zip", f"{zip_name}_密码{pwd}.zip")
-        with open(f"{path}/{zip_name}_密码{pwd}.zip", "rb") as r:
-            return f"{zip_name}_密码{pwd}", r.read()
+        return comic_path, comic_name
 
 
 pica = Pica(username, password)
