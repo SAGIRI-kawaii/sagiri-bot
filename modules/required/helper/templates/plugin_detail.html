@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0; padding: 0}
+
+        body {
+            width: 1000px;
+        }
+
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flex-space-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #banner-image-box {
+            width: 1000px;
+            background-size: cover;
+            background-image: url("{{ banner }}");
+        }
+
+        #title-box {
+            width: 1000px;
+            height: 625px;
+        }
+
+        #title {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        #title h1 {
+            color: white;
+            font-size: 60px;
+        }
+
+        #subtitle {
+            color: white;
+            font-size: 30px;
+        }
+
+        #gradient-color {
+            width: 100%;
+            flex: 1;
+            background: -webkit-linear-gradient(
+                rgba(255, 222, 255, 0),
+                rgba(255, 222, 255, 1)
+            );
+        }
+
+        .table-box {
+            width: 100%;
+        }
+
+        .table-title-box {
+            width: 960px;
+            margin: 20px;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.4);
+            font-size: 28px;
+        }
+
+        .table-title {
+            width: auto;
+            height: 35px;
+            line-height: 35px;
+            color: white;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 20px 5px 10px;
+            border-right: 0;
+            position: relative;
+        }
+
+        .table-title:after {
+            content: "";
+            display: block;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.5) transparent transparent transparent;
+            border-width: 45px 45px 0 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+            top: 0;
+            right: -45px;
+        }
+
+        .menu-table {
+            width: 960px;
+            margin: 20px;
+            color: white;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 20px;
+        }
+        .menu-table, .menu-table th, .menu-table td {
+            font-size: 20px;
+            text-align: center;
+            padding: 4px;
+            border-collapse: collapse;
+        }
+        .menu-table th, .menu-table td {
+            border: 2px solid rgb(255, 222, 255);
+        }
+        .menu-table tr:nth-child(odd){
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .menu-table tr:nth-child(even){
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-table tr:first-child td:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .menu-table tr:last-child td:first-child {
+            border-bottom-left-radius: 10px;
+        }
+
+        .menu-table tr:first-child td:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        .menu-table tr:last-child td:last-child {
+            border-bottom-right-radius: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .plugin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 10px;
+            word-wrap:break-word;
+            word-break:break-all;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        .module-box {
+            font-size: 24px;
+            color: white;
+            padding: 5px 20px 5px 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="flex-column" style="background-color: rgb(255, 222, 255);">
+        <div id="banner-image-box">
+            <div id="title-box" class="flex-column">
+                <div style="height: 300px"></div>
+                <div id="title">
+                    <h1>{{ display_name }}</h1>
+                </div>
+                <div id="subtitle">
+                    {{ module }}
+                </div>
+                <div id="gradient-color"></div>
+            </div>
+        </div>
+        <div class="table-box">
+            <div class="table-title-box flex-space-between">
+                <div class="table-title">
+                    插件描述
+                </div>
+                <div class="module-box"></div>
+            </div>
+            <table class="menu-table">
+                <tr>
+                    <td>
+                        <div class="plugin-item">
+                            {% autoescape false %}
+                            <p>{{ description | replace("\n", "<br>") }}</p>
+                            {% endautoescape %}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-box">
+            <div class="table-title-box flex-space-between">
+                <div class="table-title">
+                    插件作者
+                </div>
+                <div class="module-box"></div>
+            </div>
+            <table class="menu-table">
+                <tr>
+                    <td>
+                        <div class="plugin-item">
+                            {% autoescape false %}
+                            <p>{{ authors | join('、') }}</p>
+                            {% endautoescape %}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-box">
+            <div class="table-title-box flex-space-between">
+                <div class="table-title">
+                    使用方法
+                </div>
+                <div class="module-box"></div>
+            </div>
+            <table class="menu-table">
+                <tr>
+                    <td>
+                        <div class="plugin-item">
+                            {% autoescape false %}
+                            <p>{{ usage | replace("\n", "<br>") }}</p>
+                            {% endautoescape %}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-box">
+            <div class="table-title-box flex-space-between">
+                <div class="table-title">
+                    使用示例
+                </div>
+                <div class="module-box"></div>
+            </div>
+            <table class="menu-table">
+                <tr>
+                    <td>
+                        <div class="plugin-item">
+                            {% autoescape false %}
+                            <p>{{ example | replace("\n", "<br>") }}</p>
+                            {% endautoescape %}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

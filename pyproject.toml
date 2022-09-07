@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "sagiri-bot"
+version = "4.0.0"
+description = "基于Graia Ariadne和Mirai的QQ机器人 SAGIRI-BOT"
+authors = ["SAGIRI-kawaii"]
+license = "AGPL-3.0 license"
+readme = "README.md"
+packages = [{include = "sagiri_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiohttp = "^3.8.1"
+graia-ariadne = "^0.9.1"
+graia-broadcast = "^0.18.2"
+loguru = "^0.6.0"
+graia-saya = "^0.0.16"
+graiax-silkcoder = "^0.3.2"
+pydantic = "^1.10.1"
+Pillow = "^9.2.0"
+wordcloud = "^1.8.2.2"
+Jinja2 = "^3.1.2"
+creart = "^0.2.2"
+playwright = "^1.25.2"
+aiosqlite = "^0.17.0"
+SQLAlchemy = "^1.4.40"
+PyYAML = "^6.0"
+fastapi = "^0.81.0"
+beautifulsoup4 = "^4.11.1"
+jieba = "^0.42.1"
+tencentcloud-sdk-python = "^3.0.725"
+alembic = "^1.8.1"
+matplotlib = "^3.5.3"
+picimagesearch = "^3.4.4"
+psutil = "^5.9.1"
+graiax-playwright = "^0.1.1"
+Markdown = "^3.4.1"
+aiofiles = "^0.8.0"
+pymdown-extensions = "^9.5"
+python-markdown-math = "^0.8"
+Pygments = "^2.13.0"
+GitPython = "^3.1.27"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

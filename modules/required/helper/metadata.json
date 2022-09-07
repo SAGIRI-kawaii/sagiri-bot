@@ -1,0 +1,17 @@
+{
+  "name": "Helper",
+  "version": "0.1",
+  "display_name": "帮助模块",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个提供帮助的插件",
+  "usage": "发送 `/help` 即可查看所有插件",
+  "icon": "",
+  "prefix": ["/", ".", "#", ""],
+  "triggers": ["help", "帮助", "菜单", "功能", "纱雾帮助", "帮助捏"],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
+}

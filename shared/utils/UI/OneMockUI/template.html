@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+
+        *{margin: 0; padding: 0}
+
+        #main-box {
+            width: {{ body_width }}px;
+        }
+
+        .light #main-box {
+            background-color: rgb(246, 246, 246);
+        }
+
+        .dark #main-box {
+            background-color: rgb(1, 1, 1);
+        }
+
+        .dark .column-item-title, .dark .column-item-list-item-subtitle, .dark .column-item-user-info-name  {
+            color: rgb(252, 252, 252);
+        }
+
+        .dark .column-item-list, .dark .column-item-list-item, .dark .divider, .dark .column-item-user-info {
+            background-color: rgb(23, 23, 23);
+        }
+
+
+        .flex {
+            display: flex;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .flex-space-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .column {
+            padding: 20px;
+            width: 540px;
+        }
+
+        .column-item {
+            margin-bottom: 20px;
+        }
+
+        .column-item-title {
+            width: 500px;
+            font-size: 28px;
+            padding: 5px;
+        }
+
+        .column-item-user-info {
+            width: 500px;
+            border-radius: 20px;
+            padding: 20px 20px;
+            background: rgb(252, 252, 252);
+        }
+
+        .column-item-user-info-name {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .column-item-user-info-description {
+            color: rgb(134, 134, 134);
+        }
+
+        .column-item-user-info-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+
+        .column-item-user-info-avatar img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+
+        .column-item-image, .column-item-image img {
+            width: 540px;
+            border-radius: 20px;
+        }
+
+        .column-item-list {
+            width: 500px;
+            background: rgb(252, 252, 252);
+            border-radius: 20px;
+        }
+
+        .column-item-list-item {
+            width: 500px;
+            background: rgb(252, 252, 252);
+            padding: 10px 20px;
+        }
+
+        .column-item-list .column-item-list-item:first-child {
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+
+        .column-item-list .column-item-list-item:last-child {
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .column-item-list-item-subtitle {
+            font-size: 24px;
+        }
+
+        .column-item-list-item-content {
+            color: rgb(134, 134, 134);
+        }
+
+        .light hr {
+            border: 1px solid rgb(237, 237, 237);
+            width: 520px;
+        }
+
+        .dark hr {
+            border: 1px solid rgb(56, 56, 56);
+            width: 520px;
+        }
+
+        .divider {
+            padding: 0 10px;
+            width: 520px;
+            background-color: rgb(252, 252, 252);
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+    </style>
+</head>
+<body class="{{ color_type }}">
+    <div id="main-box" class="flex">
+        {% for column in columns %}
+        <div class="column">
+            {% for element in column.elements %}
+            {% if element.el_name == "ColumnTitle" %}
+            <div class="column-item column-item-title">
+                {{ element.title }}
+            </div>
+            {% elif element.el_name == "ColumnUserInfo" %}
+            <div class="column-item column-item-user-info flex-space-between">
+                <div>
+                    <div class="column-item-user-info-name">{{ element.name }}</div>
+                    <div class="column-item-user-info-description">{{ element.description }}</div>
+                </div>
+                <div class="column-item-user-info-avatar">
+                    <img src="{{ element.avatar }}">
+                </div>
+            </div>
+            {% elif element.el_name == "ColumnImage" %}
+            <div class="column-item column-item-image">
+                <img src="{{ element.src }}">
+            </div>
+            {% elif element.el_name == "ColumnList" %}
+            <div class="column-item column-item-list">
+                {% for i in range(0, (element.rows | length)) %}
+                <div class="column-item-list-item flex-space-between">
+                    <div>
+                        <div class="column-item-list-item-subtitle">{{ element.rows[i].subtitle }}</div>
+                        <div class="column-item-list-item-content">{{ element.rows[i].content }}</div>
+                    </div>
+                    {% if element.rows[i].right_element %}
+                    <div>
+                        <label class="switch">
+                            <input type="checkbox" {{ "checked" if element.rows[i].right_element.switch else "" }}>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if i != (element.rows | length) - 1 %}
+                <div class="divider"><hr></div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

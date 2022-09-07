@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0; padding: 0}
+
+        body {
+            width: 1000px;
+        }
+
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flex-space-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #banner-image-box {
+            width: 1000px;
+            background-size: cover;
+            background-image: url("{{ banner }}");
+        }
+
+        #title-box {
+            width: 1000px;
+            height: 625px;
+        }
+
+        #title {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        #title h1 {
+            color: white;
+            font-size: 60px;
+        }
+
+        #subtitle {
+            color: white;
+            font-size: 30px;
+        }
+
+        #gradient-color {
+            width: 100%;
+            flex: 1;
+            background: -webkit-linear-gradient(
+                rgba(255, 222, 255, 0),
+                rgba(255, 222, 255, 1)
+            );
+        }
+
+        #table-box {
+            width: 100%;
+            z-index: 999;
+        }
+
+        .table-title-box {
+            width: 960px;
+            margin: 20px;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.4);
+            font-size: 28px;
+        }
+
+        .table-title {
+            width: auto;
+            height: 35px;
+            line-height: 35px;
+            color: white;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 20px 5px 10px;
+            border-right: 0;
+            position: relative;
+        }
+
+        .table-title:after {
+            content: "";
+            display: block;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.5) transparent transparent transparent;
+            border-width: 45px 45px 0 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+            top: 0;
+            right: -45px;
+        }
+
+        .menu-table {
+            width: 960px;
+            margin: 20px;
+            color: white;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 20px;
+        }
+        .menu-table, .menu-table th, .menu-table td {
+            font-size: 20px;
+            text-align: center;
+            padding: 4px;
+            border-collapse: collapse;
+        }
+        .menu-table th, .menu-table td {
+            border: 2px solid rgb(255, 222, 255);
+        }
+        .menu-table tr:nth-child(odd){
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .menu-table tr:nth-child(even){
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-table tr:first-child td:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .menu-table tr:last-child td:first-child {
+            border-bottom-left-radius: 10px;
+        }
+
+        .menu-table tr:first-child td:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        .menu-table tr:last-child td:last-child {
+            border-bottom-right-radius: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .plugin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 10px;
+        }
+
+        .detail-help-box {
+            font-size: 24px;
+            color: white;
+            padding: 5px 20px 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex-column" style="background-color: rgb(255, 222, 255);">
+        <div id="banner-image-box">
+            <div id="title-box" class="flex-column">
+                <div style="height: 400px"></div>
+                <div id="title">
+                    <h1>{{ title }}</h1>
+                </div>
+                <div id="subtitle">
+                    {{ subtitle }}
+                </div>
+                <div id="gradient-color"></div>
+            </div>
+        </div>
+        <div id="table-box">
+            <div class="table-title-box flex-space-between">
+                <div class="table-title">
+                    已加载插件
+                </div>
+                <div class="detail-help-box">
+                    发送 `/help 编号` 查看插件详情
+                </div>
+            </div>
+            <table class="menu-table">
+                {% for i in range(0, (settings | length), 3) %}
+                <tr>
+                    {% for setting in settings[i: i + 3] %}
+                    <td>
+                        {% if setting[0] %}
+                        <div class="plugin-item">
+                            <p>{{ setting[0] }}. {{ setting[1] }}</p>
+                            <label class="switch">
+                                <input type="checkbox" {{ 'checked' if setting[2] else '' }}>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        {% else %}
+                        <div class="plugin-item"></div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>

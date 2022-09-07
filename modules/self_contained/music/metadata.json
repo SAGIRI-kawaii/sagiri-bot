@@ -1,0 +1,17 @@
+{
+  "name": "Music",
+  "version": "0.1",
+  "display_name": "点歌模块",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以点歌的插件",
+  "usage": "发送 `/点歌`",
+  "icon": "",
+  "prefix": ["/", ".", "#", ""],
+  "triggers": ["点歌"],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
+}
