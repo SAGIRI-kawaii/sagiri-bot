@@ -83,15 +83,14 @@ async def query_resource(resource_name: str) -> Optional[MessageChain]:
 def get_resource_type_list():
     with open(resource_type_file, "r", encoding="utf8") as f:
         data = json.load(f)
-    temp = {}
-    for id_ in data.keys():
-        temp[data[id_]["name"]] = []
-        for x in data[id_]["children"]:
-            temp[data[id_]["name"]].append(x["name"])
+    temp = {
+        data[id_]["name"]: [x["name"] for x in data[id_]["children"]]
+        for id_ in data.keys()
+    }
 
     mes = "当前资源列表如下：\n"
-    for resource_type in temp:
-        mes += f"{resource_type}：{'，'.join(temp[resource_type])}\n"
+    for resource_type, value in temp.items():
+        mes += f"{resource_type}：{'，'.join(value)}\n"
     return mes
 
 
@@ -219,10 +218,7 @@ async def download_resource_type():
                     data = await resp.json()
                     if data["message"] == "OK":
                         data = data["data"]["tree"]
-                        resource_data = {}
-                        for x in data:
-                            id_ = x["id"]
-                            resource_data[id_] = x
+                        resource_data = {x["id"]: x for x in data}
                         resource_type_file.write_text(
                             json.dumps(resource_data, ensure_ascii=False, indent=4),
                             encoding="utf8"
