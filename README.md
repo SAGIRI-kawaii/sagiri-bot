@@ -21,7 +21,6 @@
 - 基于Sqlalchemy的异步ORM
 - 权限管理系统
 - 频率限制模块
-- 错误重发模块
 - [丰富的功能](https://sagiri-kawaii.github.io/sagiri-bot/functions/handlers/)
 - 可视化管理模块【TODO】
 - 基于loguru的日志系统
