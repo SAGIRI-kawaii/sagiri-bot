@@ -57,6 +57,7 @@ class Pica:
         self.password = pwd
         self.header = header.copy()
         self.header["nonce"] = uuid_s
+        self.__SigFromNative = "~d}$Q7$eIni=V)9\\RK/P.RM4;9[7|@/CA}b~OW!3?EV`:<>M7pddUBL5n|0/*Cn"
         asyncio.run_coroutine_threadsafe(self.check(), loop)
 
     @logger.catch
@@ -84,8 +85,7 @@ class Pica:
             temp_header.pop("Content-Type")
         return temp_header
 
-    @staticmethod
-    def encrypt(url: URL, ts, method):
+    def encrypt(self, url: URL, ts, method):
         datas = [
             global_url,
             url.path[1:],
@@ -96,17 +96,13 @@ class Pica:
             "2.2.1.3.3.4",
             "45",
         ]
-        _src = Pica.__ConFromNative(datas)
-        _key = Pica.__SigFromNative()
+        _src = self.__ConFromNative(datas)
+        _key = self.__SigFromNative
         return Pica.HashKey(_src, _key)
 
     @staticmethod
     def __ConFromNative(datas):
         return "".join(map(str, datas[1:6]))
-
-    @staticmethod
-    def __SigFromNative():
-        return "~d}$Q7$eIni=V)9\\RK/P.RM4;9[7|@/CA}b~OW!3?EV`:<>M7pddUBL5n|0/*Cn"
 
     @staticmethod
     def HashKey(src, key):
@@ -141,18 +137,15 @@ class Pica:
 
     async def search(self, keyword: str):
         """关键词搜索"""
-        url = global_url / "comics" / "search" % {"page": keyword, "q": 1}
-        _return = []
-        for q in range(1, 3):
-            url = url % {"q": q}
-            __res = (await self.request(url))["data"]["comics"]["docs"]
-            _return += [
-                {"name": __["title"], "id": __["_id"]}
-                for __ in __res
-                if __["likesCount"] < 200
-                and (__["pagesCount"] / __["epsCount"] > 60 or __["epsCount"] > 10)
-            ]
-        return _return
+        url = global_url / "comics" / "search" % {"page": keyword}
+        return [
+            {"name": comic["title"], "id": comic["_id"]}
+            for q in range(1, 3)
+            for comic in (await self.request(url % {"q": q}))["data"]["comics"]["docs"]
+            if comic["likesCount"] > 200
+            and comic["pagesCount"] / comic["epsCount"] < 60
+            and comic["epsCount"] < 10
+        ]
 
     async def random(self):
         """随机本子"""
@@ -202,11 +195,10 @@ class Pica:
                 media = img["media"]
                 img_url = f"{media['fileServer']}/static/{media['path']}"
                 image_path: Path = episode_path / media["originalName"]
-                if image_path.exists():
-                    continue
-                tasks.append(
-                    asyncio.create_task((self.download_image(img_url, image_path)))
-                )
+                if not image_path.exists():
+                    tasks.append(
+                        asyncio.create_task((self.download_image(img_url, image_path)))
+                    )
         _ = await asyncio.gather(*tasks)
         return comic_path, comic_name
 
