@@ -4,7 +4,7 @@ from abc import ABC
 from pathlib import Path
 from pydantic import BaseModel
 from typing_extensions import TypedDict
-from typing import Type, List, Dict, Union, Any
+from typing import Type, List, Dict, Any
 
 from creart import create, add_creator, exists_module
 from creart.creator import AbstractCreator, CreateTargetInfo
@@ -16,15 +16,15 @@ class PluginMeta(BaseModel):
     display_name: str = ""
     authors: List[str] = []
     description: str = ""
-    usage: str = ""
-    example: str = ""
+    usage: List[str] = []
+    example: List[str] = []
     icon: str = ""
     prefix: List[str] = []
     triggers: List[str] = []
     metadata: Dict[str, Any] = {}
 
 
-def load_plugin_meta(path: Union[Path, str]) -> PluginMeta:
+def load_plugin_meta(path: Path | str) -> PluginMeta:
     if isinstance(path, str):
         path = Path(path)
     if path.is_file():

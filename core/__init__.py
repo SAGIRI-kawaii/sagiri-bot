@@ -1,7 +1,5 @@
 import os
-import time
 import datetime
-import subprocess
 
 from abc import ABC
 from pathlib import Path
@@ -54,10 +52,10 @@ class Sagiri(object):
     app: Ariadne
     config: GlobalConfig
     main_path: str | Path
-    launch_time: float
+    launch_time: datetime.datetime
 
     def __init__(self, g_config: GlobalConfig, main_path: str | Path):
-        self.launch_time = time.time()
+        self.launch_time = datetime.datetime.now()
         self.config = create(GlobalConfig)
         self.main_path = main_path if isinstance(main_path, Path) else Path(main_path)
         self.app = Ariadne(
@@ -221,10 +219,7 @@ class Sagiri(object):
     def launch(self):
         self.app.launch_blocking()
 
-    async def restart(self):
-        self.app.stop()
-        # await asyncio.sleep(1)
-        subprocess.run("python main.py")
+    async def restart(self): ...
 
 
 class SagiriClassCreator(AbstractCreator, ABC):

@@ -6,7 +6,11 @@
     "SAGIRI-kawaii"
   ],
   "description": "一个提供帮助的插件",
-  "usage": "发送 `/help` 即可查看所有插件",
+  "usage": ["发送 `/help` 即可查看所有插件"],
+  "examples": [
+    "查看所有插件：/help",
+    "查看编号为27的插件：/help 27"
+  ],
   "icon": "",
   "prefix": ["/", ".", "#", ""],
   "triggers": ["help", "帮助", "菜单", "功能", "纱雾帮助", "帮助捏"],

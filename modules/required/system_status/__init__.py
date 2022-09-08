@@ -2,6 +2,7 @@ import os
 import re
 import psutil
 from typing import Match
+from datetime import datetime
 
 from creart import create
 from graia.saya import Saya, Channel
@@ -12,6 +13,8 @@ from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, ArgResult
 
+from core import Sagiri
+from shared.utils.time import sec_format
 from shared.utils.control import Permission
 from shared.models.config import GlobalConfig
 
@@ -23,6 +26,7 @@ channel.author("SAGIRI-kawaii")
 channel.description("查看系统状态")
 
 image_path = create(GlobalConfig).image_path
+launch_time = create(Sagiri).launch_time
 
 
 @channel.use(
@@ -42,6 +46,11 @@ image_path = create(GlobalConfig).image_path
 async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: ArgResult, storage: ArgResult):
     mem = psutil.virtual_memory()
     total_memery = round(mem.total / 1024 ** 3, 2)
+    launch_time_message = MessageChain(
+        "SAGIRI-BOT\n"
+        f"启动时间：{launch_time.strftime('%Y-%m-%d, %H:%M:%S')}\n"
+        f"已运行时间：{sec_format((datetime.now() - launch_time).seconds, '{h}时{m}分{s}秒')}"
+    )
     memory_message = MessageChain(
         "内存相关：\n    "
         f"内存总大小：{total_memery}GB\n    "
@@ -67,11 +76,13 @@ async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: A
         )
     )
     if all_info.matched or not info.matched and not storage.matched:
-        await app.send_group_message(group, cpu_message + "\n" + memory_message + "\n" + disk_message)
+        await app.send_group_message(
+            group, launch_time_message + "\n" + cpu_message + "\n" + memory_message + "\n" + disk_message
+        )
     elif info.matched:
-        await app.send_group_message(group, cpu_message + "\n" + memory_message)
+        await app.send_group_message(group, launch_time_message + "\n" + cpu_message + "\n" + memory_message)
     else:
-        await app.send_group_message(group, disk_message)
+        await app.send_group_message(group, launch_time_message + "\n" + disk_message)
 
 
 def is_url(path: str) -> Match[str] | None:

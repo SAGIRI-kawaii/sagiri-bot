@@ -7,7 +7,7 @@ db_link: sqlite+aiosqlite:///data.db
 web_manager_api: true
 web_manager_auto_boot: true
 proxy: proxy
-auto_upgrade: False
+auto_upgrade: false
 
 # 路径相关
 image_path:

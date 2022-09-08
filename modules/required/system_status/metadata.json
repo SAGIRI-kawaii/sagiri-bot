@@ -6,7 +6,16 @@
     "SAGIRI-kawaii"
   ],
   "description": "一个可以查看系统状态的插件",
-  "usage": "发送 /sys 或 '/sys -a' 或 '/sys -all' 查看CPU、内存以及图库占用信息\n发送 /sys -i 或 '/sys -info' 查看CPU、内存信息\n发送 /sys -s 或 '/sys -storage' 查看图库占用信息",
+  "usage": [
+    "发送 /sys 或 '/sys -a' 或 '/sys -all' 查看CPU、内存以及图库占用信息",
+    "发送 /sys -i 或 '/sys -info' 查看CPU、内存信息",
+    "发送 /sys -s 或 '/sys -storage' 查看图库占用信息"
+  ],
+  "examples": [
+    "/sys",
+    "/sys -i",
+    "/sys -s"
+  ],
   "icon": "",
   "prefix": ["/"],
   "triggers": ["sys", "system"],

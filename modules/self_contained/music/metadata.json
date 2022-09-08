@@ -6,7 +6,7 @@
     "SAGIRI-kawaii"
   ],
   "description": "一个可以点歌的插件",
-  "usage": "发送 `/点歌`",
+  "usage": ["发送 `/点歌`"],
   "icon": "",
   "prefix": ["/", ".", "#", ""],
   "triggers": ["点歌"],
