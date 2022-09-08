@@ -172,26 +172,28 @@ async def download_map_init(semaphore: Semaphore, flag: bool = False):
                         if not _map.exists():
                             data = data["slices"]
                             idx = 0
-                            for _map_data in data[0]:
-                                map_url = _map_data["url"]
-                                await download_image(
-                                    map_url,
-                                    map_path / f"{idx}.png",
-                                    semaphore,
-                                    force_flag=flag,
-                                )
-                                BuildImage(
-                                    0,
-                                    0,
-                                    background=f"{map_path}/{idx}.png",
-                                    ratio=MAP_RATIO,
-                                ).save()
-                                idx += 1
-                            _w, h = BuildImage(
+                            for line in data:
+                                for _map_data in line:
+                                    map_url = _map_data["url"]
+                                    await download_image(
+                                        map_url,
+                                        map_path / f"{idx}.png",
+                                        semaphore,
+                                        force_flag=flag,
+                                    )
+                                    BuildImage(
+                                        0,
+                                        0,
+                                        background=f"{map_path}/{idx}.png",
+                                        ratio=MAP_RATIO,
+                                    ).save()
+                                    idx += 1
+                            _w, _h = BuildImage(
                                 0, 0, background=f"{map_path}/0.png"
                             ).size
-                            w = _w * len(os.listdir(map_path))
-                            map_file = BuildImage(w, h, _w, h, ratio=MAP_RATIO)
+                            w = _w * len(data[0])
+                            h = _h * len(data)
+                            map_file = BuildImage(w, h, _w, _h, ratio=MAP_RATIO)
                             for i in range(idx):
                                 map_file.paste(
                                     BuildImage(0, 0, background=f"{map_path}/{i}.png")
