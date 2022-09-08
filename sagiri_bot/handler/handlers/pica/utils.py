@@ -17,7 +17,7 @@ config = create(GlobalConfig)
 DOWNLOAD_CACHE = config.functions["pica"]["download_cache"]
 SEARCH_CACHE = config.functions["pica"]["search_cache"]
 
-BASE_PATH = Path(__file__)
+BASE_PATH = Path(__file__).parent
 SEARCH_CACHE_PATH = BASE_PATH / "cache" / "search"
 
 
@@ -54,22 +54,24 @@ async def pica_t2i(comic_info, is_search: bool = False, rank: Optional[int] = No
 
 
 def zip_directory(path: Path, zip_name, pwd: str = "i_luv_sagiri") -> Path:
-    with zipfile.ZipFile(path / f"{zip_name}.zip", mode="w") as zip_w:
+    zip_file = path.parent / f"{zip_name}.zip"
+    encrypt_zip_file = path.parent / f"{zip_name}_密码{pwd}.zip"
+    with zipfile.ZipFile(zip_file, mode="w") as zip_w:
         for entry in path.rglob("*"):
             zip_w.write(entry, entry.relative_to(path))
 
     with pyzipper.AESZipFile(
-        path / f"{zip_name}_密码{pwd}.zip",
+        encrypt_zip_file,
         "w",
         compression=pyzipper.ZIP_LZMA,
         encryption=pyzipper.WZ_AES,
     ) as zf:
         zf.setpassword(pwd.encode())
         zf.setencryption(pyzipper.WZ_AES, nbits=128)
-        zf.write(path / f"{zip_name}.zip", f"{zip_name}_密码{pwd}.zip")
+        zf.write(zip_file, encrypt_zip_file.name)
 
-    (path / f"{zip_name}.zip").unlink()
-    return path / f"{zip_name}_密码{pwd}.zip"
+    zip_file.unlink()
+    return encrypt_zip_file
 
 
 async def get_thumb(comic_info: dict) -> Image:

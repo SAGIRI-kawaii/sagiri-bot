@@ -6,7 +6,7 @@ import uuid
 from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
-from typing import Literal, Optional, Tuple, Union
+from typing import Dict, Literal, Optional, Tuple, Union
 
 import aiohttp
 from aiohttp import TCPConnector
@@ -114,75 +114,60 @@ class Pica:
         data = src.lower().encode("utf-8")  # 数据
         return hmac.new(app_secret, data, digestmod=sha256).hexdigest()
 
+    async def request(
+        self, url: Union[str, URL], params: Optional[Dict[str, str]] = None
+    ):
+        temp_header = self.update_signature(url, "GET")
+        data = json.dumps(params) if params else None
+        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
+            async with session.get(
+                url=url, headers=temp_header, proxy=proxy, data=data
+            ) as resp:
+                resp.raise_for_status()
+                return await resp.json()
+
     async def login(self):
         """登录获取token"""
         url = global_url / "auth" / "sign-in"
         send = {"email": self.account, "password": self.password}
-        temp_header = self.update_signature(url, "POST")
-        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
-            async with session.post(
-                url=url, headers=temp_header, data=json.dumps(send), proxy=proxy
-            ) as resp:
-                self.header["authorization"] = (await resp.json())["data"]["token"]
+        ret = await self.request(url, send)
+        self.header["authorization"] = ret["data"]["token"]
         return self.header["authorization"]
 
     async def categories(self):
         """获取所有目录"""
         url = global_url / "categories"
-        temp_header = self.update_signature(url, "GET")
-        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
-            async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
-                return (await resp.json())["data"]["categories"]
+        return (await self.request(url))["data"]["categories"]
 
     async def search(self, keyword: str):
         """关键词搜索"""
         url = global_url / "comics" / "search" % {"page": keyword, "q": 1}
-        # temp_header = self.update_signature(url, "GET")
-        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
-            # async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
-            #     __pages = (await resp.json())["data"]["comics"]["pages"]
-            _return = []
-            for _ in range(1, 3):
-                url = url % {"q": _}
-                temp_header = self.update_signature(url, "GET")
-                async with session.get(
-                    url=url, headers=temp_header, proxy=proxy
-                ) as resp:
-                    __res = (await resp.json())["data"]["comics"]["docs"]
-                    _return += [
-                        {"name": __["title"], "id": __["_id"]}
-                        for __ in __res
-                        if __["likesCount"] < 200
-                        and (
-                            __["pagesCount"] / __["epsCount"] > 60
-                            or __["epsCount"] > 10
-                        )
-                    ]
+        _return = []
+        for q in range(1, 3):
+            url = url % {"q": q}
+            __res = (await self.request(url))["data"]["comics"]["docs"]
+            _return += [
+                {"name": __["title"], "id": __["_id"]}
+                for __ in __res
+                if __["likesCount"] < 200
+                and (__["pagesCount"] / __["epsCount"] > 60 or __["epsCount"] > 10)
+            ]
         return _return
 
     async def random(self):
         """随机本子"""
         url = global_url / "comics" / "random"
-        temp_header = self.update_signature(url, "GET")
-        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
-            async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
-                return (await resp.json())["data"]["comics"]
+        return (await self.request(url))["data"]["comics"]
 
     async def rank(self, tt: Literal["H24", "D7", "D30"] = "H24"):
         """排行榜"""
         url = global_url / "comics" / "leaderboard" % {"ct": "VC", "tt": tt}
-        temp_header = self.update_signature(url, "GET")
-        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
-            async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
-                return (await resp.json())["data"]["comics"]
+        return (await self.request(url))["data"]["comics"]
 
     async def comic_info(self, book_id: str):
         """漫画详情"""
         url = global_url / "comics" / book_id
-        temp_header = self.update_signature(url, "GET")
-        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
-            async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
-                return (await resp.json())["data"]["comic"]
+        return (await self.request(url))["data"]["comics"]
 
     async def download_image(
         self, url: str, path: Optional[Union[str, Path]] = None
@@ -195,7 +180,7 @@ class Pica:
                 image_bytes = await resp.read()
 
         if path:
-            IMG.open(BytesIO(image_bytes)).save(str(path))
+            Path(path).write_bytes(image_bytes)
         return image_bytes
 
     async def download_comic(self, book_id: str) -> Tuple[Path, str]:
@@ -209,14 +194,7 @@ class Pica:
         comic_path.mkdir(exist_ok=True)
         for episode in range(episodes):
             url = global_url / "comics" / book_id / "order" / str(episode + 1) / "pages"
-            temp_header = self.update_signature(url, "GET")
-            async with aiohttp.ClientSession(
-                connector=TCPConnector(ssl=False)
-            ) as session:
-                async with session.get(
-                    url=url, headers=temp_header, proxy=proxy
-                ) as resp:
-                    data = (await resp.json())["data"]
+            data = (await self.request(url))["data"]
             episode_title: str = data["ep"]["title"]
             episode_path = comic_path / episode_title
             episode_path.mkdir(exist_ok=True)

@@ -234,7 +234,7 @@ async def pica_search(
                     sender_name="纱雾酱",
                     message_chain=MessageChain(
                         [
-                            await pica_t2i(comic_info, is_search=True),
+                            await pica_t2i(comic_info, is_search=search),
                             "\n发送下列命令下载：\n"
                             f"转发消息形式：pica download -forward {comic_info['_id']}\n"
                             f"消息图片形式：pica download -message {comic_info['_id']}\n"
