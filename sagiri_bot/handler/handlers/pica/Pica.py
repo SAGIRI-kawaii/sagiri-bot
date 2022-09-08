@@ -72,9 +72,10 @@ class Pica:
             logger.error("pica 账号密码可能错误，请检查")
 
     def update_signature(
-        self, url: Union[URL, str], method: Literal["GET", "POST"]
+        self, url: Union[str, URL], method: Literal["GET", "POST"]
     ) -> dict:
-        url = str(url)
+        if isinstance(url, str):
+            url = URL(url)
         ts = str(int(time.time()))
         temp_header = self.header.copy()
         temp_header["time"] = ts
@@ -84,10 +85,10 @@ class Pica:
         return temp_header
 
     @staticmethod
-    def encrypt(url, ts, method):
+    def encrypt(url: URL, ts, method):
         datas = [
             global_url,
-            url.replace(global_url, ""),
+            url.path[1:],
             ts,
             uuid_s,
             method,
@@ -101,13 +102,7 @@ class Pica:
 
     @staticmethod
     def __ConFromNative(datas):
-        return (
-            str(datas[1])
-            + str(datas[2])
-            + str(datas[3])
-            + str(datas[4])
-            + str(datas[5])
-        )
+        return "".join(map(str, datas[1:6]))
 
     @staticmethod
     def __SigFromNative():

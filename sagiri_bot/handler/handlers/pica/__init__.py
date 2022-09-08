@@ -54,7 +54,7 @@ bot_qq = config.bot_qq
 DOWNLOAD_CACHE = config.functions["pica"]["download_cache"]
 SEARCH_CACHE = config.functions["pica"]["search_cache"]
 
-BASE_PATH = Path(__file__)
+BASE_PATH = Path(__file__).parent
 SEARCH_CACHE_PATH = BASE_PATH / "cache" / "search"
 SEARCH_CACHE_PATH.mkdir(parents=True, exist_ok=True)
 
