@@ -166,7 +166,7 @@ class Pica:
     async def comic_info(self, book_id: str):
         """漫画详情"""
         url = global_url / "comics" / book_id
-        return (await self.request(url))["data"]["comics"]
+        return (await self.request(url))["data"]["comic"]
 
     async def download_image(
         self, url: str, path: Optional[Union[str, Path]] = None
