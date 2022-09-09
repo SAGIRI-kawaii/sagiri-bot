@@ -172,7 +172,7 @@ async def wordle(
     # 搜寻并决定单词
     choices = [k for k in dic_data if len(k) == l]
     if not choices:
-        await app.send_group_message(group, MessageChain("对不起呢，没有这种长度的单词"))
+        return await app.send_group_message(group, MessageChain("对不起呢，没有这种长度的单词"))
 
     guess_word = random.choice(choices)
 
