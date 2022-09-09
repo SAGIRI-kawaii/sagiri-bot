@@ -95,14 +95,12 @@ async def aminer(
         "size": 5,
         "filters": [],
     }
-    print(data)
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
             url=url, headers=headers, data=json.dumps(data)
         ) as resp:
             res = await resp.json()
-            print(res)
 
     forward_nodes = []
     if router == "person":

@@ -58,7 +58,6 @@ async def genshin_material_remind(app: Ariadne, group: Group, source: Source):
     if not (Path(IMAGE_PATH) / f"{file_name}.png").exists():
         await app.send_message(group, MessageChain("正在自动更新中..."))
         _ = await update_image()
-        print(_)
     await app.send_group_message(
         group,
         MessageChain(

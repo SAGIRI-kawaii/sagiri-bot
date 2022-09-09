@@ -340,7 +340,6 @@ def save_gif(gif_frames, fps=10):
     """
     bytes_io = BytesIO()
     imgs = [IMG.fromarray(frame) for frame in gif_frames]
-    print(1 / fps)
     imgs[0].save(
         bytes_io,
         format="GIF",

@@ -68,12 +68,12 @@ class Synthesizer:
         sequence length of spectrogram i, and possibly the alignments.
         """
 
-        print("Read " + str(texts))
+        #print("Read " + str(texts))
         texts = [
             " ".join(lazy_pinyin(v, style=Style.TONE3, neutral_tone_with_five=True))
             for v in texts
         ]
-        print("Synthesizing " + str(texts))
+        #print("Synthesizing " + str(texts))
         # Preprocess text inputs
         inputs = [text_to_sequence(text, hp.tts_cleaner_names) for text in texts]
         if not isinstance(embeddings, list):
@@ -92,7 +92,7 @@ class Synthesizer:
         specs = []
         alignments = []
         for i, batch in enumerate(batched_inputs, 1):
-            print(f"Generating {i}/{len(batched_inputs)}")
+            #print(f"Generating {i}/{len(batched_inputs)}")
 
             # Pad texts so they are all the same length
             text_lens = [len(text) for text in batch]
@@ -122,7 +122,7 @@ class Synthesizer:
                     m = m[:, :-1]
                 specs.append(m)
 
-        print("Done.")
+        #print("Done.")
         return (specs, alignments) if return_alignments else specs
 
     @staticmethod

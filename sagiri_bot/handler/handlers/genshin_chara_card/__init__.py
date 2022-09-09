@@ -145,7 +145,6 @@ async def init_chara_list():
         name = "".join(pypinyin.lazy_pinyin(a[1].get_text().strip()))
         eng_name = a[0]["href"].split("/")[3]
         characters[name] = eng_name.lower()
-    print(characters)
 
 
 # async def generate_card(uid: int):
