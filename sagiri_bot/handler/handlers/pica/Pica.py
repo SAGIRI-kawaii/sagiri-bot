@@ -113,13 +113,16 @@ class Pica:
         return hmac.new(app_secret, data, digestmod=sha256).hexdigest()
 
     async def request(
-        self, url: Union[str, URL], params: Optional[Dict[str, str]] = None
+        self,
+        url: Union[str, URL],
+        params: Optional[Dict[str, str]] = None,
+        method: Literal["GET", "POST"] = "GET",
     ):
-        temp_header = self.update_signature(url, "GET")
+        temp_header = self.update_signature(url, method)
         data = json.dumps(params) if params else None
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
-            async with session.get(
-                url=url, headers=temp_header, proxy=proxy, data=data
+            async with session.request(
+                method, url=url, headers=temp_header, proxy=proxy, data=data
             ) as resp:
                 ret_data = await resp.json()
                 if not resp.ok:
@@ -130,7 +133,7 @@ class Pica:
         """登录获取token"""
         url = global_url / "auth" / "sign-in"
         send = {"email": self.account, "password": self.password}
-        ret = await self.request(url, send)
+        ret = await self.request(url, send, "POST")
         self.header["authorization"] = ret["data"]["token"]
 
     async def categories(self):
@@ -178,7 +181,7 @@ class Pica:
         async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
             resp.raise_for_status()
             image_bytes = await resp.read()
-    
+
         if path:
             Path(path).write_bytes(image_bytes)
         return image_bytes
@@ -204,7 +207,9 @@ class Pica:
                 image_path: Path = episode_path / media["originalName"]
                 if not image_path.exists():
                     tasks.append([img_url, image_path])
-        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False, limit=5)) as session:
+        async with aiohttp.ClientSession(
+            connector=TCPConnector(ssl=False, limit=5)
+        ) as session:
             tasks = [self.download_image_session(session, *t) for t in tasks]
             await asyncio.gather(*tasks)
         return comic_path, comic_name
