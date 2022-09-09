@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, Literal, Optional, Tuple, Union
 
 import aiohttp
-from aiohttp import TCPConnector
+from aiohttp import TCPConnector, ClientSession
 from creart import create
 from loguru import logger
 from PIL import Image as IMG
@@ -57,7 +57,9 @@ class Pica:
         self.password = pwd
         self.header = header.copy()
         self.header["nonce"] = uuid_s
-        self.__SigFromNative = "~d}$Q7$eIni=V)9\\RK/P.RM4;9[7|@/CA}b~OW!3?EV`:<>M7pddUBL5n|0/*Cn"
+        self.__SigFromNative = (
+            "~d}$Q7$eIni=V)9\\RK/P.RM4;9[7|@/CA}b~OW!3?EV`:<>M7pddUBL5n|0/*Cn"
+        )
         asyncio.run_coroutine_threadsafe(self.check(), loop)
 
     @logger.catch
@@ -165,13 +167,17 @@ class Pica:
     async def download_image(
         self, url: str, path: Optional[Union[str, Path]] = None
     ) -> bytes:
-        temp_header = self.update_signature(url, "GET")
         async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
-            async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
-                if resp.status != 200:
-                    resp.raise_for_status()
-                image_bytes = await resp.read()
+            return await self.download_image_session(session, url, path)
 
+    async def download_image_session(
+        self, session: ClientSession, url: str, path: Optional[Union[str, Path]] = None
+    ):
+        temp_header = self.update_signature(url, "GET")
+        async with session.get(url=url, headers=temp_header, proxy=proxy) as resp:
+            resp.raise_for_status()
+            image_bytes = await resp.read()
+    
         if path:
             Path(path).write_bytes(image_bytes)
         return image_bytes
@@ -196,10 +202,10 @@ class Pica:
                 img_url = f"{media['fileServer']}/static/{media['path']}"
                 image_path: Path = episode_path / media["originalName"]
                 if not image_path.exists():
-                    tasks.append(
-                        asyncio.create_task((self.download_image(img_url, image_path)))
-                    )
-        _ = await asyncio.gather(*tasks)
+                    tasks.append([img_url, image_path])
+        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False, limit=5)) as session:
+            tasks = [self.download_image_session(session, *t) for t in tasks]
+            await asyncio.gather(*tasks)
         return comic_path, comic_name
 
 
