@@ -273,10 +273,8 @@ async def pica_search(
 async def pica_download(
     app: Ariadne,
     group: Group,
-    message: MessageChain,
     member: Member,
     source: Source,
-    operation: RegexResult,
     forward_type: ArgResult,
     content: RegexResult,
 ):
