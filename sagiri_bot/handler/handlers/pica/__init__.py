@@ -296,6 +296,7 @@ async def pica_download(
     comic_id = str(content.result)
     await app.send_message(group, MessageChain(f"明白，正在下载{comic_id}..."))
     comic_path, comic_name = await pica.download_comic(comic_id)
+    logger.info("本子下载完成！")
 
     if forward_type.matched:
         node_count = 0
@@ -309,6 +310,8 @@ async def pica_download(
             )
         ]
         for time_count, path in enumerate(comic_path.rglob("*"), 1):
+            if path.is_dir():
+                continue
             node_count += 1
             forward_nodes.append(
                 ForwardNode(
@@ -343,18 +346,22 @@ async def pica_download(
         )
 
     else:
-        zip_dir = zip_directory(comic_path, comic_name)
+        zip_file = zip_directory(comic_path, comic_name)
         try:
             await app.upload_file(
-                data=zip_dir,
+                data=zip_file,
                 method=UploadMethod.Group,
                 target=group,
                 name=f"{str(comic_name).replace(' ', '')}.zip",
             )
+
         except RemoteException:
             await app.upload_file(
-                data=zip_dir,
+                data=zip_file,
                 method=UploadMethod.Group,
                 target=group,
                 name=f"pica_{comic_id}.zip",
             )
+
+        logger.info("发送完成，正在删除压缩文件")
+        zip_file.unlink()
