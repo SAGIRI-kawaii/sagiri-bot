@@ -300,7 +300,7 @@ async def pica_download(
 
     if forward_type.matched:
         node_count = 0
-        time_base = datetime.now() - timedelta(seconds=len(list(comic_path.rglob("*"))))
+        time_base = datetime.now() - timedelta(minutes=len(list(comic_path.rglob("*"))))
         forward_nodes = [
             ForwardNode(
                 sender_id=bot_qq,
@@ -316,13 +316,13 @@ async def pica_download(
             forward_nodes.append(
                 ForwardNode(
                     sender_id=bot_qq,
-                    time=time_base + timedelta(seconds=time_count),
+                    time=time_base + timedelta(minutes=time_count),
                     sender_name="纱雾酱",
                     message_chain=MessageChain(
                         [
                             Image(path=path),
                             Plain(
-                                f"\n{path.relative_to(comic_path)}\n{time_base + timedelta(seconds=time_count)}"
+                                f"\n{path.relative_to(comic_path)}\n{time_base + timedelta(minutes=time_count)}"
                             ),
                         ]
                     ),
