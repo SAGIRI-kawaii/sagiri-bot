@@ -10,6 +10,7 @@ from typing import Dict, Literal, Optional, Tuple, Union
 
 import aiohttp
 from aiohttp import TCPConnector, ClientSession
+from aiohttp.client_exceptions import ClientResponseError
 from creart import create
 from loguru import logger
 from PIL import Image as IMG
@@ -65,8 +66,7 @@ class Pica:
     @logger.catch
     async def check(self) -> Optional[bool]:
         try:
-            token = await self.login()
-            self.header["authorization"] = token
+            await self.login()
             self.init = True
             return True
         except aiohttp.ClientConnectorError:
@@ -121,7 +121,9 @@ class Pica:
             async with session.get(
                 url=url, headers=temp_header, proxy=proxy, data=data
             ) as resp:
-                resp.raise_for_status()
+                ret_data = await resp.json()
+                if not resp.ok:
+                    logger.warning(f"报错返回json:{ret_data}")
                 return await resp.json()
 
     async def login(self):
@@ -130,7 +132,6 @@ class Pica:
         send = {"email": self.account, "password": self.password}
         ret = await self.request(url, send)
         self.header["authorization"] = ret["data"]["token"]
-        return self.header["authorization"]
 
     async def categories(self):
         """获取所有目录"""
