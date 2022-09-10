@@ -94,6 +94,10 @@ class WordleWaiter(Waiter.create([GroupMessage])):
             )
             return True
         
+        # 防止出现问题
+        if self.wordle.finish:
+            return False
+
         word = word.upper()
         # 应该是聊其他的，直接 return
         legal_chars = "'-./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
