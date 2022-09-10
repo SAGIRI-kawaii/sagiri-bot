@@ -1,0 +1,17 @@
+{
+  "name": "ExceptionCatcher",
+  "version": "0.1",
+  "display_name": "错误报告",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个向主人报告错误的插件",
+  "usage": ["后台发生错误时自动触发"],
+  "icon": "",
+  "prefix": [],
+  "triggers": [],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
+}

@@ -67,7 +67,12 @@ class Sagiri(object):
             ),
             log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO"),
         )
-        self.app.launch_manager.add_service(PlaywrightService("chromium"))
+        self.app.launch_manager.add_service(
+            PlaywrightService(
+                "chromium",
+                proxy={"server": self.config.proxy if self.config.proxy != "proxy" else None}
+            )
+        )
 
     async def initialize(self):
         self.set_logger()

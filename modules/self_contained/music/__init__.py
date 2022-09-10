@@ -1,6 +1,6 @@
 from enum import Enum
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import UploadMethod
@@ -18,7 +18,6 @@ from shared.utils.control import (
     UserCalledCountControl,
 )
 
-saya = Saya.current()
 channel = Channel.current()
 
 channel.name("Music")

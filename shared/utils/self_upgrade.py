@@ -43,13 +43,14 @@ async def get_latest_commit(current_branch: str | None = None) -> dict | None:
             for r in res:
                 if sha := r.get("sha"):
                     try:
-                        if current_branch == await get_commit_branch(sha):
+                        t = await get_commit_branch(sha)
+                        if current_branch == t:
                             return r
                     except GithubAPILimitExceeded:
                         return logger.error(
                             "API rate limit exceeded，请前往配置填写 github token，检查输入是否有误或token是否失效"
                         )
-        return res[0]
+        return None if current_branch else res[0]
     else:
         logger.error(res.get("message"))
 

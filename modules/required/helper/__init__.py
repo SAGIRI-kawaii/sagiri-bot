@@ -148,8 +148,8 @@ async def detail_helper(app: Ariadne, group: Group, source: Source, index: Regex
             banner=random_pic(BANNER_PATH),
             authors=plugin_meta.authors or ["暂无"],
             description=plugin_meta.description or "暂无",
-            usage=plugin_meta.usage or "暂无",
-            example=plugin_meta.example or "暂无"
+            usage="\n".join(plugin_meta.usage) or "暂无",
+            example="\n".join(plugin_meta.example) or "暂无"
         )
         await app.send_group_message(
             group,

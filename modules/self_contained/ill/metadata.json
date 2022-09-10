@@ -1,0 +1,14 @@
+{
+  "name": "Ill",
+  "version": "0.2",
+  "display_name": "发病",
+  "authors": [
+    "nullqwertyuiop",
+    "SAGIRI-kawaii"
+  ],
+  "description": "生成对特定对象的发病文",
+  "usage": ["在群中发送 `/发病 [@target] 内容` 即可，target 未填时默认对自己发病"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["发病"]
+}

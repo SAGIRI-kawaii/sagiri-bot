@@ -1,0 +1,14 @@
+{
+  "name": "GenshinVoice",
+  "version": "0.1",
+  "display_name": "原神角色语音",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "发送特定原神角色语音",
+  "usage": ["在群中发送 `原神角色说 内容` 即可"],
+  "example": ["原神派蒙说 前面的区域，以后在探索吧"],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["原神"]
+}

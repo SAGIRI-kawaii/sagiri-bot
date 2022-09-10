@@ -26,7 +26,7 @@ async def html2image(html: str, wait: int = 0, template_path: str = f"file://{Pa
     return img
 
 
-async def md_to_pic(md: str = None, md_path: str | Path = None, css_path: str = None, width: int = 1920) -> bytes:
+async def md2pic(md: str = None, md_path: str | Path = None, css_path: str = None, width: int = 1920) -> bytes:
     """markdown 转 图片
 
     Args:
