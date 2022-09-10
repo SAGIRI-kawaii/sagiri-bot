@@ -33,7 +33,6 @@ with Path(Path(__file__).parent, "ill_templates.json").open("r", encoding="UTF-8
             Twilight(
                 [
                     get_command(__file__, channel.module),
-                    FullMatch("发病"),
                     ElementMatch(At, optional=True) @ "at",
                     ParamMatch(optional=True) @ "text",
                 ]
