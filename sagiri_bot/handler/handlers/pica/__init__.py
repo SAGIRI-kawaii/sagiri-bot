@@ -8,18 +8,18 @@ from graia.ariadne.connection.util import UploadMethod
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.exception import RemoteException
 from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import Forward, ForwardNode, Image, Plain, Source
+from graia.ariadne.message.element import Forward, ForwardNode, Image, Source
 from graia.ariadne.message.parser.twilight import (
     ArgResult,
     ArgumentMatch,
     FullMatch,
-    RegexMatch,
     RegexResult,
     Twilight,
     UnionMatch,
     WildcardMatch,
 )
 from graia.ariadne.model import Group, Member
+from graia.broadcast.builtin.decorators import Depend
 from graia.saya import Channel, Saya
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from loguru import logger
@@ -68,19 +68,60 @@ DAILY_SEARCH_LIMITER = DailyNumberLimiter(DAILY_SEARCH_LIMIT)
 DAILY_RANDOM_LIMITER = DailyNumberLimiter(DAILY_RANDOM_LIMIT)
 DAILY_RANK_LIMITER = DailyNumberLimiter(DAILY_RANK_LIMIT)
 
-limit_text = {
-    "download": "今天已经达到每日下载上限啦~\n明天再来吧~\n❤你❤这❤个❤小❤色❤批❤~",
-    "search": "今天已经达到每日搜索上限啦~\n明天再来吧~\n想找本子的话，自己去下载个哔咔好咯~",
-    "random": "今天已经达到每日随机本子上限啦~\n明天再来吧~\n你这个人对本子真是挑剔呢~",
-    "rank": "今天已经达到每日排行榜查询上限啦~\n明天再来吧~\n排行榜一次还看不够嘛~",
-}
-
 decorators = [
     FrequencyLimit.require("pica_function", 3),
     Function.require(channel.module, notice=True),
     BlackListControl.enable(),
     UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
 ]
+
+limit = {
+    "download": {
+        "limiter": DAILY_DOWNLOAD_LIMITER,
+        "text": "今天已经达到每日下载上限啦~\n明天再来吧~\n❤你❤这❤个❤小❤色❤批❤~",
+    },
+    "search": {
+        "limiter": DAILY_SEARCH_LIMITER,
+        "text": "今天已经达到每日搜索上限啦~\n明天再来吧~\n想找本子的话，自己去下载个哔咔好咯~",
+    },
+    "random": {
+        "limiter": DAILY_RANDOM_LIMITER,
+        "text": "今天已经达到每日随机本子上限啦~\n明天再来吧~\n你这个人对本子真是挑剔呢~",
+    },
+    "rank": {
+        "limiter": DAILY_RANK_LIMITER,
+        "text": "今天已经达到每日排行榜查询上限啦~\n明天再来吧~\n排行榜一次还看不够嘛~",
+    },
+}
+
+
+def check_init():
+    async def check_init_deco(app: Ariadne, group: Group):
+        if not pica.init:
+            return await app.send_group_message(
+                group, MessageChain("pica实例初始化失败，请重启机器人或重载插件！")
+            )
+
+    return Depend(check_init_deco)
+
+
+decorators_i = [*decorators, check_init()]
+
+
+def check_limit(ty: str):
+    limiter: DailyNumberLimiter = limit[ty]["limiter"]
+    limit_text: str = limit[ty]["text"]
+
+    async def check_limit_deco(
+        app: Ariadne, group: Group, member: Member, source: Source
+    ):
+        if not limiter.check(member.id):
+            return await app.send_group_message(
+                group, MessageChain(limit_text), quote=source
+            )
+        limiter.increase(member.id)
+
+    return Depend(check_limit_deco)
 
 
 @channel.use(
@@ -118,23 +159,10 @@ async def pica_init(app: Ariadne, group: Group):
                 ]
             )
         ],
-        decorators=decorators,
+        decorators=[*decorators_i, check_limit("rank")],
     )
 )
-async def pica_rank(
-    app: Ariadne, group: Group, member: Member, rank_time: RegexResult, source: Source
-):
-    if not DAILY_RANK_LIMITER.check(member.id):
-        return await app.send_group_message(
-            group, MessageChain(limit_text["rank"]), quote=source
-        )
-    DAILY_RANK_LIMITER.increase(member.id)
-
-    if not pica.init:
-        return await app.send_group_message(
-            group, MessageChain("pica实例初始化失败，请重启机器人或重载插件！")
-        )
-
+async def pica_rank(app: Ariadne, group: Group, rank_time: RegexResult):
     rank_type = rank_time.result.display[1:] if rank_time.result else "H24"
     data = (await pica.rank(rank_type))[:10]  # type: ignore
     forward_nodes = []
@@ -146,13 +174,11 @@ async def pica_rank(
                     time=datetime.now(),
                     sender_name="纱雾酱",
                     message_chain=MessageChain(
-                        [
-                            await pica_t2i(comic_info, rank=rank),
-                            "\n发送下列命令下载：\n"
-                            f"转发消息形式：pica download -forward {comic_info['_id']}\n"
-                            f"消息图片形式：pica download -message {comic_info['_id']}\n"
-                            f"压缩包形式：pica download {comic_info['_id']}",
-                        ]
+                        await pica_t2i(comic_info, rank=rank),
+                        "\n发送下列命令下载：\n"
+                        f"转发消息形式：pica download -forward {comic_info['_id']}\n"
+                        f"消息图片形式：pica download -message {comic_info['_id']}\n"
+                        f"压缩包形式：pica download {comic_info['_id']}",
                     ),
                 )
             )
@@ -177,40 +203,12 @@ async def pica_rank(
                 ]
             )
         ],
-        decorators=decorators,
+        decorators=[*decorators_i, check_limit("search"), check_limit("random")],
     )
 )
 async def pica_search(
-    app: Ariadne,
-    group: Group,
-    member: Member,
-    operation: RegexResult,
-    content: RegexResult,
-    source: Source,
+    app: Ariadne, group: Group, operation: RegexResult, content: RegexResult
 ):
-
-    if any(
-        [
-            str(operation.result) == "search"
-            and not DAILY_SEARCH_LIMITER.check(member.id),
-            str(operation.result) == "random"
-            and not DAILY_RANDOM_LIMITER.check(member.id),
-        ]
-    ):
-        return await app.send_group_message(
-            group, MessageChain(limit_text[str(operation.result)]), quote=source
-        )
-
-    if str(operation.result) == "search":
-        DAILY_SEARCH_LIMITER.increase(member.id)
-    elif str(operation.result) == "random":
-        DAILY_RANDOM_LIMITER.increase(member.id)
-
-    if not pica.init:
-        return await app.send_group_message(
-            group, MessageChain("pica实例初始化失败，请重启机器人或重载插件！")
-        )
-
     search = str(operation.result) == "search"
     keyword = str(content.result).strip() if content.matched else ""
     if search and content.matched:
@@ -233,13 +231,11 @@ async def pica_search(
                     time=datetime.now(),
                     sender_name="纱雾酱",
                     message_chain=MessageChain(
-                        [
-                            await pica_t2i(comic_info, is_search=search),
-                            "\n发送下列命令下载：\n"
-                            f"转发消息形式：pica download -forward {comic_info['_id']}\n"
-                            f"消息图片形式：pica download -message {comic_info['_id']}\n"
-                            f"压缩包形式：pica download {comic_info['_id']}",
-                        ]
+                        await pica_t2i(comic_info, is_search=search),
+                        "\n发送下列命令下载：\n"
+                        f"转发消息形式：pica download -forward {comic_info['_id']}\n"
+                        f"消息图片形式：pica download -message {comic_info['_id']}\n"
+                        f"压缩包形式：pica download {comic_info['_id']}",
                     ),
                 )
             )
@@ -267,28 +263,12 @@ async def pica_search(
                 ]
             )
         ],
-        decorators=decorators,
+        decorators=[*decorators_i, check_limit("download")],
     )
 )
 async def pica_download(
-    app: Ariadne,
-    group: Group,
-    member: Member,
-    source: Source,
-    forward_type: ArgResult,
-    content: RegexResult,
+    app: Ariadne, group: Group, forward_type: ArgResult, content: RegexResult
 ):
-    if not DAILY_DOWNLOAD_LIMITER.check(member.id):
-        return await app.send_group_message(
-            group, MessageChain(limit_text["download"]), quote=source
-        )
-
-    DAILY_DOWNLOAD_LIMITER.increase(member.id)
-
-    if not pica.init:
-        return await app.send_group_message(
-            group, MessageChain("pica实例初始化失败，请重启机器人或重载插件！")
-        )
 
     if not content.matched:
         return await app.send_group_message(group, MessageChain("是要下载什么啊？"))
@@ -299,52 +279,42 @@ async def pica_download(
     logger.info("本子下载完成！")
 
     if forward_type.matched:
-        node_count = 0
-        time_base = datetime.now() - timedelta(minutes=len(list(comic_path.rglob("*"))))
-        forward_nodes = [
-            ForwardNode(
-                sender_id=bot_qq,
-                time=time_base,
-                sender_name="纱雾酱",
-                message_chain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！"),
-            )
-        ]
-        for time_count, path in enumerate(comic_path.rglob("*"), 1):
-            if path.is_dir():
-                continue
-            node_count += 1
-            forward_nodes.append(
-                ForwardNode(
-                    sender_id=bot_qq,
-                    time=time_base + timedelta(minutes=time_count),
-                    sender_name="纱雾酱",
-                    message_chain=MessageChain(
-                        [
-                            Image(path=path),
-                            Plain(
-                                f"\n{path.relative_to(comic_path)}\n{time_base + timedelta(minutes=time_count)}"
-                            ),
-                        ]
-                    ),
-                )
-            )
-            if node_count == 20:
-                await app.send_message(
-                    group, MessageChain([Forward(node_list=forward_nodes)])
-                )
-                forward_nodes = [
-                    ForwardNode(
-                        sender_id=bot_qq,
-                        time=time_base + timedelta(seconds=time_count),
-                        sender_name="纱雾酱",
-                        message_chain=MessageChain("IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！"),
-                    )
-                ]
-                node_count = 0
-        await app.send_group_message(
-            group, MessageChain([Forward(node_list=forward_nodes)])
+        time_base = datetime.now() - timedelta(minutes=20)
+
+        node_message = lambda time, meesage: ForwardNode(
+            sender_id=bot_qq,
+            time=time_base + timedelta(minutes=time),
+            sender_name="纱雾酱",
+            message_chain=MessageChain(meesage),
         )
 
+        step = 20
+        files = list(comic_path.rglob("*.*"))
+        file_split = [files[i : i + step] for i in range(0, len(files), step)]
+        for file in file_split:
+            # oh 我的上帝，怎么能够这么套娃
+            pic_node = [
+                node_message(
+                    n,
+                    [
+                        Image(path=f),
+                        f"\n{f.relative_to(comic_path)}\n"
+                        f"{time_base + timedelta(minutes=n)}",
+                    ],
+                )
+                for n, f in enumerate(file)
+            ]
+            await app.send_group_message(
+                group,
+                MessageChain(
+                    Forward(
+                        node_list=[
+                            node_message(-1, "IOS系统可能会乱序，请参照下方文件名和发送时间顺序自行排序！"),
+                            *pic_node,
+                        ]
+                    )
+                ),
+            )
     else:
         zip_file = zip_directory(comic_path, comic_name)
         try:
