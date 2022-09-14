@@ -16,7 +16,8 @@ from graia.ariadne.message.element import At, Image
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.model import Group, Member
+from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.parser.twilight import (
     RegexMatch,
     ElementMatch,
@@ -51,7 +52,7 @@ squish_factor = [
 
 squish_translation_factor = [0, 20, 34, 21, 0]
 
-frames = tuple("statics/PetPetFrames/frame{i}.png" for i in range(5))
+frames = tuple(f"statics/PetPetFrames/frame{i}.png" for i in range(5))
 
 
 saya = Saya.current()
@@ -425,7 +426,7 @@ async def kiss_make_frame(operator, target, i):
     operator_y = [64, 40, 105, 110, 82, 96, 80, 55, 65, 100, 80, 65, 65]
     target_x = [58, 62, 42, 50, 56, 18, 28, 54, 46, 60, 35, 20, 40]
     target_y = [90, 95, 100, 100, 100, 120, 110, 100, 100, 100, 115, 120, 96]
-    bg = IMG.open(f"{os.getcwd()}/statics/KissKissFrames/{i}.png")
+    bg = IMG.open(f"statics/KissKissFrames/{i}.png")
     gif_frame = IMG.new("RGBA", (200, 200), (255, 255, 255))
     gif_frame.paste(bg, (0, 0))
     gif_frame.paste(target, (target_x[i - 1], target_y[i - 1]), target)
@@ -495,7 +496,7 @@ async def throw(image: Union[int, str]) -> MessageChain:
     avatar.putalpha(mask)
     avatar = avatar.rotate(random.randint(1, 360), IMG.BICUBIC)
     avatar = avatar.resize((143, 143), IMG.ANTIALIAS)
-    throw = IMG.open(f"{os.getcwd()}/statics/throw.png")
+    throw = IMG.open("statics/throw.png")
     throw.paste(avatar, (15, 178), mask=avatar)
     throw = throw.convert("RGB")
     output = BytesIO()
@@ -513,7 +514,7 @@ async def crawl(image: Union[int, str]) -> MessageChain:
     )
     mask = mask.filter(ImageFilter.GaussianBlur(0))
     avatar.putalpha(mask)
-    images = [i for i in os.listdir("statics/crawl")]
+    images = os.listdir("statics/crawl")
     crawl = IMG.open(f"statics/crawl/{random.choice(images)}").resize(
         (500, 500), IMG.ANTIALIAS
     )
@@ -560,7 +561,7 @@ async def rub(
     self_img = await get_pil_avatar(operator_image)
     user_img = await get_pil_avatar(target_image)
     for i in range(6):
-        frame = IMG.open(f"{os.getcwd()}/statics/RubFrames/frame{i}.png").convert(
+        frame = IMG.open(f"statics/RubFrames/frame{i}.png").convert(
             "RGBA"
         )
         x, y, w, h, angle = user_locs[i]
