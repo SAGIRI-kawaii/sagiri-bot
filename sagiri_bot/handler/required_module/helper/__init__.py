@@ -89,15 +89,12 @@ async def helper(app: Ariadne, group: Group, source: Source):
             (
                 i + 1,
                 plugin_meta.display_name
-                if plugin_meta.display_name else
-                (
-                    saya.channels[c].meta["name"]
-                    if saya.channels[c].meta["name"]
-                    else c.split(".")[-1]
-                ),
+                or saya.channels[c].meta["name"]
+                or c.split(".")[-1],
                 judge(c, group),
             )
         )
+
     if len(modules) % 3:
         modules.extend([(None, None, None) for _ in range(3 - len(modules) % 3)])
     template = env.get_template("plugins.html")
