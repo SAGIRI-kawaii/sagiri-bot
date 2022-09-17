@@ -1,0 +1,14 @@
+{
+  "name": "BilibiliResolve",
+  "version": "0.1",
+  "display_name": "B站链接解析",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个解析B站链接/AV/BV号/App消息的插件",
+  "usage": ["自动触发"],
+  "example": [],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}
