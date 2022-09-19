@@ -20,7 +20,6 @@ jieba = ">=0.42.1"
 loguru = ">=0.6.0"
 matplotlib = ">=3.5.2"
 moviepy = ">=1.0.3"
-numpy = ">=1.22.4"
 pillow = ">=9.2.0"
 pydantic = ">=1.9.1"
 python-dateutil = ">=2.8.2"
@@ -49,15 +48,20 @@ chardet = ">=5.0.0"
 basicsr = { version = ">=1.4.1", optional = true }
 realesrgan = { version = ">=0.2.5.0", optional = true }
 
+# 这玩意儿太重要了，单独塞一个地方
+numpy = ">=1.22.4"
+
 # mockingbird所需模块
-# 因为最新版numba与torch所需要的numpy版本不同，所以只能锁定了
-mockingbirdforuse = { version = ">=0.2.3", optional = true }
-torch = { version = "1.11.0", optional = true }
+librosa = {version = ">=0.9.0", optional = true }
+inflect = {version = ">=5.6.0", optional = true }
+Unidecode = {version = ">=1.3.0", optional = true }
+webrtcvad = {version = ">=2.0.0", optional = true }
+torch = { version = ">=1.12.0", optional = true }
 
 [tool.poetry.extras]
 # 跟 pytorch 什么的扯上关系的，还是都选装吧
 super_resolution = ["realesrgan", "basicsr"]
-mockingbird = ["mockingbirdforuse", "torch"]
+mockingbird = ["librosa", "inflect", "Unidecode", "webrtcvad", "torch"]
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"

@@ -3,6 +3,7 @@ import jinja2
 import random
 from pathlib import Path
 from typing import Union
+from loguru import logger
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
@@ -53,7 +54,7 @@ def judge(name: str, group: Union[int, Group]):
     group = group.id if isinstance(group, Group) else group
     group = str(group)
     if name not in saya_data.switch:
-        print(name, "not found!")
+        logger.info(f"{name} not found!")
         saya_data.add_saya(name)
     if group not in saya_data.switch[name]:
         saya_data.add_group(group)
@@ -65,7 +66,7 @@ def random_pic(base_path: Union[Path, str]) -> Union[str, Path]:
         base_path = Path(base_path)
     path_dir = os.listdir(base_path)
     path = random.sample(path_dir, 1)[0]
-    return str(Path("sagiri_bot") / "handler" / "required_module" / "helper" / "banners" / path).replace("\\", "/")
+    return str(Path(__file__) / "banners" / path)
 
 
 @channel.use(

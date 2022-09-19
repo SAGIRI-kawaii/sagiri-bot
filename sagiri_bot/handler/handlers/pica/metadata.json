@@ -1,9 +1,10 @@
 {
   "name": "Pica",
-  "version": "0.1",
+  "version": "0.2",
   "display_name": "哔咔漫画",
   "authors": [
-    "SAGIRI-kawaii"
+    "SAGIRI-kawaii",
+    "I_love_study"
   ],
   "description": "一个接入哔咔漫画的插件，支持搜索关键词，随机漫画，下载漫画，排行榜获取",
   "usage": "在群中发送 `pica search {keyword}` 来搜索特定关键词\n在群中发送 `pica random` 来获取随机漫画\n在群中发送 `pica rank -H24/-D7/-D30` 来获取24小时/一周/一月内排行榜\n在群中发送 `pica download (-message|-forward) {comic_id}` 来获取图片消息/转发消息/压缩文件形式的漫画",

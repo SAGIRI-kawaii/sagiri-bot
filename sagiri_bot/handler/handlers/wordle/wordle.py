@@ -19,6 +19,8 @@ class Wordle:
         self.length = len(word)
         self.word = word
         self.word_upper = word.upper()
+        self.finish = False
+
         self.row = self.length + 1
         self.pointer = 0
 
@@ -145,7 +147,7 @@ class Wordle:
             )
         self.pointer += 1
 
-        game_end = self.pointer >= self.row
+        game_end = self.finish = self.pointer >= self.row
         game_win = answer == self.word_upper
 
         return game_end, game_win

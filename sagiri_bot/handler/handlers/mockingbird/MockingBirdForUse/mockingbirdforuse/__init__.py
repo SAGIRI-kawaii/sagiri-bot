@@ -15,7 +15,7 @@ from .encoder.inference import Encoder, preprocess_wav
 
 def process_text(text: str) -> List[str]:
     punctuation = "！，。、,?!,"  # punctuate and split/clean text
-    text = re.sub(r"[{}]+".format(punctuation), "\n", text)
+    text = re.sub(f"[{punctuation}]+", "\n", text)
     return [
         processed_text.strip()
         for processed_text in text.split("\n")

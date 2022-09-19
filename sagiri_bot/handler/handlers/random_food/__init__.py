@@ -31,8 +31,8 @@ channel.author("nullqwertyuiop")
 channel.author("SAGIRI-kawaii")
 channel.description("随机餐点")
 
-with open(str(Path(__file__).parent.joinpath("food.json")), "r", encoding="utf-8") as r:
-    food = json.loads(r.read())
+with (Path(__file__).parent / "food.json").open("r", encoding="utf-8") as r:
+    food = json.load(r)
 
 
 @channel.use(

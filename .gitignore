@@ -4,6 +4,7 @@ config.yaml
 
 # Python binary files
 */__pycache__
+*.pyc
 
 # macOS special files
 .DS_Store
@@ -11,30 +12,37 @@ config.yaml
 .LSOverride
 ._*
 
+#虚拟环境
+.venv/
+
+#各种测试
+/test
+test.py
+
+#各种配置、日志文件
 /alembic
 /.idea
+/.venv
 data.db
-test.py
 /log
 /sagiri_bot/handler/required_module/saya_manager/saya_data.json
-*.pyc
+
+# 各种插件的
 /sagiri_bot/handler/handlers/pica/cache
 /sagiri_bot/handler/handlers/genshin_gacha/icon/角色图鉴/*
 /sagiri_bot/handler/handlers/genshin_gacha/icon/武器图鉴/*
 /sagiri_bot/handler/handlers/genshin_gacha/gid_pool.json
 /sagiri_bot/handler/required_module/mirai_event/event_config.yaml
-/statics/genshin/*.json
 /sagiri_bot/core/api_server/data.json
+
+#原神的测试
+/statics/genshin/*.json
 /statics/genshin/genshin_icon/*
 /statics/genshin/map/*
 /statics/genshin/material/*
 /statics/genshin/temp/*
-migrator.py
-
-.venv/
 
 # mockingbird 模型，太大了
 /statics/models/mockingbird/*
 !/statics/models/mockingbird/tips.txt
 
-/test
