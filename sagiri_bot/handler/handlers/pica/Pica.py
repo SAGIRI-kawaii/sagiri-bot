@@ -203,9 +203,9 @@ class Pica:
             episode_path.mkdir(exist_ok=True)
             for img in data["pages"]["docs"]:
                 media = img["media"]
-                img_url = f"{media['fileServer']}/static/{media['path']}"
                 image_path: Path = episode_path / media["originalName"]
                 if not image_path.exists():
+                    img_url = f"{media['fileServer']}/static/{media['path']}"
                     tasks.append([img_url, image_path])
         async with aiohttp.ClientSession(
             connector=TCPConnector(ssl=False, limit=5)

@@ -64,8 +64,7 @@ async def random_meal(app: Ariadne, group: Group, source: Source, option: MatchR
             dish.append(random.choice(food[option]["drink"]))
         else:
             dish.append(random.choice(food[option]["pre"]))
-    for _ in range(0, main_amount):
-        dish.append(random.choice(food[option]["main"]))
+    dish.extend(random.choice(food[option]["main"]) for _ in range(main_amount))
     result = f"你的随机{option}是：\n" + " ".join(dish)
     await app.send_group_message(group, MessageChain(result), quote=source)
 
@@ -98,5 +97,5 @@ async def random_tea(app: Ariadne, group: Group, source: Source, option: MatchRe
         addon = divider + str(random.choice(food[option]["addon"]))
     if randrange(2):
         cream = divider + str(random.choice(food[option]["cream"]))
-    result = f"你的随机{option}是：\n" + temperature + sugar + addon + cream + body
+    result = f"你的随机{option}是：\n{temperature}{sugar}{addon}{cream}{body}"
     await app.send_group_message(group, MessageChain(result), quote=source)

@@ -628,8 +628,8 @@ async def swallowed(image: Union[int, str]) -> MessageChain:
 
     frames = []
     for _ in range(2):
-        frames.extend(avatar_frames[0:12])
-    frames.extend(avatar_frames[0:8])
+        frames.extend(avatar_frames[:12])
+    frames.extend(avatar_frames[:8])
     frames.extend(avatar_frames[12:18])
     frames.extend(raw_frames[18:23])
 

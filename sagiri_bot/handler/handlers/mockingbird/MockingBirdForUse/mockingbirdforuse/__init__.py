@@ -109,11 +109,11 @@ class MockingBird:
             if not self.rnn_vocoder:
                 raise Exception("Please set wavernn vocoder path first")
             wav, sample_rate = self.rnn_vocoder.infer_waveform(spec)
-        else:
-            if not self.gan_vocoder:
-                raise Exception("Please set hifigan vocoder path first")
+        elif self.gan_vocoder:
             wav, sample_rate = self.gan_vocoder.infer_waveform(spec)
 
+        else:
+            raise Exception("Please set hifigan vocoder path first")
         # Return cooked wav
         out = BytesIO()
         wavfile.write(out, sample_rate, wav.astype(np.float32))
