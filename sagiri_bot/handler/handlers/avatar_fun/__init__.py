@@ -413,7 +413,7 @@ async def petpet(image: Union[int, str], flip=False, squish=0, fps=20) -> Messag
         await make_frame(avatar, i, squish=squish, flip=flip) for i in range(5)
     ]
 
-    Path("/statics/temp/").mkdir(exist_ok=True)
+    Path("statics/temp/").mkdir(exist_ok=True)
     image_bytes = save_gif(gif_frames, fps=fps)
 
     return MessageChain([Image(data_bytes=image_bytes)])
