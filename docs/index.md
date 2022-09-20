@@ -41,4 +41,4 @@ SAGIRI之名取自动漫《埃罗芒阿老师》中的角色 [和泉纱雾(Izumi
 > ## 值得一看的文档
 
 - [Graia Ariadne 文档](https://graia.readthedocs.io/)
-- [Graia社区文档](https://graiax.cn/)
+- [Graia 社区文档](https://graiax.cn/)

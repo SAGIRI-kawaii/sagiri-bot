@@ -141,9 +141,15 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 
 前往 `mirai-console-loader` 的 `plugin` 文件夹下删除重复的 `mirai-api-http` 插件
 
-> ## command "python" not found
+> ## python: command not found
 
 <font color="red">Are you serious?</font>
+
+> ## poetry: command not found
+
+确保 `poetry` 已经安装，若未安装，请参考文档部署
+
+若已安装，请检查 `poetry` 是否在 `PATH` 中，若不在，请手动添加
 
 > ## /lib/x86_64-linux-gnu/libc.so.6: version GLIBC_2.28 not found
 
@@ -217,13 +223,20 @@ bot_qq
 
 账号被腾讯风险控制，尝试开关设备锁、重新登录、或者登录满一至两周后再试。
 
-> ## 消息时提示 RemoteException
+> ## 消息时提示 graia.ariadne.exception.RemoteException
 
-账号被冻结群消息发送，可手动登录机器人账号发送群消息解除冻结。
+该类报错需要读取错误详情
+
+* `MessageSvcPbSendMsg.Response.Failed(resultType=46, ...)`
+    * 账号被冻结群消息发送，可手动登录机器人账号发送群消息解除冻结。
 
 > ## macOS 部署教程
 
 大部分可参考 Linux 部署教程
+
+> ## 安卓下部署/运行出错
+
+我猜你应该没有[看过这里](https://sagiri-kawaii.github.io/sagiri-bot/deployment/android/#_2)
 
 > ## 代理相关
 
