@@ -16,6 +16,7 @@ from shared.utils.control import (
     Function,
     BlackListControl,
     UserCalledCountControl,
+    Distribute
 )
 
 channel = Channel.current()
@@ -45,6 +46,7 @@ class MusicPlatform(Enum):
             ])
         ],
         decorators=[
+            Distribute.distribute(),
             FrequencyLimit.require("music", 1),
             Function.require(channel.module),
             BlackListControl.enable(),

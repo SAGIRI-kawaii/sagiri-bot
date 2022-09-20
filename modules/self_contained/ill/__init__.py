@@ -18,7 +18,7 @@ from graia.ariadne.event.message import GroupMessage
 from graia.saya.builtins.broadcast import ListenerSchema
 
 from shared.utils.module_related import get_command
-from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl, Distribute
 
 channel = Channel.current()
 
@@ -37,6 +37,7 @@ with Path(Path(__file__).parent, "ill_templates.json").open("r", encoding="UTF-8
             ])
         ],
         decorators=[
+            Distribute.distribute(),
             FrequencyLimit.require("ill", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
@@ -52,7 +53,7 @@ async def ill(app: Ariadne, group: Group, member: Member, at: ElementResult, tex
         else:
             target = _target
     elif text.matched:
-        target = text.result.display
+        target = text.result.display.strip()
     else:
         target = member.name
     await app.send_group_message(group, MessageChain(random.choice(TEMPLATES).format(target=target)),)

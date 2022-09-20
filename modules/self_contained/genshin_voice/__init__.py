@@ -12,7 +12,7 @@ from graia.ariadne.event.message import GroupMessage
 from graia.saya.builtins.broadcast import ListenerSchema
 
 from shared.utils.module_related import get_command
-from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl, Distribute
 
 channel = Channel.current()
 channel.name("GenshinVoice")
@@ -38,14 +38,15 @@ url = "http://233366.proxy.nscc-gz.cn:8888/?text={content}&speaker={speaker}"
             ])
         ],
         decorators=[
-            FrequencyLimit.require("ill", 1),
+            Distribute.distribute(),
+            FrequencyLimit.require("genshin_voice", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
         ],
     )
 )
-async def ill(app: Ariadne, group: Group, speaker: RegexResult, content: RegexResult):
+async def genshin_voice(app: Ariadne, group: Group, speaker: RegexResult, content: RegexResult):
     speaker = speaker.result.display[2:-1].strip()
     content = content.result.display.strip()
     if speaker not in valid_characters:

@@ -22,6 +22,7 @@ from shared.utils.control import (
     Function,
     BlackListControl,
     UserCalledCountControl,
+    Distribute
 )
 
 saya = Saya.current()
@@ -67,6 +68,7 @@ def random_pic(base_path: Union[Path, str]) -> Union[str, Path]:
         listening_events=[GroupMessage],
         inline_dispatchers=[Twilight([get_command(__file__, channel.module)])],
         decorators=[
+            Distribute.distribute(),
             FrequencyLimit.require("helper", 1),
             Function.require(channel.module),
             BlackListControl.enable(),

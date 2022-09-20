@@ -13,7 +13,7 @@
   ],
   "icon": "",
   "prefix": ["/", ".", "#", ""],
-  "triggers": ["help", "帮助", "菜单", "功能", "纱雾帮助", "帮助捏"],
+  "triggers": ["help", "帮助", "菜单", "功能", "纱雾帮助", "帮助捏", "menu"],
   "metadata": {
     "uninstallable": false,
     "reloadable": true

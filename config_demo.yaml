@@ -1,5 +1,6 @@
 # 必要数据及设置
-bot_qq: bot_qq
+bot_accounts: bot_accounts
+default_account: default_account
 host_qq: host_qq
 mirai_host: http://localhost:23456
 verify_key: !!str 1234567890

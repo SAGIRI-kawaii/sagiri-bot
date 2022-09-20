@@ -15,8 +15,8 @@ from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, ArgR
 
 from core import Sagiri
 from shared.utils.time import sec_format
-from shared.utils.control import Permission
 from shared.models.config import GlobalConfig
+from shared.utils.control import Permission, Distribute
 
 saya = Saya.current()
 channel = Channel.current()
@@ -40,7 +40,7 @@ launch_time = create(Sagiri).launch_time
                 ArgumentMatch("-s", "-storage", optional=True, action="store_true") @ "storage"
             ])
         ],
-        decorators=[Permission.require(Permission.SUPER_ADMIN)]
+        decorators=[Distribute.distribute(), Permission.require(Permission.SUPER_ADMIN)]
     )
 )
 async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: ArgResult, storage: ArgResult):

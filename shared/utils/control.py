@@ -1,6 +1,9 @@
+import contextlib
 import time
 import random
 from asyncio import Lock
+
+import sqlalchemy.exc
 from loguru import logger
 from sqlalchemy import select
 from collections import defaultdict
@@ -16,12 +19,12 @@ from graia.ariadne.message.element import Source
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.exceptions import ExecutionStop
 from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.message.formatter import Formatter
 from graia.broadcast.builtin.decorators import Depend
 from graia.ariadne.model.relationship import MemberPerm
 
 from shared.models.config import GlobalConfig
 from shared.models.saya_data import get_saya_data
+from shared.models.public_group import PublicGroup
 from shared.models.group_setting import GroupSetting
 from shared.utils.permission import user_permission_require
 from shared.utils.data_related import update_user_call_count_plus
@@ -59,11 +62,12 @@ class Permission(object):
             )
         ):
             return result[0]
-        await orm.insert_or_ignore(
-            UserPermission,
-            [UserPermission.group_id == group, UserPermission.member_id == member],
-            {"group_id": group, "member_id": member, "level": 1},
-        )
+        with contextlib.suppress(sqlalchemy.exc.IntegrityError):
+            await orm.insert_or_ignore(
+                UserPermission,
+                [UserPermission.group_id == group, UserPermission.member_id == member],
+                {"group_id": group, "member_id": member, "level": 1},
+            )
         return Permission.DEFAULT
 
     @classmethod
@@ -358,3 +362,15 @@ class Config(object):
                     return
 
         return Depend(config_available)
+
+
+class Distribute(object):
+    @staticmethod
+    def distribute() -> Depend:
+        async def judge(app: Ariadne, group: Group, source: Source) -> NoReturn:
+            public_group = create(PublicGroup)
+            if public_group.need_distribute(group, app.account) and public_group.execution_stop(group, app.account, source):
+                print(app.account, "stop")
+                raise ExecutionStop()
+            print(app.account, "keep")
+        return Depend(judge)

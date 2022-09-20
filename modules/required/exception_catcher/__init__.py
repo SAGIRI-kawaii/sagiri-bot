@@ -1,4 +1,3 @@
-from typing import List
 from unwind import get_report, ReportFlag
 
 from creart import create

@@ -15,7 +15,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
 from shared.utils.module_related import get_command
-from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl, Distribute
 
 saya = Saya.current()
 channel = Channel.current()
@@ -31,15 +31,14 @@ characters = {}
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                [
-                    get_command(__file__, channel.module),
-                    RegexMatch(r"[12][0-9]{8}") @ "uid",
-                    RegexMatch(r".*") @ "chara",
-                ]
-            )
+            Twilight([
+                get_command(__file__, channel.module),
+                RegexMatch(r"[12][0-9]{8}") @ "uid",
+                RegexMatch(r".*") @ "chara",
+            ])
         ],
         decorators=[
+            Distribute.distribute(),
             FrequencyLimit.require("genshin_chara_card", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),

@@ -12,7 +12,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult, ElementMatch, ElementResult
 
 from .utils import get_video_info, b23_url_extract, math, info_json_dump, gen_img, url_vid_extract
-from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl
+from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl, Distribute
 
 saya = Saya.current()
 channel = Channel.current()
@@ -41,6 +41,7 @@ p = re.compile(f"({avid_re})|({bvid_re})")
             ])
         ],
         decorators=[
+            Distribute.distribute(),
             FrequencyLimit.require("bilibili_resolve_text", 1),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),

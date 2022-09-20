@@ -4,6 +4,7 @@ from loguru import logger
 from pathlib import Path
 from creart import create
 from graia.saya import Saya
+from graia.ariadne import Ariadne
 from graia.broadcast import Broadcast
 from graia.ariadne.event.message import ActiveFriendMessage, ActiveGroupMessage
 from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Stranger
@@ -20,46 +21,46 @@ saya = create(Saya)
 
 
 @bcc.receiver("GroupMessage")
-async def group_message_handler(message: MessageChain, group: Group, member: Member):
+async def group_message_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
     message_text_log = message.display.replace("\n", "\\n").strip()
     logger.info(
-        f"收到来自群 <{group.name.strip()}> 中成员 <{member.name.strip()}> 的消息：{message_text_log}"
+        f"收到来自 Bot <{app.account}> 群 <{group.name.strip()}> 中成员 <{member.name.strip()}> 的消息：{message_text_log}"
     )
 
 
 @bcc.receiver("FriendMessage")
-async def friend_message_listener(friend: Friend, message: MessageChain):
+async def friend_message_listener(app: Ariadne, friend: Friend, message: MessageChain):
     message_text_log = message.display.replace("\n", "\\n").strip()
-    logger.info(f"收到来自好友 <{friend.nickname.strip()}> 的消息：{message_text_log}")
+    logger.info(f"收到来自 Bot<{app.account}> 好友 <{friend.nickname.strip()}> 的消息：{message_text_log}")
 
 
 @bcc.receiver("TempMessage")
-async def temp_message_listener(member: Member, message: MessageChain):
+async def temp_message_listener(app: Ariadne, member: Member, message: MessageChain):
     message_text_log = message.display.replace("\n", "\\n").strip()
     logger.info(
-        f"收到来自群 <{member.group.name.strip()}> 中成员 <{member.name.strip()}> 的临时消息：{message_text_log}"
+        f"收到来自 Bot <{app.account}> 群 <{member.group.name.strip()}> 中成员 <{member.name.strip()}> 的临时消息：{message_text_log}"
     )
 
 
 @bcc.receiver("StrangerMessage")
-async def stranger_message_listener(stranger: Stranger, message: MessageChain):
+async def stranger_message_listener(app: Ariadne, stranger: Stranger, message: MessageChain):
     message_text_log = message.display.replace("\n", "\\n").strip()
-    logger.info(f"收到来自陌生人 <{stranger.nickname.strip()}> 的消息：{message_text_log}")
+    logger.info(f"收到来自 Bot <{app.account}> 陌生人 <{stranger.nickname.strip()}> 的消息：{message_text_log}")
 
 
 @bcc.receiver("ActiveGroupMessage")
-async def active_group_message_handler(event: ActiveGroupMessage):
+async def active_group_message_handler(app: Ariadne, event: ActiveGroupMessage):
     message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
-    logger.info(f"成功向群 <{event.subject.name.strip()}> 发送消息：{message_text_log}")
+    logger.info(f"成功向 Bot <{app.account}> 群 <{event.subject.name.strip()}> 发送消息：{message_text_log}")
 
 
 @bcc.receiver("ActiveFriendMessage")
-async def active_friend_message_handler(event: ActiveFriendMessage):
+async def active_friend_message_handler(app: Ariadne, event: ActiveFriendMessage):
     message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
-    logger.info(f"成功向好友 <{event.subject.nickname.strip()}> 发送消息：{message_text_log}")
+    logger.info(f"成功向 Bot <{app.account}> 好友 <{event.subject.nickname.strip()}> 发送消息：{message_text_log}")
 
 
-@bcc.receiver("ApplicationLaunch")
+@bcc.receiver("AccountLaunch")
 async def init():
     await core.initialize()
     await online_notice()

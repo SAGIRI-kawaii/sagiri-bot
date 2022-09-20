@@ -56,7 +56,8 @@ def get_plugin_config(module: str) -> PluginConfig:
 
 
 class GlobalConfig(BaseModel):
-    bot_qq: int
+    bot_accounts: List[int]
+    default_account: int | None
     host_qq: int
     mirai_host: str = "http://localhost:8080"
     verify_key: str = "1234567890"

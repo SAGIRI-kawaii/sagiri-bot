@@ -27,6 +27,7 @@ from graia.ariadne.connection.config import (
 )
 from graiax.playwright import PlaywrightService
 from graia.ariadne.model import LogConfig, Group
+from graia.ariadne.model.util import AriadneOptions
 from creart import create, add_creator, exists_module
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 from creart.creator import AbstractCreator, CreateTargetInfo
@@ -34,6 +35,7 @@ from creart.creator import AbstractCreator, CreateTargetInfo
 from shared.models.config import GlobalConfig
 from shared.utils.self_upgrade import self_upgrade
 from shared.models.blacklist import GroupBlackList
+from shared.models.public_group import PublicGroup
 from shared.orm import orm, Setting, UserPermission
 from shared.models.group_setting import GroupSetting
 
@@ -49,63 +51,73 @@ non_log = {
 
 
 class Sagiri(object):
-    app: Ariadne
+    apps: List[Ariadne]
     config: GlobalConfig
     main_path: str | Path
     launch_time: datetime.datetime
+    initialized: bool = False
 
     def __init__(self, g_config: GlobalConfig, main_path: str | Path):
         self.launch_time = datetime.datetime.now()
         self.config = create(GlobalConfig)
         self.main_path = main_path if isinstance(main_path, Path) else Path(main_path)
-        self.app = Ariadne(
+        self.apps = [Ariadne(
             config(
-                g_config.bot_qq,
+                bot_account,
                 str(g_config.verify_key),
                 HttpClientConfig(host=g_config.mirai_host),
                 WebsocketClientConfig(host=g_config.mirai_host),
             ),
             log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO"),
-        )
-        self.app.launch_manager.add_service(
+        ) for bot_account in self.config.bot_accounts]
+        if self.config.default_account:
+            self.apps[0].options = AriadneOptions(default_account=self.config.default_account)
+        self.apps[0].launch_manager.add_service(
             PlaywrightService(
                 "chromium",
                 proxy={"server": self.config.proxy if self.config.proxy != "proxy" else None}
             )
         )
+        self.config_check()
 
     async def initialize(self):
+        if self.initialized:
+            return
+        self.initialized = True
         self.set_logger()
         logger.info("Sagiri Initializing...")
         bcc = create(Broadcast)
         saya = create(Saya)
         saya.install_behaviours(BroadcastBehaviour(bcc))
-        self.app.debug = False
-        self.config_check()
+        for app in self.apps:
+            app.debug = False
         try:
             await orm.init_check()
         except (AttributeError, InternalError, ProgrammingError):
             await orm.create_all()
         self.alembic()
         await orm.update(Setting, [], {"active": False})
-        group_list = await self.app.get_group_list()
-        for group in group_list:
-            await orm.insert_or_update(
-                Setting,
-                [Setting.group_id == group.id],
-                {"group_id": group.id, "group_name": group.name, "active": True},
-            )
-        _ = await self.update_host_permission(group_list)
+        total_groups = {}
+        for app in self.apps:
+            group_list = await app.get_group_list()
+            for group in group_list:
+                await orm.insert_or_update(
+                    Setting,
+                    [Setting.group_id == group.id],
+                    {"group_id": group.id, "group_name": group.name, "active": True},
+                )
+            _ = await self.update_host_permission(group_list)
+            total_groups[app.account] = group_list
         _ = await self_upgrade()
         logger.info("本次启动活动群组如下：")
-        for group in group_list:
-            logger.info(f"群ID: {str(group.id).ljust(14)}群名: {group.name}")
+        for account, group_list in total_groups.items():
+            for group in group_list:
+                logger.info(f"Bot账号: {str(account).ljust(14)}群ID: {str(group.id).ljust(14)}群名: {group.name}")
         await create(GroupSetting).data_init()
+        await create(PublicGroup).data_init()
         await create(GroupBlackList).data_init()
 
-    async def update_host_permission(self, group_list: List[Group] | None = None):
-        if not group_list:
-            group_list = await self.app.get_group_list()
+    async def update_host_permission(self, group_list: List[Group]):
         for group in group_list:
             await orm.insert_or_update(
                 UserPermission,
@@ -132,9 +144,12 @@ class Sagiri(object):
             rotation=datetime.time(),
         )
 
+    async def set_group_account(self):
+        pass
+
     def config_check(self) -> None:
         """配置检查"""
-        required_key = ("bot_qq", "host_qq", "mirai_host", "verify_key")
+        required_key = ("bot_accounts", "default_account", "host_qq", "mirai_host", "verify_key")
         logger.info("Start checking configuration\n-----------------------------------------------")
         father_properties = tuple(dir(BaseModel))
         properties = [
@@ -222,9 +237,10 @@ class Sagiri(object):
         os.system("alembic upgrade head")
 
     def launch(self):
-        self.app.launch_blocking()
+        self.apps[0].launch_blocking()
 
-    async def restart(self): ...
+    async def restart(self):
+        ...
 
 
 class SagiriClassCreator(AbstractCreator, ABC):
