@@ -25,7 +25,7 @@ avid_re = r"(av|AV)(\d{1,12})"
 bvid_re = "[Bb][Vv]1([0-9a-zA-Z]{2})4[1y]1[0-9a-zA-Z]7([0-9a-zA-Z]{2})"
 b23_re = r"(https?://)?b23.tv/\w+"
 url_re = r"(https?://)?www.bilibili.com/video/.+(\?[\w\W]+)?"
-p = re.compile(f'({avid_re})|({bvid_re})')
+p = re.compile(f"({avid_re})|({bvid_re})")
 
 
 @channel.use(
@@ -58,7 +58,6 @@ async def bilibili_resolve_text(
     url: RegexResult,
     bapp: ElementResult
 ):
-    print(message.display)
     if av.matched or bv.matched:
         vid = message.display
     elif b23url.matched or bapp.matched:
@@ -82,7 +81,6 @@ async def bilibili_resolve_text(
     else:
         return
     video_info = await get_video_info(vid)
-    print(video_info)
     if video_info['code'] == -404:
         return await app.send_message(group, MessageChain("视频不存在"))
     elif video_info['code'] != 0:
@@ -91,14 +89,13 @@ async def bilibili_resolve_text(
         return await app.send_message(group, MessageChain(error_text))
     else:
         video_info = info_json_dump(video_info['data'])
-        img: bytes = await gen_img(video_info)
+        img = await gen_img(video_info)
         await app.send_message(
             group,
             MessageChain(
                 Image(data_bytes=img),
                 Plain(
                     f'{video_info.title}\n'
-                    '————————————————————\n'
                     f'UP主：{video_info.up_name}\n'
                     f'{math(video_info.views)}播放 {math(video_info.likes)}赞\n'
                     f'链接：https://b23.tv/{video_info.bvid}'

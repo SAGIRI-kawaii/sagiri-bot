@@ -1,10 +1,21 @@
 import re
 import time
+import qrcode
+import jinja2
+import base64
 import aiohttp
+from io import BytesIO
+from pathlib import Path
 from typing import Literal
 from dataclasses import dataclass
 
-from shared.utils.text2image import md2pic
+from shared.utils.text2image import html2image
+
+env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(Path(__file__).parent),
+    enable_async=True,
+    autoescape=True,
+)
 
 
 @dataclass
@@ -27,6 +38,18 @@ class VideoInfo:
     favorites: int  # 收藏量
 
 
+@dataclass
+class UserInfo:
+    name: str   # 名字
+    mid: int    # id
+    avatar_url: str    # 头像链接
+    sign: str   # 个性签名
+    fans: int   # 粉丝数量
+    friend: int    # 关注数量
+    gender: Literal["男", "女", "保密"]    # 性别
+    level: int  # 等级
+
+
 async def get_video_info(vid_id: str) -> dict:
     async with aiohttp.ClientSession() as session:
         if vid_id[:2] in {"av", "aV", "Av", "AV"}:
@@ -38,6 +61,23 @@ async def get_video_info(vid_id: str) -> dict:
         else:
             raise ValueError("视频 ID 格式错误，只可为 av 或 BV")
         return video_info
+
+
+async def get_user_info(mid: int) -> UserInfo:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://api.bilibili.com/x/web-interface/card?mid={mid}") as resp:
+            data = await resp.json(content_type=resp.content_type)
+    data = data.get("data", {}).get("card")
+    return UserInfo(
+        mid=mid,
+        name=data.get("name"),
+        gender=data.get("sex"),
+        avatar_url=data.get("face"),
+        sign=data.get("sign"),
+        level=data.get("level"),
+        fans=data.get("fans"),
+        friend=data.get("friend")
+    )
 
 
 async def b23_url_extract(b23_url: str) -> Literal[False] | str:
@@ -88,31 +128,35 @@ def info_json_dump(obj: dict) -> VideoInfo:
 
 
 async def gen_img(data: VideoInfo) -> bytes:
-    video_length_m, video_length_s = divmod(data.duration, 60)  # 将总的秒数转换为时分秒格式
-    video_length_h, video_length_m = divmod(video_length_m, 60)
-    if video_length_h == 0:
-        video_length = f'{video_length_m}:{video_length_s}'
-    else:
-        video_length = f'{video_length_h}:{video_length_m}:{video_length_s}'
-
-    info_text = (
-        f'BV号：{data.bvid}  \n'
-        f'av号：av{data.avid}  \n'
-        f'标题：{data.title}  \n'
-        f'UP主：{data.up_name}  \n'
-        f'时长：{video_length}  \n'
-        f'发布时间：{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(data.pub_timestamp))}  \n'
+    user_info = await get_user_info(data.up_mid)
+    bytes_io = BytesIO()
+    qrcode_img = qrcode.make(f"https://b23.tv/{data.bvid}")
+    qrcode_img.save(bytes_io)
+    qrcode_base64 = base64.b64encode(bytes_io.getvalue())
+    # video_length_m, video_length_s = divmod(data.duration, 60)  # 将总的秒数转换为时分秒格式
+    # video_length_h, video_length_m = divmod(video_length_m, 60)
+    # if video_length_h == 0:
+    #     video_length = f'{video_length_m}:{video_length_s}'
+    # else:
+    #     video_length = f'{video_length_h}:{video_length_m}:{video_length_s}'
+    template = env.get_template("template.html")
+    return await html2image(
+        html=await template.render_async(
+            bv=data.bvid,
+            av=f"av{data.avid}",
+            title=data.title,
+            desc=data.desc,
+            username=data.up_name,
+            time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(data.pub_timestamp)),
+            views=math(data.views),
+            likes=math(data.likes),
+            danmu=math(data.danmu),
+            coins=math(data.coins),
+            favorites=math(data.favorites),
+            cover=data.cover_url,
+            avatar=user_info.avatar_url,
+            fans=user_info.fans,
+            qrcode=f"data:image/png;base64,{qrcode_base64.decode()}"
+        ),
+        viewport={"width": 800, "height": 10},
     )
-
-    if data.sub_count > 1:
-        info_text += f'分P数量：{data.sub_count}  \n'
-
-    desc = data.desc.strip().replace('\n', '<br/>')
-    info_text += (
-        f'{math(data.views)}播放 {math(data.danmu)}弹幕  \n'
-        f'{math(data.likes)}点赞 {math(data.coins)}投币 {math(data.favorites)}收藏\n'
-        '\n---\n'
-        f'### 简介\n{desc}'
-    )
-
-    return await md2pic(f'![]({data.cover_url})\n\n{info_text}')
