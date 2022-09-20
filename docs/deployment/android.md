@@ -22,9 +22,11 @@
     
     除非你懂得如何阅读文档、虚心提问并可以正常使用搜索引擎
 
-!!! note "关于部署出现问题"
+## 管理脚本
 
-    由于安卓环境下部署方法比较特殊<del>，而且都用安卓 + 全命令行部署了，相信你一定有能力自己解决</del>。
+[![TRSS Sagiri 管理脚本](https://github-readme-stats.vercel.app/api/pin/?username=TimeRainStarSky&repo=TRSS_Sagiri&show_owner=true)](https://github.com/TimeRainStarSky/TRSS_Sagiri)
 
+!!! note "关于部署或运行时出现的问题"
 
-###### <del>后面的以后再来探索吧</del>
+    安卓环境下的部署方式由 [TimeRainStarSky/TRRS_Sagiri](https://github.com/TimeRainStarSky/TRSS_Sagiri) 
+    提供，本教程仅提供链接，如有问题请前往原仓库发布 Issue

@@ -26,7 +26,7 @@
 
     当部署出现问题时，请检查是否按文档顺序进行，如出现问题可前往 [FAQ](https://sagiri-kawaii.github.io/sagiri-bot/FAQ/) 寻找，如果没有找到原因可以前往 [SAGIRI BOT官方交流群](https://jq.qq.com/?_wv=1027&k=9hfqo8AL) 询问或在 github 提出 ISSUE
 
-## 安装java
+## 安装 java
 
 ### 使用 [mcl-installer](https://github.com/iTXTech/mcl-installer) 进行安装（小白友好）
 ```text
@@ -200,7 +200,7 @@ accounts:
 
     > 我的建议是，为什么不问问万能的神奇海螺呢？
 
-## 登录QQ
+## 登录 QQ
 
 执行 `./mcl` 启动 `mirai-console`
 
@@ -223,7 +223,7 @@ url:http://xxx.xxx.xxx
     - 完成滑动验证，此时在 `DevTool` 界面中应会出现新的请求，找到其中名为 `cap_union_new_verify` 选项卡，点击其中的 `Preview` 选项卡，在其中找到 `ticket` 的值填入 `mcl` 并回车
     - gif演示：![浏览器获取ticket演示](https://sagiri-kawaii.github.io/sagiri-bot/assets/txcaptcha.gif)
 
-## 安装python
+## 安装 python
 
 !!! note "部分主流 linux 发行版已内置python"
 
@@ -276,7 +276,7 @@ url:http://xxx.xxx.xxx
 
     <del>如果是因为直接下的 zip 或 tar 文件而且一直没更新导致的问题，就不要跑来群里或者发 issue 问了</del>
 
-## 配置python虚拟环境并安装依赖
+## 配置 python 虚拟环境并安装依赖
 
 !!! question "为什么要配置python虚拟环境？"
 
@@ -295,6 +295,12 @@ url:http://xxx.xxx.xxx
 
 !!! warning "此处将默认你已经安装了 `poetry`"
 
+    不会安装 `poetry` ？
+
+    在终端执行 `curl -sSL https://install.python-poetry.org | python3 -` 即可安装 `poetry`
+
+    随后在 `.bashrc` 或 `.zshrc` 中添加脚本打印的 `export` 以便在终端中使用 `poetry` 命令
+
 - 终端中进入bot所在目录，运行 `poetry install` 即可
 
 ??? note "`Resolving dependencies...` 部分耗时过长？"
@@ -308,6 +314,10 @@ url:http://xxx.xxx.xxx
     > 截至这个区块编写完成，已知的最长用时是 20 分钟。
 
 ### 不使用虚拟环境，直接安装依赖
+
+!!! danger "不推荐此做法"
+
+    直接使用此方法可能导致部分功能不可用或依赖安装失败
 
 - 终端中进入bot所在目录，运行 `pip install -r requirements.txt` 即可
 
@@ -351,7 +361,7 @@ url:http://xxx.xxx.xxx
 
 ???+ note "不知道什么是引擎？"
 
-    **如果你在上一步保持不变，这一步跳过即可。**
+    <big>**_如果你在上一步保持不变，这一步跳过即可。_**</big>
 
     - SQLite
 
@@ -371,7 +381,7 @@ url:http://xxx.xxx.xxx
 
         > 可查阅 SQLAlchemy 使用文档填写合适的链接
 
-    **如果你看不懂上述文本的话，看这个区块的第一行**
+    <big>**如果你看不懂上述文本的话，看这个区块的第一行**</big>
 
 ## 启动机器人
 

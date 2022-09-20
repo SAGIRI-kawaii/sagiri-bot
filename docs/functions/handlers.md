@@ -668,3 +668,11 @@ Wordle文字游戏
 模块位置：`sagiri_bot.handler.handlers.wolfram_alpha`
 
 使用方法：在群中发送 `/solve {content}` 即可
+
+> ## 发病
+
+一个快速发病的插件
+
+模块位置：`sagiri_bot.handler.handlers.ill`
+
+使用方法：在群中发送 `/发病` 即可
