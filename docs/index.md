@@ -10,7 +10,7 @@
     
     - 请保持虚心请教，同时做好没人回复的打算，因为这并不是我们的义务
     
-    - 遇到问题请先阅读 [Windows](https://sagiri-kawaii.github.io/sagiri-bot/deployment/windows/) / [Linux](https://sagiri-kawaii.github.io/sagiri-bot/deployment/linux/) 部署文档或 [FAQ](https://sagiri-kawaii.github.io/sagiri-bot/FAQ/)，不要询问文档中有的问题！！！
+    - 遇到问题请先阅读 [Windows](https://sagiri-kawaii.github.io/sagiri-bot/deployment/windows/) / [Linux](https://sagiri-kawaii.github.io/sagiri-bot/deployment/linux/) 部署文档或 [FAQ](https://sagiri-kawaii.github.io/sagiri-bot/FAQ/)，**不要询问文档中有的问题**！！！
 
 > ## 简介
 
@@ -40,5 +40,5 @@ SAGIRI之名取自动漫《埃罗芒阿老师》中的角色 [和泉纱雾(Izumi
 
 > ## 值得一看的文档
 
-- [Graia Ariadne 文档](https://graia.readthedocs.io/)
+- [Graia Ariadne 文档](https://graia.readthedocs.io/ariadne/)
 - [Graia 社区文档](https://graiax.cn/)

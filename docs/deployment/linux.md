@@ -1,4 +1,4 @@
-# 项目部署
+ # 项目部署
 
 !!! danger "使用前注意"
     
@@ -29,6 +29,9 @@
 ## 安装 java
 
 ### 使用 [mcl-installer](https://github.com/iTXTech/mcl-installer) 进行安装（小白友好）
+
+注意：以下是在 x86 的 Linux 服务器的安装方法，如果你要安装在 arm 服务器上，请自行前往 [Releases界面](https://github.com/iTXTech/mcl-installer/releases) 安装对应的版本
+
 ```text
 $ cd 你想要安装 iTXTech MCL 的目录
 $ curl -LJO https://github.com/iTXTech/mcl-installer/releases/download/v1.0.4/mcl-installer-1.0.4-linux-amd64 # 如果是macOS，就将链接中的 linux 修改为 macos
