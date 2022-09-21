@@ -27,15 +27,25 @@
 - 基于loguru的日志系统
 - 基于alembic的数据库版本管理功能
 
+## 使用文档
+
+虽然您有可能没空看我们这垃圾[文档](https://sagiri-kawaii.github.io/sagiri-bot/)
+
+但我建议还是看看，因为我求求你了
+
+求您第一次接触时看一眼[前言](https://sagiri-kawaii.github.io/sagiri-bot/)
+
+求您遇到问题看一眼[FAQ](https://sagiri-kawaii.github.io/sagiri-bot/FAQ/)
+
+求您进群仔细看一下群公告，动动你们的小手给老铁点一个确认
+
+他妈的，求你了
+
 ## 项目部署
 
 [Windows部署文档](https://sagiri-kawaii.github.io/sagiri-bot/deployment/windows/)
 
 [Linux部署文档](https://sagiri-kawaii.github.io/sagiri-bot/deployment/linux/)
-
-## 使用文档
-
-[文档链接](https://sagiri-kawaii.github.io/sagiri-bot/)
 
 ## 注意
 
