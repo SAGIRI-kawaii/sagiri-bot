@@ -54,21 +54,6 @@
 
 来源: [Genshin_Impact_bot](https://github.com/H-K-Y/Genshin_Impact_bot)
 
-> ## github订阅
-
-一个可以订阅github项目的插件
-
-模块位置：`sagiri_bot.handler.handlers.github_watcher`
-
-使用方法：
-
-- `/github-watch enable` [3级权限]
-- `/github-watch disable` [3级权限]
-- `/github-watch add {repo}` [repo]+ [2级或管理员权限]
-- `/github-watch remove {repo}` [repo]+ [2级或管理员权限]
-- `/github-watch check` [任何人]
-- `/github-watch cache {update/store}` [2级或管理员权限]
-
 > ## MockingBird
 
 一个可以生成语音的插件
