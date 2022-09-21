@@ -1,0 +1,14 @@
+{
+  "name": "Dice",
+  "version": "0.2",
+  "display_name": "投骰子",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个简单的投骰子插件",
+  "usage": ["发送 `{次数}d{范围}` 即可"],
+  "example": ["2d3"],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

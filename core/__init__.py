@@ -71,7 +71,7 @@ class Sagiri(object):
             log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO"),
         ) for bot_account in self.config.bot_accounts]
         if self.config.default_account:
-            self.apps[0].options = AriadneOptions(default_account=self.config.default_account)
+            Ariadne.config(default_account=self.config.default_account)
         self.apps[0].launch_manager.add_service(
             PlaywrightService(
                 "chromium",
@@ -236,8 +236,9 @@ class Sagiri(object):
         os.system("alembic revision --autogenerate -m 'update'")
         os.system("alembic upgrade head")
 
-    def launch(self):
-        self.apps[0].launch_blocking()
+    @staticmethod
+    def launch():
+        Ariadne.launch_blocking()
 
     async def restart(self):
         ...

@@ -1,0 +1,14 @@
+{
+  "name": "AbstractMessageTransformer",
+  "version": "0.2",
+  "display_name": "抽象话转换",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个普通话转抽象话的插件",
+  "usage": ["在群中发送 `/抽象 文字` 即可"],
+  "example": ["/抽象 你好"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["抽象"]
+}

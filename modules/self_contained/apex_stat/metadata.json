@@ -1,0 +1,14 @@
+{
+  "name": "ApexStat",
+  "version": "0.2",
+  "display_name": "Apex战绩查询",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个Apex数据查询插件",
+  "usage": ["在群中发送 `/apex origin用户名` 即可"],
+  "example": ["/apex account"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["apex"]
+}

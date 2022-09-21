@@ -40,7 +40,7 @@ class PublicGroup(object):
 
     def remove_group(self, group: Group | int, account: int):
         group = group.id if isinstance(group, Group) else group
-        if group in self.data:
+        if group in self.data and self.data[group]:
             self.data[group].remove(account)
 
     def get_index(self, group: Group | int, account: int) -> int:
@@ -48,6 +48,11 @@ class PublicGroup(object):
         if group in self.data and account in self.data[group]:
             return list(self.data[group]).index(account)
         raise ValueError
+
+    def remove_account(self, account: int):
+        for group in self.data:
+            if account in self.data[group]:
+                self.data[group].remove(account)
 
     def need_distribute(self, group: Group | int, account: int) -> bool:
         group = group.id if isinstance(group, Group) else group
