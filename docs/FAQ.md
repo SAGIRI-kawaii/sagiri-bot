@@ -131,7 +131,9 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 
 > ## 内存占用问题
 
-`SAGIRI-BOT` 需要至少 `1GB` 空闲内存以保证正常运行，若你的机器内存不足，可以选择删除 `sagiri_bot.handler.handlers.wordle`，代价是没有猜词功能，但可以减少 `400MB` 左右的内存消耗
+`SAGIRI-BOT` 需要至少 `700Mb` 空闲内存以保证正常运行，
+如果你需要开启 `mockingbird` 和 `超分辨率` 组件，那占用将从 `700Mb` 提高到 `1.5Gb` 至少 (如果需要流畅跑完，可能还需要更多)  
+若你的机器内存不足，可以加钱提升电脑配置。~~加钱加到9w8，1T内存抱回家~~
 
 > ## pip: ValueError: check_hostname requires server_hostname
 
@@ -158,10 +160,6 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 查看 [mcl-installer #35](https://github.com/iTXTech/mcl-installer/issues/35)
     
 使用命令 `curl -LJO https://ghproxy.com/github.com/iTXTech/mcl-installer/releases/download/f7ee211/mcl-installer-f7ee211-linux-amd64-musl`
-
-> ## unable to import MiraiSession from graia.ariadne.model
-
-请尝试使用 graia-ariadne < 0.7.0，该问题将在后续更新中解决
 
 > ## sqlalchemy.exc.ProgrammingError: (pymysql.err.ProgrammingError) (1146, "Table 'sagiri_bot.keyword_reply' doesn't exist")
 

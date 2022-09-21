@@ -54,21 +54,6 @@
 
 来源: [Genshin_Impact_bot](https://github.com/H-K-Y/Genshin_Impact_bot)
 
-> ## github订阅
-
-一个可以订阅github项目的插件
-
-模块位置：`sagiri_bot.handler.handlers.github_watcher`
-
-使用方法：
-
-- `/github-watch enable` [3级权限]
-- `/github-watch disable` [3级权限]
-- `/github-watch add {repo}` [repo]+ [2级或管理员权限]
-- `/github-watch remove {repo}` [repo]+ [2级或管理员权限]
-- `/github-watch check` [任何人]
-- `/github-watch cache {update/store}` [2级或管理员权限]
-
 > ## MockingBird
 
 一个可以生成语音的插件
@@ -77,7 +62,7 @@
 
 使用方法：在群中发送 `纱雾说 {content}` 即可
 
-注意：此插件因为模型过大而不在仓库中，需要去交流群手动下载安装，安装前需要安装如下依赖：
+注意：此插件因为模型过大而不在仓库中，需要多走几步安装，安装前需要安装如下依赖：
 ```text
 torch
 scipy
@@ -89,9 +74,21 @@ Unidecode
 inflect
 ```
 
+假设你用了 `poetry`，也可以使用 `poetry install -E "mockingbird"`
+
+然后前往[这里](https://github.com/TimeRainStarSky/Sagiri_MockingBird)下载所需要的模型。  
+但是注意，**请不要使用 `git clone` 方法下载**，因为该仓库采用了 `git-lfs` 的存储方式，
+导致直接 `git clone` 的情况下只会下载到一个只有 1kb 大小的占用包  
+请直接进入详细界面，如<https://github.com/TimeRainStarSky/Sagiri_MockingBird/blob/main/mockingbird.txz>，
+然后点击 `Download` 按钮进行下载。
+
+
+
 > ## 哔咔漫画
 
 一个接入哔咔漫画的插件，支持搜索关键词，随机漫画，下载漫画，排行榜获取
+
+注意：使用该组件的情况下，需要在配置中配置 pica 账号密码和代理
 
 模块位置：`sagiri_bot.handler.handlers.pica`
 
@@ -110,7 +107,8 @@ inflect
 
 使用方法：在群中发送 `/超分 图片` 即可
 
-注意：若需要使用本插件，请运行 `pip install realesrgan basicsr torch`，若想使用 `gpu` 进行运算则还需要安装 `CUDA` 和 `CUDNN`，请上网自行寻找教程，各个库版本都应对应才可以使用 `gpu`，若不安装则插件默认不启用
+注意：  
+若需要使用本插件，请运行 `pip install realesrgan basicsr torch`，或者直接使用`poetry install -E "super_resolution"`，若想使用 `gpu` 进行运算则还需要安装 `CUDA` 和 `CUDNN`，请上网自行寻找教程，各个库版本都应对应才可以使用 `gpu`，若不安装则插件默认不启用
 
 > ## Wordle
 
@@ -134,11 +132,10 @@ Wordle文字游戏
 扩展：可自行添加词库，将词库json放入 `sagiri_bot.handler.handlers.wordle.words` 文件夹即可，json格式如下
 ```json
 {
+  ...
   "word": {
-    "中译（可选）": "单词",
-    "英译（可选）": "word",
-    "各种自定义解释（可选）": "自定义解释",
-    ...
+    "CHS": "单词",
+    "ENG": "word"
   },
   ...
 }
@@ -383,6 +380,8 @@ Wordle文字游戏
 > ## 热梗解释
 
 一个可以查询热梗的插件
+
+> 2022.09.21 更新：因为所依赖的API更新，所以现在暂时处于一种不可用状态
 
 模块位置：`sagiri_bot.handler.handlers.hot_words_explainer`
 
@@ -676,3 +675,5 @@ Wordle文字游戏
 模块位置：`sagiri_bot.handler.handlers.ill`
 
 使用方法：在群中发送 `/发病` 即可
+
+> 纱雾，我真的好喜欢你，为了你，我要******

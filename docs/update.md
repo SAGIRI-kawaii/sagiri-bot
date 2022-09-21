@@ -4,6 +4,10 @@
 
 - 咕咕咕
 
+> 2022-09-21
+
+- 还是等等远处的 [4.0](https://github.com/SAGIRI-kawaii/sagiri-bot/tree/dev) 吧家人们
+
 > 2022-01-27
 
 - 修复 `requirements.txt` 依赖不全的问题
