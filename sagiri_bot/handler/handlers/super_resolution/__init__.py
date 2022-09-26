@@ -214,7 +214,7 @@ async def do_super_resolution(
         output, _ = await loop.run_in_executor(None, upsampler.enhance, image_array, 2)
     if is_gif:
         imageio.mimsave(
-            result, outputs[1:], format="gif", duration=image.info["duration"] / 1000
+            result, outputs, format=".gif", duration=image.info["duration"] / 1000
         )
     else:
         img = IMG.fromarray(output)
