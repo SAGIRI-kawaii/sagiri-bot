@@ -366,11 +366,17 @@ class Config(object):
 
 class Distribute(object):
     @staticmethod
-    def distribute() -> Depend:
-        async def judge(app: Ariadne, group: Group, source: Source) -> NoReturn:
+    def distribute(show_log: bool = False) -> Depend:
+        async def judge(app: Ariadne, group: Group, member: Member, source: Source) -> NoReturn:
+            if member.id in create(GlobalConfig).bot_accounts:
+                if show_log:
+                    print(app.account, "bot conflict stop")
+                raise ExecutionStop()
             public_group = create(PublicGroup)
             if public_group.need_distribute(group, app.account) and public_group.execution_stop(group, app.account, source):
-                print(app.account, "stop")
+                if show_log:
+                    print(app.account, "stop")
                 raise ExecutionStop()
-            print(app.account, "keep")
+            if show_log:
+                print(app.account, "keep")
         return Depend(judge)

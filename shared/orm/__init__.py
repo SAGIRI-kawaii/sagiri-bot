@@ -306,3 +306,24 @@ class GroupTeam(Base):
     group_id = Column(BIGINT, primary_key=True)
     name = Column(String(length=200), primary_key=True)
     teammates = Column(Text)
+
+
+class ChatClips(Base):
+    """chat_clips 群片段记录"""
+
+    __tablename__ = "chat_clips"
+
+    cid = Column(Integer, primary_key=True)
+    group_id = Column(BIGINT)
+    member_id = Column(BIGINT)
+    uid = Column(BIGINT)
+
+
+class BilibiliSubscribe(Base):
+    """bilibili_subscribe Bilibili订阅"""
+
+    __tablename__ = "bilibili_subscribe"
+
+    group_id = Column(BIGINT, primary_key=True)
+    member_id = Column(BIGINT)
+    uid = Column(BIGINT, primary_key=True)

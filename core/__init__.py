@@ -1,11 +1,11 @@
 import os
 import datetime
-
 from abc import ABC
 from pathlib import Path
 from loguru import logger
 from pydantic import BaseModel
 from typing import Dict, List, Type
+from aiohttp.client_exceptions import ClientConnectorError
 from sqlalchemy.exc import InternalError, ProgrammingError
 
 from graia.saya import Saya
@@ -108,7 +108,10 @@ class Sagiri(object):
                 )
             _ = await self.update_host_permission(group_list)
             total_groups[app.account] = group_list
-        _ = await self_upgrade()
+        try:
+            _ = await self_upgrade()
+        except ClientConnectorError:
+            logger.error("连接github失败！退出自动更新")
         logger.info("本次启动活动群组如下：")
         for account, group_list in total_groups.items():
             for group in group_list:

@@ -1,0 +1,16 @@
+{
+  "name": "EmojiMix",
+  "version": "0.2",
+  "display_name": "emoji融合",
+  "authors": [
+    "SAGIRI-kawaii",
+    "nullqwertyuiop",
+    "from: MeetWq"
+  ],
+  "description": "一个生成emoji融合图的插件",
+  "usage": ["发送 '{emoji1}+{emoji2}' 即可"],
+  "example": [],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

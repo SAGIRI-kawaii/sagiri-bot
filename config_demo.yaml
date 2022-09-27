@@ -10,14 +10,33 @@ web_manager_auto_boot: true
 proxy: proxy
 auto_upgrade: false
 
-# 路径相关
-image_path:
-  setu: setu
-  setu18: setu18
-  real: real
-  real_highq: real_highq
-  bizhi: bizhi
-  sketch: sketch
+# 图库相关
+gallery:
+  setu:
+    path: path
+    privilege: 1
+    interval: 1
+    need_proxy: true
+  setu18:
+    path: path
+    privilege: 1
+    interval: 10
+  real:
+    path: path
+    privilege: 1
+    interval: 1
+  real_highq:
+    path: path
+    privilege: 1
+    interval: 1
+  bizhi:
+    path: path
+    privilege: 1
+    interval: 1
+  sketch:
+    path: path
+    privilege: 1
+    interval: 1
 
 # 个性化设置
 commands:

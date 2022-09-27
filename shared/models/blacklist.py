@@ -18,7 +18,7 @@ class GroupBlackList(object):
         self.global_data = set()
 
     async def data_init(self) -> NoReturn:
-        blacklist = await orm.fetchall(select(BlackList.member_id, BlackList.group_id))
+        blacklist = await orm.fetchall(select(BlackList.member_id, BlackList.group_id, BlackList.is_global))
         for b in blacklist:
             if b[2]:
                 self.global_data.add(b[0])

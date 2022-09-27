@@ -4,7 +4,7 @@ import aiohttp
 import pypinyin
 from bs4 import BeautifulSoup
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graiax.playwright import PlaywrightBrowser
 from graia.ariadne.message.chain import MessageChain
@@ -17,9 +17,7 @@ from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 from shared.utils.module_related import get_command
 from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl, Distribute
 
-saya = Saya.current()
 channel = Channel.current()
-
 channel.name("GenshinCharaCard")
 channel.author("SAGIRI-kawaii")
 channel.description("一个原神角色卡查询插件，在群中发送 `/原神角色卡 UID 角色名` 即可")

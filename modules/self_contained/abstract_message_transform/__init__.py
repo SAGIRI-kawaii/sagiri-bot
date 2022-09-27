@@ -1,4 +1,4 @@
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Source
 from graia.ariadne.message.chain import MessageChain
@@ -17,9 +17,7 @@ from shared.utils.control import (
     Distribute
 )
 
-saya = Saya.current()
 channel = Channel.current()
-
 channel.name("AbstractMessageTransformer")
 channel.author("SAGIRI-kawaii")
 channel.description("一个普通话转抽象话的插件，在群中发送 `/抽象 文字` 即可")

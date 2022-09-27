@@ -1,6 +1,6 @@
 import aiohttp
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Source
 from graia.ariadne.message.chain import MessageChain
@@ -18,9 +18,7 @@ from shared.utils.control import (
     Distribute
 )
 
-saya = Saya.current()
 channel = Channel.current()
-
 channel.name("ApexStat")
 channel.author("SAGIRI-kawaii")
 channel.description(
@@ -33,12 +31,10 @@ channel.description(
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                [
-                    get_command(__file__, channel.module),
-                    WildcardMatch() @ "player",
-                ]
-            )
+            Twilight([
+                get_command(__file__, channel.module),
+                WildcardMatch() @ "player",
+            ])
         ],
         decorators=[
             Distribute.distribute(),

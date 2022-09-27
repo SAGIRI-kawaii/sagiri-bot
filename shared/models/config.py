@@ -64,7 +64,7 @@ class GlobalConfig(BaseModel):
     db_link: str = "sqlite+aiosqlite:///data.db"
     web_manager_api: bool = False
     web_manager_auto_boot: bool = False
-    image_path: dict = {}
+    gallery: dict = {}
     proxy: str = "proxy"
     auto_upgrade: bool = False
     commands: Dict[str, PluginConfig]

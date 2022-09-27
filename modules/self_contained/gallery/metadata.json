@@ -1,0 +1,19 @@
+{
+  "name": "Gallery",
+  "version": "0.2",
+  "display_name": "图库",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以自定义图库并发送图片的插件",
+  "usage": [
+
+  ],
+  "example": [],
+  "icon": "",
+  "prefix": [],
+  "triggers": [],
+  "metadata": {
+    "add_keyword_prefixs": []
+  }
+}

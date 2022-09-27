@@ -1,7 +1,7 @@
 import random
 
 from creart import create
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Source
 from graia.ariadne.message.chain import MessageChain
@@ -20,9 +20,7 @@ from shared.utils.control import (
     Distribute
 )
 
-saya = Saya.current()
 channel = Channel.current()
-
 channel.name("Dice")
 channel.author("SAGIRI-kawaii")
 channel.description("一个简单的投骰子插件，发送 `{times}d{range}` 即可")

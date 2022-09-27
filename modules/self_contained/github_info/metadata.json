@@ -1,0 +1,17 @@
+{
+  "name": "GithubInfo",
+  "version": "0.2",
+  "display_name": "Github项目信息",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "可以搜索Github项目信息的插件",
+  "usage": ["在群中发送 `/github [-i] {项目名}` 即可"],
+  "example": [
+    "/github sagiri-bot",
+    "/github -i sagiri-bot"
+  ],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["github"]
+}

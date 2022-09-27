@@ -25,7 +25,7 @@ channel.name("SystemStatus")
 channel.author("SAGIRI-kawaii")
 channel.description("查看系统状态")
 
-image_path = create(GlobalConfig).image_path
+image_path = create(GlobalConfig).gallery
 launch_time = create(Sagiri).launch_time
 
 

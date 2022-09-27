@@ -2,7 +2,7 @@ import re
 import json
 from loguru import logger
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.parser.twilight import Twilight
@@ -14,9 +14,7 @@ from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult, Eleme
 from .utils import get_video_info, b23_url_extract, math, info_json_dump, gen_img, url_vid_extract
 from shared.utils.control import FrequencyLimit, Function, BlackListControl, UserCalledCountControl, Distribute
 
-saya = Saya.current()
 channel = Channel.current()
-
 channel.name("BilibiliResolve")
 channel.author("SAGIRI-kawaii")
 channel.description("一个可以解析B站url/av/bv号/小程序的插件")
@@ -91,7 +89,7 @@ async def bilibili_resolve_text(
     else:
         video_info = info_json_dump(video_info['data'])
         img = await gen_img(video_info)
-        await app.send_message(
+        await app.send_group_message(
             group,
             MessageChain(
                 Image(data_bytes=img),

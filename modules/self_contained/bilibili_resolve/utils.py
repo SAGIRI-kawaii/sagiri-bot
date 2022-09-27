@@ -145,7 +145,7 @@ async def gen_img(data: VideoInfo) -> bytes:
             bv=data.bvid,
             av=f"av{data.avid}",
             title=data.title,
-            desc=data.desc,
+            desc=data.desc.replace("\n", "<br>"),
             username=data.up_name,
             time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(data.pub_timestamp)),
             views=math(data.views),

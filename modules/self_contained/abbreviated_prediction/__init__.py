@@ -1,6 +1,6 @@
 import aiohttp
 
-from graia.saya import Saya, Channel
+from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Source
 from graia.ariadne.message.chain import MessageChain
@@ -18,9 +18,7 @@ from shared.utils.control import (
     Distribute
 )
 
-saya = Saya.current()
 channel = Channel.current()
-
 channel.name("AbbreviatedPrediction")
 channel.author("SAGIRI-kawaii")
 channel.description("一个获取英文缩写意思的插件，在群中发送 `缩 内容` 即可")

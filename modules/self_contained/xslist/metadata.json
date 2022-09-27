@@ -1,0 +1,14 @@
+{
+  "name": "XsList",
+  "version": "0.2",
+  "display_name": "那种老师查询",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个查老师的插件",
+  "usage": ["发送 `/查老师 {作品名/老师名/图片}` 即可"],
+  "example": ["/查老师 STARS-256"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["查老师"]
+}
