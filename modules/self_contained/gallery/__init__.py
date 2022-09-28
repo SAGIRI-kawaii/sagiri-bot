@@ -11,14 +11,21 @@ from graia.broadcast.interrupt import InterruptControl
 from graia.ariadne.event.lifecycle import ApplicationLaunch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, RegexMatch, RegexResult, WildcardMatch
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    RegexMatch,
+    RegexResult,
+    WildcardMatch,
+    UnionMatch
+)
 
-from .utils import valid2send, get_image
 from shared.orm import orm, TriggerKeyword
 from shared.utils.waiter import ConfirmWaiter
 from shared.models.config import GlobalConfig
+from .utils import valid2send, get_image, GallerySwitch
 from shared.utils.message_chain import parse_message_chain_as_stable_string
-from shared.utils.control import Function, BlackListControl, UserCalledCountControl, Distribute
+from shared.utils.control import Function, BlackListControl, UserCalledCountControl, Distribute, Permission
 
 
 channel = Channel.current()
@@ -34,11 +41,7 @@ channel.description(
 config = create(GlobalConfig)
 
 
-@channel.use(
-    ListenerSchema(
-        listening_events=[ApplicationLaunch]
-    )
-)
+@channel.use(ListenerSchema(listening_events=[ApplicationLaunch]))
 async def db_init():
     for key in config.gallery.keys():
         try:
@@ -178,4 +181,39 @@ async def keyword_detect(app: Ariadne, group: Group, member: Member, message: Me
             return await app.send_group_message(group, MessageChain("你的权限不足捏"), quote=source)
         elif valid == "IntervalError":
             return await app.send_group_message(group, MessageChain("这群怎么这么活跃啊，歇会儿吧（"), quote=source)
+        elif valid == "GalleryClosed":
+            return await app.send_group_message(group, MessageChain("这个图库关闭了哦，别白费力气了捏"), quote=source)
         await app.send_group_message(group, MessageChain(await get_image(gallery_name)))
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight([
+                UnionMatch("打开", "关闭") @ "operation",
+                FullMatch("图库"),
+                WildcardMatch() @ "gallery_name"
+            ])
+        ],
+        decorators=[
+            Distribute.distribute(),
+            Function.require(channel.module, log=False),
+            BlackListControl.enable(),
+            Permission.require(Permission.GROUP_ADMIN)
+        ],
+    )
+)
+async def modify_gallery_switch(app: Ariadne, group: Group, operation: RegexResult, gallery_name: RegexResult):
+    gallery_name = gallery_name.result.display.strip()
+    operation = operation.result.display
+    if gallery_name not in config.gallery.keys():
+        return await app.send_group_message(
+            group, MessageChain(f"不存在这个图库哦，目前有以下图库：{'、'.join(config.gallery.keys())}")
+        )
+    if operation == "打开":
+        create(GallerySwitch).modify(group, gallery_name, True)
+        await app.send_group_message(group, MessageChain(f"图库 <{gallery_name}> 开关已打开"))
+    else:
+        create(GallerySwitch).modify(group, gallery_name, False)
+        await app.send_group_message(group, MessageChain(f"图库 <{gallery_name}> 开关已关闭"))

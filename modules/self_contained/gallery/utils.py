@@ -1,5 +1,6 @@
 import re
 import os
+import json
 import time
 import random
 import aiohttp
@@ -23,14 +24,16 @@ url_pattern = r"((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\
 
 
 async def valid2send(
-    group: Group, member: Member, gallery_name: str
-) -> bool | Literal["PermissionError", "IntervalError"]:
+        group: Group, member: Member, gallery_name: str
+) -> bool | Literal["PermissionError", "IntervalError", "GalleryClosed"]:
     interval = create(GalleryInterval)
     g_data = create(GalleryConfig).get_config(gallery_name)
     if interval.valid2send(group, gallery_name):
         if (await Permission.get(group, member)) >= g_data.privilege:
+            if create(GallerySwitch).is_open(group, gallery_name):
+                return True
             interval.renew_time(group, gallery_name)
-            return True
+            return "GalleryClosed"
         return "PermissionError"
     return "IntervalError"
 
@@ -77,6 +80,7 @@ class GalleryData(object):
     privilege: int = 1
     interval: float = 0
     need_proxy: bool = False
+    default_switch: bool = True
 
 
 class GalleryConfig(object):
@@ -139,5 +143,68 @@ class GalleryIntervalCreator(AbstractCreator, ABC):
         return GalleryInterval()
 
 
+class GallerySwitch(object):
+    switch: Dict[str, Dict[str, bool]]
+
+    def __init__(self):
+        self.load()
+
+    def add_group(self, group: Group | int | str):
+        group = str(group.id if isinstance(group, Group) else group)
+        if group not in self.switch:
+            g_config = create(GalleryConfig)
+            self.switch[group] = {g_name: g_data.default_switch for g_name, g_data in g_config.configs.items()}
+
+    def add_gallery(self, gallery_name: str):
+        g_config = create(GalleryConfig)
+        for group, dic in self.switch.items():
+            if gallery_name not in dic:
+                if g_data := g_config.get_config(gallery_name):
+                    self.switch[group][gallery_name] = g_data.default_switch
+
+    def load(self):
+        file_path = Path(__file__).parent / "gallery_switch.json"
+        if file_path.exists():
+            with open(file_path, "r", encoding="utf-8") as r:
+                self.switch = json.load(r)
+        else:
+            self.switch = {}
+
+    def save(self):
+        file_path = Path(__file__).parent / "gallery_switch.json"
+        with open(file_path, "w", encoding="utf-8") as w:
+            w.write(json.dumps(self.switch, indent=4, ensure_ascii=False))
+
+    def is_open(self, group: Group | int | str, gallery_name: str) -> bool:
+        group = str(group.id if isinstance(group, Group) else group)
+        if group not in self.switch:
+            self.add_group(group)
+        if gallery_name not in self.switch[group]:
+            self.add_gallery(gallery_name)
+        return self.switch[group][gallery_name]
+
+    def modify(self, group: Group | int | str, gallery_name: str, new_value: bool):
+        group = str(group.id if isinstance(group, Group) else group)
+        if group not in self.switch:
+            self.add_group(group)
+        if gallery_name not in self.switch[group]:
+            self.add_gallery(gallery_name)
+        self.switch[group][gallery_name] = new_value
+        self.save()
+
+
+class GallerySwitchCreator(AbstractCreator, ABC):
+    targets = (CreateTargetInfo("modules.self_contained.gallery.utils", "GallerySwitch"),)
+
+    @staticmethod
+    def available() -> bool:
+        return exists_module("modules.self_contained.gallery.utils")
+
+    @staticmethod
+    def create(create_type: Type[GallerySwitch]) -> GallerySwitch:
+        return GallerySwitch()
+
+
 add_creator(GalleryConfigCreator)
 add_creator(GalleryIntervalCreator)
+add_creator(GallerySwitchCreator)

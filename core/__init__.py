@@ -116,8 +116,8 @@ class Sagiri(object):
         for account, group_list in total_groups.items():
             for group in group_list:
                 logger.info(f"Bot账号: {str(account).ljust(14)}群ID: {str(group.id).ljust(14)}群名: {group.name}")
-        await create(GroupSetting).data_init()
         await create(PublicGroup).data_init()
+        await create(GroupSetting).data_init()
         await create(GroupBlackList).data_init()
 
     async def update_host_permission(self, group_list: List[Group]):

@@ -6,6 +6,7 @@ from creart import create
 from graia.saya import Saya
 from graia.ariadne import Ariadne
 from graia.broadcast import Broadcast
+from graia.ariadne.message.element import Source
 from graia.ariadne.event.message import ActiveFriendMessage, ActiveGroupMessage
 from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Stranger
 
@@ -50,6 +51,8 @@ async def stranger_message_listener(app: Ariadne, stranger: Stranger, message: M
 
 @bcc.receiver("ActiveGroupMessage")
 async def active_group_message_handler(app: Ariadne, event: ActiveGroupMessage):
+    if event.message_chain[Source][0].id == -1:
+        return await app.send_group_message(event.subject, MessageChain("发送失败，可能被风控"))
     message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
     logger.info(f"成功向 Bot <{app.account}> 群 <{event.subject.name.strip()}> 发送消息：{message_text_log}")
 
