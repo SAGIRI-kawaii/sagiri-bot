@@ -1,9 +1,8 @@
-import contextlib
 import time
 import random
-from asyncio import Lock
-
+import contextlib
 import sqlalchemy.exc
+from asyncio import Lock
 from loguru import logger
 from sqlalchemy import select
 from collections import defaultdict
@@ -25,6 +24,7 @@ from graia.ariadne.model.relationship import MemberPerm
 from shared.models.config import GlobalConfig
 from shared.models.saya_data import get_saya_data
 from shared.models.public_group import PublicGroup
+from shared.models.blacklist import GroupBlackList
 from shared.models.group_setting import GroupSetting
 from shared.utils.permission import user_permission_require
 from shared.utils.data_related import update_user_call_count_plus
@@ -171,17 +171,7 @@ class BlackListControl(object):
     @staticmethod
     def enable() -> Depend:
         async def blacklist(event: GroupMessage) -> NoReturn:
-            member = event.sender.id
-            group = event.sender.group.id
-            if await orm.fetchone(
-                select(BlackList.member_id).where(
-                    BlackList.member_id == member, BlackList.group_id == group
-                )
-            ) or await orm.fetchone(
-                select(BlackList.member_id).where(
-                    BlackList.member_id == member, BlackList.is_global is True
-                )
-            ):
+            if create(GroupBlackList).blocked(event.sender, event.sender.group):
                 raise ExecutionStop()
             return
 
@@ -372,8 +362,8 @@ class Distribute(object):
                 if show_log:
                     print(app.account, "bot conflict stop")
                 raise ExecutionStop()
-            public_group = create(PublicGroup)
-            if public_group.need_distribute(group, app.account) and public_group.execution_stop(group, app.account, source):
+            p_group = create(PublicGroup)
+            if p_group.need_distribute(group, app.account) and p_group.execution_stop(group, app.account, source):
                 if show_log:
                     print(app.account, "stop")
                 raise ExecutionStop()

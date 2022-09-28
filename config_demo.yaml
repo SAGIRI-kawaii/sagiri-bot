@@ -21,6 +21,7 @@ gallery:
     path: path
     privilege: 1
     interval: 10
+    default_switch: false
   real:
     path: path
     privilege: 1

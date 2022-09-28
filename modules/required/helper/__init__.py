@@ -118,6 +118,7 @@ async def helper(app: Ariadne, group: Group, source: Source):
             ])
         ],
         decorators=[
+            Distribute.distribute(),
             FrequencyLimit.require("helper", 1),
             Function.require(channel.module),
             BlackListControl.enable(),

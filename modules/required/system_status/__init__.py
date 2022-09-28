@@ -68,10 +68,10 @@ async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: A
         "图库占用空间：\n        " +
         "\n        ".join(
             [*[
-                f"{path_name}：{round(sum(os.path.getsize(path + file) for file in os.listdir(path)) / 1024 ** 3, 2)}GB"
-                if os.path.exists(path) else
-                (f"{path_name}：网络路径" if is_url(path) else f"{path_name}：无效本地/网络路径")
-                for path_name, path in image_path.items()
+                f"{path_name}：{round(sum(os.path.getsize(data['path'] + file) for file in os.listdir(data['path'])) / 1024 ** 3, 2)}GB"
+                if os.path.exists(data["path"]) else
+                (f"{path_name}：网络路径" if is_url(data["path"]) else f"{path_name}：无效本地/网络路径")
+                for path_name, data in image_path.items()
             ]]
         )
     )

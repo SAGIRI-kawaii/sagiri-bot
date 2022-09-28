@@ -88,7 +88,7 @@ async def add_keyword(app: Ariadne, group: Group, gallery_name: RegexResult, key
         [TriggerKeyword.keyword == keyword, TriggerKeyword.function == gallery_name],
         {"keyword": keyword, "function": gallery_name},
     )
-    return MessageChain(f"关键词添加成功！\n{keyword} -> {gallery_name}")
+    return await app.send_group_message(group, MessageChain(f"关键词添加成功！\n{keyword} -> {gallery_name}"))
 
 
 @channel.use(
@@ -114,7 +114,7 @@ async def delete_keyword(app: Ariadne, group: Group, member: Member, keyword: Re
         await app.send_group_message(group, MessageChain(f"查找到以下信息：\n{keyword} -> {record[0]}\n是否删除？（是/否）"))
         if await InterruptControl(create(Broadcast)).wait(ConfirmWaiter(group, member)):
             _ = await orm.delete(TriggerKeyword, [TriggerKeyword.keyword == keyword])
-            return app.send_group_message(group, MessageChain(f"关键词 {keyword} 删除成功"))
+            return await app.send_group_message(group, MessageChain(f"关键词 {keyword} 删除成功"))
         await app.send_group_message(group, MessageChain("非预期/确认回复，进程退出"))
 
 
@@ -166,7 +166,7 @@ async def show_keywords(app: Ariadne, group: Group):
         listening_events=[GroupMessage],
         decorators=[
             Distribute.distribute(),
-            Function.require(channel.module),
+            Function.require(channel.module, log=False),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
         ],
@@ -198,7 +198,7 @@ async def keyword_detect(app: Ariadne, group: Group, member: Member, message: Me
         ],
         decorators=[
             Distribute.distribute(),
-            Function.require(channel.module, log=False),
+            Function.require(channel.module),
             BlackListControl.enable(),
             Permission.require(Permission.GROUP_ADMIN)
         ],
