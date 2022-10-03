@@ -147,6 +147,17 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 
 <font color="red">Are you serious?</font>
 
+> ## [Errno 2] No such file or directory
+
+如出现下列报错
+
+```
+C:\Users\SAGIRI>python mian.py
+python: can't open file 'mian.py': [Errno 2] No such file or directory
+```
+
+[首都医科大学附属北京同仁医院眼科 科室电话010-58269911](https://www.trhos.com/Html/Departments/Main/Index_266.html)
+
 > ## poetry: command not found
 
 确保 `poetry` 已经安装，若未安装，请参考文档部署
