@@ -52,7 +52,7 @@ channel.description("语音合成插件，在群中发送 `说 {content}` 即可
 config = create(GlobalConfig)
 
 user_data = config.functions["tencent"]
-cred = credential.Credential(user_data["secret_id"], user_data["secret_key"])
+cred = credential.Credential(str(user_data["secret_id"]), str(user_data["secret_key"]))
 http_profile = HttpProfile()
 http_profile.endpoint = "tts.tencentcloudapi.com"
 client_profile = ClientProfile()
