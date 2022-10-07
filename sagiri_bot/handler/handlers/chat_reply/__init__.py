@@ -83,7 +83,7 @@ async def chat_reply(
                 try:
                     user_data = config.functions["tencent"]
                     cred = credential.Credential(
-                        user_data["secret_id"], user_data["secret_key"]
+                        str(user_data["secret_id"]), str(user_data["secret_key"])
                     )
                     http_profile = HttpProfile()
                     http_profile.endpoint = "nlp.tencentcloudapi.com"
