@@ -9,8 +9,8 @@ from graia.broadcast.builtin.event import ExceptionThrowed
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.exception import AccountMuted, UnknownTarget
 
-from shared.models.config import GlobalConfig
 from shared.utils.text2image import md2pic
+from shared.models.config import GlobalConfig
 
 saya = create(Saya)
 channel = Channel.current()

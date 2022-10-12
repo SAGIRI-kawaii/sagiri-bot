@@ -1,0 +1,14 @@
+{
+  "name": "QrcodeGenerator",
+  "version": "0.2",
+  "display_name": "二维码生成器",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个生成二维码的插件",
+  "usage": ["在群中发送 `qrcode 内容` 即可（文字）"],
+  "example": ["/qrcode SAGIRI-BOT"],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["qrcode"]
+}

@@ -16,7 +16,6 @@ loguru = "^0.6.0"
 graia-saya = "^0.0.16"
 graiax-silkcoder = "^0.3.2"
 pydantic = "^1.10.1"
-Pillow = "^9.2.0"
 wordcloud = "^1.8.2.2"
 Jinja2 = "^3.1.2"
 creart = "^0.2.2"
@@ -42,7 +41,7 @@ GitPython = "^3.1.27"
 unwind = "^0.3.2"
 pypinyin = "^0.47.1"
 qrcode = "^7.3.1"
-bilireq = "^0.2.2"
+Pillow = "^9.2.0"
 
 
 [build-system]

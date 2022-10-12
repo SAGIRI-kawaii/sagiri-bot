@@ -1,0 +1,20 @@
+{
+  "name": "StableDiffusion",
+  "version": "0.1",
+  "display_name": "AI文/图转图（NovelAI）",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以AI文/图转图的插件，配合https://github.com/SAGIRI-kawaii/stable-diffusion-webui-api使用",
+  "usage": [
+    "在群中发送 `/ait2i 关键词` 即可文转图",
+    "在群中发送 `/aii2i 关键词[图片]` 即可图转图"
+  ],
+  "example": [
+    "/ait2i 1 girl",
+    "/aii2i 1 girl[图片]"
+  ],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

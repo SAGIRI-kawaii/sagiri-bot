@@ -24,7 +24,7 @@ async def wyy_handle(
         summary = f"{artists} - {album}" if album else artists
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"https://music.cyrilstudio.top/song/detail?ids={music_id}",
+                f"https://autumnfish.cn/song/detail?ids={music_id}",
                 headers={
                     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                                   "Chrome/104.0.0.0 Safari/537.36"

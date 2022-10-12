@@ -11,7 +11,6 @@ class BuildImage:
     """
     快捷生成图片与操作图片的工具类
     """
-
     def __init__(
         self,
         w: int,
