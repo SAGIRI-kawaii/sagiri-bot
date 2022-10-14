@@ -1016,7 +1016,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "a6cfce0c8781f2632e84d6aae49f36df792dfd41ace16313bc3acc718209f375"
+content-hash = "3ec06b764f00df0bc572aeb5482182578b2a604fba8dd4fc9b7e4e9a2b8e62ff"
 
 [metadata.files]
 aiodns = [

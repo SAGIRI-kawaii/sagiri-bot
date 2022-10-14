@@ -68,6 +68,7 @@ functions:
     compress_password: i_luv_sagiri
   bilibili:
     cookie: cookie
+  stable_diffusion_api: stable_diffusion_api
 
 # 日志相关
 log_related:

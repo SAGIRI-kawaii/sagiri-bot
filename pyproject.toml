@@ -42,6 +42,7 @@ unwind = "^0.3.2"
 pypinyin = "^0.47.1"
 qrcode = "^7.3.1"
 Pillow = "^9.2.0"
+yarl = "^1.8.1"
 
 
 [build-system]

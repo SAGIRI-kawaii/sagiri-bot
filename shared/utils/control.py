@@ -313,7 +313,6 @@ class Config(object):
     @classmethod
     def require(cls, config: str | None = None):
         async def config_available(app: Ariadne, event: GroupMessage):
-            print(config)
             if not config:
                 return
             config_instance = cls.get_config()
@@ -325,7 +324,6 @@ class Config(object):
                 raise ExecutionStop()
             current = config_instance
             for path in paths:
-                print(path)
                 if isinstance(current, GlobalConfig):
                     if hasattr(current, path) and not getattr(current, path):
                         await app.send_group_message(event.sender.group, msg)
@@ -369,4 +367,14 @@ class Distribute(object):
                 raise ExecutionStop()
             if show_log:
                 print(app.account, "keep")
+        return Depend(judge)
+
+
+class Anonymous(object):
+    @staticmethod
+    def block(message: str = "不许匿名，你是不是想干坏事？") -> Depend:
+        async def judge(app: Ariadne, group: Group, member: Member) -> NoReturn:
+            if member.id == 80000000:
+                await app.send_group_message(group, MessageChain(message))
+                raise ExecutionStop()
         return Depend(judge)
