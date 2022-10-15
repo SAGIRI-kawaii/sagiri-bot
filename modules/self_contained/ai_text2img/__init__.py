@@ -111,8 +111,8 @@ async def ai_t2i(
         cfg_scale=cfg_scale if 0 <= cfg_scale <= 30 else 12,
         seed=seed,
         subseed=subseed,
-        height=height,
-        width=width,
+        height=height if height % 64 == 0 else 512,
+        width=width if width % 64 == 0 else 512,
         denoising_strength=denoising_strength
     )
     try:
@@ -213,8 +213,8 @@ async def ai_i2i(
         cfg_scale=cfg_scale if 0 <= cfg_scale <= 30 else 12,
         seed=seed,
         subseed=subseed,
-        height=height,
-        width=width,
+        height=height if height % 64 == 0 else 512,
+        width=width if width % 64 == 0 else 512,
         denoising_strength=denoising_strength
     )
     try:
