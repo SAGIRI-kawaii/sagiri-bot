@@ -1,0 +1,18 @@
+{
+  "name": "MessageRevoke",
+  "version": "0.1",
+  "display_name": "消息自助撤回",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以自动撤回之前发送消息的插件",
+  "usage": ["回复 `撤回` 即可撤回回复的消息（Bot发出的，如果是管理员也可撤回普通成员消息）"],
+  "examples": ["回复：撤回"],
+  "icon": "",
+  "prefix": ["/", ".", "#", ""],
+  "triggers": ["revoke", "撤回"],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
+}

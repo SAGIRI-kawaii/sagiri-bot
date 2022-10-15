@@ -6,6 +6,7 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import Group
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.event.mirai import GroupRecallEvent
+from graia.ariadne.message.element import Voice, FlashImage
 from graia.ariadne.exception import AccountMuted, UnknownTarget
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
@@ -44,5 +45,9 @@ async def anti_revoke(app: Ariadne, group: Group, event: GroupRecallEvent):
             revoked_msg = msg.message_chain.as_sendable()
             author_member = await app.get_member(event.group.id, event.author_id)
             author_name = "自己" if event.operator.id == event.author_id else author_member.name
-            resend_msg = MessageChain(f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦：\n\n").extend(revoked_msg)
-            await app.send_message(event.group, resend_msg.as_sendable())
+            if revoked_msg.has(Voice) or revoked_msg.has(FlashImage):
+                await app.send_message(event.group, MessageChain(f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦"))
+                await app.send_message(event.group, revoked_msg)
+            else:
+                resend_msg = MessageChain(f"{event.operator.name}偷偷撤回了{author_name}的一条消息哦：\n\n").extend(revoked_msg)
+                await app.send_message(event.group, resend_msg.as_sendable())

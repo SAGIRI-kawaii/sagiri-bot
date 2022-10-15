@@ -318,7 +318,7 @@ uvicorn = ["uvicorn (>=0.17.6,<1.0.0)"]
 
 [[package]]
 name = "graia-ariadne"
-version = "0.9.1"
+version = "0.9.6"
 description = "Another elegant Python QQ Bot framework for mirai and mirai-api-http v2."
 category = "main"
 optional = false
@@ -329,14 +329,13 @@ aiohttp = ">=3.8,<4.0"
 creart-graia = ">=0.1.5,<1.0.0"
 graia-amnesia = ">=0.6.0,<0.7.0"
 graia-broadcast = ">=0.18,<1.0"
-launart = ">=0.6.0,<1.0.0"
-pydantic = ">=1.8,<2.0"
-typing-extensions = ">=4.0,<5.0"
+launart = ">=0.6,<1.0"
+pydantic = ">=1.9,<2.0"
+typing-extensions = ">=4.3,<5.0"
 
 [package.extras]
-alconna = ["arclet-alconna-graia"]
 fastapi = ["fastapi (>=0.74.1,<1.0.0)", "uvicorn[standard] (>=0.17.5,<1.0.0)"]
-full = ["arclet-alconna-graia", "graia-saya (>=0.0,<1.0)", "graia-scheduler (>=0.0,<1.0)", "richuru (>=0.1,<1.0)"]
+full = ["graia-saya (>=0.0,<1.0)", "graia-scheduler (>=0.0,<1.0)", "richuru (>=0.1,<1.0)"]
 graia = ["graia-saya (>=0.0,<1.0)", "graia-scheduler (>=0.0,<1.0)"]
 standard = ["graia-saya (>=0.0,<1.0)", "graia-scheduler (>=0.0,<1.0)", "richuru (>=0.1,<1.0)"]
 
@@ -1400,8 +1399,8 @@ graia-amnesia = [
     {file = "graia_amnesia-0.6.0-py3-none-any.whl", hash = "sha256:c1e347171cd42d81b10dea4fb6afef4bed4e836fa9c698ecf595ccaa5c2d1939"},
 ]
 graia-ariadne = [
-    {file = "graia-ariadne-0.9.1.tar.gz", hash = "sha256:60a7d0d85e188a9ff0bc384ce4a244adc8eb721e28450f9bdaabcd914829b6be"},
-    {file = "graia_ariadne-0.9.1-py3-none-any.whl", hash = "sha256:0ddd2adebd2a01e1a56b9d6c247ebf8dba02e8268a86e0fcc569c99d294e6b33"},
+    {file = "graia-ariadne-0.9.6.tar.gz", hash = "sha256:215c1353cc5e1fda67fdc141a6cdf4ed516c9c9036e32aba4eee40235a8db0b6"},
+    {file = "graia_ariadne-0.9.6-py3-none-any.whl", hash = "sha256:53a8b24834e6b39b2d5ee78e65b6d326888b7fd317123953b0a2eeba82a79851"},
 ]
 graia-broadcast = [
     {file = "graia-broadcast-0.18.2.tar.gz", hash = "sha256:07b0285d417021c795c3c4f4f12713311fcdec10d63f8e7a8ed7964e2f1b7a5a"},
