@@ -273,9 +273,7 @@ class Function(object):
         log: bool = True,
         notice: bool = False,
     ) -> Optional[Depend]:
-        async def judge(event: GroupMessage) -> NoReturn:
-            member = event.sender
-            group = member.group
+        async def judge(app: Ariadne, group: Group, member: Member) -> NoReturn:
             saya_data = get_saya_data()
             if name not in saya_data.switch:
                 saya_data.add_saya(name)
@@ -285,7 +283,7 @@ class Function(object):
                 print(name, saya_data.is_turned_on(name, group))
             if not saya_data.is_turned_on(name, group):
                 if saya_data.is_notice_on(name, group) or notice:
-                    await ariadne_ctx.get().send_message(
+                    await app.send_message(
                         group, MessageChain(f"{name}插件已关闭，请联系管理员")
                     )
                 raise ExecutionStop()
@@ -355,7 +353,7 @@ class Config(object):
 class Distribute(object):
     @staticmethod
     def distribute(show_log: bool = False) -> Depend:
-        async def judge(app: Ariadne, group: Group, member: Member, source: Source) -> NoReturn:
+        async def judge(app: Ariadne, group: Group, member: Member, source: Source | None) -> NoReturn:
             if member.id in create(GlobalConfig).bot_accounts:
                 if show_log:
                     print(app.account, "bot conflict stop")

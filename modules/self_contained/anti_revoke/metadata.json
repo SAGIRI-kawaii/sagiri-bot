@@ -1,0 +1,14 @@
+{
+  "name": "AntiRevoke",
+  "version": "0.1",
+  "display_name": "防撤回",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个防撤回的插件",
+  "usage": ["打开数据库开关后自动触发"],
+  "example": [],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

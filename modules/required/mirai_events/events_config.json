@@ -1,0 +1,32 @@
+{
+  "MemberLeaveEventQuit": "<{member_name}({member_id})> 离开了本群",
+  "MemberMuteEvent":  "哦~看看是谁被关进小黑屋了？\n哦我的上帝啊~是{member_name}！他将在小黑屋里呆{day}天{hour}小时{minute}分钟{second}秒哦~",
+  "MemberUnmuteEvent": "啊嘞嘞？{member_name}被放出来了呢~",
+  "MemberLeaveEventKick": "<{member_name}({member_id})> 被 <{operator_name}> \uD83D\uDC0F辣~",
+  "MemberSpecialTitleChangeEvent": "啊嘞嘞？<{member_name}>的群头衔从<{origin}>变成<{current}>了呐~",
+  "MemberPermissionChangeEvent": "啊嘞嘞？<{member_name}>的权限变成<{origin}>变成<{current}>了呐~",
+  "BotLeaveEventKick": "呜呜呜主人我被<{operator_name}(operator_id)>踢出<{group_name}({group_id})>群了",
+  "GroupNameChangeEvent": "群名改变啦！告别过去，迎接未来哟~\n本群名称由<{origin}>变为<{current}>辣！",
+  "GroupEntranceAnnouncementChangeEvent": "入群公告改变啦！注意查看呐~\n原公告：{origin}\n新公告：{current}",
+  "GroupAllowAnonymousChatEvent": {
+    "open": "匿名功能现在开启辣！畅所欲言吧！",
+    "close": "匿名功能现在关闭辣！光明正大做人吧！"
+  },
+  "GroupAllowConfessTalkEvent": {
+    "open": "坦白说功能现在开启辣！快来让大家更加了解你吧！",
+    "close": "坦白说功能现在关闭辣！有时候也要给自己留点小秘密哟~"
+  },
+  "GroupAllowMemberInviteEvent": {
+    "open": "现在允许邀请成员加入辣！快把朋友拉进来玩叭！",
+    "close": "现在不允许邀请成员加入辣！要注意哦~"
+  },
+  "MemberCardChangeEvent": "啊嘞嘞？{origin}的群名片改为{current}了呢！",
+  "NewFriendRequestEvent": "主人主人，有个人来加我好友啦！\nID：{supplicant}\n来自：{nickname}\n描述：{message}\nsource：{source_group}",
+  "MemberJoinRequestEvent": "有个新的加群加群请求哟~管理员们快去看看叭！\nID：{supplicant}\n昵称：{nickname}\n描述：{message}",
+  "BotInvitedJoinGroupRequestEvent": "主人主人，有个人拉我进群啦！\nID：{supplicant}\n来自：{nickname}\n描述：{message}",
+  "BotJoinGroupEvent": "欸嘿嘿~我来啦！宇宙无敌小可爱纱雾酱华丽登场！",
+  "MemberHonorChangeEvent": {
+    "achieve": "恭喜{member_name}({member_id})获得了群荣誉{honor}！",
+    "lose": "很遗憾，{member_name}({member_id})失去了群荣誉{honor}！"
+  }
+}

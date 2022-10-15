@@ -60,12 +60,15 @@ class PublicGroup(object):
             return len(self.data[group]) > 1
         return False
 
-    def execution_stop(self, group: Group | int, account: int, source: Source) -> bool:
+    def execution_stop(self, group: Group | int, account: int, source: Source | None) -> bool:
         group = group.id if isinstance(group, Group) else group
         if group not in self.data:
             self.add_group(group, account)
             return True
-        return (source.id + int(time.mktime(source.time.timetuple()))) % len(self.data[group]) != self.get_index(group, account)
+        if source:
+            return (source.id + int(time.mktime(source.time.timetuple()))) % len(self.data[group]) != self.get_index(group, account)
+        else:
+            return int(time.time()) % len(self.data[group]) != self.get_index(group, account)
 
 
 class PublicGroupClassCreator(AbstractCreator, ABC):

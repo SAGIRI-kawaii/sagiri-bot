@@ -1,0 +1,17 @@
+{
+  "name": "MiraiEvent",
+  "version": "0.2",
+  "display_name": "事件处理",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个对不同事件进行处理的插件",
+  "usage": "自动触发",
+  "icon": "",
+  "prefix": [],
+  "triggers": [],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
+}

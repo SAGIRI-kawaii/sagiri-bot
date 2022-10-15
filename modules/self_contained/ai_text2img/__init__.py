@@ -1,7 +1,7 @@
-import base64
-import traceback
 import re
 import time
+import base64
+
 from creart import create
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
