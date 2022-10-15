@@ -359,6 +359,10 @@ class Distribute(object):
                     print(app.account, "bot conflict stop")
                 raise ExecutionStop()
             p_group = create(PublicGroup)
+            if not p_group.account_initialized(app.account):
+                if show_log:
+                    print(app.account, "not initialized")
+                raise ExecutionStop()
             if p_group.need_distribute(group, app.account) and p_group.execution_stop(group, app.account, source):
                 if show_log:
                     print(app.account, "stop")

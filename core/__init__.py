@@ -27,7 +27,6 @@ from graia.ariadne.connection.config import (
 )
 from graiax.playwright import PlaywrightService
 from graia.ariadne.model import LogConfig, Group
-from graia.ariadne.model.util import AriadneOptions
 from creart import create, add_creator, exists_module
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 from creart.creator import AbstractCreator, CreateTargetInfo
@@ -92,9 +91,9 @@ class Sagiri(object):
         for app in self.apps:
             app.debug = False
         try:
-            await orm.init_check()
+            _ = await orm.init_check()
         except (AttributeError, InternalError, ProgrammingError):
-            await orm.create_all()
+            _ = await orm.create_all()
         self.alembic()
         await orm.update(Setting, [], {"active": False})
         total_groups = {}
@@ -106,7 +105,7 @@ class Sagiri(object):
                     [Setting.group_id == group.id],
                     {"group_id": group.id, "group_name": group.name, "active": True},
                 )
-            _ = await self.update_host_permission(group_list)
+            await self.update_host_permission(group_list)
             total_groups[app.account] = group_list
         try:
             _ = await self_upgrade()
@@ -116,9 +115,13 @@ class Sagiri(object):
         for account, group_list in total_groups.items():
             for group in group_list:
                 logger.info(f"Bot账号: {str(account).ljust(14)}群ID: {str(group.id).ljust(14)}群名: {group.name}")
-        await create(PublicGroup).data_init()
         await create(GroupSetting).data_init()
         await create(GroupBlackList).data_init()
+        await create(PublicGroup).accounts_check()
+
+    @staticmethod
+    async def public_group_init(app: Ariadne):
+        await create(PublicGroup).add_account(app=app)
 
     async def update_host_permission(self, group_list: List[Group]):
         for group in group_list:

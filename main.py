@@ -7,6 +7,7 @@ from graia.saya import Saya
 from graia.ariadne import Ariadne
 from graia.broadcast import Broadcast
 from graia.ariadne.message.element import Source
+from graia.ariadne.event.lifecycle import AccountLaunch
 from graia.ariadne.event.message import ActiveFriendMessage, ActiveGroupMessage
 from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Stranger
 
@@ -63,9 +64,10 @@ async def active_friend_message_handler(app: Ariadne, event: ActiveFriendMessage
     logger.info(f"成功向 Bot <{app.account}> 好友 <{event.subject.nickname.strip()}> 发送消息：{message_text_log}")
 
 
-@bcc.receiver("AccountLaunch")
-async def init():
+@bcc.receiver(AccountLaunch)
+async def init(event: AccountLaunch):
     _ = await core.initialize()
+    await core.public_group_init(event.app)
     await online_notice()
     await frequency_limit()
 

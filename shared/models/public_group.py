@@ -1,4 +1,5 @@
 import time
+import asyncio
 from abc import ABC
 from typing import Dict, Type, Set
 
@@ -16,9 +17,11 @@ from shared.models.config import GlobalConfig
 class PublicGroup(object):
     """ group: {accounts} """
     data: Dict[int, Set[int]]
+    inited_account: Set[int]
 
     def __init__(self):
         self.data = {}
+        self.inited_account = set()
 
     async def data_init(self):
         config = create(GlobalConfig)
@@ -49,7 +52,19 @@ class PublicGroup(object):
             return list(self.data[group]).index(account)
         raise ValueError
 
+    async def add_account(self, *, app: Ariadne | None = None, account: int = None):
+        if sum([bool(app), bool(account)]) > 1:
+            raise ValueError("Too many binary initializers!")
+        if not app and not account:
+            raise ValueError("You should give app or account")
+        if not app:
+            app = Ariadne.current(account)
+        for group in await app.get_group_list():
+            self.add_group(group, app.account)
+        self.inited_account.add(app.account)
+
     def remove_account(self, account: int):
+        self.inited_account.remove(account)
         for group in self.data:
             if account in self.data[group]:
                 self.data[group].remove(account)
@@ -69,6 +84,20 @@ class PublicGroup(object):
             return (source.id + int(time.mktime(source.time.timetuple()))) % len(self.data[group]) != self.get_index(group, account)
         else:
             return int(time.time()) % len(self.data[group]) != self.get_index(group, account)
+
+    def account_initialized(self, account: int):
+        return account in self.inited_account
+
+    async def accounts_check(self):
+        config = create(GlobalConfig)
+        while True:
+            for account in (await Ariadne.current().get_bot_list()):
+                if account in config.bot_accounts and account not in self.inited_account:
+                    await self.add_account(account=account)
+            for account in self.inited_account:
+                if not Ariadne.current(account).connection.status.available:
+                    self.remove_account(account)
+            await asyncio.sleep(10)
 
 
 class PublicGroupClassCreator(AbstractCreator, ABC):
