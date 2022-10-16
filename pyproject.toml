@@ -10,8 +10,8 @@ packages = [{include = "sagiri_bot"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 aiohttp = "^3.8.1"
-graia-ariadne = "^0.9.1"
-graia-broadcast = "^0.18.2"
+graia-ariadne = "^0.9.7"
+graia-broadcast = "^0.19.0"
 loguru = "^0.6.0"
 graia-saya = "^0.0.16"
 graiax-silkcoder = "^0.3.2"
@@ -43,6 +43,7 @@ pypinyin = "^0.47.1"
 qrcode = "^7.3.1"
 Pillow = "^9.2.0"
 yarl = "^1.8.1"
+uvicorn = "^0.18.3"
 
 
 [build-system]

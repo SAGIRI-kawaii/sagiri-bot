@@ -273,10 +273,12 @@ class Function(object):
         log: bool = True,
         notice: bool = False,
     ) -> Optional[Depend]:
-        async def judge(app: Ariadne, group: Group, member: Member) -> NoReturn:
+        async def judge(app: Ariadne, group: Group | None, member: Member | None) -> NoReturn:
             saya_data = get_saya_data()
             if name not in saya_data.switch:
                 saya_data.add_saya(name)
+            if not group:
+                return
             if group.id not in saya_data.switch[name]:
                 saya_data.add_group(group)
             if log:
@@ -288,9 +290,7 @@ class Function(object):
                     )
                 raise ExecutionStop()
             if not await group_setting.get_setting(group, Setting.switch):
-                if response_administrator and await user_permission_require(
-                    group, member, 2
-                ):
+                if member and response_administrator and await user_permission_require(group, member, 2):
                     return
                 raise ExecutionStop()
             return

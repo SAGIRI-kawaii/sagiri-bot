@@ -44,7 +44,7 @@ async def member_leave_event_quit(app: Ariadne, group: Group, member: Member):
     with contextlib.suppress(AccountMuted):
         await app.send_message(
             group,
-            MessageChain(event_config["MemberJoinRequestEvent"].format(**unpack_member(member), **unpack_group(group)))
+            MessageChain(event_config["MemberLeaveEventQuit"].format(**unpack_member(member), **unpack_group(group)))
         )
 
 
@@ -426,7 +426,7 @@ async def bot_invited_join_group_request_event(app: Ariadne, event: BotInvitedJo
 
 @channel.use(
     ListenerSchema(
-        listening_events=[MemberCardChangeEvent],
+        listening_events=[BotJoinGroupEvent],
         decorators=[Function.require(channel.module)]
     )
 )
@@ -470,7 +470,7 @@ async def member_honor_change_event(app: Ariadne, group: Group, member: Member, 
         await app.send_message(
             group,
             MessageChain(
-                event_config["MemberHonorChangeEvent"].format(
+                event_config["MemberHonorChangeEvent"][event.action].format(
                     honor=event.honor,
                     **unpack_group(group),
                     **unpack_member(member),

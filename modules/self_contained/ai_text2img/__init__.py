@@ -97,7 +97,7 @@ async def ai_t2i(
     cfg_scale = parse_match_type(cfg_scale, float, 12)
     seed = parse_match_type(seed, int, -1)
     subseed = parse_match_type(subseed, int, -1)
-    denoising_strength = parse_match_type(denoising_strength, int, 0.3)
+    denoising_strength = parse_match_type(denoising_strength, float, 0.7)
     negative_prompt = negative_prompt.result.display[4:-1] if negative_prompt.matched else ""
     print(width, height, steps, n_iter, cfg_scale, seed, subseed, denoising_strength)
     keywords = "".join(i.text for i in keywords.result[Plain]).strip()
@@ -187,7 +187,7 @@ async def ai_i2i(
     cfg_scale = parse_match_type(cfg_scale, float, 12)
     seed = parse_match_type(seed, int, -1)
     subseed = parse_match_type(subseed, int, -1)
-    denoising_strength = parse_match_type(denoising_strength, int, 0.3)
+    denoising_strength = parse_match_type(denoising_strength, float, 0.7)
     negative_prompt = negative_prompt.result.display[4:-1] if negative_prompt.matched else ""
     print(width, height, steps, n_iter, cfg_scale, seed, subseed, denoising_strength)
     if message.result.get(Image):

@@ -77,5 +77,6 @@ if __name__ == '__main__':
         logger.critical(f"当前目录非项目所在目录！请进入{str(Path(__file__).parent)}后再运行 SAGIRI-BOT!")
         exit(0)
     core.install_modules(Path("modules") / "self_contained")
+    core.install_modules(Path("modules") / "third_party")
     core.install_modules(Path("modules") / "required")
     core.launch()

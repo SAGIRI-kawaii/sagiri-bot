@@ -28,6 +28,7 @@ from graia.ariadne.connection.config import (
 from graiax.playwright import PlaywrightService
 from graia.ariadne.model import LogConfig, Group
 from creart import create, add_creator, exists_module
+from graia.amnesia.builtins.uvicorn import UvicornService
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 from creart.creator import AbstractCreator, CreateTargetInfo
 
@@ -36,7 +37,9 @@ from shared.utils.self_upgrade import self_upgrade
 from shared.models.blacklist import GroupBlackList
 from shared.models.public_group import PublicGroup
 from shared.orm import orm, Setting, UserPermission
+from shared.models.types import ModuleOperationType
 from shared.models.group_setting import GroupSetting
+from shared.utils.services import FastAPIStarletteService
 
 non_log = {
     GroupMessage,
@@ -52,14 +55,14 @@ non_log = {
 class Sagiri(object):
     apps: List[Ariadne]
     config: GlobalConfig
-    main_path: str | Path
+    base_path: str | Path
     launch_time: datetime.datetime
     initialized: bool = False
 
-    def __init__(self, g_config: GlobalConfig, main_path: str | Path):
+    def __init__(self, g_config: GlobalConfig, base_path: str | Path):
         self.launch_time = datetime.datetime.now()
         self.config = create(GlobalConfig)
-        self.main_path = main_path if isinstance(main_path, Path) else Path(main_path)
+        self.base_path = base_path if isinstance(base_path, Path) else Path(base_path)
         self.apps = [Ariadne(
             config(
                 bot_account,
@@ -71,12 +74,14 @@ class Sagiri(object):
         ) for bot_account in self.config.bot_accounts]
         if self.config.default_account:
             Ariadne.config(default_account=self.config.default_account)
-        self.apps[0].launch_manager.add_service(
+        Ariadne.launch_manager.add_service(
             PlaywrightService(
                 "chromium",
                 proxy={"server": self.config.proxy if self.config.proxy != "proxy" else None}
             )
         )
+        Ariadne.launch_manager.add_service(FastAPIStarletteService())
+        Ariadne.launch_manager.add_service(UvicornService())
         self.config_check()
 
     async def initialize(self):
@@ -221,6 +226,37 @@ class Sagiri(object):
                 except Exception as e:
                     logger.exception("")
                     exceptions[str(base_path / module.split('.')[0])] = e
+        return exceptions
+
+    @staticmethod
+    def module_operation(modules: str | list[str], operation_type: ModuleOperationType) -> dict[str, Exception]:
+        saya = create(Saya)
+        exceptions = {}
+        if isinstance(modules, str):
+            modules = [modules]
+        if operation_type == ModuleOperationType.INSTALL:
+            op_modules = {
+                module: module
+                for module in modules
+            }
+        else:
+            loaded_channels = saya.channels
+            op_modules = {
+                module: loaded_channels[module]
+                for module in modules
+                if module in loaded_channels
+            }
+        with saya.module_context():
+            for c, value in op_modules.items():
+                try:
+                    if operation_type == ModuleOperationType.INSTALL:
+                        saya.require(c)
+                    elif operation_type == ModuleOperationType.UNINSTALL:
+                        saya.uninstall_channel(value)
+                    else:
+                        saya.reload_channel(value)
+                except Exception as e:
+                    exceptions[c] = e
         return exceptions
 
     @staticmethod
