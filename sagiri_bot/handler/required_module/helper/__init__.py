@@ -66,7 +66,7 @@ def random_pic(base_path: Union[Path, str]) -> Union[str, Path]:
         base_path = Path(base_path)
     path_dir = os.listdir(base_path)
     path = random.sample(path_dir, 1)[0]
-    return str(Path(__file__).parent / "banners" / path)
+    return str((Path("sagiri_bot") / "handler" / "required_module" / "helper" / "banners" / path).as_posix())
 
 
 @channel.use(
