@@ -16,7 +16,7 @@
     "发送 `关闭插件 [编号|名称]` 可关闭插件",
     "编号可从 `已加载插件` 或 `未加载插件` 命令获取"
   ],
-  "examples": [
+  "example": [
     "加载插件 1",
     "加载插件 AbbreviatedPrediction",
     "卸载插件 AbbreviatedPrediction",
