@@ -1,7 +1,7 @@
-import os
 import re
 import psutil
 from typing import Match
+from pathlib import Path
 from datetime import datetime
 
 from creart import create
@@ -68,8 +68,8 @@ async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: A
         "图库占用空间：\n        " +
         "\n        ".join(
             [*[
-                f"{path_name}：{round(sum(os.path.getsize(data['path'] + file) for file in os.listdir(data['path'])) / 1024 ** 3, 2)}GB"
-                if os.path.exists(data["path"]) else
+                f"{path_name}：{round(sum(Path(data['path'] / file).stat().st_size for file in Path(data['path']).glob('*')) / 1024 ** 3, 2)}GB"
+                if Path(data["path"]).exists() else
                 (f"{path_name}：网络路径" if is_url(data["path"]) else f"{path_name}：无效本地/网络路径")
                 for path_name, data in image_path.items()
             ]]

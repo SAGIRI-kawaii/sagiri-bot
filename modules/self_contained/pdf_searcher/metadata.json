@@ -1,0 +1,14 @@
+{
+  "name": "PDFSearcher",
+  "version": "0.2",
+  "display_name": "PDF搜索",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "可以搜索pdf的插件",
+  "usage": ["在群中发送 `/pdf 书名` 即可"],
+  "example": ["/pdf 计算机网络"],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["pdf"]
+}
