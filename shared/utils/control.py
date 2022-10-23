@@ -29,7 +29,7 @@ from shared.models.group_setting import GroupSetting
 from shared.utils.permission import user_permission_require
 from shared.utils.data_related import update_user_call_count_plus
 from shared.models.frequency_limit import GlobalFrequencyLimitDict
-from shared.orm import orm, Setting, BlackList, UserPermission, UserCalledCount
+from shared.orm import orm, Setting, UserPermission, UserCalledCount
 
 group_setting = create(GroupSetting)
 
@@ -78,11 +78,13 @@ class Permission(object):
         """
 
         async def perm_check(
-            event: GroupMessage, group: Group, source: Source
+            group: Group | None = None, member: Member | None = None, source: Source | None = None
         ) -> NoReturn:
+            if not group or not member:
+                return
             if not Permission.DEFAULT <= level <= Permission.MASTER:
                 raise ValueError(f"invalid level: {level}")
-            member_level = await cls.get(event.sender.group, event.sender)
+            member_level = await cls.get(group, member)
             if member_level == cls.MASTER:
                 pass
             elif member_level < level:
@@ -170,8 +172,10 @@ class Switch(object):
 class BlackListControl(object):
     @staticmethod
     def enable() -> Depend:
-        async def blacklist(event: GroupMessage) -> NoReturn:
-            if create(GroupBlackList).blocked(event.sender, event.sender.group):
+        async def blacklist(group: Group | None = None, member: Member | None = None) -> NoReturn:
+            if not group or not member:
+                return
+            if create(GroupBlackList).blocked(member, group):
                 raise ExecutionStop()
             return
 
@@ -273,7 +277,7 @@ class Function(object):
         log: bool = True,
         notice: bool = False,
     ) -> Optional[Depend]:
-        async def judge(app: Ariadne, group: Group | None, member: Member | None) -> NoReturn:
+        async def judge(app: Ariadne, group: Group | None = None, member: Member | None = None) -> NoReturn:
             saya_data = get_saya_data()
             if name not in saya_data.switch:
                 saya_data.add_saya(name)
@@ -353,7 +357,11 @@ class Config(object):
 class Distribute(object):
     @staticmethod
     def distribute(show_log: bool = False) -> Depend:
-        async def judge(app: Ariadne, group: Group, member: Member, source: Source | None) -> NoReturn:
+        async def judge(
+            app: Ariadne, group: Group | None = None, member: Member | None = None, source: Source | None = None
+        ) -> NoReturn:
+            if not group or not member:
+                return
             if member.id in create(GlobalConfig).bot_accounts:
                 if show_log:
                     print(app.account, "bot conflict stop")

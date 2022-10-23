@@ -1,3 +1,5 @@
+import re
+from pathlib import Path
 from loguru import logger
 from sqlalchemy import select
 
@@ -5,12 +7,12 @@ from creart import create
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.broadcast import Broadcast
-from graia.ariadne.message.element import Source
 from graia.ariadne.message.chain import MessageChain
 from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.message.element import Source, Image
 from graia.ariadne.event.lifecycle import ApplicationLaunch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.event.message import Group, Member, GroupMessage
+from graia.ariadne.event.message import Group, Member, GroupMessage, FriendMessage, Friend
 from graia.ariadne.message.parser.twilight import (
     Twilight,
     FullMatch,
@@ -23,10 +25,9 @@ from graia.ariadne.message.parser.twilight import (
 from shared.orm import orm, TriggerKeyword
 from shared.utils.waiter import ConfirmWaiter
 from shared.models.config import GlobalConfig
-from .utils import valid2send, get_image, GallerySwitch
 from shared.utils.message_chain import parse_message_chain_as_stable_string
+from .utils import valid2send, get_image, GallerySwitch, save_image_to_gallery
 from shared.utils.control import Function, BlackListControl, UserCalledCountControl, Distribute, Permission
-
 
 channel = Channel.current()
 channel.name("Gallery")
@@ -111,7 +112,8 @@ async def add_keyword(app: Ariadne, group: Group, gallery_name: RegexResult, key
 )
 async def delete_keyword(app: Ariadne, group: Group, member: Member, keyword: RegexResult):
     if record := await orm.fetchone(select(TriggerKeyword.function).where(TriggerKeyword.keyword == keyword)):
-        await app.send_group_message(group, MessageChain(f"查找到以下信息：\n{keyword} -> {record[0]}\n是否删除？（是/否）"))
+        await app.send_group_message(group,
+                                     MessageChain(f"查找到以下信息：\n{keyword} -> {record[0]}\n是否删除？（是/否）"))
         if await InterruptControl(create(Broadcast)).wait(ConfirmWaiter(group, member)):
             _ = await orm.delete(TriggerKeyword, [TriggerKeyword.keyword == keyword])
             return await app.send_group_message(group, MessageChain(f"关键词 {keyword} 删除成功"))
@@ -139,7 +141,7 @@ async def delete_keyword(app: Ariadne, group: Group, member: Member, keyword: Re
 async def show_keywords(app: Ariadne, group: Group, gallery_name: RegexResult):
     gallery_name = gallery_name.result.display.strip()
     if keywords := await orm.fetchall(
-        select(TriggerKeyword.keyword).where(TriggerKeyword.function == gallery_name)
+            select(TriggerKeyword.keyword).where(TriggerKeyword.function == gallery_name)
     ):
         return await app.send_group_message(group, MessageChain("\n".join([keyword[0] for keyword in keywords])))
     await app.send_group_message(group, MessageChain(f"未找到图库{gallery_name}对应关键词或图库名错误！"))
@@ -217,3 +219,53 @@ async def modify_gallery_switch(app: Ariadne, group: Group, operation: RegexResu
     else:
         create(GallerySwitch).modify(group, gallery_name, False)
         await app.send_group_message(group, MessageChain(f"图库 <{gallery_name}> 开关已关闭"))
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage, FriendMessage],
+        inline_dispatchers=[
+            Twilight([
+                FullMatch("添加"),
+                RegexMatch(".*") @ "gallery_name",
+                FullMatch("图片"),
+                WildcardMatch().flags(re.DOTALL)
+            ])
+        ],
+        decorators=[
+            Distribute.distribute(),
+            Function.require(channel.module),
+            BlackListControl.enable(),
+            Permission.require(Permission.GROUP_ADMIN)
+        ],
+    )
+)
+async def add(app: Ariadne, message: MessageChain, gallery_name: RegexResult, target: Member | Friend):
+    sender = target.id
+    target = target.group if isinstance(target, Member) else target
+    if sender != config.host_qq:
+        return await app.send_message(target, MessageChain("只有主人才能存图片呢！"))
+    gallery_name = gallery_name.result.display.strip()
+    if gallery_name not in config.gallery.keys():
+        return await app.send_message(
+            target, MessageChain(f"不存在这个图库哦，目前有以下图库：{'、'.join(config.gallery.keys())}")
+        )
+    images = message.get(Image)
+    if not images:
+        return await app.send_message(target, MessageChain("图片都没有，保存个鬼哦！"))
+    base_path = Path(config.gallery[gallery_name]["path"])
+    if not base_path.exists():
+        return await app.send_message(
+            target, MessageChain(Image(path=Path.cwd() / "resources" / "error" / "path_not_exists.png"))
+        )
+    if exceptions := await save_image_to_gallery(base_path, images):
+        return await app.send_message(
+            target,
+            MessageChain(
+                f"共收到{len(images)}张图片，"
+                f"成功保存{len(images) - len(exceptions)}张至图库 <{gallery_name}>，"
+                f"{len(exceptions)}张保存失败：\n"
+                "\n".join([f"{image_id}: {e}" for image_id, e in exceptions.items()])
+            )
+        )
+    await app.send_message(target, MessageChain(f"成功保存{len(images)}张图片至图库 <{gallery_name}>"))

@@ -13,19 +13,19 @@ from shared.orm import Setting, orm
 
 class GroupSetting(object):
     data: Dict[int, Dict[str, bool | str]]
+    columns: dict = {
+        i: Setting.__dict__[i]
+        for i in Setting.__dict__.keys()
+        if isinstance(Setting.__dict__[i], InstrumentedAttribute)
+    }
 
     def __init__(self):
         self.data = {}
 
     async def data_init(self):
-        columns = {
-            i: Setting.__dict__[i]
-            for i in Setting.__dict__.keys()
-            if isinstance(Setting.__dict__[i], InstrumentedAttribute)
-        }
-        column_names = sorted(columns.keys())
+        column_names = sorted(self.columns.keys())
         datas = await orm.fetchall(
-            select(Setting.group_id, *([columns[name] for name in column_names]))
+            select(Setting.group_id, *([self.columns[name] for name in column_names]))
         )
         for data in datas:
             self.data[data[0]] = dict(zip(column_names, data[1:]))
@@ -62,6 +62,18 @@ class GroupSetting(object):
             self.data[group][setting_name] = new_value
         else:
             self.data[group] = {setting_name: new_value}
+
+    async def add_group(self, group: Group):
+        _ = await orm.insert_or_update(
+            Setting,
+            Setting.group_id == group.id,
+            {"group_id": group.id, "group_name": group.name}
+        )
+        column_names = sorted(self.columns.keys())
+        data = await orm.fetchone(
+            select(Setting.group_id, *([self.columns[name] for name in column_names]))
+        )
+        self.data[data[0]] = dict(zip(column_names, data[1:]))
 
 
 class GroupSettingClassCreator(AbstractCreator, ABC):

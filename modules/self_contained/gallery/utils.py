@@ -7,8 +7,8 @@ import aiohttp
 from abc import ABC
 from pathlib import Path
 from loguru import logger
+from typing import Type, Literal
 from dataclasses import dataclass
-from typing import Dict, List, Type, Literal
 
 from graia.ariadne.message.element import Image
 from graia.ariadne.event.message import Group, Member
@@ -74,6 +74,26 @@ async def get_image(gallery_name: str) -> Image | str:
     return Image(path=Path.cwd() / "resources" / "error" / "path_not_exists.png")
 
 
+async def save_image_to_gallery(path: str | Path, images: list[Image]) -> dict[str, Exception]:
+    path = Path(path)
+    exceptions = {}
+    for image in images:
+        try:
+            img_content = await image.get_bytes()
+            print(image.id)
+            image_id, suffix = str(image.id).split(".")
+            img_path = Path(f"{image_id[1:-1]}.{suffix}")
+            img_path.with_stem(img_path.stem[1:-1])
+            if img_path.suffix == ".mirai":
+                img_path = img_path.with_suffix(".jpg")
+            save_path = path / img_path
+            save_path.write_bytes(img_content)
+            logger.success(f"成功保存图片：{save_path}")
+        except Exception as e:
+            exceptions[image.id] = e
+    return exceptions
+
+
 @dataclass
 class GalleryData(object):
     path: str
@@ -84,7 +104,7 @@ class GalleryData(object):
 
 
 class GalleryConfig(object):
-    configs: Dict[str, GalleryData]
+    configs: dict[str, GalleryData]
 
     def __init__(self):
         config = create(GlobalConfig).gallery
@@ -112,9 +132,9 @@ class GalleryConfigCreator(AbstractCreator, ABC):
 
 
 class GalleryInterval(object):
-    last_send: Dict[int, Dict[str, float]]
+    last_send: dict[int, dict[str, float]]
 
-    def __init__(self, groups: List[Group] | None = None):
+    def __init__(self, groups: list[Group] | None = None):
         self.last_send = {group.id: {gallery: 0 for gallery in gallerys} for group in groups} if groups else {}
 
     def valid2send(self, group: Group, gallery_name: str) -> bool:
@@ -144,7 +164,7 @@ class GalleryIntervalCreator(AbstractCreator, ABC):
 
 
 class GallerySwitch(object):
-    switch: Dict[str, Dict[str, bool]]
+    switch: dict[str, dict[str, bool]]
 
     def __init__(self):
         self.load()
