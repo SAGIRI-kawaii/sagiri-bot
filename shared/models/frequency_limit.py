@@ -18,10 +18,8 @@ class GlobalFrequencyLimitDict:
     frequency_limit_dict = None
 
     def __init__(self, frequency_limit_dict: Optional[dict] = None):
-        if frequency_limit_dict is None:
-            self.frequency_limit_dict = {}
-        else:
-            self.frequency_limit_dict = frequency_limit_dict
+        self.frequency_limit_dict = {} if frequency_limit_dict is None else frequency_limit_dict
+        self.limit_running = False
 
     def get(self, group_id: int, member_id: int, func_name: str):
         if group_id in self.frequency_limit_dict:
@@ -101,6 +99,14 @@ class GlobalFrequencyLimitDict:
     def blacklist_announced(self, group_id: int, member_id: int):
         self.__blacklist_announced[group_id][member_id] = True
 
+    async def frequency_limit(self) -> None:
+        if self.limit_running:
+            return
+        self.limit_running = True
+        while 1:
+            await asyncio.sleep(10)
+            self.set_zero()
+
 
 class FrequencyLimitClassCreator(AbstractCreator, ABC):
     targets = (CreateTargetInfo("shared.models.frequency_limit", "GlobalFrequencyLimitDict"),)
@@ -115,10 +121,3 @@ class FrequencyLimitClassCreator(AbstractCreator, ABC):
 
 
 add_creator(FrequencyLimitClassCreator)
-
-
-async def frequency_limit() -> None:
-    frequency_limit_instance = create(GlobalFrequencyLimitDict)
-    while 1:
-        await asyncio.sleep(10)
-        frequency_limit_instance.set_zero()

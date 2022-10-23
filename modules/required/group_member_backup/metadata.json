@@ -1,0 +1,20 @@
+{
+  "name": "GroupMembersBackup",
+  "version": "0.1",
+  "display_name": "群成员备份",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个备份群成员的插件",
+  "usage": [
+    "发送 `/群成员备份` 对当前群进行备份",
+    "发送 `/群成员备份 -s -g={qq群号}` 查看对应qq群备份信息"
+  ],
+  "example": [
+    "/群成员备份",
+    "/群成员备份 -s -g=114514"
+  ],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["群成员备份"]
+}

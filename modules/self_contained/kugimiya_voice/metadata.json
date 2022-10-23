@@ -1,0 +1,14 @@
+{
+  "name": "KugimiyaVoice",
+  "version": "0.2",
+  "display_name": "钉宫语音包",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个钉宫语音包插件",
+  "usage": ["发送 `来点钉宫` 即可"],
+  "example": ["来点钉宫"],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["来点钉宫"]
+}

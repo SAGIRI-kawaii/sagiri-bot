@@ -47,7 +47,7 @@ url = "http://233366.proxy.nscc-gz.cn:8888/?text={content}&speaker={speaker}"
     )
 )
 async def genshin_voice(app: Ariadne, group: Group, speaker: RegexResult, content: RegexResult):
-    speaker = speaker.result.display[2:-1].strip()
+    speaker = speaker.result.display[:-1].strip()
     content = content.result.display.strip()
     if speaker not in valid_characters:
         return await app.send_group_message(

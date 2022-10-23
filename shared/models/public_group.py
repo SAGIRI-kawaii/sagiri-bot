@@ -22,6 +22,7 @@ class PublicGroup(object):
     def __init__(self):
         self.data = {}
         self.inited_account = set()
+        self.check_running = False
 
     async def data_init(self):
         config = create(GlobalConfig)
@@ -89,6 +90,9 @@ class PublicGroup(object):
         return account in self.inited_account
 
     async def accounts_check(self):
+        if self.check_running:
+            return
+        self.check_running = True
         config = create(GlobalConfig)
         while True:
             for account in (await Ariadne.current().get_bot_list()):

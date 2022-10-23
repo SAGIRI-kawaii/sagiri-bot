@@ -10,5 +10,5 @@
   "example": ["/查老师 STARS-256"],
   "icon": "",
   "prefix": ["/"],
-  "triggers": ["查老师"]
+  "triggers": ["查老师", "xslist"]
 }

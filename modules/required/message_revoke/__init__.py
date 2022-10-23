@@ -1,16 +1,14 @@
-import contextlib
-
 from creart import create
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import At
-from graia.ariadne.exception import UnknownTarget
-from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.event.message import Group, Member, GroupMessage
 from graia.ariadne.message.parser.twilight import Twilight, ElementMatch
 
 from shared.models.config import GlobalConfig
 from shared.utils.module_related import get_command
+from shared.utils.permission import user_permission_require
 from shared.utils.control import Function, BlackListControl, UserCalledCountControl, Distribute
 
 channel = Channel.current()
@@ -39,13 +37,15 @@ config = create(GlobalConfig)
         ],
     )
 )
-async def message_revoke(app: Ariadne, group: Group, event: GroupMessage):
+async def message_revoke(app: Ariadne, group: Group, member: Member, event: GroupMessage):
     if event.quote:
         if msg := await app.get_message_from_id(event.quote.id, group):
             # try:
             if event.quote.sender_id in config.bot_accounts:
                 await Ariadne.current(event.quote.sender_id).recall_message(msg, group)
             else:
+                if not await user_permission_require(group, member, 3):
+                    return await app.send_message(group, "爪巴，你没有权限撤回其他人的消息！")
                 try:
                     await app.recall_message(msg, group)
                 except PermissionError:

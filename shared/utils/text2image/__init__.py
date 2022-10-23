@@ -16,7 +16,7 @@ env = jinja2.Environment(
 )
 
 
-async def html2image(html: str, wait: int = 0, template_path: str = f"file://{Path.cwd()}", **kwargs) -> bytes:
+async def html2image(html: str, wait: int = 1000, template_path: str = f"file://{Path.cwd()}", **kwargs) -> bytes:
     browser = Ariadne.current().launch_manager.get_interface(PlaywrightBrowser)
     async with browser.page(**kwargs) as page:
         await page.goto(template_path)

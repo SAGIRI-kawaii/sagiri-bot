@@ -122,7 +122,7 @@ class Sagiri(object):
                 logger.info(f"Bot账号: {str(account).ljust(14)}群ID: {str(group.id).ljust(14)}群名: {group.name}")
         await create(GroupSetting).data_init()
         await create(GroupBlackList).data_init()
-        await create(PublicGroup).accounts_check()
+        # await create(PublicGroup).accounts_check()
 
     @staticmethod
     async def public_group_init(app: Ariadne):

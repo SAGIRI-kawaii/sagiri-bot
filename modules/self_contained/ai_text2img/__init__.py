@@ -1,6 +1,7 @@
 import re
 import time
 import base64
+from aiohttp.client_exceptions import ClientConnectorError
 
 from creart import create
 from graia.saya import Saya, Channel
@@ -125,6 +126,9 @@ async def ai_t2i(
             quote=source
         )
         running = False
+    except ClientConnectorError:
+        running = False
+        await app.send_group_message(group, MessageChain("Stable Diffusion 后端未开启！请检查！"))
     except Exception as e:
         running = False
         raise e

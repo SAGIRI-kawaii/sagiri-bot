@@ -1,0 +1,22 @@
+{
+  "name": "Aminer",
+  "version": "0.2",
+  "display_name": "学术搜索",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个搜索导师信息的插件",
+  "usage": [
+    "在群中发送 /aminer {keyword} 即可搜索学者",
+    "在群中发送 /aminer -paper {keyword} 即可搜索论文",
+    "在群中发送 /aminer -patent {keyword} 即可搜索专利"
+  ],
+  "example": [
+    "/aminer 学者",
+    "/aminer -paper SMCQL",
+    "/aminer -patent 一种新型专利"
+  ],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["aminer"]
+}

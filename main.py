@@ -14,7 +14,8 @@ from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Str
 from core import Sagiri
 from shared.funcs import online_notice
 from shared.models.config import GlobalConfig
-from shared.models.frequency_limit import frequency_limit
+from shared.models.public_group import PublicGroup
+from shared.models.frequency_limit import GlobalFrequencyLimitDict
 
 config = create(GlobalConfig)
 core = create(Sagiri)
@@ -68,8 +69,17 @@ async def active_friend_message_handler(app: Ariadne, event: ActiveFriendMessage
 async def init(event: AccountLaunch):
     _ = await core.initialize()
     await core.public_group_init(event.app)
-    await online_notice()
-    await frequency_limit()
+    await online_notice(event.app.account)
+
+
+@bcc.receiver(AccountLaunch)
+async def frequency_limit_run():
+    await create(GlobalFrequencyLimitDict).frequency_limit()
+
+
+@bcc.receiver(AccountLaunch)
+async def accounts_check_run():
+    await create(PublicGroup).accounts_check()
 
 
 if __name__ == '__main__':

@@ -8,8 +8,8 @@ from shared.orm import Setting
 from shared.models.group_setting import GroupSetting
 
 
-async def online_notice():
-    app = Ariadne.current()
+async def online_notice(account: int | None = None):
+    app = Ariadne.current(account)
     group_list = await app.get_group_list()
     group_setting = create(GroupSetting)
     for group in group_list:

@@ -327,3 +327,13 @@ class BilibiliSubscribe(Base):
     group_id = Column(BIGINT, primary_key=True)
     member_id = Column(BIGINT)
     uid = Column(BIGINT, primary_key=True)
+
+
+class GroupMembersBackup(Base):
+    """group_member_backup 群成员备份"""
+
+    __tablename__ = "group_member_backup"
+
+    group_id = Column(BIGINT, primary_key=True)
+    group_name = Column(String(length=60), nullable=False)
+    members = Column(String, nullable=False)
