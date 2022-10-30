@@ -44,8 +44,28 @@ qrcode = "^7.3.1"
 Pillow = "^9.2.0"
 yarl = "^1.8.1"
 uvicorn = "^0.18.3"
+graiax-fastapi = "^0.2.0"
 
+
+
+[tool.poetry.group.super_resolution]
+optional = true
+
+[tool.poetry.group.super_resolution.dependencies]
+realesrgan = "^0.3.0"
+basicsr = "^1.4.2"
+imageio = "^2.22.2"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "pypi-public"
+url = "https://pypi.org/simple/"
+default = false
+
+[[tool.poetry.source]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
