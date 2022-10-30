@@ -80,7 +80,7 @@ class Sagiri(object):
         Ariadne.launch_manager.add_service(
             PlaywrightService(
                 "chromium",
-                proxy={"server": self.config.proxy if self.config.proxy != "proxy" else None}
+                proxy={"server": self.config.proxy} if self.config.proxy != "proxy" else None
             )
         )
         Ariadne.launch_manager.add_service(UvicornService())
