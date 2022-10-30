@@ -46,19 +46,12 @@ yarl = "^1.8.1"
 uvicorn = "^0.18.3"
 graiax-fastapi = "^0.2.0"
 
+realesrgan = { version = "^0.3.0", optional = true }
+basicsr = { version = "^1.4.2", optional = true }
+imageio = { version = "^2.22.2", optional = true }
 
-
-[tool.poetry.group.super_resolution]
-optional = true
-
-[tool.poetry.group.super_resolution.dependencies]
-realesrgan = "^0.3.0"
-basicsr = "^1.4.2"
-imageio = "^2.22.2"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.extras]
+super_resolution = ["realesrgan", "basicsr", "imageio"]
 
 [[tool.poetry.source]]
 name = "pypi-public"
@@ -66,6 +59,6 @@ url = "https://pypi.org/simple/"
 default = false
 
 [[tool.poetry.source]]
-name = "tsinghua"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+name = "USTC"
+url = "https://pypi.mirrors.ustc.edu.cn/simple"
 default = true
