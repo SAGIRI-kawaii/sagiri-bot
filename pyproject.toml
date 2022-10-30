@@ -5,7 +5,6 @@ description = "基于Graia Ariadne和Mirai的QQ机器人 SAGIRI-BOT"
 authors = ["SAGIRI-kawaii"]
 license = "AGPL-3.0 license"
 readme = "README.md"
-packages = [{include = "sagiri_bot"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
