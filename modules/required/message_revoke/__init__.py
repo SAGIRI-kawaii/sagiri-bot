@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from creart import create
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
@@ -30,7 +32,7 @@ config = create(GlobalConfig)
             ])
         ],
         decorators=[
-            Distribute.distribute(),
+            Distribute.distribute(require_admin=True),
             Function.require(channel.module),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
@@ -38,13 +40,16 @@ config = create(GlobalConfig)
     )
 )
 async def message_revoke(app: Ariadne, group: Group, member: Member, event: GroupMessage):
+    print(app.account)
     if event.quote:
         if msg := await app.get_message_from_id(event.quote.id, group):
-            # try:
             if event.quote.sender_id in config.bot_accounts:
                 await Ariadne.current(event.quote.sender_id).recall_message(msg, group)
             else:
-                if not await user_permission_require(group, member, 3):
+                if event.quote.sender_id == member.id:
+                    if datetime.now().replace(tzinfo=None) - event.source.time.replace(tzinfo=None) < timedelta(minutes=2):
+                        return await app.send_message(group, "你自己没有手是吧，没超过两分钟自己撤回！")
+                elif not await user_permission_require(group, member, 3):
                     return await app.send_message(group, "爪巴，你没有权限撤回其他人的消息！")
                 try:
                     await app.recall_message(msg, group)

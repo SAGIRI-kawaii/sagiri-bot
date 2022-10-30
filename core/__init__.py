@@ -3,8 +3,10 @@ import datetime
 from abc import ABC
 from pathlib import Path
 from loguru import logger
+from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Dict, List, Type
+from fastapi.middleware.cors import CORSMiddleware
 from aiohttp.client_exceptions import ClientConnectorError
 from sqlalchemy.exc import InternalError, ProgrammingError
 
@@ -29,9 +31,11 @@ from graiax.playwright import PlaywrightService
 from graia.ariadne.model import LogConfig, Group
 from creart import create, add_creator, exists_module
 from graia.amnesia.builtins.uvicorn import UvicornService
+from graiax.fastapi import FastAPIBehaviour, FastAPIService
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 from creart.creator import AbstractCreator, CreateTargetInfo
 
+from shared.utils.string import set_log
 from shared.models.config import GlobalConfig
 from shared.utils.self_upgrade import self_upgrade
 from shared.models.blacklist import GroupBlackList
@@ -39,7 +43,6 @@ from shared.models.public_group import PublicGroup
 from shared.orm import orm, Setting, UserPermission
 from shared.models.types import ModuleOperationType
 from shared.models.group_setting import GroupSetting
-from shared.utils.services import FastAPIStarletteService
 
 non_log = {
     GroupMessage,
@@ -80,8 +83,17 @@ class Sagiri(object):
                 proxy={"server": self.config.proxy if self.config.proxy != "proxy" else None}
             )
         )
-        Ariadne.launch_manager.add_service(FastAPIStarletteService())
         Ariadne.launch_manager.add_service(UvicornService())
+        fastapi = FastAPI()
+        fastapi.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+        create(Saya).install_behaviours(FastAPIBehaviour(fastapi))
+        Ariadne.launch_manager.add_service(FastAPIService(fastapi))
         self.config_check()
 
     async def initialize(self):
@@ -122,7 +134,6 @@ class Sagiri(object):
                 logger.info(f"Bot账号: {str(account).ljust(14)}群ID: {str(group.id).ljust(14)}群名: {group.name}")
         await create(GroupSetting).data_init()
         await create(GroupBlackList).data_init()
-        # await create(PublicGroup).accounts_check()
 
     @staticmethod
     async def public_group_init(app: Ariadne):
@@ -154,6 +165,7 @@ class Sagiri(object):
             encoding="utf-8",
             rotation=datetime.time(),
         )
+        logger.add(set_log)
 
     async def set_group_account(self):
         pass

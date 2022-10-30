@@ -66,8 +66,8 @@ class GroupSetting(object):
     async def add_group(self, group: Group):
         _ = await orm.insert_or_update(
             Setting,
-            Setting.group_id == group.id,
-            {"group_id": group.id, "group_name": group.name}
+            [Setting.group_id == group.id],
+            {"group_id": group.id, "group_name": group.name, "active": True}
         )
         column_names = sorted(self.columns.keys())
         data = await orm.fetchone(

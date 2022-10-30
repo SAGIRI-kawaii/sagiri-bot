@@ -14,9 +14,9 @@ from graia.ariadne.exception import AccountMuted, UnknownTarget
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from .utils import *
+from shared.orm import orm, UserPermission
 from shared.models.config import GlobalConfig
 from shared.models.public_group import PublicGroup
-from shared.orm import orm, Setting, UserPermission
 from shared.utils.waiter import FriendConfirmWaiter
 from shared.models.group_setting import GroupSetting
 from shared.utils.control import Function, Distribute
@@ -421,7 +421,6 @@ async def bot_invited_join_group_request_event(app: Ariadne, event: BotInvitedJo
         await app.send_friend_message(config.host_qq, MessageChain("若想通过群组邀请请在5分钟内回复'通过'"))
         if await InterruptControl(create(Broadcast)).wait(FriendConfirmWaiter(config.host_qq, ["通过"])):
             _ = await event.accept()
-            await create(GroupSetting).add_group(await app.get_group(event.source_group))
             await app.send_friend_message(config.host_qq, MessageChain("群组邀请已通过"))
 
 
@@ -433,12 +432,8 @@ async def bot_invited_join_group_request_event(app: Ariadne, event: BotInvitedJo
 )
 async def bot_join_group_event(app: Ariadne, group: Group, event: BotJoinGroupEvent):
     logger.info(f"机器人加入群组 <{group.name}>")
-    await orm.insert_or_update(
-        Setting,
-        [Setting.group_id == group.id],
-        {"group_id": group.id, "group_name": group.name, "active": True},
-    )
-    await orm.insert_or_update(
+    _ = await create(GroupSetting).add_group(group)
+    _ = await orm.insert_or_update(
         UserPermission,
         [
             UserPermission.member_id == config.host_qq,
@@ -449,8 +444,8 @@ async def bot_join_group_event(app: Ariadne, group: Group, event: BotJoinGroupEv
     create(PublicGroup).add_group(group, app.account)
     create(GlobalFrequencyLimitDict).add_group(group.id)
     with contextlib.suppress(AccountMuted, UnknownTarget):
-        await app.send_friend_message(
-            config.host_qq,
+        await app.send_message(
+            group,
             MessageChain(
                 event_config["BotJoinGroupEvent"].format(
                     **unpack_group(group),

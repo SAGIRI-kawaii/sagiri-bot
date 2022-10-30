@@ -1,0 +1,13 @@
+{
+  "name": "SuperResolution",
+  "version": "0.2",
+  "display_name": "超分辨率",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个图片超分插件",
+  "usage": ["在群中发送 `/超分 图片` 即可"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["超分"]
+}

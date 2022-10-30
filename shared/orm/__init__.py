@@ -337,3 +337,13 @@ class GroupMembersBackup(Base):
     group_id = Column(BIGINT, primary_key=True)
     group_name = Column(String(length=60), nullable=False)
     members = Column(String, nullable=False)
+
+
+class APIAccount(Base):
+    """api_account 管理面板账户"""
+
+    __tablename__ = "api_account"
+
+    applicant = Column(BIGINT)
+    username = Column(String(length=60), primary_key=True)
+    password = Column(String)

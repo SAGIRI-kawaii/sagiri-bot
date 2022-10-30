@@ -96,7 +96,10 @@ class ConfigClassCreator(AbstractCreator, ABC):
     def create(create_type: Type[GlobalConfig]) -> GlobalConfig:
         with open(Path().cwd() / "config.yaml", "r", encoding="utf-8") as f:
             configs = yaml.safe_load(f.read())
-            return GlobalConfig(**configs)
+            config = GlobalConfig(**configs)
+            if not config.default_account:
+                config.default_account = config.bot_accounts[0]
+            return config
 
 
 add_creator(ConfigClassCreator)

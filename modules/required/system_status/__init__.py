@@ -14,6 +14,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, ArgumentMatch, ArgResult
 
 from core import Sagiri
+from shared.utils.string import is_url
 from shared.utils.time import sec_format
 from shared.models.config import GlobalConfig
 from shared.utils.control import Permission, Distribute
@@ -83,9 +84,3 @@ async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: A
         await app.send_group_message(group, launch_time_message + "\n" + cpu_message + "\n" + memory_message)
     else:
         await app.send_group_message(group, launch_time_message + "\n" + disk_message)
-
-
-def is_url(path: str) -> Match[str] | None:
-    url_pattern = r"((http|ftp|https):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?"
-    json_url_pattern = r"json:([\w\W]+\.)+([\w\W]+)\$" + url_pattern
-    return re.match(url_pattern, path) or re.match(json_url_pattern, path)

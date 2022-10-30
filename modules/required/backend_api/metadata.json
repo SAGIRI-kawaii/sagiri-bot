@@ -1,0 +1,17 @@
+{
+  "name": "BackendAPI",
+  "version": "0.1",
+  "display_name": "管理面板后端API",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "为管理面板提供接入bot的api",
+  "usage": [],
+  "icon": "",
+  "prefix": [],
+  "triggers": [],
+  "metadata": {
+    "uninstallable": false,
+    "reloadable": true
+  }
+}

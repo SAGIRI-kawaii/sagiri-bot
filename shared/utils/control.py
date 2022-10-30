@@ -356,7 +356,7 @@ class Config(object):
 
 class Distribute(object):
     @staticmethod
-    def distribute(show_log: bool = False) -> Depend:
+    def distribute(require_admin: bool = False, show_log: bool = False) -> Depend:
         async def judge(
             app: Ariadne, group: Group | None = None, member: Member | None = None, source: Source | None = None
         ) -> NoReturn:
@@ -371,7 +371,10 @@ class Distribute(object):
                 if show_log:
                     print(app.account, "not initialized")
                 raise ExecutionStop()
-            if p_group.need_distribute(group, app.account) and p_group.execution_stop(group, app.account, source):
+            if all([
+                p_group.need_distribute(group, app.account),
+                p_group.execution_stop(group, app.account, source, require_admin)
+            ]):
                 if show_log:
                     print(app.account, "stop")
                 raise ExecutionStop()
