@@ -45,7 +45,11 @@ Pillow = "^9.2.0"
 yarl = "^1.8.1"
 uvicorn = "^0.18.3"
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "USTC"
+url = "https://pypi.mirrors.ustc.edu.cn/simple"
+default = true
