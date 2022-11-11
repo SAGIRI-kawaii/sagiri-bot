@@ -50,7 +50,7 @@ non_log = {
     StrangerMessage,
     ActiveMessage,
     ActiveGroupMessage,
-    ActiveFriendMessage,
+    ActiveFriendMessage
 }
 
 
@@ -59,6 +59,8 @@ class Sagiri(object):
     config: GlobalConfig
     base_path: str | Path
     launch_time: datetime.datetime
+    sent_count: int = 0
+    received_count: int = 0
     initialized: bool = False
 
     def __init__(self, g_config: GlobalConfig, base_path: str | Path):
@@ -74,6 +76,7 @@ class Sagiri(object):
             ),
             log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO"),
         ) for bot_account in self.config.bot_accounts]
+        # logger.disable("uvicorn")
         if self.config.default_account:
             Ariadne.config(default_account=self.config.default_account)
         Ariadne.launch_manager.add_service(
@@ -82,18 +85,24 @@ class Sagiri(object):
                 proxy={"server": self.config.proxy} if self.config.proxy != "proxy" else None
             )
         )
-        Ariadne.launch_manager.add_service(UvicornService())
-        fastapi = FastAPI()
-        fastapi.add_middleware(
-            CORSMiddleware,
-            allow_origins=["*"],
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        )
-        create(Saya).install_behaviours(FastAPIBehaviour(fastapi))
-        Ariadne.launch_manager.add_service(FastAPIService(fastapi))
         Ariadne.launch_manager.add_service(UpdaterService())
+        if self.config.web_manager_api:
+            Ariadne.launch_manager.add_service(
+                UvicornService(
+                    host="0.0.0.0" if self.config.api_expose else "127.0.0.1",
+                    port=self.config.api_port
+                )
+            )
+            fastapi = FastAPI()
+            fastapi.add_middleware(
+                CORSMiddleware,
+                allow_origins=["*"],
+                allow_credentials=True,
+                allow_methods=["*"],
+                allow_headers=["*"],
+            )
+            create(Saya).install_behaviours(FastAPIBehaviour(fastapi))
+            Ariadne.launch_manager.add_service(FastAPIService(fastapi))
         self.config_check()
 
     async def initialize(self):
@@ -105,8 +114,6 @@ class Sagiri(object):
         bcc = create(Broadcast)
         saya = create(Saya)
         saya.install_behaviours(BroadcastBehaviour(bcc))
-        for app in self.apps:
-            app.debug = False
         try:
             _ = await orm.init_check()
         except (AttributeError, InternalError, ProgrammingError):
