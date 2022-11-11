@@ -1,9 +1,10 @@
 import jinja2
 from pathlib import Path
 
-from shared.utils.UI.models import *
-from shared.utils.text2image import html2image
+from graiax.text2img.playwright.types import PageParams
+from graiax.text2img.playwright.builtin import html2img
 
+from shared.utils.UI.models import *
 
 env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(
@@ -18,7 +19,7 @@ async def gen(form: GenForm) -> bytes:
     template = env.get_template("template.html")
     width = form.calc_body_width()
     html = await template.render_async(**(form.dict()))
-    return await html2image(html, wait=0, viewport={"width": width, "height": 1})
+    return await html2img(html, page_params=PageParams(viewport={"width": width, "height": 1}))
 
 
 # example

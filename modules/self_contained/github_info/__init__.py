@@ -6,8 +6,10 @@ from graiax.playwright import PlaywrightBrowser
 from graia.ariadne.exception import MessageTooLong
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Source
+from graiax.text2img.playwright.types import PageParams
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
+from graiax.text2img.playwright.builtin import MarkdownToImg
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import (
     ArgumentMatch,
@@ -16,7 +18,6 @@ from graia.ariadne.message.parser.twilight import (
     ArgResult,
 )
 
-from shared.utils.text2image import md2pic
 from shared.utils.module_related import get_command
 from shared.utils.control import (
     FrequencyLimit,
@@ -114,8 +115,12 @@ async def github_info(
         try:
             await app.send_group_message(group, msg, quote=source)
         except MessageTooLong:
+            image = await MarkdownToImg().render(
+                msg.display.replace("\n", "<br>"),
+                page_params=PageParams(viewport={"width": 500, "height": 10})
+            )
             await app.send_group_message(
                 group,
-                MessageChain(Image(data_bytes=await md2pic(msg.display.replace("\n", "<br>"), width=500))),
+                MessageChain(Image(data_bytes=image)),
                 quote=source,
             )

@@ -1,20 +1,21 @@
 import os
 import jinja2
 import random
+import base64
 from pathlib import Path
-from typing import Union
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Source, Image
+from graiax.text2img.playwright.types import PageParams
 from graia.ariadne.message.parser.twilight import Twilight
+from graiax.text2img.playwright.builtin import template2img
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
 from shared.models.saya_data import get_saya_data
-from shared.utils.text2image import html2image
 from shared.utils.module_related import get_command
 from shared.models.config import load_plugin_meta_by_module
 from shared.utils.control import (
@@ -39,11 +40,11 @@ env = jinja2.Environment(
     enable_async=True,
     autoescape=True,
 )
-
+TEMPLATE_PATH = Path(__file__).parent / "templates"
 BANNER_PATH = Path(__file__).parent / "banners"
 
 
-def judge(name: str, group: Union[int, Group]):
+def judge(name: str, group: int | Group):
     group = group.id if isinstance(group, Group) else group
     group = str(group)
     saya_data = get_saya_data()
@@ -55,12 +56,12 @@ def judge(name: str, group: Union[int, Group]):
     return saya_data.is_turned_on(name, group)
 
 
-def random_pic(base_path: Union[Path, str]) -> Union[str, Path]:
+def random_pic(base_path: Path | str) -> str:
     if isinstance(base_path, str):
         base_path = Path(base_path)
     path_dir = os.listdir(base_path)
     path = random.sample(path_dir, 1)[0]
-    return str(Path("modules") / "required" / "helper" / "banners" / path).replace("\\", "/")
+    return f"data:image/png;base64,{base64.b64encode((Path(__file__).parent / 'banners' / path).read_bytes()).decode()}"
 
 
 @channel.use(
@@ -88,24 +89,17 @@ async def helper(app: Ariadne, group: Group, source: Source):
 
     if len(modules) % 3:
         modules.extend([(None, None, None) for _ in range(3 - len(modules) % 3)])
-    template = env.get_template("plugins.html")
-    html = await template.render_async(
-        settings=modules,
-        banner=random_pic(BANNER_PATH),
-        title="SAGIRI-BOT帮助菜单",
-        subtitle="CREATED BY SAGIRI-BOT"
+    img = await template2img(
+        (TEMPLATE_PATH / "plugins.html").read_text(encoding="utf-8"),
+        {
+            "settings": modules,
+            "banner": random_pic(BANNER_PATH),
+            "title": "SAGIRI-BOT帮助菜单",
+            "subtitle": "CREATED BY SAGIRI-BOT"
+        },
+        page_params=PageParams(viewport={"width": 1000, "height": 10})
     )
-    await app.send_group_message(
-        group,
-        MessageChain([
-            Image(
-                data_bytes=await html2image(
-                    html, wait=10, viewport={"width": 1000, "height": 10}
-                )
-            )
-        ]),
-        quote=source,
-    )
+    await app.send_group_message(group, MessageChain(Image(data_bytes=img)), quote=source)
 
 
 @channel.use(
@@ -144,24 +138,17 @@ async def detail_helper(app: Ariadne, group: Group, source: Source, index: Regex
     else:
         module = channels[index - 1]
         plugin_meta = load_plugin_meta_by_module(module)
-        template = env.get_template("plugin_detail.html")
-        html = await template.render_async(
-            display_name=plugin_meta.display_name or saya.channels[module].meta["name"],
-            module=module,
-            banner=random_pic(BANNER_PATH),
-            authors=plugin_meta.authors or ["暂无"],
-            description=plugin_meta.description or "暂无",
-            usage="\n".join(plugin_meta.usage) or "暂无",
-            example="\n".join(plugin_meta.example) or "暂无"
+        img = await template2img(
+            (TEMPLATE_PATH / "plugin_detail.html").read_text(encoding="utf-8"),
+            {
+                "display_name": plugin_meta.display_name or saya.channels[module].meta["name"],
+                "module": module,
+                "banner": random_pic(BANNER_PATH),
+                "authors": plugin_meta.authors or ["暂无"],
+                "description": plugin_meta.description or "暂无",
+                "usage": "\n".join(plugin_meta.usage) or "暂无",
+                "example": "\n".join(plugin_meta.example) or "暂无"
+            },
+            page_params=PageParams(viewport={"width": 1000, "height": 10})
         )
-        await app.send_group_message(
-            group,
-            MessageChain([
-                Image(
-                    data_bytes=await html2image(
-                        html, wait=0, viewport={"width": 1000, "height": 10}
-                    )
-                )
-            ]),
-            quote=source,
-        )
+        await app.send_group_message(group, MessageChain(Image(data_bytes=img)), quote=source)

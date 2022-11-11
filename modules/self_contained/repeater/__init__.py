@@ -40,9 +40,7 @@ group_repeat = {}
 )
 async def repeater_handler(app: Ariadne, message: MessageChain, group: Group):
     group_setting = create(GroupSetting)
-    if not await group_setting.get_setting(
-        group, Setting.repeat
-    ) or not await group_setting.get_setting(group, Setting.switch):
+    if not await group_setting.get_setting(group, Setting.switch):
         return
     global group_repeat
     if (

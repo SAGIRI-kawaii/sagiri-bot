@@ -165,7 +165,6 @@ class BlackList(Base):
 
     member_id = Column(BIGINT, primary_key=True)
     group_id = Column(BIGINT, primary_key=True)
-    is_global = Column(Boolean, default=False)
 
 
 class UserPermission(Base):
@@ -185,31 +184,13 @@ class Setting(Base):
 
     group_id = Column(BIGINT, primary_key=True)
     group_name = Column(String(length=60), nullable=False)
-    repeat = Column(Boolean, default=True)
     frequency_limit = Column(Boolean, default=True)
-    setu = Column(Boolean, default=False)
-    real = Column(Boolean, default=False)
-    real_high_quality = Column(Boolean, default=False)
-    bizhi = Column(Boolean, default=False)
-    r18 = Column(Boolean, default=False)
-    img_search = Column(Boolean, default=False)
-    bangumi_search = Column(Boolean, default=False)
-    compile = Column(Boolean, default=False)
-    dice = Column(Boolean, default=False)
-    avatar_func = Column(Boolean, default=False)
     anti_revoke = Column(Boolean, default=False)
     anti_flash_image = Column(Boolean, default=False)
     online_notice = Column(Boolean, default=False)
     daily_newspaper = Column(Boolean, default=False)
-    setting = Column(Text, default="{}")
-    debug = Column(Boolean, default=False)
     switch = Column(Boolean, default=True)
     active = Column(Boolean, default=True)
-    music = Column(String(length=10), default="off")
-    r18_process = Column(String(length=10), default="revoke")
-    speak_mode = Column(String(length=10), default="normal")
-    long_text_type = Column(String(length=5), default="text")
-    voice = Column(String(length=10), default="off")
 
 
 class UserCalledCount(Base):

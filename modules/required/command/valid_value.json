@@ -1,0 +1,8 @@
+{
+  "frequency_limit": [true, false],
+  "anti_revoke": [true, false],
+  "anti_flash_image": [true, false],
+  "online_notice": [true, false],
+  "daily_newspaper": [true, false],
+  "switch": [true, false]
+}

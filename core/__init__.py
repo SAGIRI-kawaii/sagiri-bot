@@ -34,14 +34,15 @@ from graiax.fastapi import FastAPIBehaviour, FastAPIService
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 from creart.creator import AbstractCreator, CreateTargetInfo
 
-from shared.utils.self_upgrade import UpdaterService
 from shared.utils.string import set_log
 from shared.models.config import GlobalConfig
 from shared.models.blacklist import GroupBlackList
 from shared.models.public_group import PublicGroup
 from shared.orm import orm, Setting, UserPermission
 from shared.models.types import ModuleOperationType
+from shared.utils.self_upgrade import UpdaterService
 from shared.models.group_setting import GroupSetting
+from shared.models.permission import GroupPermission
 
 non_log = {
     GroupMessage,
@@ -137,6 +138,7 @@ class Sagiri(object):
                 logger.info(f"Bot账号: {str(account).ljust(14)}群ID: {str(group.id).ljust(14)}群名: {group.name}")
         await create(GroupSetting).data_init()
         await create(GroupBlackList).data_init()
+        await create(GroupPermission).data_init()
 
     @staticmethod
     async def public_group_init(app: Ariadne):

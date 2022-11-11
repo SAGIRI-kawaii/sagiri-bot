@@ -46,22 +46,23 @@ class GroupSetting(object):
 
     async def modify_setting(
         self,
-        group: Group | int,
-        setting: InstrumentedAttribute | str,
+        func: str,
         new_value: bool | str,
+        group: Group | int | None = None,
     ):
-        setting_name = (
-            str(setting).split(".")[1]
-            if isinstance(setting, InstrumentedAttribute)
-            else setting
-        )
-        print("modify:", setting_name)
-        if isinstance(group, Group):
-            group = group.id
-        if self.data.get(group, None):
-            self.data[group][setting_name] = new_value
+        print("modify:", func)
+        if group:
+            if isinstance(group, Group):
+                group = group.id
+            _ = await orm.insert_or_update(Setting, [Setting.group_id == group], {func: new_value})
+            if self.data.get(group, None):
+                self.data[group][func] = new_value
+            else:
+                self.data[group] = {func: new_value}
         else:
-            self.data[group] = {setting_name: new_value}
+            _ = await orm.insert_or_update(Setting, [], {func: new_value})
+            for g in self.data:
+                self.data[g][func] = new_value
 
     async def add_group(self, group: Group):
         _ = await orm.insert_or_update(

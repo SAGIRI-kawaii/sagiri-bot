@@ -25,6 +25,7 @@ saya = create(Saya)
 
 @bcc.receiver("GroupMessage")
 async def group_message_handler(app: Ariadne, message: MessageChain, group: Group, member: Member):
+    core.received_count += 1
     message_text_log = message.display.replace("\n", "\\n").strip()
     logger.info(
         f"收到来自 Bot <{app.account}> 群 <{group.name.strip()}> 中成员 <{member.name.strip()}> 的消息：{message_text_log}"
@@ -33,12 +34,14 @@ async def group_message_handler(app: Ariadne, message: MessageChain, group: Grou
 
 @bcc.receiver("FriendMessage")
 async def friend_message_listener(app: Ariadne, friend: Friend, message: MessageChain):
+    core.received_count += 1
     message_text_log = message.display.replace("\n", "\\n").strip()
     logger.info(f"收到来自 Bot<{app.account}> 好友 <{friend.nickname.strip()}> 的消息：{message_text_log}")
 
 
 @bcc.receiver("TempMessage")
 async def temp_message_listener(app: Ariadne, member: Member, message: MessageChain):
+    core.received_count += 1
     message_text_log = message.display.replace("\n", "\\n").strip()
     logger.info(
         f"收到来自 Bot <{app.account}> 群 <{member.group.name.strip()}> 中成员 <{member.name.strip()}> 的临时消息：{message_text_log}"
@@ -47,12 +50,14 @@ async def temp_message_listener(app: Ariadne, member: Member, message: MessageCh
 
 @bcc.receiver("StrangerMessage")
 async def stranger_message_listener(app: Ariadne, stranger: Stranger, message: MessageChain):
+    core.received_count += 1
     message_text_log = message.display.replace("\n", "\\n").strip()
     logger.info(f"收到来自 Bot <{app.account}> 陌生人 <{stranger.nickname.strip()}> 的消息：{message_text_log}")
 
 
 @bcc.receiver("ActiveGroupMessage")
 async def active_group_message_handler(app: Ariadne, event: ActiveGroupMessage):
+    core.sent_count += 1
     if event.message_chain[Source][0].id == -1:
         return await app.send_group_message(event.subject, MessageChain("发送失败，可能被风控"))
     message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
@@ -61,6 +66,7 @@ async def active_group_message_handler(app: Ariadne, event: ActiveGroupMessage):
 
 @bcc.receiver("ActiveFriendMessage")
 async def active_friend_message_handler(app: Ariadne, event: ActiveFriendMessage):
+    core.sent_count += 1
     message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
     logger.info(f"成功向 Bot <{app.account}> 好友 <{event.subject.nickname.strip()}> 发送消息：{message_text_log}")
 

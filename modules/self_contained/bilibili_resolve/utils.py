@@ -1,7 +1,6 @@
 import re
 import time
 import qrcode
-import jinja2
 import base64
 import aiohttp
 from io import BytesIO
@@ -9,13 +8,10 @@ from pathlib import Path
 from typing import Literal
 from dataclasses import dataclass
 
-from shared.utils.text2image import html2image
+from graiax.text2img.playwright.types import PageParams
+from graiax.text2img.playwright.builtin import template2img
 
-env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(Path(__file__).parent),
-    enable_async=True,
-    autoescape=True,
-)
+template = (Path(__file__).parent / "template.html").read_text(encoding='utf-8')
 
 
 @dataclass
@@ -40,13 +36,13 @@ class VideoInfo:
 
 @dataclass
 class UserInfo:
-    name: str   # 名字
-    mid: int    # id
-    avatar_url: str    # 头像链接
-    sign: str   # 个性签名
-    fans: int   # 粉丝数量
-    friend: int    # 关注数量
-    gender: Literal["男", "女", "保密"]    # 性别
+    name: str  # 名字
+    mid: int  # id
+    avatar_url: str  # 头像链接
+    sign: str  # 个性签名
+    fans: int  # 粉丝数量
+    friend: int  # 关注数量
+    gender: Literal["男", "女", "保密"]  # 性别
     level: int  # 等级
 
 
@@ -139,24 +135,24 @@ async def gen_img(data: VideoInfo) -> bytes:
     #     video_length = f'{video_length_m}:{video_length_s}'
     # else:
     #     video_length = f'{video_length_h}:{video_length_m}:{video_length_s}'
-    template = env.get_template("template.html")
-    return await html2image(
-        html=await template.render_async(
-            bv=data.bvid,
-            av=f"av{data.avid}",
-            title=data.title,
-            desc=data.desc.replace("\n", "<br>"),
-            username=data.up_name,
-            time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(data.pub_timestamp)),
-            views=math(data.views),
-            likes=math(data.likes),
-            danmu=math(data.danmu),
-            coins=math(data.coins),
-            favorites=math(data.favorites),
-            cover=data.cover_url,
-            avatar=user_info.avatar_url,
-            fans=user_info.fans,
-            qrcode=f"data:image/png;base64,{qrcode_base64.decode()}"
-        ),
-        viewport={"width": 800, "height": 10},
+    return await template2img(
+        template,
+        {
+            "bv": data.bvid,
+            "av": f"av{data.avid}",
+            "title": data.title,
+            "desc": data.desc.strip().replace('\n', '<br/>'),
+            "username": data.up_name,
+            "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(data.pub_timestamp)),
+            "views": math(data.views),
+            "likes": math(data.likes),
+            "danmu": math(data.danmu),
+            "coins": math(data.coins),
+            "favorites": math(data.favorites),
+            "cover": data.cover_url,
+            "avatar": user_info.avatar_url,
+            "fans": user_info.fans,
+            "qrcode": f"data:image/png;base64,{qrcode_base64.decode()}"
+        },
+        page_params=PageParams(viewport={'width': 800, 'height': 10}),
     )

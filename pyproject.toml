@@ -30,7 +30,7 @@ alembic = "^1.8.1"
 matplotlib = "^3.5.3"
 picimagesearch = "^3.4.4"
 psutil = "^5.9.1"
-graiax-playwright = "^0.1.1"
+graiax-playwright = "^0.2.1"
 Markdown = "^3.4.1"
 aiofiles = "^0.8.0"
 pymdown-extensions = "^9.5"
@@ -42,12 +42,13 @@ pypinyin = "^0.47.1"
 qrcode = "^7.3.1"
 Pillow = "^9.2.0"
 yarl = "^1.8.1"
-uvicorn = "^0.18.3"
+uvicorn = {extras = ["standard"], version = "^0.19.0"}
 graiax-fastapi = "^0.2.0"
 
 realesrgan = { version = "^0.3.0", optional = true }
 basicsr = { version = "^1.4.2", optional = true }
 imageio = { version = "^2.22.2", optional = true }
+graiax-text2img-playwright = "^0.1.0"
 
 [tool.poetry.extras]
 super_resolution = ["realesrgan", "basicsr", "imageio"]

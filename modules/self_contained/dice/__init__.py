@@ -40,9 +40,6 @@ channel.description("一个简单的投骰子插件，发送 `{times}d{range}` �
     )
 )
 async def dice(app: Ariadne, message: MessageChain, group: Group, source: Source):
-    if not await create(GroupSetting).get_setting(group.id, Setting.dice):
-        await app.send_group_message(group, MessageChain("骰子功能尚未开启哟~"), quote=source)
-        return
     times, max_point = message.display.strip().split("d")
     times, max_point = int(times), int(max_point)
     if times > 100:

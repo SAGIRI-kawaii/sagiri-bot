@@ -62,6 +62,8 @@ class GlobalConfig(BaseModel):
     mirai_host: str = "http://localhost:8080"
     verify_key: str = "1234567890"
     db_link: str = "sqlite+aiosqlite:///data.db"
+    api_port: int = 54321
+    api_expose: bool = False
     web_manager_api: bool = False
     web_manager_auto_boot: bool = False
     gallery: dict = {}

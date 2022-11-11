@@ -17,7 +17,6 @@ from graia.ariadne.message.parser.twilight import (
     ElementResult,
 )
 
-from shared.orm import Setting
 from .baidu import baidu_search
 from .google import google_search
 from .ascii2d import ascii2d_search
@@ -26,7 +25,6 @@ from .saucenao import saucenao_search
 from shared.utils.waiter import ImageWaiter
 from shared.models.config import GlobalConfig
 from shared.utils.module_related import get_command
-from shared.models.group_setting import GroupSetting
 from shared.utils.control import (
     Distribute,
     FrequencyLimit,
@@ -67,9 +65,6 @@ SAUCENAO_API_KEY = config.functions.get("saucenao_api_key", None)
 async def image_searcher(
     app: Ariadne, group: Group, member: Member, source: Source, image: ElementResult
 ):
-
-    if not await create(GroupSetting).get_setting(group, Setting.img_search):
-        return await app.send_group_message(group, MessageChain("搜图功能已经关闭了，请联系管理员哦~"))
     if not image.matched:
         try:
             await app.send_message(group, MessageChain("请在30s内发送要处理的图片"), quote=source)

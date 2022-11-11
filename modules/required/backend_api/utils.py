@@ -2,16 +2,18 @@ import os
 import random
 import string
 import hashlib
-
 from sqlalchemy import select
+from sqlalchemy.sql import func
+from datetime import datetime, timedelta
 
 from creart import create
 from graia.saya import Saya
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image
+from graia.ariadne.model.relationship import MemberPerm
 
 from .models import *
-from shared.orm import orm, APIAccount
+from shared.orm import orm, APIAccount, ChatRecord
 
 logs = []
 
@@ -29,7 +31,9 @@ async def has_account(username: str) -> bool:
 
 
 async def account_legal(username: str, password: str) -> bool:
-    return bool(await orm.fetchone(select(APIAccount.applicant).where(APIAccount.username == username, APIAccount.password == password)))
+    return bool(await orm.fetchone(
+        select(APIAccount.applicant).where(APIAccount.username == username, APIAccount.password == password)
+    ))
 
 
 async def generate_account(applicant: id) -> User:
@@ -148,3 +152,31 @@ def parse_messagechain(message: list) -> MessageChain | list:
             else:
                 exceptions.append((element, "missing parameter: content(bytes) / base64(str) / url(str) / path(str)"))
     return MessageChain(elements) if not exceptions else exceptions
+
+
+def get_last_time(hour: int = 24) -> datetime:
+    curr_time = datetime.now()
+    return curr_time - timedelta(hours=hour)
+
+
+async def get_talk_count_by_hour(hour: int = 8) -> list:
+    data = await orm.fetchall(
+        select(
+            func.strftime("%H", ChatRecord.time), func.count(ChatRecord.id)
+        ).where(
+            ChatRecord.time >= get_last_time(hour),
+        ).group_by(
+            func.strftime("%H", ChatRecord.time)
+        )
+    )
+    return [{"time": item[0], "count": item[1]} for item in data]
+
+
+def max_permission(permissions: list[MemberPerm]) -> MemberPerm:
+    permissions = set(permissions)
+    if MemberPerm.Owner in permissions:
+        return MemberPerm.Owner
+    elif MemberPerm.Administrator in permissions:
+        return MemberPerm.Administrator
+    else:
+        return MemberPerm.Member

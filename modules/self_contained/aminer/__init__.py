@@ -7,10 +7,12 @@ from graia.ariadne.app import Ariadne
 
 from creart import create
 from graia.ariadne.message.chain import MessageChain
+from graiax.text2img.playwright.types import PageParams
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
+from graiax.text2img.playwright.builtin import MarkdownToImg
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from graia.ariadne.message.element import Source, Forward, ForwardNode, Plain, Image
+from graia.ariadne.message.element import Source, Forward, ForwardNode, Image
 from graia.ariadne.message.parser.twilight import (
     RegexResult,
     ArgumentMatch,
@@ -18,7 +20,6 @@ from graia.ariadne.message.parser.twilight import (
     ArgResult,
 )
 
-from shared.utils.text2image import md2pic
 from shared.models.config import GlobalConfig
 from shared.utils.module_related import get_command
 from shared.utils.control import (
@@ -136,12 +137,13 @@ async def aminer(
                  "- 工作（经历/职位）：<br>" + \
                  f"{work}<br>" + \
                  f"邮箱：<br>{email}"
+            image = await MarkdownToImg().render(md, page_params=PageParams(viewport={"width": 500, "height": 10}))
             forward_nodes.append(
                 ForwardNode(
                     sender_id=config.default_account,
                     time=datetime.now() + timedelta(seconds=time_count),
                     sender_name="纱雾酱",
-                    message_chain=MessageChain(Image(data_bytes=await md2pic(md, width=500))),
+                    message_chain=MessageChain(Image(data_bytes=image)),
                 )
             )
             time_count += 1
@@ -170,12 +172,13 @@ async def aminer(
                  f"- 创建时间：{create_data}<br>" + \
                  f"- 关键词：{keywords if keyword else '无数据'}<br>" + \
                  f"- 论文摘要：<br>{abstract}"
+            image = await MarkdownToImg().render(md, page_params=PageParams(viewport={"width": 500, "height": 10}))
             forward_nodes.append(
                 ForwardNode(
                     sender_id=config.default_account,
                     time=datetime.now() + timedelta(seconds=time_count),
                     sender_name="纱雾酱",
-                    message_chain=MessageChain(Image(data_bytes=await md2pic(md, width=500))),
+                    message_chain=MessageChain(Image(data_bytes=image)),
                 )
             )
             time_count += 1
@@ -205,12 +208,13 @@ async def aminer(
                  f"- 发明人：{inventors}<br>" + \
                  f"- 专利受让人：{assignees}<br>" + \
                  f"- 专利摘要：<br>{abstract}"
+            image = await MarkdownToImg().render(md, page_params=PageParams(viewport={"width": 500, "height": 10}))
             forward_nodes.append(
                 ForwardNode(
                     sender_id=config.default_account,
                     time=datetime.now() + timedelta(seconds=time_count),
                     sender_name="纱雾酱",
-                    message_chain=MessageChain(Image(data_bytes=await md2pic(md, width=500))),
+                    message_chain=MessageChain(Image(data_bytes=image)),
                 )
             )
             time_count += 1

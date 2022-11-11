@@ -79,8 +79,8 @@ class PublicGroup(object):
     def execution_stop(
         self, group: Group | int, account: int, source: Source | None, require_admin: bool = False
     ) -> bool:
-        group = group.id if isinstance(group, Group) else group
-        if group not in self.data:
+        group_id = group.id if isinstance(group, Group) else group
+        if group_id not in self.data:
             self.add_group(group, account)
             return True
         if require_admin:
@@ -91,9 +91,9 @@ class PublicGroup(object):
                     admins.sort()
                     return (source.id + int(time.mktime(source.time.timetuple()))) % len(admins) != admins.index(account)
         if source:
-            return (source.id + int(time.mktime(source.time.timetuple()))) % len(self.data[group]) != self.get_index(group, account)
+            return (source.id + int(time.mktime(source.time.timetuple()))) % len(self.data[group_id]) != self.get_index(group, account)
         else:
-            return int(time.time()) % len(self.data[group]) != self.get_index(group, account)
+            return int(time.time()) % len(self.data[group_id]) != self.get_index(group, account)
 
     def get_admin_bots(self, group: Group | int) -> list[int]:
         group = group.id if isinstance(group, Group) else group

@@ -5,11 +5,12 @@ from graia.ariadne import Ariadne
 from graia.saya import Saya, Channel
 from graia.ariadne.message.element import Image
 from graia.ariadne.message.chain import MessageChain
+from graiax.text2img.playwright.types import PageParams
 from graia.broadcast.builtin.event import ExceptionThrowed
+from graiax.text2img.playwright.builtin import MarkdownToImg
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.exception import AccountMuted, UnknownTarget
 
-from shared.utils.text2image import md2pic
 from shared.models.config import GlobalConfig
 
 saya = create(Saya)
@@ -32,9 +33,13 @@ async def except_handle(event: ExceptionThrowed):
         (AccountMuted, UnknownTarget)
     ):
         return
+    image = await MarkdownToImg().render(
+        generate_reports(event.exception),
+        page_params=PageParams(viewport={"width": 1920, "height": 10})
+    )
     return await app.send_friend_message(
         config.host_qq,
-        MessageChain(Image(data_bytes=await md2pic(generate_reports(event.exception))))
+        MessageChain(Image(data_bytes=image))
     )
 
 
