@@ -129,6 +129,14 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 
         > 打开终端，输入 `ps -ef | grep "mcl" | grep -v "grep"`，检查是否有多个 `mcl` 正在运行
 
+> ## 活动群组为空
+
+如果启动时 `SAGIRI-BOT` 控制台中未显示任何活动群组，请确保在 `mcl` 启动并成功登录账号后再启动 `SAGIRI-BOT`
+
+> ## 当前QQ版本过低
+
+请参考 [mirai 论坛中的解决方案](https://mirai.mamoe.net/topic/223/%E6%97%A0%E6%B3%95%E7%99%BB%E5%BD%95%E7%9A%84%E4%B8%B4%E6%97%B6%E5%A4%84%E7%90%86%E6%96%B9%E6%A1%88)
+
 > ## 内存占用问题
 
 `SAGIRI-BOT` 需要至少 `700Mb` 空闲内存以保证正常运行，
