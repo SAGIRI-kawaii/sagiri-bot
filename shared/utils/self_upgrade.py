@@ -1,115 +1,123 @@
-import aiohttp
-from git import Repo, Commit
+import asyncio
+import re
 from pathlib import Path
-from loguru import logger
 
+from aiohttp import ClientSession, ClientError
 from creart import create
-from graia.ariadne import Ariadne
-from graia.ariadne.message.chain import MessageChain
+from git import Repo, Commit, Head
+from launart import Launart, Launchable
+from loguru import logger
 
 from shared.models.config import GlobalConfig
 
 config = create(GlobalConfig)
-auto_upgrade = config.auto_upgrade
 proxy = config.proxy if config.proxy != "proxy" else ""
-github_config = config.functions.get("github", {})
-auth = aiohttp.BasicAuth(login=github_config.get("username"), password=github_config.get("token"))
 
 
-class GithubAPILimitExceeded(Exception):
-    """未配置 github token，请求次数过多超出限制"""
+def get_current_repo() -> Repo | None:
+    if (git_path := Path.cwd() / ".git").exists() and git_path.is_dir():
+        return Repo(Path.cwd())
+    return None
 
 
-async def get_commit_branch(sha: str) -> str | None:
-    async with aiohttp.ClientSession(auth=auth) as session:
-        async with session.get(
-            f"https://api.github.com/repos/SAGIRI-kawaii/SAGIRI-BOT/commits/{sha}/branches-where-head"
-        ) as resp:
-            data = await resp.json(content_type=resp.content_type)
-            if data:
-                if isinstance(data, list):
-                    return data[0].get("name")
-                elif isinstance(data, dict) and data.get("message", "").startswith("API rate limit exceeded for"):
-                    raise GithubAPILimitExceeded()
+def get_current_commit(repo: Repo) -> Commit:
+    try:
+        return next(repo.iter_commits())
+    except StopIteration as e:
+        raise RuntimeError("无法获取当前提交，请检查当前目录是否为 Git 仓库") from e
 
 
-async def get_latest_commit(current_branch: str | None = None) -> dict | None:
-    url = "https://api.github.com/repos/SAGIRI-kawaii/SAGIRI-BOT/commits"
-    async with aiohttp.ClientSession(auth=auth) as session:
-        async with session.get(url, proxy=proxy) as resp:
-            res = await resp.json()
-    if isinstance(res, list):
-        if current_branch:
-            for r in res:
-                if sha := r.get("sha"):
-                    try:
-                        t = await get_commit_branch(sha)
-                        if current_branch == t:
-                            return r
-                    except GithubAPILimitExceeded:
-                        return logger.error(
-                            "API rate limit exceeded，请前往配置填写 github token，检查输入是否有误或token是否失效"
-                        )
-        return None if current_branch else res[0]
-    else:
-        logger.error(res.get("message"))
+def get_current_branch(repo: Repo) -> Head:
+    return repo.active_branch
 
 
-def get_repo() -> Repo | None:
-    git_path = Path.cwd() / ".git"
-    return Repo(Path.cwd()) if git_path.exists() and git_path.is_dir() else None
+def get_github_repo(repo: Repo) -> str:
+    remote_url = repo.remote().url
+    remote_url += "" if remote_url.endswith(".git") else ".git"
+    return re.search(r"(?<=github.com/).+?(?=\.git)", remote_url).group()
 
 
-def get_current_commit(repo: Repo | None = None) -> Commit | None:
-    if not repo:
-        repo = get_repo()
-    return next(repo.iter_commits()) if repo else None
+async def get_remote_commit_sha(repo: str, branch: str) -> str:
+    link = f"https://api.github.com/repos/{repo}/commits/{branch}"
+    async with ClientSession() as session, session.get(
+        link, proxy=config.proxy
+    ) as resp:
+        return (await resp.json()).get("sha", "")
 
 
-async def has_new_commit() -> bool:
-    latest_sha = (await get_latest_commit()).get("sha")
-    current_sha = str(get_current_commit())
-    return current_sha and latest_sha and latest_sha != current_sha
+async def compare_commits(repo: str, base: str, head: str) -> list[dict]:
+    link = f"https://api.github.com/repos/{repo}/compare/{base}...{head}"
+    async with ClientSession() as session, session.get(
+        link, proxy=config.proxy
+    ) as resp:
+        return (await resp.json()).get("commits", [])
 
 
-async def new_commit_notice(latest_sha: str, current_sha: str, commit_message: str):
-    await Ariadne.current().send_friend_message(
-        config.host_qq,
-        MessageChain(
-            f"检测到远端有新的commit：{latest_sha}，当前本地commit：{current_sha}，本次更新内容：{commit_message}，请注意更新"
-        )
+async def check_update() -> list[dict]:
+    repo = get_current_repo()
+    if repo is None:
+        return []
+    current_commit = get_current_commit(repo)
+    current_branch = get_current_branch(repo)
+    github_repo = get_github_repo(repo)
+    remote_commit_sha = await get_remote_commit_sha(github_repo, current_branch.name)
+    if remote_commit_sha == current_commit.hexsha:
+        return []
+    history = await compare_commits(
+        github_repo, current_commit.hexsha, remote_commit_sha
     )
+    history.reverse()
+    return history
 
 
-async def self_upgrade(current_branch: bool = True):
-    repo = get_repo()
-    if not repo:
-        return logger.warning("未检测到 .git 文件夹，只有使用 git 时才检测更新！")
-    branch = repo.active_branch
-    latest_commit = await get_latest_commit(current_branch=str(branch) if current_branch else None)
-    if not latest_commit:
+def perform_update():
+    repo = get_current_repo()
+    if repo is None:
         return
-    commit_message = latest_commit.get("commit", {}).get("message", "null").replace("\n", " ")
-    latest_sha = latest_commit.get("sha")
-    current_commit = get_current_commit()
-    current_sha = str(current_commit) if current_commit else None
-    if not latest_sha:
-        return logger.error("获取远端仓库最新提交时失败！")
-    logger.info(f"SAGIRI-BOT Local Repository Latest Commit SHA1: {current_sha}")
-    logger.info(f"SAGIRI-BOT Remote Repository Latest Commit SHA1: {latest_sha}")
-    if current_sha != latest_sha:
-        if current_branch:
-            logger.debug(f"检测到更新：{current_sha} -> {latest_sha}，更新内容：{commit_message}")
+    repo.remotes.origin.pull()
+
+
+class UpdaterService(Launchable):
+    id = "sagiri.core.updater"
+
+    @property
+    def required(self):
+        return set()
+
+    @property
+    def stages(self):
+        return {"preparing"}
+
+    async def launch(self, _mgr: Launart):
+        async with self.stage("preparing"):
+            await self.check_update()
+
+    @staticmethod
+    async def check_update():
+        logger.info("正在检查更新...")
+        try:
+            if not (update := await check_update()):
+                logger.opt(colors=True).success("<green>当前版本已是最新</green>")
+                return
+        except ClientError:
+            logger.opt(colors=True).error("<red>无法连接到 GitHub</red>")
+            return
+        except RuntimeError:
+            logger.warning("未检测到 .git 文件夹，只有使用 git 时才检测更新！")
+            return
         else:
-            try:
-                remote_branch = await get_commit_branch(latest_sha)
-            except GithubAPILimitExceeded:
-                return logger.error("API rate limit exceeded，请前往配置填写 github token，检查输入是否有误或token是否失效")
-            logger.debug(f"检测到分支<{remote_branch}>的更新：{current_sha} -> {latest_sha}，更新内容：{commit_message}")
-        if auto_upgrade:
-            logger.info("正在更新...")
-            origin = repo.remotes.origin
-            origin.pull()
-            logger.success("更新完成，请重启机器人！")
-        else:
-            await new_commit_notice(latest_sha, current_sha, commit_message)
+            output = []
+            for commit in update:
+                sha = commit.get("sha", "")[:7]
+                message = commit.get("commit", {}).get("message", "")
+                message = message.replace("<", r"\<").splitlines()[0]
+                output.append(f"<red>{sha}</red> <yellow>{message}</yellow>")
+            history = "\n".join(["", *output, ""])
+            logger.opt(colors=True).warning(
+                f"<yellow>发现新版本</yellow>\n{history}"
+            )
+            if not config.auto_upgrade:
+                return
+            logger.opt(colors=True).info("<cyan>正在自动更新</cyan>")
+            await asyncio.to_thread(perform_update)
+            logger.success("更新完成，将在重新启动后生效")

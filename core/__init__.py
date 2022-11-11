@@ -7,7 +7,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Dict, List, Type
 from fastapi.middleware.cors import CORSMiddleware
-from aiohttp.client_exceptions import ClientConnectorError
 from sqlalchemy.exc import InternalError, ProgrammingError
 
 from graia.saya import Saya
@@ -35,9 +34,9 @@ from graiax.fastapi import FastAPIBehaviour, FastAPIService
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 from creart.creator import AbstractCreator, CreateTargetInfo
 
+from shared.utils.self_upgrade import UpdaterService
 from shared.utils.string import set_log
 from shared.models.config import GlobalConfig
-from shared.utils.self_upgrade import self_upgrade
 from shared.models.blacklist import GroupBlackList
 from shared.models.public_group import PublicGroup
 from shared.orm import orm, Setting, UserPermission
@@ -86,6 +85,7 @@ class Sagiri(object):
                 proxy={"server": self.config.proxy} if self.config.proxy != "proxy" else None
             )
         )
+        Ariadne.launch_manager.add_service(UpdaterService())
         if self.config.web_manager_api:
             Ariadne.launch_manager.add_service(
                 UvicornService(
@@ -131,10 +131,6 @@ class Sagiri(object):
                 )
             await self.update_host_permission(group_list)
             total_groups[app.account] = group_list
-        try:
-            _ = await self_upgrade()
-        except ClientConnectorError:
-            logger.error("连接github失败！退出自动更新")
         logger.info("本次启动活动群组如下：")
         for account, group_list in total_groups.items():
             for group in group_list:
