@@ -1,0 +1,29 @@
+{
+  "name": "ColorCard",
+  "version": "0.2",
+  "display_name": "色卡生成",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个获取图片色卡的插件",
+  "usage": [
+    "在群中发送 `/色卡 -s={size} -m={mode} -t {图片/@成员/qq号/回复有图片的消息}` 即可",
+    "发送 `/色卡 -h` 查看帮助",
+    "可选参数：",
+    "   -s/-size：色卡颜色个数，在群中发送 `/色卡 -s={size} {图片/@成员/qq号/回复有图片的消息}` 即可，默认值为5",
+    "   -m/-mode：色卡形式，在群中发送 `/色卡 -s={size} {图片/@成员/qq号/回复有图片的消息}` 即可，默认值为center，可选值及说明如下：",
+    "       pure：纯颜色",
+    "       below：在下方添加方形色块",
+    "       center：在图片中央添加圆形色块（自适应，若图片长>宽则为center_horizon，反之则为center_vertical）",
+    "       center_horizon：在图片中央水平添加圆形色块",
+    "       center_vertical：在图片中央垂直添加圆形色块",
+    "   -t/-text：是否在下方附加色块RGB即十六进制值文本，在群中发送 `/色卡 -t {图片/@成员/qq号/回复有图片的消息}` 即可",
+    "上述参数可同步使用，并按照 -s、-m、-t的顺序添加，如 `/色卡 -s=10 -m=pure -t {图片/@成员/qq号/回复有图片的消息}`"
+  ],
+  "example": [
+    "/色卡 -s=3 -m=pure -t @target"
+  ],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["色卡", "color_card"]
+}

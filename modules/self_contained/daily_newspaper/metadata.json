@@ -1,0 +1,16 @@
+{
+  "name": "DailyNewspaper",
+  "version": "0.2",
+  "display_name": "每日60s新闻",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个定时发送每日日报的插件",
+  "usage": [
+    "主人私聊bot发送 `发送早报` 可在群中发送早报",
+    "在群中发送 `今日早报` 可在群中发送早报"
+  ],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["早报", "今日早报"]
+}

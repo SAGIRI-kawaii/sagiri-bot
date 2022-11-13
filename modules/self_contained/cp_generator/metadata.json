@@ -1,0 +1,14 @@
+{
+  "name": "CPGenerator",
+  "version": "0.2",
+  "display_name": "CP文生成器",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以生成CP文的插件",
+  "usage": ["在群中发送 `/cp {攻名字} {受名字}`"],
+  "example": ["/cp Alice Bob"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["cp"]
+}

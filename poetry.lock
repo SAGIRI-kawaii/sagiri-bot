@@ -392,6 +392,22 @@ url = "https://pypi.mirrors.ustc.edu.cn/simple"
 reference = "USTC"
 
 [[package]]
+name = "croniter"
+version = "1.3.7"
+description = "croniter provides iteration for datetime object with cron like format"
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[package.dependencies]
+python-dateutil = "*"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.mirrors.ustc.edu.cn/simple"
+reference = "USTC"
+
+[[package]]
 name = "cssselect"
 version = "1.2.0"
 description = "cssselect parses CSS3 Selectors and translates them to XPath 1.0"
@@ -719,6 +735,26 @@ python-versions = ">=3.7,<4.0"
 [package.dependencies]
 graia-broadcast = ">=0.12.1"
 loguru = ">=0.5.3,<0.7"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.mirrors.ustc.edu.cn/simple"
+reference = "USTC"
+
+[[package]]
+name = "graia-scheduler"
+version = "0.0.10"
+description = "a scheduler for graia framework"
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+
+[package.dependencies]
+croniter = ">=1.0.0,<2.0.0"
+graia-broadcast = ">=0.19.0"
+
+[package.extras]
+saya = ["graia-saya (>=0.0.16,<0.1)"]
 
 [package.source]
 type = "legacy"
@@ -2499,7 +2535,7 @@ super-resolution = ["realesrgan", "basicsr", "imageio"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "c18cef6bf3d87c8cfb8abb5407cf8005980455c68fd7c5f8648d50c474614fe4"
+content-hash = "f72778bd7adbadba749cd9fb3147b7c4ddb1b9fbbbedbaff2ca5d86575abee95"
 
 [metadata.files]
 absl-py = [
@@ -2867,6 +2903,10 @@ creart-graia = [
     {file = "creart-graia-0.1.5.tar.gz", hash = "sha256:9adb93fec504c959c71379589f38a2ad599eccb2c7112788663a9fb37d4b5d49"},
     {file = "creart_graia-0.1.5-py3-none-any.whl", hash = "sha256:9c4c9423d250398afb6ba9ea361551b071e47af7fbc547c09c5c9ec8ebe92ddf"},
 ]
+croniter = [
+    {file = "croniter-1.3.7-py2.py3-none-any.whl", hash = "sha256:12369c67e231c8ce5f98958d76ea6e8cb5b157fda4da7429d245a931e4ed411e"},
+    {file = "croniter-1.3.7.tar.gz", hash = "sha256:72ef78d0f8337eb35393b8893ebfbfbeb340f2d2ae47e0d2d78130e34b0dd8b9"},
+]
 cssselect = [
     {file = "cssselect-1.2.0-py2.py3-none-any.whl", hash = "sha256:da1885f0c10b60c03ed5eccbb6b68d6eff248d91976fcde348f395d54c9fd35e"},
     {file = "cssselect-1.2.0.tar.gz", hash = "sha256:666b19839cfaddb9ce9d36bfe4c969132c647b92fc9088c4e23f786b30f1b3dc"},
@@ -2989,6 +3029,10 @@ graia-broadcast = [
 graia-saya = [
     {file = "graia-saya-0.0.16.tar.gz", hash = "sha256:4150d288a6a852b3d275715ded5e1de9031b4aa63ed98b5ba4232e1a0908ea11"},
     {file = "graia_saya-0.0.16-py3-none-any.whl", hash = "sha256:21748a48a5d55d58d946cb8d4339360c2774caea21139f8952799e61819638e4"},
+]
+graia-scheduler = [
+    {file = "graia-scheduler-0.0.10.tar.gz", hash = "sha256:fbfd2043dbeaa4faec4bf38416297dbb9b5314941b4c22f30cec643bd7fb54b9"},
+    {file = "graia_scheduler-0.0.10-py3-none-any.whl", hash = "sha256:9e725b83aeb36c9f95754c979fe01a4b6e23eea0ae6c527e3d3bb7ca388e02aa"},
 ]
 graiax-fastapi = [
     {file = "graiax-fastapi-0.2.0.tar.gz", hash = "sha256:234521f33cb4f3b8e16aaf61236e9f16505ec04c8457db250d29a2b44387adba"},

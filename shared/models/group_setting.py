@@ -1,4 +1,5 @@
 from abc import ABC
+from loguru import logger
 from sqlalchemy import select
 from typing import Dict, Type, Any
 from sqlalchemy.orm.attributes import InstrumentedAttribute
@@ -30,7 +31,7 @@ class GroupSetting(object):
         for data in datas:
             self.data[data[0]] = dict(zip(column_names, data[1:]))
 
-    async def get_setting(self, group: Group | int, setting: Any) -> bool | str:
+    async def get_setting(self, group: Group | int, setting: Any) -> bool | str | None:
         setting_name = str(setting).split(".")[1]
         if isinstance(group, Group):
             group = group.id
@@ -40,7 +41,9 @@ class GroupSetting(object):
         else:
             self.data[group] = {}
         if not (result := await orm.fetchone(select(setting).where(Setting.group_id == group))):
-            raise ValueError(f"未找到 {group} -> {str(setting)} 结果！请检查数据库！")
+            logger.error(f"未找到 {group} -> {str(setting)} 结果！请检查数据库！")
+            print(setting == Setting.switch)
+            return setting == Setting.switch
         self.data[group][setting_name] = result[0]
         return result[0]
 

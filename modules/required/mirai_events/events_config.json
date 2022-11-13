@@ -28,5 +28,6 @@
   "MemberHonorChangeEvent": {
     "achieve": "恭喜{member_name}({member_id})获得了群荣誉{honor}！",
     "lose": "很遗憾，{member_name}({member_id})失去了群荣誉{honor}！"
-  }
+  },
+  "MemberJoinEvent": "欢迎加入 {group_name}，我是本群小可爱纱雾哟~欢迎呐~一起快活鸭~\n来个star吧球球惹QAQ\n文档地址：https://sagiri-kawaii.github.io/sagiri-bot\n项目地址：https://github.com/SAGIRI-kawaii/sagiri-bot"
 }

@@ -19,6 +19,7 @@ from shared.models.config import GlobalConfig
 from shared.models.public_group import PublicGroup
 from shared.utils.waiter import FriendConfirmWaiter
 from shared.models.group_setting import GroupSetting
+from shared.models.permission import GroupPermission
 from shared.utils.control import Function, Distribute
 from shared.models.frequency_limit import GlobalFrequencyLimitDict
 
@@ -433,14 +434,7 @@ async def bot_invited_join_group_request_event(app: Ariadne, event: BotInvitedJo
 async def bot_join_group_event(app: Ariadne, group: Group, event: BotJoinGroupEvent):
     logger.info(f"机器人加入群组 <{group.name}>")
     _ = await create(GroupSetting).add_group(group)
-    _ = await orm.insert_or_update(
-        UserPermission,
-        [
-            UserPermission.member_id == config.host_qq,
-            UserPermission.group_id == group.id,
-        ],
-        {"member_id": config.host_qq, "group_id": group.id, "level": 4},
-    )
+    _ = await create(GroupPermission).update(group, config.host_qq, 4)
     create(PublicGroup).add_group(group, app.account)
     create(GlobalFrequencyLimitDict).add_group(group.id)
     with contextlib.suppress(AccountMuted, UnknownTarget):
@@ -468,6 +462,25 @@ async def member_honor_change_event(app: Ariadne, group: Group, member: Member, 
             MessageChain(
                 event_config["MemberHonorChangeEvent"][event.action].format(
                     honor=event.honor,
+                    **unpack_group(group),
+                    **unpack_member(member),
+                )
+            ),
+        )
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[MemberJoinEvent],
+        decorators=[Function.require(channel.module), Distribute.distribute()]
+    )
+)
+async def member_join_event(app: Ariadne, group: Group, member: Member):
+    with contextlib.suppress(AccountMuted):
+        await app.send_message(
+            group,
+            MessageChain(
+                event_config["MemberJoinEvent"].format(
                     **unpack_group(group),
                     **unpack_member(member),
                 )
