@@ -150,3 +150,4 @@ cython_debug/
 config.yaml
 data.db
 shared/models/saya_data/saya_data.json
+modules/self_contained/dd_check/vtb_list.json

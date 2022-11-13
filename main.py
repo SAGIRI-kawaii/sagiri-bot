@@ -74,7 +74,7 @@ async def active_friend_message_handler(app: Ariadne, event: ActiveFriendMessage
 @bcc.receiver(AccountLaunch)
 async def init(event: AccountLaunch):
     _ = await core.initialize()
-    await core.public_group_init(event.app)
+    _ = await core.public_group_init(event.app)
     await online_notice(event.app.account)
 
 
