@@ -1,0 +1,17 @@
+{
+  "name": "IHaveAFriend",
+  "version": "0.1",
+  "display_name": "我有一个朋友",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个生成假聊天记录插件",
+  "usage": ["在群中发送 `我(有一?个)?朋友(想问问|说|让我问问|想问|让我问|想知道|让我帮他问问|让我帮他问|让我帮忙问|让我帮忙问问|问) [-dark] [@target] 内容` 即可 [@目标]"],
+  "example": [
+    "我有一个朋友说 @Alice 我要攻击Bob",
+    "我有一个朋友说 -dark @Alice 我要攻击Bob"
+  ],
+  "icon": "",
+  "prefix": [""],
+  "triggers": ["我有一个朋友", "我朋友", "我有个朋友"]
+}

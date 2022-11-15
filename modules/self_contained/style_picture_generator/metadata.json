@@ -1,0 +1,18 @@
+{
+  "name": "StylePictureGenerator",
+  "version": "0.2",
+  "display_name": "风格图片生成",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以生成不同风格图片的插件",
+  "usage": ["在群中发送 `[5000兆|ph|yt] 文字1 文字2` 即可"],
+  "example": [
+    "5000兆 我操 真的吗",
+    "ph porn hub",
+    "yt you tube"
+  ],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

@@ -1,0 +1,14 @@
+{
+  "name": "LoliconKeywordSearcher",
+  "version": "0.2",
+  "display_name": "LoliconAPI图片",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个接入lolicon api的插件",
+  "usage": ["在群中发送 `来点{keyword}[色涩瑟]图` 即可"],
+  "example": ["来点和泉纱雾色图"],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

@@ -1,3 +1,7 @@
+import re
+import json
+from pathlib import Path
+
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Source
@@ -7,7 +11,6 @@ from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
-from .abstract_message_transformer_data import pinyin, emoji
 from shared.utils.module_related import get_command
 from shared.utils.control import (
     FrequencyLimit,
@@ -22,6 +25,9 @@ channel.name("AbstractMessageTransformer")
 channel.author("SAGIRI-kawaii")
 channel.description("一个普通话转抽象话的插件，在群中发送 `/抽象 文字` 即可")
 
+pinyin = json.loads((Path(__file__).parent / "pinyin.json").read_text(encoding="utf-8"))
+emoji = json.loads((Path(__file__).parent / "emoji.json").read_text(encoding="utf-8"))
+
 
 def get_pinyin(char: str):
     return pinyin[char] if char in pinyin else "None"
@@ -33,7 +39,7 @@ def get_pinyin(char: str):
         inline_dispatchers=[
             Twilight([
                 get_command(__file__, channel.module),
-                RegexMatch(r".*").help("要转抽象的内容") @ "content",
+                RegexMatch(r".*").flags(re.DOTALL).help("要转抽象的内容") @ "content",
             ])
         ],
         decorators=[

@@ -1,0 +1,13 @@
+{
+  "name": "Wordcloud",
+  "version": "0.2",
+  "display_name": "群词云生成器",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "群词云生成器",
+  "usage": ["在群中发送"],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

@@ -1,0 +1,14 @@
+{
+  "name": "NetworkCompiler",
+  "version": "0.2",
+  "display_name": "网络编译器",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个网络编译器插件",
+  "usage": ["在群中发送 `run {language}\\n code`即可"],
+  "example": ["run py3\nprint(\"hello\")"],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["super", "compiler", "网络编译器", "run code", "run"]
+}

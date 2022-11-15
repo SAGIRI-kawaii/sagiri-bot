@@ -1,0 +1,13 @@
+{
+  "name": "PhantomTank",
+  "version": "0.2",
+  "display_name": "幻影坦克",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个幻影坦克生成器",
+  "usage": ["在群中发送 `幻影 [显示图] [隐藏图]` 即可"],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

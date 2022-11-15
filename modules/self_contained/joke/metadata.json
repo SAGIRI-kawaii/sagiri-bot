@@ -1,0 +1,17 @@
+{
+  "name": "Joke",
+  "version": "0.2",
+  "display_name": "笑话",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个生成笑话的插件",
+  "usage": ["在群中发送 `来点{keyword|法国|苏联|美国}笑话` 即可"],
+  "example": [
+    "来点纱雾笑话",
+    "来点法国笑话"
+  ],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

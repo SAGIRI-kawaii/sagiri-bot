@@ -1,0 +1,17 @@
+{
+  "name": "LeetcodeInfo",
+  "version": "0.2",
+  "display_name": "Leetcode信息查询",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以获取Leetcode信息的插件",
+  "usage": [
+    "在群中发送 `leetcode {userslug}` 可查询个人资料（userslug为个人主页地址最后的唯一识别代码）",
+    "在群中发送 `leetcode 每日一题` 可查询每日一题"
+  ],
+  "example": ["leetcode test"],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["leetcode", "力扣"]
+}

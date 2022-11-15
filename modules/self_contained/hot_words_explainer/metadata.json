@@ -1,0 +1,14 @@
+{
+  "name": "HotWordsExplainer",
+  "version": "0.2",
+  "display_name": "热梗查询",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以查询热门词的插件",
+  "usage": ["在群中发送 `{keyword}是什么梗`"],
+  "example": ["鸡你太美是什么梗"],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

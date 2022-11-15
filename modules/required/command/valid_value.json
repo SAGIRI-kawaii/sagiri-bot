@@ -4,5 +4,7 @@
   "anti_flash_image": [true, false],
   "online_notice": [true, false],
   "daily_newspaper": [true, false],
-  "switch": [true, false]
+  "switch": [true, false],
+  "r18": [true, false],
+  "r18_process": ["revoke", "normal", "flash"]
 }

@@ -71,6 +71,11 @@ functions:
   bilibili:
     cookie: cookie
   stable_diffusion_api: stable_diffusion_api
+  lolicon:
+    image_cache: true
+    data_cache: true
+    cache_path: cache_path
+    cache18_path: cache18_path
 
 # 日志相关
 log_related:
@@ -79,8 +84,6 @@ log_related:
 
 # 数据相关
 data_related:
-  lolicon_image_cache: true
-  lolicon_data_cache: true
   network_data_cache: true
   automatic_update: false
   data_retention: true

@@ -76,11 +76,11 @@ class GlobalConfig(BaseModel):
         "lolicon_api_key": "lolicon_api_key",
         "wolfram_alpha_key": "wolfram_alpha_key",
         "github": {"username": "username", "token": "token"},
-        "stable_diffusion_api": "stable_diffusion_api"
+        "stable_diffusion_api": "stable_diffusion_api",
+        "lolicon": {}
     }
     log_related: dict = {"error_retention": 14, "common_retention": 7}
     data_related: dict = {
-        "lolicon_image_cache": True,
         "network_data_cache": False,
         "automatic_update": False,
         "data_retention": False,

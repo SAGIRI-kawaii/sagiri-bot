@@ -185,6 +185,8 @@ class Setting(Base):
     group_id = Column(BIGINT, primary_key=True)
     group_name = Column(String(length=60), nullable=False)
     frequency_limit = Column(Boolean, default=True)
+    r18 = Column(Boolean, default=False)
+    r18_process = Column(String, default="")
     anti_revoke = Column(Boolean, default=False)
     anti_flash_image = Column(Boolean, default=False)
     online_notice = Column(Boolean, default=False)

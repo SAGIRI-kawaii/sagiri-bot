@@ -134,7 +134,13 @@ async def module_operation(
     await app.send_message(group, MessageChain(f"你确定要{operation}插件 `{module}` 吗？（是/否）"))
     try:
         if await asyncio.wait_for(inc.wait(ConfirmWaiter(group, member)), 30):
-            core.module_operation(module, operation_type)
+            exceptions = core.module_operation(module, operation_type)
+            if exceptions:
+                return await app.send_group_message(
+                    group,
+                    MessageChain("\n".join(f"模块 <{m}> {operation}发生错误：{e}" for m, e in exceptions.items())),
+                    quote=source
+                )
             return await app.send_group_message(group, MessageChain(f"模块：{module} {operation}完成"), quote=source)
     except asyncio.TimeoutError:
         return await app.send_group_message(group, MessageChain("回复等待超时，进程退出"), quote=source)
