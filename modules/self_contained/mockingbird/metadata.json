@@ -1,0 +1,15 @@
+{
+  "name": "MockingBird",
+  "version": "0.3",
+  "display_name": "MockingBird语音生成",
+  "authors": [
+    "SAGIRI-kawaii",
+    "I_love_study"
+  ],
+  "description": "MockingBird语音生成",
+  "usage": ["在群中发送 `纱雾说 {content}` 即可"],
+  "example": ["我才没见过那样的人呢"],
+  "icon": "",
+  "prefix": ["", "/"],
+  "triggers": ["纱雾说"]
+}
