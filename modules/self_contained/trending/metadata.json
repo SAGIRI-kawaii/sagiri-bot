@@ -1,0 +1,22 @@
+{
+  "name": "Trending",
+  "version": "0.2",
+  "display_name": "热搜",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个获取热搜的插件",
+  "usage": [
+    "在群中发送 `微博热搜` 即可查看微博热搜",
+    "在群中发送 `知乎热搜` 即可查看知乎热搜",
+    "在群中发送 `github热搜` 即可查看github热搜"
+  ],
+  "example": [
+    "微博热搜",
+    "知乎热搜",
+    "github热搜"
+  ],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

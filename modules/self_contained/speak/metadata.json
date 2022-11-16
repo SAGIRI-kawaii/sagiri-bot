@@ -1,0 +1,15 @@
+{
+  "name": "Speak",
+  "version": "0.2",
+  "display_name": "腾讯语音合成",
+  "authors": [
+    "SAGIRI-kawaii",
+    "nullqwertyuiop"
+  ],
+  "description": "腾讯语音合成插件",
+  "usage": ["在群中发送 `说 {content}` 即可"],
+  "example": ["说 你好"],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["说"]
+}
