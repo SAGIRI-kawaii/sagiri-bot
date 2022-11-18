@@ -45,7 +45,7 @@ valid_value = load_json(Path(__file__).parent / "valid_value.json")
         ],
         decorators=[
             Distribute.distribute(),
-            Function.require(channel.module),
+            Function.require(channel.module, response_administrator=True),
             BlackListControl.enable(),
             Permission.require(Permission.GROUP_ADMIN)
         ],
@@ -110,7 +110,7 @@ async def setting(app: Ariadne, group: Group, for_group: ArgResult, for_all: Arg
         ],
         decorators=[
             Distribute.distribute(),
-            Function.require(channel.module),
+            Function.require(channel.module, response_administrator=True),
             BlackListControl.enable(),
             Permission.require(Permission.SUPER_ADMIN)
         ],
@@ -187,7 +187,7 @@ async def blacklist(
         ],
         decorators=[
             Distribute.distribute(),
-            Function.require(channel.module),
+            Function.require(channel.module, response_administrator=True),
             BlackListControl.enable(),
             Permission.require(Permission.SUPER_ADMIN)
         ],
