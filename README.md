@@ -28,11 +28,23 @@
 
 ## 项目部署
 
+项目文档正在施工中，临时文档地址：
+
+[SAGIRI-BOT v4 文档](http://v4.sagiri-bot.sagiri.tech/)
+
+以下为v3文档：
+
 [Windows部署文档](https://sagiri-kawaii.github.io/sagiri-bot/deployment/windows/)
 
 [Linux部署文档](https://sagiri-kawaii.github.io/sagiri-bot/deployment/linux/)
 
 ## 使用文档
+
+项目文档正在施工中，临时文档地址：
+
+[SAGIRI-BOT v4 文档](http://v4.sagiri-bot.sagiri.tech/)
+
+以下为v3文档：
 
 [文档链接](https://sagiri-kawaii.github.io/sagiri-bot/)
 

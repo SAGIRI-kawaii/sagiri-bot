@@ -115,10 +115,10 @@ class Sagiri(object):
         bcc = create(Broadcast)
         saya = create(Saya)
         saya.install_behaviours(BroadcastBehaviour(bcc))
-        # try:
-        #     _ = await orm.init_check()
-        # except (AttributeError, InternalError, ProgrammingError):
-        #     _ = await orm.create_all()
+        try:
+            _ = await orm.init_check()
+        except (AttributeError, InternalError, ProgrammingError):
+            _ = await orm.create_all()
         self.alembic()
         await orm.update(Setting, [], {"active": False})
         total_groups = {}
