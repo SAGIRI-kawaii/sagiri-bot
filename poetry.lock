@@ -1060,7 +1060,7 @@ reference = "USTC"
 
 [[package]]
 name = "picimagesearch"
-version = "3.7.3"
+version = "3.7.4"
 description = "PicImageSearch APIs for Python 3.x 适用于 Python 3 以图搜源整合API"
 category = "main"
 optional = false
@@ -1818,7 +1818,7 @@ reference = "USTC"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "efee93e0ddfb4eb4cf1d122e073741a09ba5ef8aadec41a0644e481c24700504"
+content-hash = "357ef5d5a409cdabeec2f7db459e7a9b9e8e27a4f90e2143d0bbaf4665d24cce"
 
 [metadata.files]
 aiodns = [
@@ -2820,8 +2820,8 @@ packaging = [
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
 ]
 picimagesearch = [
-    {file = "picimagesearch-3.7.3-py3-none-any.whl", hash = "sha256:2d3b813932a612a11cdcdb5f7fe0659e363c4ba704ce9aee2d747f368aa805f5"},
-    {file = "picimagesearch-3.7.3.tar.gz", hash = "sha256:3ddc8622b26f76950cd9c98436340dbebaca36e0cf44bbf2912bd41ada5ba555"},
+    {file = "picimagesearch-3.7.4-py3-none-any.whl", hash = "sha256:8ac9533f0205002fc08638556c1889c8bea3d67b570a9072d812c1759e0aaaab"},
+    {file = "picimagesearch-3.7.4.tar.gz", hash = "sha256:80ff731f1e762587f39c580d39ceec0d61722ede1122b6c6b7a892079f76ed12"},
 ]
 pillow = [
     {file = "Pillow-9.3.0-cp310-cp310-macosx_10_10_x86_64.whl", hash = "sha256:0b7257127d646ff8676ec8a15520013a698d1fdc48bc2a79ba4e53df792526f2"},
