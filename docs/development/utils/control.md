@@ -1,6 +1,8 @@
-# 插件控制
+# 插件控制（decorators）
 
 以下控制器有部分参考自 [BlueGlassBlock](https://github.com/BlueGlassBlock)
+
+本工具类位置: `shared.utils.control`
 
 > ## 使用方法
 
@@ -33,7 +35,7 @@ async def foo(...): ...
 
 权限管理类，用于获取成员权限或判断成员权限是否满足某一等级
 
-导入：`from sagiri_bot.control import Permission`
+导入：`from shared.utils.control import Permission`
 
 ### `Permission.get`
 
@@ -69,11 +71,11 @@ async def foo(...): ...
 
 ### 备注
 
-对于某些在同一module中不同等级需要不同相应的情形，可以使用 `sagiri_bot.utils.user_permission_require`
+对于某些在同一module中不同等级需要不同相应的情形，可以使用 `shared.utils.permission.user_permission_require`
 
 使用方法：
 ```python
-from sagiri_bot.utils import user_permission_require
+from shared.utils.permission import user_permission_require
 
 
 await user_permission_require(group, member, level)
@@ -83,7 +85,7 @@ await user_permission_require(group, member, level)
 
 调用频率限制类，用于限制功能调用频率
 
-导入：`from sagiri_bot.control import FrequencyLimit`
+导入：`from shared.utils.control import FrequencyLimit`
 
 ### `FrequencyLimit.require`
 
@@ -226,3 +228,45 @@ async def foo(...): ...
 `log` 为收到消息时在控制台是否输出插件开关信息（不会计入log文件）
 
 `notice` 为插件关闭时是否通知
+
+> ## Distribute
+
+功能多账号任务分配类
+
+用途：用于在一个群中有多个账号的情况，可以控制其中仅一个账号发出消息
+
+示例：
+```python
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage], 
+        decorators=[Distribute.distribute(require_admin=False, show_log=False)]
+    )
+)
+async def foo(...): ...
+```
+
+其中 `require_admin` 为是否获取拥有管理员权限的账号
+
+`show_log` 为收到消息时是否输出账号的分配信息（不会计入log文件）
+
+备注：SAGIRI 实现了多账户功能，物理上为多个账户，逻辑上这些账户组成一个整体，为了避免出现一个群中有多个账号多次响应同一条消息的情况，请在开发时务必使用此装饰器
+
+> ## Anonymous
+
+匿名屏蔽类
+
+用途：用于屏蔽匿名用户的功能请求
+
+示例：
+```python
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage], 
+        decorators=[Anonymous.block(message="不许匿名，你是不是想干坏事？")]
+    )
+)
+async def foo(...): ...
+```
+
+其中 `message` 为收到匿名用户的请求后返回的消息

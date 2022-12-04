@@ -51,11 +51,26 @@ nav:
   - 功能拓展: function_extension.md
   - 二次开发:
       - 开始开发: development/start.md
-      - 内置控制器: development/control.md
+      - 数据库: development/orm.md
+      - 推荐的插件结构: development/recommend_saya_standard.md
+      - 数据模型:
+          - 配置类: development/models/config.md
+      - 内置工具:
+          - 控制器: development/utils/control.md
+          - 中断处理: development/utils/waiter.md
+          - 类型转换: development/utils/type.md
+          - 模块自定义前缀: development/utils/module_related.md
+          - 文件相关: development/utils/files.md
   - 管理: manage.md
-  - 更新日志: update.md
   - FAQ: FAQ.md
   - 关于: about.md
+
+extra_javascript:
+  - javascripts/pageJump.js
+
+extra_css:
+  - css/extra.css
+
 repo_url: https://github.com/SAGIRI-kawaii/sagiri-bot
 repo_name: SAGIRI-kawaii/sagiri-bot
 dev_addr: '127.0.0.1:6789'

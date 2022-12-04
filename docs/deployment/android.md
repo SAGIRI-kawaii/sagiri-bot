@@ -28,8 +28,7 @@
 
 !!! note "关于部署或运行时出现的问题"
 
-    安卓环境下的部署方式由 [TimeRainStarSky/TRSS_Sagiri](https://github.com/TimeRainStarSky/TRSS_Sagiri) 
-    提供，本教程仅提供链接，如有问题请前往原仓库发布 Issue
+    安卓环境下的部署方式由 [TimeRainStarSky/TRSS_Sagiri](https://github.com/TimeRainStarSky/TRSS_Sagiri) 提供，本教程仅提供链接，如有问题请前往原仓库发布 Issue
 
 ## 普通安装方式
 

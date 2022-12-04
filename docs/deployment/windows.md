@@ -1,4 +1,4 @@
-# 项目部署
+# Windows 部署
 
 !!! danger "使用前注意"
     
@@ -24,11 +24,36 @@
 
 !!! note "关于部署出现问题"
 
-    当部署出现问题时，请检查是否按文档顺序进行，如出现问题可前往 [FAQ](https://sagiri-kawaii.github.io/sagiri-bot/FAQ/) 寻找，如果没有找到原因可以前往 [SAGIRI BOT官方交流群](https://jq.qq.com/?_wv=1027&k=9hfqo8AL) 询问或在 github 提出 ISSUE
+    当部署出现问题时，请检查是否按文档顺序进行，如出现问题可前往 [FAQ](/FAQ/) 寻找，如果没有找到原因可以前往 [SAGIRI BOT官方交流群](https://jq.qq.com/?_wv=1027&k=9hfqo8AL) 询问或在 github 提出 ISSUE
 
-## 安装java
+!!! note "其他选择"
 
-### 使用 [mcl-installer](https://github.com/iTXTech/mcl-installer) 进行安装（小白友好）
+    对于 `mirai` 的部署部分，如果有感觉写的不清楚的地方，可以查看官方/社区的部署教程，效果是相同的
+    
+    - [官方文档 - Mirai API HTTP 安装](https://graia.cn/ariadne/appendix/mah-install/)
+    
+    - [社区文档 - Mirai 的安装与配置](https://graiax.cn/before/install_mirai.html)
+    
+## 安装 Mirai
+
+本章分为使用 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader) 安装（推荐）和使用 [mcl-installer](https://github.com/iTXTech/mcl-installer) 安装两部分
+
+我们推荐使用 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader) 进行安装
+
+我们不推荐直接下载 [Mirai](https://github.com/mamoe/mirai) 使用，如果你确定自己会用，请自行部署
+
+### 使用 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader) 安装
+
+#### 安装 Java
+
+关于 Java 的安装，可以查看社区文档 [安装 Java](https://graiax.cn/before/install_mirai.html#%E5%AE%89%E8%A3%85-java)（我懒得写）
+
+#### 安装 [mirai-console-loader](https://github.com/iTXTech/mirai-console-loader)
+- 打开mcl的 [release](https://github.com/iTXTech/mirai-console-loader/releases) 页面，点击 `mcl-x.x.x.zip` 下载最新版本
+- 下载后解压并双击运行 `mcl.cmd`，如果你的电脑没有打开文件后缀显示，则双击那个图标里有齿轮的 `mcl`
+- 等待运行完成
+
+### 使用 [mcl-installer](https://github.com/iTXTech/mcl-installer) 安装
 - 从 [mcl-installer release](https://github.com/iTXTech/mcl-installer/releases/latest) 下载 `mcl-installer-x.x.x-windows-amd64.exe` 并运行
 - 下载完成后，双击 `mcl-installer-x.x.x-windows-amd64.exe`，你应当见到如下输出：
 
@@ -61,64 +86,20 @@ xxxx-xx-xx xx:xx:xx I/main: mirai-console started successfully.
 
 - 点击右上角 `X` 退出 `mirai-console`
 
-### 自行安装
-搜索引擎会告诉你一切，搜索关键词：`Windows java安装`
-
-## 安装[mirai](https://github.com/mamoe/mirai)
-
-### 使用 [mcl-installer](https://github.com/iTXTech/mcl-installer) 进行安装（推荐）
-
-若在安装java时已使用 `mcl-installer` 安装并配置完成，则可跳过此步
-
-### 使用 [mirai-console-loader(mcl)](https://github.com/iTXTech/mirai-console-loader) 进行安装
-
-- 打开mcl的 [release](https://github.com/iTXTech/mirai-console-loader/releases) 页面，点击 `mcl-x.x.x.zip` 下载最新版本
-- 下载后解压并运行 `mcl.cmd`
-
-### 自行安装
-
-- 这就靠你自己咯（
-- mirai项目地址在这个页面有哦~自己找找吧~
-
 ## 安装 [mirai-api-http-v2](https://github.com/project-mirai/mirai-api-http)
 
-### 通过 [mirai-console-loader(mcl)](https://github.com/iTXTech/mirai-console-loader) 进行安装（推荐）
+首先，我们进入 `cmd`，并进入 `mirai-console-loader` 的文件夹下，如果你在安装 Mirai 时使用的是使用的是 `mcl-installer`，则进入 `mcl-installer` 下面的 `mcl` 文件夹
 
-- 按照 `mirai-api-http` 的 `README`，运行 `./mcl --update-package net.mamoe:mirai-api-http --channel stable-v2 --type plugin`
-- 切换 `mirai-console-loader` 的 `repo`，运行 `./mcl --mrm-use forum`（当出现网络报错时执行）
+如果你不会进入，在文件资源管理器中打开对应文件夹，点击路径栏，输入 `cmd` 并回车
+
+- 按照 `mirai-api-http` 的 `README`，在 `cmd` 中粘贴并运行 `.\mcl --update-package net.mamoe:mirai-api-http --channel stable-v2 --type plugin`
+- 切换 `mirai-console-loader` 的 `repo`，运行 `.\mcl --mrm-use forum`（当出现网络报错时执行）
 - 启动 `mcl` 完成自动更新和启动
 
-!!! warning "安装注意"
-    
-    若出现如 `[ERROR] The local file "net.mamoe:mirai-api-http" is still corrupted, plase check the network` 的报错，请尝试使用以下任一方法：
-    
-    - 使用下方自行安装方法，
-    - 尝试更改 `MCL` 的 `repo`，具体请查看 [mcl-无法使用的相关解决方法](https://mirai.mamoe.net/topic/1084/mcl-%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8%E7%9A%84%E7%9B%B8%E5%85%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95-2022-3-25) 
-    - 尝试更改 `MCL` 的 `config.json`，打开后更改 `package` 中 `id` 为 `net.mamoe:mirai-api-http` 的字典的 `version` 值为 `2.4.0`，并将下方 `versionLocked` 改为 `true`
-    
-    当启动后出现如下方的消息才算安装并启动成功
-    
-    ```text
-    2022-04-30 12:20:17 I/Mirai HTTP API: ********************************************************
-    2022-04-30 12:20:17 I/http adapter: >>> [http adapter] is listening at http://localhost:23456
-    2022-04-30 12:20:17 I/ws adapter: >>> [ws adapter] is listening at ws://localhost:23456
-    2022-04-30 12:20:17 I/Mirai HTTP API: Http api server is running with verifyKey: 1234567890
-    2022-04-30 12:20:17 I/Mirai HTTP API: adaptors: [http,ws]
-    2022-04-30 12:20:17 I/Mirai HTTP API: ********************************************************
-    ```
-    
-### 自行安装
+### 配置 mirai-api-http-v2
 
-- 打开 [mirai-http-api-release](https://github.com/project-mirai/mirai-api-http/releases/latest)，下载其中名为 `mirai-api-http-v2.x.x.mirai.jar` 的文件
-- 将下载好的文件放入 `mcl/plugins` 文件夹
-- 启动 `mcl` 完成自动更新和启动
-
-## 配置 [mirai-api-http-v2](https://github.com/project-mirai/mirai-api-http)
-
-- 打开 `MCL/config/net.mamoe.mirai-api-http/setting.yml`
+- 打开 `mcl/config/net.mamoe.mirai-api-http/setting.yml`，将下面的内容复制覆盖粘贴到文件中
 - 若无此文件请检查 `mcl` 是否被成功添加并且添加后启动过一次 `mcl`，若没有请完成前文所述步骤再进行此步骤
-
-内容如下：
 ```yaml
 adapters:
   - http
@@ -142,17 +123,30 @@ adapterSettings:
     reservedSyncId: -1 # 确保为 -1, 否则 WebsocketAdapter(Experimental) 没法正常工作.
 ```
 
-### 配置自动登录
+!!! warning "安装注意"
+    
+    当启动后出现如下方的消息才算安装并启动成功
+    
+    ```text
+    2022-04-30 12:20:17 I/Mirai HTTP API: ********************************************************
+    2022-04-30 12:20:17 I/http adapter: >>> [http adapter] is listening at http://localhost:23456
+    2022-04-30 12:20:17 I/ws adapter: >>> [ws adapter] is listening at ws://localhost:23456
+    2022-04-30 12:20:17 I/Mirai HTTP API: Http api server is running with verifyKey: 1234567890
+    2022-04-30 12:20:17 I/Mirai HTTP API: adaptors: [http,ws]
+    2022-04-30 12:20:17 I/Mirai HTTP API: ********************************************************
+    ```
+
+## 配置自动登录
 
 !!! warning "注意"
 
     为防止因填入不当数据导致无法启动 mirai-console-loader (MCL) 的问题，**建议在部署时通过 mirai-console-loader (MCL) 内建的 `autoLogin` 指令配置自动登录**，而非直接修改 Console 配置文件
 
-#### 使用 /autoLogin 配置自动登录（推荐）
+### 使用 /autoLogin 配置自动登录（推荐）
 
-在 mirai-console-loader (MCL) 登录完成后，输入 `/autoLogin add <你的QQ号> <你的QQ密码>` 并回车，应该会显示 `已成功添加 '<你的QQ号>'`
+在 mirai-console-loader (MCL) 启动完成后，输入 `/autoLogin add <你的QQ号> <你的QQ密码>` 并回车，应该会显示 `已成功添加 '<你的QQ号>'`
 
-#### 修改 Console 配置文件实现自动登录（不推荐）
+### 修改 Console 配置文件实现自动登录（不推荐）
 
 !!! warning "仅可在 mirai-console-loader (MCL) 已关闭的情况下更改配置文件"
 
@@ -186,7 +180,7 @@ accounts:
 
 ## 登录 QQ
 
-执行 `./mcl` 启动 `mirai-console`
+执行 `.\mcl` 启动 `mirai-console`
 
 如果直接显示 `Event: BotOnlineEvent(bot=Bot(<你的QQ号>))`，并有收到新消息，那么恭喜你，你已经完成了 `mirai` 方面的配置了
 
@@ -205,13 +199,21 @@ url:http://xxx.xxx.xxx
     - 在电脑上打开浏览器，输入程序提供的url，应当会出现滑动认证的画面，此时先不要进行认证
     - 单击 `F12` 键，会出现一个 `DevTool`，找到上方选项卡，点击 `Network` 选项，再点击下方的 `Fetch/XHR` 选项
     - 完成滑动验证，此时在 `DevTool` 界面中应会出现新的请求，找到其中名为 `cap_union_new_verify` 选项卡，点击其中的 `Preview` 选项卡，在其中找到 `ticket` 的值填入 `mcl` 并回车
-    - gif演示：![浏览器获取ticket演示](https://sagiri-kawaii.github.io/sagiri-bot/assets/txcaptcha.gif)
+    - gif演示：![浏览器获取ticket演示](/assets/txcaptcha.gif)
+
+若显示需要手机验证码登录按提示操作即可
 
 ## 安装 python
 
-### 使用 Anaconda
+!!! danger "安装前请注意"
 
-- 打开 [Anaconda 官网下载地址](https://www.anaconda.com/download/)，下载安装包并安装
+    如果你要使用使用到深度学习库的项目，强烈推荐使用 Anaconda/Miniconda 安装 Python
+    
+    如果你了解这些库的配置等，可自行决定
+
+### 使用 Anaconda/Miniconda
+
+- 如果你的机器存储空间足够大，则打开 [Anaconda 官网下载地址](https://www.anaconda.com/download/)，否则请打开 [Miniconda 官网下载地址](https://docs.conda.io/en/latest/miniconda.html)，下载安装包并安装
 - 配置环境变量
     - 打开开始栏，输入 `编辑系统环境变量` 并搜索，进入环境变量编辑界面
     - 找到用户变量中 `PATH` 项并双击
@@ -220,13 +222,13 @@ url:http://xxx.xxx.xxx
     - 输入 `conda --version`，若输出如 `conda 4.8.4` 的消息就证明配置成功
 - 创建虚拟环境（可选但推荐）
     - 使用 win + r 组合键，打开运行窗口，输入 `cmd` 并回车，打开命令提示符
-    - 输入 `conda create -n your_env_name python=3.8`，其中 `your_env_name` 为你要创建的环境名，可自定义，python版本 >= 3.8 即可，可自行安装其他版本
+    - 输入 `conda create -n your_env_name python=3.10`，其中 `your_env_name` 为你要创建的环境名，可自定义，python版本 >= 3.10 即可，可自行安装其他版本
     - 等待程序询问是否安装，直接回车即可
     - 安装完毕后输入 `conda activate your_env_name` 即可激活虚拟环境
 
 ### 自行安装
 
-搜索引擎会告诉你一切，搜索关键词：`Windows python3.8安装`，注意，安装的python版本必须大于等于3.8！
+搜索引擎会告诉你一切，搜索关键词：`Windows python3.10安装`，注意，安装的python版本必须大于等于3.10！
 
 ## 下载 SAGIRI-BOT
 
@@ -259,15 +261,6 @@ url:http://xxx.xxx.xxx
 
     <del>当然你也可以不配置，但是如果你不配置而且服务器上还有其他的一些python项目，那么你的程序可能会出现一些问题</del>
 
-### 使用 anaconda
-
-- 若你在安装python时使用的是安装 Anaconda 的方法并且 `自带python版本>=3.8` 或已经配置好虚拟环境可观看此项
-- 使用 win + r 组合键，打开运行窗口，输入 `cmd` 并回车，打开命令提示符
-- 输入 `conda activate your_env_name` 进入虚拟环境（Anaconda自带版本 >= 3.8可忽略此步骤，但推荐使用虚拟环境以防止出现依赖混乱冲突的情况，若你还没有创建虚拟环境并且自带python版本不符合条件，请查看上方创建虚拟环境）
-- 激活成功后进入bot所在目录，运行 `pip install -r requirements.txt` 即可
-
-### 使用 poetry
-
 !!! warning "此处将默认你已经安装了 `poetry`"
 
     不会安装 `poetry` ？
@@ -275,6 +268,19 @@ url:http://xxx.xxx.xxx
     在 PowerShell 执行 `(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -` 即可安装 `poetry`
 
     随后在 `.bashrc` 或 `.zshrc` 中添加脚本打印的 `export` 以便在终端中使用 `poetry` 命令
+
+    实在不会，你就 `pip install poetry`
+
+### 使用 Anaconda/Miniconda
+
+- 若你在安装python时使用的是安装 Anaconda/Miniconda 的方法并且 `自带python版本>=3.10` 或已经配置好虚拟环境可观看此项
+- 使用 win + r 组合键，打开运行窗口，输入 `cmd` 并回车，打开命令提示符
+- 输入 `conda activate your_env_name` 进入虚拟环境（Anaconda自带版本 >= 3.10可忽略此步骤，但推荐使用虚拟环境以防止出现依赖混乱冲突的情况，若你还没有创建虚拟环境并且自带python版本不符合条件，请查看上方创建虚拟环境）
+- 激活成功后进入bot所在目录，因为我们使用 `conda` 创建虚拟环境，所以要先关闭 `poetry` 的虚拟环境创建，在终端执行 `poetry config virtualenvs.create false`
+- 在终端输入 `poetry env info`，当其中的的 `Valid` 项为 `True` 时，就代表 `poetry` 已经可以在 `conda` 的虚拟环境中使用了
+- 执行 `poetry install`，等待安装完成
+
+### 使用 poetry
 
 - 使用 win + r 组合键，打开运行窗口，输入 `cmd` 并回车，打开命令提示符
 - 进入 bot 所在目录，运行 `poetry install` 即可
@@ -288,15 +294,6 @@ url:http://xxx.xxx.xxx
     > 大概需要多久安装成功呢？
 
     > 截至这个区块编写完成，已知的最长用时是 20 分钟。
-
-### 不使用虚拟环境，直接安装
-
-!!! danger "不推荐此做法"
-
-    直接使用此方法可能导致部分功能不可用或依赖安装失败
-
-- 使用 win + r 组合键，打开运行窗口，输入 `cmd` 并回车，打开命令提示符
-- 进入bot所在目录，运行 `pip install -r requirements.txt` 即可
 
 ## 配置 config
 
@@ -361,12 +358,12 @@ url:http://xxx.xxx.xxx
 
     <big>**如果你看不懂上述文本的话，看这个区块的第一行**</big>
 
-## 启动机器人
+## 启动机器人8
 
 1. 启动 `mcl`
 2. 进入bot目录下执行 `python main.py`
 
-你应当见到如下界面：
+你应当见到类似如下界面：
 ```text
 2022-01-04 23:45:08.848 | INFO     | sagiri_bot.core.app_core:__init__:59 - Initializing
 2022-01-04 23:45:08.916 | INFO     | sagiri_bot.core.app_core:__init__:84 - Initialize end
@@ -423,24 +420,12 @@ Saya version: 0.0.13
 2022-01-04 23:45:13.263 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - web_manager_api - True
 2022-01-04 23:45:13.263 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - web_manager_auto_boot - True
 2022-01-04 23:45:13.263 | INFO     | sagiri_bot.core.app_core:config_check:221 - Configuration check completed
-2022-01-04 23:45:13.570 | INFO     | sagiri_bot.handler.required_module.saya_manager.utils:saya_init:51 - converting saya module: sagiri_bot.handler.handlers.abbreviated_prediction
-2022-01-04 23:45:13.571 | WARNING  | sagiri_bot.handler.required_module.saya_manager.utils:saya_init:61 - 插件AbbreviatedPrediction未使用inline_dispatchers！默认notice为False！
-2022-01-04 23:45:13.575 | INFO     | sagiri_bot.handler.required_module.saya_manager.utils:saya_init:51 - converting saya module: sagiri_bot.handler.handlers.abstract_message_transform
-2022-01-04 23:45:13.578 | INFO     | sagiri_bot.handler.required_module.saya_manager.utils:saya_init:51 - converting saya module: sagiri_bot.handler.handlers.avatar_fun
-2022-01-04 23:45:13.578 | WARNING  | sagiri_bot.handler.required_module.saya_manager.utils:saya_init:61 - 插件AvatarFunPic未使用inline_dispatchers！默认notice为False！
-2022-01-04 23:45:13.580 | INFO     | sagiri_bot.handler.required_module.saya_manager.utils:saya_init:51 - converting saya module: sagiri_bot.handler.handlers.bangumi_info_searcher
-2022-01-04 23:45:13.580 | WARNING  | sagiri_bot.handler.required_module.saya_manager.utils:saya_init:61 - 插件BangumiInfoSearcher未使用inline_dispatchers！默认notice为False！
+2022-12-04 11:44:44.898 | DEBUG    | graia.saya:require:111 - require modules.self_contained.abbreviated_prediction
+2022-12-04 11:44:44.913 | INFO     | graia.saya:require:134 - module loading finished: modules.self_contained.abbreviated_prediction
 ...
 2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:171 - 本次启动活动群组如下：
 2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
-2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
-2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
-2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
-2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
-2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
-2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
-2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
-2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
+...
 ```
 
 其中 `...` 为省略的类似内容
@@ -449,4 +434,4 @@ Saya version: 0.0.13
 
 ## 后台运行
 
-将窗口最小化即可。
+将窗口最小化即可

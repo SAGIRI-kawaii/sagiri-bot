@@ -12,6 +12,14 @@
     
     注意：若在QQ中询问问题时请不要直接将报错粘贴发送或者以 `txt` 文件等形式发送，请使用 `pastebin` 发送报错，或者发送截图
 
+!!! note "好消息！"
+
+    <p>好消息！目前文档系统已全面升级！<br/>若您遇到报错，可以先找我们的客服专员询问！<br/>在下方输入框粘贴你的报错并点击对应的专员按钮即可！24小时在线！</p>
+    
+    <input type="text" id="question" class="service-input">
+    
+    <div class="flex"><button class="service-button" type="button" onclick="jump('baidu')">普通专员</button><button class="service-button" type="button" onclick="jump('bing')">高级专员</button><button class="service-button" type="button" onclick="jump('google')">海外专员</button></div>
+
 > ## Mysql / PostgreSQL 相关
 
 目前只官方适配了 `SQLite`，使用 `MySQL` 以及 `PostgreSQL` 产生的bug可能会很多甚至会导致程序无法运行，若您需要稳定的运行请使用 `SQLite`
@@ -98,10 +106,10 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
 1. 查看 `mirai-concole-loader(mcl)` 是否启动成功
 2. 查看 `mirai-api-http(mah)` 是否启动成功
 3. 查看 `mirai-api-http(mah)` 版本是否为 `2.x`（仅支持 `2.x` ）
-4. 查看 `mirai-api-http(mah)` 是否配置正确，详细配置请看 [配置 mirai-api-http-v2](https://sagiri-kawaii.github.io/sagiri-bot/deployment/#mirai-api-http-v2_1)
+4. 查看 `mirai-api-http(mah)` 是否配置正确，详细配置请看 [Windows 配置 mirai-api-http-v2](/deployment/windows/#mirai-api-http-v2_1) | [Linux 配置 mirai-api-http-v2](/deployment/linux/#mirai-api-http-v2_1)
 5. 查看 `config.yaml` 中 `mirai_host` 项是否正确配置并与 `mah` 中配置相同
 6. 查看是否在 `mirai-concole-loader(mcl)` 中登录了帐号
-7. 若在 `mirai-concole-loader(mcl)` 中出现类似 `W/net.mamoe.mirai-api-http: USING INITIAL KEY, please edit the key` 的信息，请更换新的 `verifyKey` 后重启尝试
+7. 若在 `mirai-concole-loader(mcl)` 中出现类似 `W/net.mamoe.mirai-api-http: USING INITIAL KEY, please edit the key` 的信息，请更换新的 `verifyKey` 保证与配置文件一致后重启尝试
 8. 查看是否同时启动了多个 `mirai-console-loader(mcl)`
 
 > ## yamlDecodingException
@@ -128,14 +136,6 @@ ERROR [alembic.util.messaging] Can't locate revision identified by 'xxx'
     - Linux / macOS
 
         > 打开终端，输入 `ps -ef | grep "mcl" | grep -v "grep"`，检查是否有多个 `mcl` 正在运行
-
-> ## 活动群组为空
-
-如果启动时 `SAGIRI-BOT` 控制台中未显示任何活动群组，请确保在 `mcl` 启动并成功登录账号后再启动 `SAGIRI-BOT`
-
-> ## 当前QQ版本过低
-
-请参考 [mirai 论坛中的解决方案](https://mirai.mamoe.net/topic/223/%E6%97%A0%E6%B3%95%E7%99%BB%E5%BD%95%E7%9A%84%E4%B8%B4%E6%97%B6%E5%A4%84%E7%90%86%E6%96%B9%E6%A1%88)
 
 > ## 内存占用问题
 

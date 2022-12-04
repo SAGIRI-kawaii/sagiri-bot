@@ -2,6 +2,8 @@
 
 对象关系映射
 
-SAGIRI-BOT内置了使用sqlalchemy的ORM类以供使用
+SAGIRI-BOT 内置了使用 SQLAlchemy 的 ORM 类以供使用
 
-模块位置：`sagiri_bot.orm.async_orm`
+关于 SQLAlchemy 的更多信息请查阅 [SQLAlchemy文档](https://docs.sqlalchemy.org/en/14/)
+
+模块位置：`shared.orm`
