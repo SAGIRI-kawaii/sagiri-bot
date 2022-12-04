@@ -1,0 +1,40 @@
+name: ✨ 功能请求
+description: 想要请求添加某个功能
+title: "[Feature Request] <title>"
+labels: [enhancement]
+body:
+- type: textarea
+  id: feature
+  attributes:
+    label: 请求内容
+    description: 简要概述新功能
+  validations:
+    required: false
+- type: textarea
+  id: expected
+  attributes:
+    label: 实现逻辑
+    description: 简要概述该功能实现逻辑
+  validations:
+    required: false
+- type: textarea
+  id: reason
+  attributes:
+    label: 请求原因
+    description: 阐明为何需要引入该功能
+  validations:
+    required: false
+- type: textarea
+  id: reference
+  attributes:
+    label: 实现参考
+    description: 是否有该功能的实现参考
+  validations:
+    required: false
+- type: textarea
+  id: other
+  attributes:
+    label: 其他内容
+    description: 你可以在此处添加上述区块未提及的补充内容
+  validations:
+    required: false
