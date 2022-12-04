@@ -33,6 +33,7 @@
 一个执行管理命令的插件
 
 使用方法：
+
 - 在群中发送 `/setting -set [-g] func=value` 可[全局]更改设置值
 - 在群中发送 `/blacklist -add/-remove/-clear [-g] {target(At/int)}` 可[全局]添加/移除/清空对应目标黑名单
 - 在群中发送 `/user -grant [-g] -l={level}` 可[全局]更改群员权限
@@ -52,6 +53,7 @@
 一个备份群成员的插件
 
 使用方法：
+
 - 发送 `/群成员备份` 对当前群进行备份
 - 发送 `/群成员备份 -s -g={qq群号}` 查看对应qq群备份信息
 
@@ -126,6 +128,7 @@ bot管理插件
 模块位置：`modules.required.saya_manager`
 
 使用方法：
+
 - 发送 `已加载插件` 查看已加载插件
 - 发送 `未加载插件` 查看未加载插件
 - 发送 `加载插件 [编号|名称]` 可加载插件
@@ -142,6 +145,7 @@ bot管理插件
 模块位置：`modules.required.system_status`
 
 使用方法：
+
 - 发送 `/sys` 或 `/sys -a` 或 `/sys -all` 查看CPU、内存以及图库占用信息
 - 发送 `/sys -i` 或 `/sys -info` 查看CPU、内存信息
 - 发送 `/sys -s` 或 `/sys -storage` 查看图库占用信息
