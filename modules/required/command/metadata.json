@@ -7,18 +7,18 @@
   ],
   "description": "一个执行管理命令的插件",
   "usage": [
-    "在群中发送 setting -set [-g] func=value 可[全局]更改设置值",
-    "在群中发送 blacklist -add/-remove/-clear [-g] {target(At/int)} 可[全局]添加/移除/清空对应目标黑名单",
-    "在群中发送 user -grant [-g] -l={level} 可[全局]更改群员权限"
+    "在群中发送 /setting -set [-g] func=value 可[全局]更改设置值",
+    "在群中发送 /blacklist -add/-remove/-clear [-g] {target(At/int)} 可[全局]添加/移除/清空对应目标黑名单",
+    "在群中发送 /user -grant [-g] -l={level} 可[全局]更改群员权限"
   ],
   "example": [
-    "全局关闭：setting -set -g switch=False",
-    "本群关闭：setting -set switch=False",
-    "全局黑名单：blacklist -add -g @坏蛋",
-    "本群黑名单：blacklist -add @坏蛋",
-    "清空黑名单：blacklist -clear @坏蛋",
-    "全局授权：user -grant -g -l=2 @目标",
-    "本群授权：user -grant -l=2 @目标"
+    "全局关闭：/setting -set -g switch=False",
+    "本群关闭：/setting -set switch=False",
+    "全局黑名单：/blacklist -add -g @坏蛋",
+    "本群黑名单：/blacklist -add @坏蛋",
+    "清空黑名单：/blacklist -clear @坏蛋",
+    "全局授权：/user -grant -g -l=2 @目标",
+    "本群授权：/user -grant -l=2 @目标"
   ],
   "icon": "",
   "prefix": ["/"],
@@ -27,15 +27,15 @@
     "uninstallable": false,
     "reloadable": true,
     "setting": {
-      "prefix": ["/", ""],
+      "prefix": ["/"],
       "alias": ["setting", "设置"]
     },
     "user": {
-      "prefix": ["/", ""],
+      "prefix": ["/"],
       "alias": ["user", "用户"]
     },
     "blacklist": {
-      "prefix": ["/", ""],
+      "prefix": ["/"],
       "alias": ["blacklist", "黑名单"]
     }
   }

@@ -35,8 +35,8 @@ async def saucenao_search(
                 Plain(f"\n标题：{resp.title}\n"),
                 Plain(f"相似度：{resp.similarity}%\n"),
                 Plain(f"作者：{resp.author}\n"),
-                Plain(f"pixiv图像 id：{resp.pixiv_id}\n" if resp.pixiv_id else ""),
-                Plain(f"pixiv画师 id：{resp.member_id}\n" if resp.member_id else ""),
+                Plain(f"图像 id：{resp.index_id}\n" if resp.index_id else ""),
+                Plain(f"画师 id：{resp.author}\n" if resp.author else ""),
                 Plain(f"链接：{resp.url}"),
             ]
         )

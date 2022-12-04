@@ -7,7 +7,7 @@
   ],
   "description": "一个提供帮助的插件",
   "usage": ["发送 `/help` 即可查看所有插件"],
-  "examples": [
+  "example": [
     "查看所有插件：/help",
     "查看编号为27的插件：/help 27"
   ],

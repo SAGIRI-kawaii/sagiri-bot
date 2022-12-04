@@ -58,8 +58,8 @@ async def stranger_message_listener(app: Ariadne, stranger: Stranger, message: M
 @bcc.receiver("ActiveGroupMessage")
 async def active_group_message_handler(app: Ariadne, event: ActiveGroupMessage):
     core.sent_count += 1
-    if event.message_chain[Source][0].id == -1:
-        return await app.send_group_message(event.subject, MessageChain("发送失败，可能被风控"))
+    # if event.message_chain[Source][0].id == -1:
+    #     return await app.send_group_message(event.subject, MessageChain("发送失败，可能被风控"))
     message_text_log = event.message_chain.display.replace("\n", "\\n").strip()
     logger.info(f"成功向 Bot <{app.account}> 群 <{event.subject.name.strip()}> 发送消息：{message_text_log}")
 
