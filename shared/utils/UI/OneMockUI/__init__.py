@@ -1,25 +1,13 @@
-import jinja2
 from pathlib import Path
 
-from graiax.text2img.playwright.types import PageParams
-from graiax.text2img.playwright.builtin import html2img
-
 from shared.utils.UI.models import *
-
-env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(
-        Path(__file__).parent
-    ),
-    enable_async=True,
-    autoescape=True,
-)
+from shared.utils.text2img import template2img
 
 
 async def gen(form: GenForm) -> bytes:
-    template = env.get_template("template.html")
+    template = Path(__file__).parent / "template.html"
     width = form.calc_body_width()
-    html = await template.render_async(**(form.dict()))
-    return await html2img(html, page_params=PageParams(viewport={"width": width, "height": 1}))
+    return await template2img(template, form.dict(), page_option={"viewport": {"width": width, "height": 10}})
 
 
 # example

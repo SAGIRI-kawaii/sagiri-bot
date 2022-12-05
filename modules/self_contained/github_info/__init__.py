@@ -6,10 +6,8 @@ from graiax.playwright import PlaywrightBrowser
 from graia.ariadne.exception import MessageTooLong
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Source
-from graiax.text2img.playwright.types import PageParams
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
-from graiax.text2img.playwright.builtin import MarkdownToImg
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import (
     ArgumentMatch,
@@ -18,6 +16,7 @@ from graia.ariadne.message.parser.twilight import (
     ArgResult,
 )
 
+from shared.utils.text2img import md2img
 from shared.utils.module_related import get_command
 from shared.utils.control import (
     FrequencyLimit,
@@ -72,7 +71,9 @@ async def github_info(
             await page.evaluate("document.getElementsByClassName('gh-header-actions')[0].remove()")
             await page.evaluate("document.getElementsByClassName('discussion-timeline-actions')[0].remove()")
             await page.evaluate("document.getElementsByClassName('js-repo-nav')[0].remove()")
-            await page.evaluate("document.getElementsByClassName('Layout--flowRow-until-md')[0].classList.remove('Layout')")
+            await page.evaluate(
+                "document.getElementsByClassName('Layout--flowRow-until-md')[0].classList.remove('Layout')"
+            )
             buffer = await page.screenshot(full_page=True)
             return await app.send_group_message(group, MessageChain(Image(data_bytes=buffer)))
     async with aiohttp.ClientSession() as session:
@@ -115,9 +116,9 @@ async def github_info(
         try:
             await app.send_group_message(group, msg, quote=source)
         except MessageTooLong:
-            image = await MarkdownToImg().render(
+            image = await md2img(
                 msg.display.replace("\n", "<br>"),
-                page_params=PageParams(viewport={"width": 500, "height": 10})
+                {"viewport": {"width": 500, "height": 10}}
             )
             await app.send_group_message(
                 group,

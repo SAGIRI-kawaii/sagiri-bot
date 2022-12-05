@@ -5,12 +5,12 @@ from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Image
 from graia.ariadne.message.chain import MessageChain
-from graiax.text2img.playwright.builtin import html2img
 from graia.ariadne.message.parser.twilight import Twilight
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
+from shared.utils.text2img import html2img
 from shared.utils.module_related import get_command
 from shared.utils.control import (
     Distribute,

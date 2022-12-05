@@ -45,7 +45,7 @@ yarl = "^1.8.1"
 uvicorn = {extras = ["standard"], version = "^0.19.0"}
 graiax-fastapi = "^0.2.0"
 
-graiax-text2img-playwright = "^0.1.0"
+graiax-text2img-playwright = "^0.2.0"
 graia-scheduler = "^0.0.10"
 pytz = "^2022.6"
 pyzipper = "^0.3.6"

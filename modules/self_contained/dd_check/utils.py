@@ -1,5 +1,4 @@
 import json
-import jinja2
 import aiohttp
 import asyncio
 from pathlib import Path
@@ -7,21 +6,13 @@ from loguru import logger
 from typing import List, Union
 
 from creart import create
-from graiax.text2img.playwright.builtin import html2img
-from graiax.text2img.playwright.types import PageParams
 
 from shared.models.config import GlobalConfig
+from shared.utils.text2img import template2img
 
 
 vtb_list_path = Path(__file__).parent / "vtb_list.json"
 config = create(GlobalConfig)
-dir_path = Path(__file__).parent
-template_path = dir_path / "template"
-env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(str(template_path)),
-    enable_async=True,
-    autoescape=True,
-)
 
 
 async def update_vtb_list():
@@ -173,6 +164,7 @@ async def get_reply(name: str) -> Union[str, bytes]:
         "percent": f"{percent:.2f}% ({vtbs_num}/{follows_num})",
         "vtbs": vtbs,
     }
-    template = env.get_template("info.html")
-    content = await template.render_async(info=result)
-    return await html2img(content, page_params=PageParams(viewport={"width": 100, "height": 100}))
+    return await template2img(
+        Path(__file__).parent / "template" / "info.html", {"info": result},
+        page_option={"viewport": {"width": 100, "height": 100}}
+    )

@@ -8,8 +8,7 @@ from pathlib import Path
 from typing import Literal
 from dataclasses import dataclass
 
-from graiax.text2img.playwright.types import PageParams
-from graiax.text2img.playwright.builtin import template2img
+from shared.utils.text2img import template2img
 
 template = (Path(__file__).parent / "template.html").read_text(encoding='utf-8')
 
@@ -154,5 +153,5 @@ async def gen_img(data: VideoInfo) -> bytes:
             "fans": user_info.fans,
             "qrcode": f"data:image/png;base64,{qrcode_base64.decode()}"
         },
-        page_params=PageParams(viewport={'width': 800, 'height': 10}),
+        {"viewport": {'width': 800, 'height': 10}},
     )

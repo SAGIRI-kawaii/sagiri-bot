@@ -8,13 +8,12 @@ from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Source, Image
-from graiax.text2img.playwright.types import PageParams
 from graia.ariadne.message.parser.twilight import Twilight
-from graiax.text2img.playwright.builtin import template2img
 from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult
 
+from shared.utils.text2img import template2img
 from shared.models.saya_data import get_saya_data
 from shared.utils.module_related import get_command
 from shared.models.config import load_plugin_meta_by_module
@@ -90,14 +89,13 @@ async def helper(app: Ariadne, group: Group, source: Source):
     if len(modules) % 3:
         modules.extend([(None, None, None) for _ in range(3 - len(modules) % 3)])
     img = await template2img(
-        (TEMPLATE_PATH / "plugins.html").read_text(encoding="utf-8"),
+        TEMPLATE_PATH / "plugins.html",
         {
             "settings": modules,
             "banner": random_pic(BANNER_PATH),
             "title": "SAGIRI-BOT帮助菜单",
             "subtitle": "CREATED BY SAGIRI-BOT"
-        },
-        page_params=PageParams(viewport={"width": 1000, "height": 10})
+        }
     )
     await app.send_group_message(group, MessageChain(Image(data_bytes=img)), quote=source)
 
@@ -148,7 +146,6 @@ async def detail_helper(app: Ariadne, group: Group, source: Source, index: Regex
                 "description": plugin_meta.description or "暂无",
                 "usage": "\n".join(plugin_meta.usage) or "暂无",
                 "example": "\n".join(plugin_meta.example) or "暂无"
-            },
-            page_params=PageParams(viewport={"width": 1000, "height": 10})
+            }
         )
         await app.send_group_message(group, MessageChain(Image(data_bytes=img)), quote=source)
