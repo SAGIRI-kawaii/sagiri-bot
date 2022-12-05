@@ -1,0 +1,20 @@
+{
+  "name": "HomoNumberConverter",
+  "version": "0.1",
+  "display_name": "恶臭数字转换",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个将复数域数字转换为114514格式的插件",
+  "usage": ["在群中发送 `/homo {数字}` 即可"],
+  "example": [
+    "/homo 123456",
+    "/homo 123.456",
+    "/homo 123+456i",
+    "/homo 123.456+789.012i",
+    "/homo 123.456-789.012i"
+  ],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["homo", "恶臭"]
+}
