@@ -1,6 +1,7 @@
 import asyncio
 from typing import TypedDict
 from chatgpt.api import ChatGPT
+from chatgpt.exceptions import StatusCodeException
 
 from creart import create
 from graia.ariadne.model.relationship import Group, Member
@@ -57,6 +58,9 @@ class ConversationManager(object):
         if self.data[group][member]["running"]:
             return "我上一句话还没结束呢，别急阿~等我回复你以后你再说下一句话喵~"
         self.data[group][member]["running"] = True
-        result = (await asyncio.to_thread(self.data[group][member]["gpt"].send_message, content)).content
-        self.data[group][member]["running"] = False
-        return result
+        try:
+            result = (await asyncio.to_thread(self.data[group][member]["gpt"].send_message, content)).content
+            self.data[group][member]["running"] = False
+            return result
+        except StatusCodeException as e:
+            return f"发生错误：{e}，请稍后再试"

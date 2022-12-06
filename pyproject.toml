@@ -49,6 +49,7 @@ graiax-text2img-playwright = "^0.2.0"
 graia-scheduler = "^0.0.10"
 pytz = "^2022.6"
 pyzipper = "^0.3.6"
+chatgpt-api = "^0.1.2"
 
 [[tool.poetry.source]]
 name = "pypi-public"
