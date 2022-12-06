@@ -1,0 +1,23 @@
+{
+  "name": "ChatGPT",
+  "version": "0.1",
+  "display_name": "ChatGPT",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个接入 ChatGPT 的插件",
+  "usage": [
+    "在群中发送 `/chat 内容` 即可开启对话，之后默认为同一轮对话",
+    "在群中发送 `/chat -n 内容` 即可开启新一轮对话",
+    "在群中发送 `/chat -t 内容` 即可以文字形式返回结果（默认为图片）"
+  ],
+  "example": [
+    "/chat 你好",
+    "/chat -n 你好",
+    "/chat -t 你好",
+    "/chat -n -t 你好"
+  ],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["chat"]
+}

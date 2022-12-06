@@ -28,12 +28,10 @@ channel.description("一个获取英文缩写意思的插件，在群中发送 `
     ListenerSchema(
         listening_events=[GroupMessage],
         inline_dispatchers=[
-            Twilight(
-                [
-                    get_command(__file__, channel.module),
-                    RegexMatch(r"[A-Za-z0-9]+").help("要缩写的内容") @ "content",
-                ]
-            )
+            Twilight([
+                get_command(__file__, channel.module),
+                RegexMatch(r"[A-Za-z0-9]+").help("要缩写的内容") @ "content",
+            ])
         ],
         decorators=[
             Distribute.distribute(),

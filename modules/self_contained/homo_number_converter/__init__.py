@@ -48,6 +48,6 @@ async def homo_number_converter(app: Ariadne, group: Group, real: RegexResult, i
         group,
         left_expression +
         get_expression(real.result.display.strip()) +
-        (f"({imaginary_expression})i" if imaginary else ""),
+        (f"+({imaginary_expression})i" if imaginary_expression else ""),
         quote=source
     )
