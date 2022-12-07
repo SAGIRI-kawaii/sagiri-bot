@@ -63,4 +63,5 @@ class ConversationManager(object):
             self.data[group][member]["running"] = False
             return result
         except StatusCodeException as e:
+            self.data[group][member]["running"] = False
             return f"发生错误：{e}，请稍后再试"
