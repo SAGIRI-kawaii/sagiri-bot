@@ -46,7 +46,7 @@ manager = ConversationManager()
         ],
         decorators=[
             Distribute.distribute(),
-            Config.require("functions.openai_cookie"),
+            Config.require("functions.chat_gpt"),
             FrequencyLimit.require("chat_gpt", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
@@ -64,7 +64,7 @@ async def chat_gpt(
     content: RegexResult
 ):
     if new_thread.matched:
-        manager.new(group, member)
+        _ = await manager.new(group, member)
     response = await manager.send_message(group, member, content.result.display.strip())
     if text.matched:
         await app.send_group_message(group, MessageChain(response), quote=source)

@@ -76,7 +76,9 @@ functions:
     data_cache: true
     cache_path: cache_path
     cache18_path: cache18_path
-  openai_cookie: openai_cookie
+  chat_gpt:
+    email: email
+    password: password
 
 # 日志相关
 log_related:
