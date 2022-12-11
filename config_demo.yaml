@@ -79,6 +79,7 @@ functions:
   chat_gpt:
     email: email
     password: password
+    cookie: cookie
 
 # 日志相关
 log_related:

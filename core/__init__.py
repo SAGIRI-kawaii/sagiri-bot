@@ -5,7 +5,9 @@ from pathlib import Path
 from loguru import logger
 from fastapi import FastAPI
 from pydantic import BaseModel
+from alembic.config import Config
 from typing import Dict, List, Type
+from alembic.command import revision, upgrade
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import InternalError, ProgrammingError
 
@@ -292,8 +294,11 @@ class Sagiri(object):
             exit()
         if not (Path.cwd() / "alembic" / "versions").exists():
             (Path.cwd() / "alembic" / "versions").mkdir()
-        os.system("alembic revision --autogenerate -m 'update'")
-        os.system("alembic upgrade head")
+        cfg = Config(file_="alembic.ini", ini_section="alembic")
+        revision(cfg, message="update", autogenerate=True)
+        upgrade(cfg, "head")
+        # os.system("alembic revision --autogenerate -m 'update'")
+        # os.system("alembic upgrade head")
 
     @staticmethod
     def launch():
