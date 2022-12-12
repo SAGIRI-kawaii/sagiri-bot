@@ -3,7 +3,8 @@ from sqlalchemy import select
 
 from graia.ariadne.model import Group, Member
 
-from shared.orm import orm, UserPermission
+from shared.orm import orm
+from shared.orm.tables import UserPermission
 
 
 @logger.catch

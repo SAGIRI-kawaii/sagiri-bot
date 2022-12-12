@@ -6,7 +6,8 @@ from graia.ariadne.model import Member, Group
 from creart import add_creator, exists_module
 from creart.creator import AbstractCreator, CreateTargetInfo
 
-from shared.orm import orm, UserPermission
+from shared.orm import orm
+from shared.orm.tables import UserPermission
 
 
 class GroupPermission(object):

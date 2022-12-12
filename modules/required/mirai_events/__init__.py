@@ -14,7 +14,6 @@ from graia.ariadne.exception import AccountMuted, UnknownTarget
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 from .utils import *
-from shared.orm import orm, UserPermission
 from shared.models.config import GlobalConfig
 from shared.models.public_group import PublicGroup
 from shared.utils.waiter import FriendConfirmWaiter

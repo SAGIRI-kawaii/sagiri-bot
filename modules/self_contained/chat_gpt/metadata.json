@@ -17,6 +17,7 @@
     "/chat -t 你好",
     "/chat -n -t 你好"
   ],
+  "maintaining": true,
   "icon": "",
   "prefix": ["/"],
   "triggers": ["chat"]

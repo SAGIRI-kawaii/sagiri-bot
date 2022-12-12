@@ -16,7 +16,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import FriendMessage, GroupMessage
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch
 
-from shared.orm import Setting
+from shared.orm.tables import Setting
 from shared.models.config import GlobalConfig
 from shared.utils.module_related import get_command
 from shared.models.group_setting import GroupSetting

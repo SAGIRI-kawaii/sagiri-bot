@@ -5,7 +5,8 @@ from sqlalchemy.exc import IntegrityError
 
 from graia.ariadne.model import Group, Member
 
-from shared.orm import orm, UserCalledCount, FunctionCalledRecord
+from shared.orm import orm
+from shared.orm.tables import UserCalledCount, FunctionCalledRecord
 
 
 async def update_user_call_count_plus(

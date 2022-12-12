@@ -10,5 +10,6 @@
   "example": ["/pdf 计算机网络"],
   "icon": "",
   "prefix": ["/", ""],
-  "triggers": ["pdf"]
+  "triggers": ["pdf"],
+  "maintaining": true
 }

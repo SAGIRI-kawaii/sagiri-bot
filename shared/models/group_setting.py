@@ -9,7 +9,8 @@ from creart import exists_module
 from graia.ariadne.model import Group
 from creart.creator import AbstractCreator, CreateTargetInfo
 
-from shared.orm import Setting, orm
+from shared.orm import orm
+from shared.orm.tables import Setting
 
 
 class GroupSetting(object):

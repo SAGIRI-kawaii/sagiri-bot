@@ -15,7 +15,8 @@ from graia.ariadne.message.parser.twilight import (
     WildcardMatch,
 )
 
-from shared.orm import orm, GroupTeam
+from shared.orm import orm
+from shared.orm.tables import GroupTeam
 from shared.utils.module_related import get_command
 from shared.utils.control import (
     Distribute,

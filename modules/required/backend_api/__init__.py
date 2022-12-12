@@ -6,8 +6,9 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, FullMatch
 
 from .route import *
+from shared.orm import orm
 from .utils import generate_account
-from shared.orm import orm, APIAccount
+from shared.orm.tables import APIAccount
 from shared.models.config import GlobalConfig
 from shared.utils.waiter import FriendConfirmWaiter
 

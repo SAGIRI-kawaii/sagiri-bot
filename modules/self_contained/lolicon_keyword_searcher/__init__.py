@@ -19,6 +19,7 @@ from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import FullMatch, RegexMatch, RegexResult
 
+from shared.orm import orm
 from shared.utils.control import (
     Distribute,
     FrequencyLimit,
@@ -27,7 +28,7 @@ from shared.utils.control import (
     UserCalledCountControl,
 )
 from shared.models.config import GlobalConfig
-from shared.orm import orm, Setting, LoliconData
+from shared.orm.tables import Setting, LoliconData
 from shared.models.group_setting import GroupSetting
 
 channel = Channel.current()

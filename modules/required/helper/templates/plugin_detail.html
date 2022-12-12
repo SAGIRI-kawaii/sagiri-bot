@@ -175,7 +175,15 @@
             <div id="title-box" class="flex-column">
                 <div style="height: 300px"></div>
                 <div id="title">
-                    <h1>{{ display_name }}</h1>
+                    <h1>
+                        {% if maintaining %}
+                        <s>
+                        {% endif %}
+                        {{ display_name }}
+                        {% if maintaining %}
+                        </s>【维护中】
+                        {% endif %}
+                    </h1>
                 </div>
                 <div id="subtitle">
                     {{ module }}

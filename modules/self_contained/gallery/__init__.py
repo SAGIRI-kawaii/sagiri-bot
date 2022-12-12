@@ -22,7 +22,8 @@ from graia.ariadne.message.parser.twilight import (
     UnionMatch
 )
 
-from shared.orm import orm, TriggerKeyword
+from shared.orm import orm
+from shared.orm.tables import TriggerKeyword
 from shared.utils.waiter import ConfirmWaiter
 from shared.models.config import GlobalConfig
 from shared.utils.message_chain import parse_message_chain_as_stable_string

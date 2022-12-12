@@ -54,9 +54,7 @@ async def genshin_chara_card(app: Ariadne, group: Group, source: Source, uid: Re
         _ = await init_chara_list()
         await app.send_group_message(group, MessageChain("初始化完成"))
     if chara_pinyin not in characters:
-        return await app.send_group_message(
-            group, MessageChain(f"角色列表中未找到角色：{chara}，请检查拼写")
-        )
+        return await app.send_group_message(group, MessageChain(f"角色列表中未找到角色：{chara}，请检查拼写"))
     url = f"https://enka.shinshin.moe/u/{uid}"
     browser = Ariadne.current().launch_manager.get_interface(PlaywrightBrowser)
     async with browser.page() as page:

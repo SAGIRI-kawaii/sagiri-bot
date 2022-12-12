@@ -29,7 +29,6 @@ channel.author("SAGIRI-kawaii")
 channel.description("一个接入 ChatGPT 的插件，在群中发送 `/chat 内容` 即可")
 config = create(Sagiri).config
 proxy = config.proxy if config.proxy != "proxy" else None
-session_token = config.functions.get("openai_cookie")
 manager = ConversationManager()
 
 

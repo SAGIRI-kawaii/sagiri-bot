@@ -10,7 +10,7 @@ from graia.ariadne.message.element import Voice, FlashImage
 from graia.ariadne.exception import AccountMuted, UnknownTarget
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from shared.orm import Setting
+from shared.orm.tables import Setting
 from shared.models.config import GlobalConfig
 from shared.models.group_setting import GroupSetting
 from shared.utils.control import Function, Distribute

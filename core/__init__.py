@@ -36,15 +36,16 @@ from graiax.fastapi import FastAPIBehaviour, FastAPIService
 from graia.saya.builtins.broadcast import BroadcastBehaviour
 from creart.creator import AbstractCreator, CreateTargetInfo
 
+from shared.orm import orm
 from shared.utils.string import set_log
 from shared.models.config import GlobalConfig
 from shared.models.blacklist import GroupBlackList
 from shared.models.public_group import PublicGroup
-from shared.orm import orm, Setting, UserPermission
 from shared.models.types import ModuleOperationType
 from shared.utils.self_upgrade import UpdaterService
 from shared.models.group_setting import GroupSetting
 from shared.models.permission import GroupPermission
+from shared.orm.tables import Setting, UserPermission
 
 non_log = {
     GroupMessage,
@@ -278,8 +279,7 @@ class Sagiri(object):
                     exceptions[c] = e
         return exceptions
 
-    @staticmethod
-    def alembic():
+    def alembic(self):
         if not (Path.cwd() / "alembic").exists():
             logger.info("未检测到alembic目录，进行初始化")
             os.system("alembic init alembic")
@@ -287,9 +287,11 @@ class Sagiri(object):
                 alembic_env_py_content = r.read()
             with open(Path.cwd() / "alembic" / "env.py", "w") as w:
                 w.write(alembic_env_py_content)
+            db_link = self.config.db_link
+            db_link = db_link.split(":")[0].split("+")[0] + ":".join(db_link.split(":")[1:])
             logger.warning(
-                f"请前往更改 {Path.cwd() / 'alembic.ini'} 文件，"
-                "将其中的 sqlalchemy.url 替换为自己的数据库url（不需注明引擎）后重启机器人"
+                f"请前往更改 {Path.cwd() / 'alembic.ini'} 文件"
+                f"将其中的 sqlalchemy.url 替换为自己的数据库url（不需注明引擎）后重启机器人，注：可能的链接为：{db_link}"
             )
             exit()
         if not (Path.cwd() / "alembic" / "versions").exists():

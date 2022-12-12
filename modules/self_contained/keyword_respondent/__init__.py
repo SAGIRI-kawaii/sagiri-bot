@@ -23,7 +23,8 @@ from graia.ariadne.message.parser.twilight import (
     RegexResult,
 )
 
-from shared.orm import orm, KeywordReply
+from shared.orm import orm
+from shared.orm.tables import KeywordReply
 from shared.utils.waiter import ConfirmWaiter
 from shared.utils.message_chain import message_chain_to_json, json_to_message_chain
 from shared.utils.control import BlackListControl, Function, Distribute, Permission

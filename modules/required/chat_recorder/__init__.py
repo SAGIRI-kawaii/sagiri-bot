@@ -7,7 +7,8 @@ from graia.ariadne.message.chain import MessageChain
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.event.message import Group, Member, GroupMessage
 
-from shared.orm import orm, ChatRecord
+from shared.orm import orm
+from shared.orm.tables import ChatRecord
 from shared.utils.control import UserCalledCountControl
 
 # 关闭 jieba 的 Debug log

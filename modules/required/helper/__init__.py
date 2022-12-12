@@ -83,11 +83,12 @@ async def helper(app: Ariadne, group: Group, source: Source):
         modules.append((
             i + 1,
             plugin_meta.display_name or saya.channels[c].meta["name"] or c.split(".")[-1],
-            judge(c, group)
+            judge(c, group),
+            plugin_meta.maintaining or False
         ))
 
     if len(modules) % 3:
-        modules.extend([(None, None, None) for _ in range(3 - len(modules) % 3)])
+        modules.extend([(None, None, None, None) for _ in range(3 - len(modules) % 3)])
     img = await template2img(
         TEMPLATE_PATH / "plugins.html",
         {
@@ -145,7 +146,8 @@ async def detail_helper(app: Ariadne, group: Group, source: Source, index: Regex
                 "authors": plugin_meta.authors or ["暂无"],
                 "description": plugin_meta.description or "暂无",
                 "usage": "\n".join(plugin_meta.usage) or "暂无",
-                "example": "\n".join(plugin_meta.example) or "暂无"
+                "example": "\n".join(plugin_meta.example) or "暂无",
+                "maintaining": plugin_meta.maintaining or False
             }
         )
         await app.send_group_message(group, MessageChain(Image(data_bytes=img)), quote=source)

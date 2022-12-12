@@ -10,5 +10,6 @@
   "example": ["原神派蒙说 前面的区域，以后在探索吧"],
   "icon": "",
   "prefix": ["/", ""],
-  "triggers": ["原神"]
+  "triggers": ["原神"],
+  "maintaining": true
 }

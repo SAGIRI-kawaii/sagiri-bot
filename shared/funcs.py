@@ -4,7 +4,7 @@ from graia.ariadne import Ariadne
 from graia.ariadne.exception import AccountMuted
 from graia.ariadne.message.chain import MessageChain
 
-from shared.orm import Setting
+from shared.orm.tables import Setting
 from shared.models.group_setting import GroupSetting
 
 

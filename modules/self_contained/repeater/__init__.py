@@ -20,7 +20,7 @@ from graia.ariadne.message.element import (
     MultimediaElement,
 )
 
-from shared.orm import Setting
+from shared.orm.tables import Setting
 from shared.models.group_setting import GroupSetting
 from shared.utils.control import Function, Distribute
 

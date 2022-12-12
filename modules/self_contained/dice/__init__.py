@@ -10,7 +10,7 @@ from graia.ariadne.event.message import Group, GroupMessage
 from graia.ariadne.message.parser.twilight import RegexMatch
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from shared.orm import Setting
+from shared.orm.tables import Setting
 from shared.models.group_setting import GroupSetting
 from shared.utils.control import (
     FrequencyLimit,

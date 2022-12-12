@@ -8,9 +8,10 @@ from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from graia.ariadne.message.parser.twilight import Twilight, ArgumentMatch, ArgResult
 
+from shared.orm import orm
 from shared.models.config import GlobalConfig
-from shared.orm import orm, GroupMembersBackup
 from shared.utils.type import parse_match_type
+from shared.orm.tables import GroupMembersBackup
 from shared.utils.module_related import get_command
 from shared.utils.control import (
     Function,

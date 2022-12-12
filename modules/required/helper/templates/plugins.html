@@ -241,7 +241,15 @@
                     <td>
                         {% if setting[0] %}
                         <div class="plugin-item">
-                            <p>{{ setting[0] }}. {{ setting[1] }}</p>
+                            <p style="text-align: left">
+                                {% if setting[3] %}
+                                <s style="color: red">
+                                {% endif %}
+                                {{ setting[0] }}. {{ setting[1] }}
+                                {% if setting[3] %}
+                                </s>
+                                {% endif %}
+                            </p>
                             <label class="switch">
                                 <input type="checkbox" {{ 'checked' if setting[2] else '' }}>
                                 <span class="slider round"></span>
@@ -255,6 +263,11 @@
                 </tr>
                 {% endfor %}
             </table>
+            <div class="table-title-box">
+                <div class="detail-help-box">
+                    "<s style="color: red">插件名</s>" 代表该插件正在维护中，插件功能目前不可用或有bug
+                </div>
+            </div>
         </div>
     </div>
 </body>

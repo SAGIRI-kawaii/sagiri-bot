@@ -21,6 +21,7 @@ from graia.ariadne.event.message import GroupMessage
 from graia.broadcast.builtin.decorators import Depend
 from graia.ariadne.model.relationship import MemberPerm
 
+from shared.orm import orm
 from shared.models.config import GlobalConfig
 from shared.models.saya_data import get_saya_data
 from shared.models.public_group import PublicGroup
@@ -29,7 +30,7 @@ from shared.models.group_setting import GroupSetting
 from shared.utils.permission import user_permission_require
 from shared.utils.data_related import update_user_call_count_plus
 from shared.models.frequency_limit import GlobalFrequencyLimitDict
-from shared.orm import orm, Setting, UserPermission, UserCalledCount
+from shared.orm.tables import Setting, UserPermission, UserCalledCount
 
 group_setting = create(GroupSetting)
 

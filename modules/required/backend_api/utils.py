@@ -13,7 +13,8 @@ from graia.ariadne.message.element import Plain, Image
 from graia.ariadne.model.relationship import MemberPerm
 
 from .models import *
-from shared.orm import orm, APIAccount, ChatRecord
+from shared.orm import orm
+from shared.orm.tables import APIAccount, ChatRecord
 
 logs = []
 

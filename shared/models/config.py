@@ -18,6 +18,7 @@ class PluginMeta(BaseModel):
     description: str = ""
     usage: List[str] = []
     example: List[str] = []
+    maintaining: bool = False
     icon: str = ""
     prefix: List[str] = []
     triggers: List[str] = []
