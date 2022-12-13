@@ -63,9 +63,9 @@ async def bilibili_resolve_text(
         if bapp.matched:
             bapp = bapp.result.dict()
             content = json.loads(bapp.get("content", {}))
-            content = content.get("meta", {}).get("detail_1", {})
-            if content.get("title") == "哔哩哔哩":
-                b23url = content.get("qqdocurl")
+            content = content.get("meta", {}).get("news", {})
+            if "哔哩哔哩" in content.get("desc"):
+                b23url = content.get("jumpUrl")
             else:
                 return
         else:

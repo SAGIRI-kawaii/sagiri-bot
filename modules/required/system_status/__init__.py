@@ -49,8 +49,8 @@ async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: A
     total_memery = round(mem.total / 1024 ** 3, 2)
     launch_time_message = MessageChain(
         "SAGIRI-BOT\n"
-        f"启动时间：{launch_time.strftime('%Y-%m-%d, %H:%M:%S')}\n"
-        f"已运行时间：{sec_format((datetime.now() - launch_time).seconds, '{h}时{m}分{s}秒')}"
+        f"启动时间：{launch_time.strftime('%Y-%m-%d %H:%M:%S')}\n"
+        f"已运行时间：{sec_format((datetime.now() - launch_time).seconds, '{d}天{h}时{m}分{s}秒')}"
     )
     memory_message = MessageChain(
         "内存相关：\n    "
