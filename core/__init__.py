@@ -85,7 +85,7 @@ class Sagiri(object):
             Ariadne.config(default_account=self.config.default_account)
         Ariadne.launch_manager.add_service(
             PlaywrightService(
-                "chromium",
+                "firefox",
                 proxy={"server": self.config.proxy} if self.config.proxy != "proxy" else None
             )
         )

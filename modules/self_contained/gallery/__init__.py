@@ -244,8 +244,6 @@ async def modify_gallery_switch(app: Ariadne, group: Group, operation: RegexResu
 async def add(app: Ariadne, message: MessageChain, gallery_name: RegexResult, target: Member | Friend):
     sender = target.id
     target = target.group if isinstance(target, Member) else target
-    if sender != config.host_qq:
-        return await app.send_message(target, MessageChain("只有主人才能存图片呢！"))
     gallery_name = gallery_name.result.display.strip()
     if gallery_name not in config.gallery.keys():
         return await app.send_message(
