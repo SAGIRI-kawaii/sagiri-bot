@@ -81,18 +81,26 @@ async def get_steam_game_search(keyword: str) -> MessageChain:
 
     if len(result["data"]["results"]) == 0:
         return MessageChain(f"搜索不到{keyword}呢~检查下有没有吧~偷偷告诉你，搜英文名的效果可能会更好哟~")
-    result = result["data"]["results"][0]
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url=result["avatar"]) as resp:
-            img_content = await resp.read()
-    description = await get_steam_game_description(result["app_id"])
-    return MessageChain([
-        Plain(text="\n搜索到以下信息：\n"),
-        Plain(text=f"游戏：{result['name']} ({result['name_cn']})\n"),
-        Plain(text=f"游戏id：{result['app_id']}\n"),
-        Image(data_bytes=img_content),
-        Plain(text=f"游戏描述：{description}\n"),
-        Plain(
-            text=f"\nSteamUrl:https://store.steampowered.com/app/{result['app_id']}/"
-        ),
-    ])
+    message = []
+    for item in result["data"]["results"][:5]:
+        img_content = None
+        async with aiohttp.ClientSession() as session:
+            if item["avatar"] != "":
+                async with session.get(url=item["avatar"]) as resp:
+                    img_content = await resp.read()
+        description = await get_steam_game_description(item["app_id"])
+        message.append(
+            MessageChain(
+                [
+                    Plain(text=f"游戏：{item['name']} ({item['name_cn']})\n"),
+                    Plain(text=f"游戏id：{item['app_id']}\n"),
+                    Image(data_bytes=img_content) if img_content else '',
+                    Plain(text=f"\n"),
+                    Plain(text=f"游戏描述：{description}\n"),
+                    Plain(
+                        text=f"\nSteamUrl:https://store.steampowered.com/app/{item['app_id']}/"
+                    ),
+                ]
+            )
+        )
+    return message
