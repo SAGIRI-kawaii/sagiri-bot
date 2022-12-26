@@ -7,7 +7,10 @@
   ],
   "description": "一个可以搜索steam游戏信息的插件",
   "usage": ["在群中发送 `steam {游戏名}` 即可"],
-  "example": ["steam mirror"],
+  "example": [
+    "steam mirror",
+    "steam -n=3 battlefield"
+  ],
   "icon": "",
   "prefix": ["/", ""],
   "triggers": ["steam"]
