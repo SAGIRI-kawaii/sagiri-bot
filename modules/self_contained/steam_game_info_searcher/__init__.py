@@ -59,9 +59,7 @@ async def steam_game_info_searcher(
 ):
     max_num = parse_match_type(max_num, int, 1)
     keyword = keyword.result.display
-    await app.send_message(group, MessageChain(
-        f"搜索ing"
-    ), quote=source)
+    await app.send_message(group, MessageChain("搜索ing"), quote=source)
     message = await get_steam_game_search(keyword, max_num)
     if len(message) > 1:
         fwd_nodeList = [
@@ -81,13 +79,9 @@ async def steam_game_info_searcher(
         if bot_msg.id == -1:
             raise Exception("消息风控")
         if len(message) > 1:
-            return await app.send_message(group, MessageChain(
-                f"请点击转发消息查看!"
-            ), quote=source)
+            return await app.send_message(group, MessageChain("请点击转发消息查看!"), quote=source)
     except:
-        return await app.send_message(group, MessageChain(
-            f"ERROR:消息风控~"
-        ), quote=source)
+        return await app.send_message(group, MessageChain("ERROR:消息风控~"), quote=source)
 
 
 async def get_steam_game_info(game_id: int) -> tuple:
@@ -143,9 +137,7 @@ async def get_steam_game_description(game_id: int) -> str:
         async with session.get(url=url, proxy=proxy) as resp:
             html = await resp.text()
     description = re.findall(r'<div class="game_description_snippet">(.*?)</div>', html, re.S)
-    if len(description) == 0:
-        return "none"
-    return description[0].strip()
+    return "none" if len(description) == 0 else description[0].strip()
 
 
 async def get_steam_game_search(keyword: str, max_num: int) -> list[MessageChain]:
