@@ -1,0 +1,14 @@
+{
+  "name": "BTSearcher",
+  "version": "0.2",
+  "display_name": "BT搜索器",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以搜索bt的插件",
+  "usage": ["在群中发送 `/bt + 想搜索的内容` 即可"],
+  "example": ["/bt 计算机网络"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["bt"]
+}

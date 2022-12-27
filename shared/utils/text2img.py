@@ -1,12 +1,16 @@
+from base64 import b64encode
+
 from pathlib import Path
 from jinja2 import Template
 from markdown_it import MarkdownIt
 from mdit_py_plugins.dollarmath import dollarmath_plugin
 
 from creart import create
+from graia.ariadne.message.chain import MessageChain
 from graiax.text2img.playwright.renderer import BuiltinCSS
 from graiax.text2img.playwright.plugins.code.highlighter import Highlighter
 from graiax.text2img.playwright import HTMLRenderer, MarkdownConverter, PageOption, ScreenshotOption
+from graia.ariadne.message.element import Plain, Image, Face, At, AtAll, MarketFace, Dice, MusicShare, Forward, File
 
 from core import Sagiri
 
@@ -64,3 +68,36 @@ async def template2img(
             raise ValueError("Path for template is not a file!") 
         template = Template(template.read_text(encoding="utf-8"))
     return await html2img(template.render(params), page_option, extra_screenshot_option, use_proxy)
+
+
+async def messagechain2img(
+    message: MessageChain,
+    img_single_line: bool = False,
+    page_option: dict | None = None,
+    extra_screenshot_option: dict | None = None
+) -> bytes:
+    html = ""
+    for i in message.content:
+        if isinstance(i, Plain):
+            html += i.text.replace("\n", "<br>")
+        elif isinstance(i, Image):
+            if img_single_line:
+                html += "<br>"
+            html += f'<img src="data:image/png;base64,{b64encode(await i.get_bytes()).decode("ascii")}" />'
+            if img_single_line:
+                html += "<br>"
+        elif isinstance(i, (Face, MarketFace)):
+            html += f"【表情：{i.face_id}】"
+        elif isinstance(i, At):
+            html += f"@{i.representation}"
+        elif isinstance(i, AtAll):
+            html += "@全体成员"
+        elif isinstance(i, Dice):
+            html += f"【骰子：{i.value}】"
+        elif isinstance(i, MusicShare):
+            html += f"【音乐分享：{i.title}】"
+        elif isinstance(i, Forward):
+            html += "【转发消息】"
+        elif isinstance(i, File):
+            html += f"【文件：{i.name}】"
+    return await html2img(html.strip("<br>"), page_option, extra_screenshot_option)
