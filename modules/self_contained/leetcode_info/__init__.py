@@ -215,14 +215,14 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
             img_content = await resp.read()
     return MessageChain([
         Image(data_bytes=img_content),
-        Plain(text=f"\n站内标识:{user_slug}\n"),
-        Plain(text=f"用户名:{user_name}\n"),
+        Plain(text=f"\n站内标识: {user_slug}\n"),
+        Plain(text=f"用户名: {user_name}\n"),
         Plain(text=f"站内排名: {ranking}\n"),
         Plain(text=f"技能:\n"),
         Plain(text=f"   基础架构: {architecture}%\n"),
         Plain(text=f"   数据结构: {data_structures}%\n"),
         Plain(text=f"   算法: {algorithms}%\n"),
         Plain(text=f"   设计: {design}%\n"),
-        Plain(text=f"解题数量/: {solved_problems}/{total_question}\n"),
+        Plain(text=f"解题数量: {solved_problems}/{total_question}\n"),
         Plain(text=f"通过率: {submission_pass_rate}%"),
     ])
