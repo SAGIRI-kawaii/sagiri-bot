@@ -63,8 +63,8 @@ async def get_daily_question_json():
     url = "https://leetcode.cn/graphql/"
     headers = {
         "content-type": "application/json",
-        "origin": "https://leetcode-cn.com",
-        "referer": "https://leetcode-cn.com/problemset/all/",
+        "origin": "https://leetcode.cn",
+        "referer": "https://leetcode.cn/problemset/all/",
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/84.0.4147.135 Safari/537.36 ",
     }
@@ -84,7 +84,7 @@ async def get_daily_question_json():
 
 
 async def get_question_content(question_title_slug, language="Zh"):
-    url = "https://leetcode-cn.com/graphql/"
+    url = "https://leetcode.cn/graphql/"
     headers = {
         "accept": "*/*",
         "accept-encoding": "gzip, deflate, br",
@@ -214,7 +214,7 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
             img_content = await resp.read()
     return MessageChain([
         Image(data_bytes=img_content),
-        Plain(text=f"站内标识:{user_slug}\n"),
+        Plain(text=f"\n站内标识:{user_slug}\n"),
         Plain(text=f"用户名:{user_name}\n"),
         Plain(text=f"站内排名: {ranking}\n"),
         Plain(text=f"技能:\n"),
@@ -222,6 +222,6 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
         Plain(text=f"   数据结构: {data_structures}%\n"),
         Plain(text=f"   算法: {algorithms}%\n"),
         Plain(text=f"   设计: {design}%\n"),
-        Plain(text=f"   解题数量/: {solved_problems}/{total_question}\n"),
-        Plain(text=f"   通过率: {submission_pass_rate}%"),
+        Plain(text=f"解题数量/: {solved_problems}/{total_question}\n"),
+        Plain(text=f"通过率: {submission_pass_rate}%"),
     ])
