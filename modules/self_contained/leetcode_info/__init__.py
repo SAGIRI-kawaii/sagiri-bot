@@ -1,6 +1,7 @@
 import json
 import aiohttp
 
+from graia.ariadne.message.element import Plain, Image, Source
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.element import Image
