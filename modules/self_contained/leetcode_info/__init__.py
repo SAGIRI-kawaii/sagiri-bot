@@ -128,7 +128,7 @@ async def get_question_content(question_title_slug, language="Zh"):
 
 
 async def get_leetcode_daily_question(language: str = "Zh") -> MessageChain:
-    if language != "Zh" and language != "En":
+    if language not in ["Zh", "En"]:
         raise ValueError("Language only can be Zh or En!")
 
     question_slug_data = await get_daily_question_json()
@@ -143,7 +143,7 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
     url = "https://leetcode.cn/graphql/"
     headers = {
         "origin": "https://leetcode.cn",
-        "referer": "https://leetcode.cn/u/%s/" % account_name,
+        "referer": f"https://leetcode.cn/u/{account_name}/",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/80.0.3987.100 Safari/537.36",
         "x-definition-name": "userProfilePublicProfile",
@@ -194,7 +194,7 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
 
     ranking = data_json["siteRanking"]
     if ranking == 100000:
-        ranking = "%s+" % ranking
+        ranking = f"{ranking}+"
 
     websites_list = profile["websites"]
     websites = ["\n    %s" % i for i in websites_list]
