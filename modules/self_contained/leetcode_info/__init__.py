@@ -60,7 +60,7 @@ async def leetcode_info(app: Ariadne, group: Group, daily_question: RegexResult,
 
 
 async def get_daily_question_json():
-    url = "https://leetcode-cn.com/graphql/"
+    url = "https://leetcode.cn/graphql/"
     headers = {
         "content-type": "application/json",
         "origin": "https://leetcode-cn.com",
@@ -90,8 +90,8 @@ async def get_question_content(question_title_slug, language="Zh"):
         "accept-encoding": "gzip, deflate, br",
         "accept-language": "zh-CN,zh;q=0.9",
         "content-type": "application/json",
-        "origin": "https://leetcode-cn.com",
-        "referer": f"https://leetcode-cn.com/problems/{question_title_slug}/",
+        "origin": "https://leetcode.cn",
+        "referer": f"https://leetcode.cn/problems/{question_title_slug}/",
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/84.0.4147.135 Safari/537.36",
         "x-definition-name": "question",
@@ -139,10 +139,10 @@ async def get_leetcode_daily_question(language: str = "Zh") -> MessageChain:
 
 
 async def get_leetcode_user_statics(account_name: str) -> MessageChain:
-    url = "https://leetcode-cn.com/graphql/"
+    url = "https://leetcode.cn/graphql/"
     headers = {
-        "origin": "https://leetcode-cn.com",
-        "referer": "https://leetcode-cn.com/u/%s/" % account_name,
+        "origin": "https://leetcode.cn",
+        "referer": "https://leetcode.cn/u/%s/" % account_name,
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/80.0.3987.100 Safari/537.36",
         "x-definition-name": "userProfilePublicProfile",
@@ -199,28 +199,29 @@ async def get_leetcode_user_statics(account_name: str) -> MessageChain:
     websites = ["\n    %s" % i for i in websites_list]
     skills_list = profile["skillTags"]
     skills = ["\n    %s" % i for i in skills_list]
-    architecture = profile["skillSet"]["topicAreaScores"][0]["score"]
-    data_structures = profile["skillSet"]["topicAreaScores"][1]["score"]
-    algorithms = profile["skillSet"]["topicAreaScores"][2]["score"]
-    design = profile["skillSet"]["topicAreaScores"][3]["score"]
+    data_structures = profile["skillSet"]["topicAreaScores"][0]["score"]
+    design = profile["skillSet"]["topicAreaScores"][1]["score"]
+    architecture = profile["skillSet"]["topicAreaScores"][2]["score"]
+    algorithms = profile["skillSet"]["topicAreaScores"][3]["score"]
+
     solved_problems = data_json["submissionProgress"]["acTotal"]
     ac_submissions = data_json["submissionProgress"]["acSubmissions"]
     total_question = data_json["submissionProgress"]["questionTotal"]
     total_submissions = data_json["submissionProgress"]["totalSubmissions"]
     submission_pass_rate = float(100 * ac_submissions / total_submissions)
-
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url=profile["userAvatar"]) as resp:
+            img_content = await resp.read()
     return MessageChain([
-        f"userSlug: {user_slug}\n",
-        f"  userName: {user_name}\n",
-        f"  ranking: {ranking}\n",
-        f"  websites: {''.join(websites)}\n",
-        f"  skills: {''.join(skills)}\n",
-        "   score:\n",
-        f"      architecture: {architecture}%\n",
-        f"      data-structures: {data_structures}%\n",
-        f"      algorithms: {algorithms}%\n",
-        f"      design: {design}%\n",
-        f"  solvedProblems: {solved_problems}/{total_question}\n",
-        f"  acSubmissions: {ac_submissions}\n",
-        f"  submissionPassRate: {submission_pass_rate}%",
+        Image(data_bytes=img_content),
+        Plain(text=f"站内标识:{user_slug}\n"),
+        Plain(text=f"用户名:{user_name}\n"),
+        Plain(text=f"站内排名: {ranking}\n"),
+        Plain(text=f"技能:\n"),
+        Plain(text=f"   基础架构: {architecture}%\n"),
+        Plain(text=f"   数据结构: {data_structures}%\n"),
+        Plain(text=f"   算法: {algorithms}%\n"),
+        Plain(text=f"   设计: {design}%\n"),
+        Plain(text=f"   解题数量/: {solved_problems}/{total_question}\n"),
+        Plain(text=f"   通过率: {submission_pass_rate}%"),
     ])
