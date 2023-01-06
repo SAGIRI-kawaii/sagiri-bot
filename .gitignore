@@ -157,3 +157,4 @@ modules/self_contained/dd_check/vtb_list.json
 # Alembic files
 /alembic/
 alembic.ini
+modules/self_contained/emoji_mix/assets/update.json
