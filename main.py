@@ -6,7 +6,6 @@ from creart import create
 from graia.saya import Saya
 from graia.ariadne import Ariadne
 from graia.broadcast import Broadcast
-from graia.ariadne.message.element import Source
 from graia.ariadne.event.lifecycle import AccountLaunch
 from graia.ariadne.event.message import ActiveFriendMessage, ActiveGroupMessage
 from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Stranger

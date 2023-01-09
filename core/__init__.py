@@ -1,4 +1,5 @@
 import os
+import shutil
 import datetime
 from abc import ABC
 from pathlib import Path
@@ -7,8 +8,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from alembic.config import Config
 from typing import Dict, List, Type
+from alembic.util.exc import CommandError
 from alembic.command import revision, upgrade
 from fastapi.middleware.cors import CORSMiddleware
+from alembic.script.revision import ResolutionError
 from sqlalchemy.exc import InternalError, ProgrammingError
 
 from graia.saya import Saya
@@ -120,7 +123,7 @@ class Sagiri(object):
         saya.install_behaviours(BroadcastBehaviour(bcc))
         try:
             _ = await orm.init_check()
-            self.alembic()
+            _ = await self.alembic()
         except (AttributeError, InternalError, ProgrammingError):
             _ = await orm.create_all()
         await orm.update(Setting, [], {"active": False})
@@ -279,7 +282,7 @@ class Sagiri(object):
                     exceptions[c] = e
         return exceptions
 
-    def alembic(self):
+    async def alembic(self):
         if not (Path.cwd() / "alembic").exists():
             logger.info("未检测到alembic目录，进行初始化")
             os.system("alembic init alembic")
@@ -294,11 +297,20 @@ class Sagiri(object):
                 f"将其中的 sqlalchemy.url 替换为自己的数据库url（不需注明引擎）后重启机器人，注：可能的链接为：{db_link}"
             )
             exit()
-        if not (Path.cwd() / "alembic" / "versions").exists():
-            (Path.cwd() / "alembic" / "versions").mkdir()
+        alembic_version_path = Path.cwd() / "alembic" / "versions"
+        if not alembic_version_path.exists():
+            alembic_version_path.mkdir()
         cfg = Config(file_="alembic.ini", ini_section="alembic")
-        revision(cfg, message="update", autogenerate=True)
-        upgrade(cfg, "head")
+        try:
+            revision(cfg, message="update", autogenerate=True)
+            upgrade(cfg, "head")
+        except (CommandError, ResolutionError):
+            _ = await orm.reset_version()
+            shutil.rmtree(alembic_version_path)
+            alembic_version_path.mkdir()
+            revision(cfg, message="update", autogenerate=True)
+            upgrade(cfg, "head")
+
         # os.system("alembic revision --autogenerate -m 'update'")
         # os.system("alembic upgrade head")
 
