@@ -1,0 +1,14 @@
+{
+  "name": "AVBT",
+  "version": "0.1",
+  "display_name": "AV种子查询",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个AV种子查询插件",
+  "usage": ["在群中发送 `/av [-i] {番号/演员名/关键词}` 即可，默认没有图片，加上 -i 保留图片"],
+  "example": ["/av STARS-256", "/av -i STARS-256"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["av"]
+}

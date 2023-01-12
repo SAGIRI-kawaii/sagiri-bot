@@ -87,6 +87,9 @@ class GlobalConfig(BaseModel):
         "data_retention": False,
     }
 
+    def get_proxy(self) -> str:
+        return self.proxy if self.proxy != "proxy" else ""
+
 
 class ConfigClassCreator(AbstractCreator, ABC):
     targets = (CreateTargetInfo("shared.models.config", "GlobalConfig"),)

@@ -5,7 +5,7 @@ from typing import NoReturn
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.decl_api import DeclarativeMeta
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import select, update, insert, delete, inspect
+from sqlalchemy import select, update, insert, delete, inspect, text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine
 
 from creart import create
@@ -137,6 +137,10 @@ class AsyncORM(object):
         async with self.engine.connect() as conn:
             tables = await conn.run_sync(self.use_inspector)
         return table_name in tables
+
+    async def reset_version(self):
+        async with self.engine.connect() as conn:
+            _ = await conn.execute(text("DROP TABLE IF EXISTS alembic_version"))
 
 
 orm = AsyncORM(create(GlobalConfig).db_link)
