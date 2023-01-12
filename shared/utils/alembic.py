@@ -23,6 +23,6 @@ class AlembicService(Launchable):
             try:
                 _ = await orm.init_check()
                 core = create(Sagiri)
-                core.alembic()
+                _ = core.alembic()
             except (AttributeError, InternalError, ProgrammingError):
                 _ = await orm.create_all()
