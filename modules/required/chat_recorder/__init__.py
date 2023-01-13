@@ -9,7 +9,7 @@ from graia.ariadne.event.message import Group, Member, GroupMessage
 
 from shared.orm import orm
 from shared.orm.tables import ChatRecord
-from shared.utils.control import UserCalledCountControl
+from shared.utils.control import UserCalledCountControl, Distribute
 
 # 关闭 jieba 的 Debug log
 jieba.setLogLevel(jieba.logging.INFO)
@@ -25,7 +25,7 @@ channel.description("一个记录聊天记录的插件，可配合词云等插�
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
-        decorators=[UserCalledCountControl.add(UserCalledCountControl.CHAT)],
+        decorators=[Distribute.distribute(), UserCalledCountControl.add(UserCalledCountControl.CHAT)],
     )
 )
 async def chat_record(message: MessageChain, group: Group, member: Member):

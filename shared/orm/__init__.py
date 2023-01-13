@@ -70,10 +70,7 @@ class AsyncORM(object):
 
     async def add(self, table, dt):
         """插入"""
-        async with self.async_session() as session:
-            async with session.begin():
-                session.add(table(**dt), _warn=False)
-            await session.commit()
+        await self.execute(insert(table).values(**dt))
 
     async def execute(self, sql, **kwargs):
         async with AsyncSession(self.engine) as session:
