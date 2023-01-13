@@ -15,7 +15,7 @@ loguru = "^0.6.0"
 graia-saya = "^0.0.16"
 graiax-silkcoder = {extras = ["ffmpeg"], version = "^0.3.5"}
 pydantic = "^1.10.1"
-wordcloud = "^1.8.2.2"
+# wordcloud = "^1.8.2.2" # didn't write & not support python 3.11 now
 Jinja2 = "^3.1.2"
 creart = "^0.2.2"
 playwright = "^1.25.2"
