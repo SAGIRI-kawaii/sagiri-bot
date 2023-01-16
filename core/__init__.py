@@ -12,7 +12,6 @@ from alembic.util.exc import CommandError
 from alembic.command import revision, upgrade
 from fastapi.middleware.cors import CORSMiddleware
 from alembic.script.revision import ResolutionError
-from sqlalchemy.exc import InternalError, ProgrammingError
 
 from graia.saya import Saya
 from graia.ariadne import Ariadne
@@ -93,6 +92,11 @@ class Sagiri(object):
             )
         )
         Ariadne.launch_manager.add_service(UpdaterService())
+
+        # 推后导入，避免循环导入
+        from shared.utils.alembic import AlembicService
+
+        Ariadne.launch_manager.add_service(AlembicService())
         if self.config.web_manager_api:
             Ariadne.launch_manager.add_service(
                 UvicornService(
@@ -121,11 +125,6 @@ class Sagiri(object):
         bcc = create(Broadcast)
         saya = create(Saya)
         saya.install_behaviours(BroadcastBehaviour(bcc))
-        try:
-            _ = await orm.init_check()
-            _ = await self.alembic()
-        except (AttributeError, InternalError, ProgrammingError):
-            _ = await orm.create_all()
         await orm.update(Setting, [], {"active": False})
         total_groups = {}
         for app in self.apps:

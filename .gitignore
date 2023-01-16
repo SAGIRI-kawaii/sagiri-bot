@@ -146,8 +146,15 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# files
+# Config file
 config.yaml
+
+# Data files
 data.db
 shared/models/saya_data/saya_data.json
 modules/self_contained/dd_check/vtb_list.json
+
+# Alembic files
+/alembic/
+alembic.ini
+modules/self_contained/emoji_mix/assets/update.json
