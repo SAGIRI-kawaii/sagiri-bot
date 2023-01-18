@@ -56,6 +56,7 @@ SEARCH_CACHE = config.functions["pica"]["search_cache"]
 
 BASE_PATH = Path(__file__).parent
 SEARCH_CACHE_PATH = BASE_PATH / "cache" / "search"
+DOWNLOAD_CACHE_PATH = BASE_PATH / "cache" / "download"
 SEARCH_CACHE_PATH.mkdir(parents=True, exist_ok=True)
 
 DAILY_DOWNLOAD_LIMIT = int(config.functions["pica"]["daily_download_limit"])
@@ -165,9 +166,9 @@ async def pica_init(app: Ariadne, group: Group):
 )
 async def pica_rank(app: Ariadne, group: Group, rank_time: RegexResult):
     rank_type = rank_time.result.display[1:] if rank_time.result else "H24"
-    data = (await pica.rank(rank_type))[:10]  # type: ignore
+    data = (await pica.rank(rank_type))[:20]  # type: ignore
     forward_nodes = []
-    for rank, comic_info in enumerate(data, 1):
+    for rank, comic in enumerate(data, 1):
         try:
             forward_nodes.append(
                 ForwardNode(
@@ -175,11 +176,11 @@ async def pica_rank(app: Ariadne, group: Group, rank_time: RegexResult):
                     time=datetime.now(),
                     sender_name="纱雾酱",
                     message_chain=MessageChain(
-                        await pica_t2i(comic_info, rank=rank),
+                        await pica_t2i(await comic.get_info(), rank=rank),
                         "\n发送下列命令下载：\n"
-                        f"转发消息形式：pica download -forward {comic_info['_id']}\n"
-                        f"消息图片形式：pica download -message {comic_info['_id']}\n"
-                        f"压缩包形式：pica download {comic_info['_id']}",
+                        f"转发消息形式：pica download -forward {comic.id}\n"
+                        f"消息图片形式：pica download -message {comic.id}\n"
+                        f"压缩包形式：pica download {comic.id}",
                     ),
                 )
             )
@@ -212,14 +213,13 @@ async def pica_search(app: Ariadne, group: Group, operation: RegexResult, conten
     keyword = str(content.result).strip() if content.matched else ""
     if search and content.matched:
         await app.send_message(group, MessageChain(f"收到请求，正在搜索{keyword}..."))
-    data = (await (pica.search(keyword) if search else pica.random()))[:10]
+    data = (await (pica.search(keyword) if search else pica.random()))[:20]
     if not data:
         return await app.send_group_message(group, MessageChain("没有搜索到捏"))
 
     forward_nodes = []
     for comic in data:
-        comic_info = await pica.comic_info(comic["id"]) if str(operation.result) == "search" else comic
-        # try:
+        comic_info = await comic.get_info() if str(operation.result) == "search" else comic
         forward_nodes.append(
             ForwardNode(
                 sender_id=bot_qq,
@@ -228,15 +228,12 @@ async def pica_search(app: Ariadne, group: Group, operation: RegexResult, conten
                 message_chain=MessageChain(
                     await pica_t2i(comic_info, is_search=search),
                     "\n发送下列命令下载：\n"
-                    f"转发消息形式：pica download -forward {comic_info['_id']}\n"
-                    f"消息图片形式：pica download -message {comic_info['_id']}\n"
-                    f"压缩包形式：pica download {comic_info['_id']}",
+                    f"转发消息形式：pica download -forward {comic_info.id}\n"
+                    f"消息图片形式：pica download -message {comic_info.id}\n"
+                    f"压缩包形式：pica download {comic_info.id}",
                 ),
             )
         )
-        # except Exception as e:
-        #     logger.error(e)
-        #     continue
     await app.send_group_message(
         group, MessageChain([Forward(node_list=forward_nodes)])
     )
@@ -270,9 +267,11 @@ async def pica_download(
 
     comic_id = str(content.result)
     await app.send_message(group, MessageChain(f"明白，正在下载{comic_id}..."))
-    comic_path, comic_name = await pica.download_comic(comic_id)
+    comic = await pica.get_comic_from_id(comic_id)
+    comic_path = DOWNLOAD_CACHE_PATH / comic.title
+    comic_name = comic.title
+    _ = await comic.download(DOWNLOAD_CACHE_PATH / comic.title)
     logger.info("本子下载完成！")
-
     if forward_type.matched:
         time_base = datetime.now() - timedelta(minutes=20)
 
@@ -285,7 +284,7 @@ async def pica_download(
 
         step = 20
         files = list(comic_path.rglob("*.*"))
-        file_split = [files[i : i + step] for i in range(0, len(files), step)]
+        file_split = [files[i:i + step] for i in range(0, len(files), step)]
         for file in file_split:
             # oh 我的上帝，怎么能够这么套娃
             pic_node = [
@@ -311,6 +310,7 @@ async def pica_download(
                 ),
             )
     else:
+        await app.send_group_message(group, "下载完成，正在压缩中，可能比较耗时...")
         zip_file = zip_directory(comic_path, comic_name)
         try:
             await app.upload_file(

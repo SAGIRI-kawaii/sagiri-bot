@@ -27,7 +27,7 @@ channel.author("SAGIRI-kawaii")
 channel.description("查看系统状态")
 
 image_path = create(GlobalConfig).gallery
-launch_time = create(Sagiri).launch_time
+core = create(Sagiri)
 
 
 @channel.use(
@@ -47,22 +47,30 @@ launch_time = create(Sagiri).launch_time
 async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: ArgResult, storage: ArgResult):
     mem = psutil.virtual_memory()
     total_memery = round(mem.total / 1024 ** 3, 2)
+    launch_time = core.launch_time
+    launched_seconds = (datetime.now() - launch_time).seconds
+    sent_count = core.sent_count
+    received_count = core.received_count
     launch_time_message = MessageChain(
         "SAGIRI-BOT\n"
         f"启动时间：{launch_time.strftime('%Y-%m-%d %H:%M:%S')}\n"
-        f"已运行时间：{sec_format((datetime.now() - launch_time).seconds, '{d}天{h}时{m}分{s}秒')}"
+        f"已运行时间：{sec_format((datetime.now() - launch_time).seconds, '{d}天{h}时{m}分{s}秒')}\n"
+    )
+    count_message = MessageChain(
+        f"已接收消息：{received_count} ({round(received_count / launched_seconds, 2)}/s)\n"
+        f"已发送消息：{sent_count} ({round(sent_count / launched_seconds, 2)}/s)\n"
     )
     memory_message = MessageChain(
         "内存相关：\n    "
         f"内存总大小：{total_memery}GB\n    "
         f"内存使用量：{round(mem.used / 1024 ** 3, 2)}GB / {total_memery}GB ({round(mem.used / mem.total * 100, 2)}%)\n    "
-        f"内存空闲量：{round(mem.free / 1024 ** 3, 2)}GB / {total_memery}GB ({round(mem.free / mem.total * 100, 2)}%)"
+        f"内存空闲量：{round(mem.free / 1024 ** 3, 2)}GB / {total_memery}GB ({round(mem.free / mem.total * 100, 2)}%)\n"
     )
     cpu_message = MessageChain(
         "CPU相关：\n    "
         f"CPU 物理核心数：{psutil.cpu_count(logical=False)}\n    "
         f"CPU总体占用：{psutil.cpu_percent()}%\n    "
-        f"CPU频率：{psutil.cpu_freq().current}MHz"
+        f"CPU频率：{psutil.cpu_freq().current}MHz\n"
     )
     disk_message = MessageChain(
         "磁盘相关：\n    "
@@ -78,9 +86,9 @@ async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: A
     )
     if all_info.matched or not info.matched and not storage.matched:
         await app.send_group_message(
-            group, launch_time_message + "\n" + cpu_message + "\n" + memory_message + "\n" + disk_message
+            group, launch_time_message + count_message + cpu_message + memory_message + disk_message
         )
     elif info.matched:
-        await app.send_group_message(group, launch_time_message + "\n" + cpu_message + "\n" + memory_message)
+        await app.send_group_message(group, launch_time_message + count_message + cpu_message + memory_message)
     else:
-        await app.send_group_message(group, launch_time_message + "\n" + disk_message)
+        await app.send_group_message(group, launch_time_message + disk_message)

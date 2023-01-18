@@ -1,7 +1,7 @@
+from sqlalchemy.exc import InternalError, ProgrammingError
+
 from creart import create
 from launart import Launchable, Launart
-
-from sqlalchemy.exc import InternalError, ProgrammingError
 
 from core import Sagiri
 from shared.orm import orm
