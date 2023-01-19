@@ -45,7 +45,7 @@ class PicaMethod:
         "app-build-version": "44",
         "Content-Type": "application/json; charset=UTF-8",
         "User-Agent": "okhttp/3.8.1",
-        "image-quality": "original"
+        "image-quality": "original",
     }
     account: str
     password: str
@@ -56,7 +56,9 @@ class PicaMethod:
     def __init__(self, session: aiohttp.ClientSession | None = None):
         self.proxy = proxy
         self.loop = create(asyncio.AbstractEventLoop)
-        self.session = session or aiohttp.ClientSession(connector=TCPConnector(ssl=False))
+        self.session = session or aiohttp.ClientSession(
+            connector=TCPConnector(ssl=False)
+        )
 
     def __del__(self):
         asyncio.run_coroutine_threadsafe(self.session.close(), self.loop)
@@ -66,11 +68,13 @@ class PicaMethod:
         url: str | URL,
         params: dict[str, str] | None = None,
         method: Literal["GET", "POST"] = "GET",
-        return_type: type[T] = dict
+        return_type: type[T] = dict,
     ) -> T:
         temp_header = self.update_signature(url, method)
         data = json.dumps(params) if params else None
-        async with self.session.request(method, url=url, headers=temp_header, proxy=self.proxy, data=data) as resp:
+        async with self.session.request(
+            method, url=url, headers=temp_header, proxy=self.proxy, data=data
+        ) as resp:
             ret_data = await resp.json()
             if not resp.ok:
                 logger.warning(f"报错返回json: {ret_data}")
@@ -82,7 +86,7 @@ class PicaMethod:
             elif return_type is str:
                 return await resp.text(encoding="utf-8")
             else:
-                raise ValueError("Unsupport return type")
+                raise ValueError("Unsupported return type")
 
     @staticmethod
     def update_signature(url: str | URL, method: Literal["GET", "POST"]) -> dict:
@@ -125,20 +129,22 @@ class PicaMethod:
 
 @dataclass
 class Image:
-    """ 图片 """
+    """图片"""
+
     originalName: str = field(default_factory=str)
     path: str = field(default_factory=str)
     fileServer: str = field(default_factory=str)
 
     async def get(
-        self, *,
+        self,
+        *,
         folder: str | PathLike | None = None,
         file_name: str | None = None,
-        session: aiohttp.ClientSession | None = None
+        session: aiohttp.ClientSession | None = None,
     ) -> bytes:
         if not self.path or not self.fileServer:
             raise ValueError("Missing necessary parameter path or fileServer!")
-    
+
         if folder is not None:
             folder = Path(folder)
             folder.mkdir(parents=True, exist_ok=True)
@@ -149,7 +155,9 @@ class Image:
         init_session = not bool(session)
         session = session or aiohttp.ClientSession(connector=TCPConnector(ssl=False))
         url = URL(self.fileServer) / "static" / self.path
-        async with session.get(url, headers=PicaMethod.update_signature(url, "GET"), proxy=proxy) as resp:
+        async with session.get(
+            url, headers=PicaMethod.update_signature(url, "GET"), proxy=proxy
+        ) as resp:
             image_bytes = await resp.read()
             if folder is not None:
                 (folder / (file_name or self.originalName)).write_bytes(image_bytes)
@@ -160,7 +168,8 @@ class Image:
 
 @dataclass
 class Creator:
-    """ 漫画上传者 """
+    """漫画上传者"""
+
     _id: str = field(default_factory=str)
     gender: str = field(default_factory=str)
     name: str = field(default_factory=str)
@@ -176,7 +185,8 @@ class Creator:
 
 @dataclass
 class Category:
-    """ 板块分类 """
+    """板块分类"""
+
     _id: str = field(default_factory=str)
     title: str = field(default_factory=str)
     description: str = field(default_factory=str)
@@ -188,7 +198,8 @@ class Category:
 
 @dataclass
 class Episode:
-    """ 漫画章节 """
+    """漫画章节"""
+
     docs: list[Image] = field(default_factory=list)
     total: int = field(default_factory=int)
     limit: int = field(default_factory=int)
@@ -198,16 +209,20 @@ class Episode:
     title: str = field(default_factory=str)
 
     async def download(
-        self, *,
+        self,
+        *,
         folder: str | PathLike | None = None,
-        session: aiohttp.ClientSession | None = None
+        session: aiohttp.ClientSession | None = None,
     ) -> list[bytes]:
-        return await asyncio.gather(*[i.get(folder=folder, session=session) for i in self.docs])
+        return await asyncio.gather(
+            *[i.get(folder=folder, session=session) for i in self.docs]
+        )
 
 
 @dataclass
 class Comic(PicaMethod):
-    """ 漫画基本信息 """
+    """漫画基本信息"""
+
     updated_at: str = field(default_factory=str)
     thumb: Image = field(default_factory=Image)
     author: str = field(default_factory=str)
@@ -244,7 +259,9 @@ class Comic(PicaMethod):
             return self.info
         self.info = from_dict(
             data_class=ComicInfo,
-            data=(await self.request(self.base_url / "comics" / self._id))["data"]["comic"]
+            data=(await self.request(self.base_url / "comics" / self._id))["data"][
+                "comic"
+            ],
         )
         return self.info
 
@@ -254,9 +271,25 @@ class Comic(PicaMethod):
         info = await self.get_info()
         for episode in range(info.epsCount):
             episode_end = False
-            episode_data = {"docs": [], "total": 0, "limit": 0, "page": 1, "pages": 0, "_id": "", "title": ""}
+            episode_data = {
+                "docs": [],
+                "total": 0,
+                "limit": 0,
+                "page": 1,
+                "pages": 0,
+                "_id": "",
+                "title": "",
+            }
             while not episode_end:
-                url = self.base_url / "comics" / self._id / "order" / str(episode + 1) / "pages" % {"page": episode_data["page"] + 1}
+                url = (
+                    self.base_url
+                    / "comics"
+                    / self._id
+                    / "order"
+                    / str(episode + 1)
+                    / "pages"
+                    % {"page": episode_data["page"] + 1}
+                )
                 data: dict = (await self.request(url))["data"]
                 data.update(data["pages"])
                 data.update(data["ep"])
@@ -278,16 +311,19 @@ class Comic(PicaMethod):
 
     async def download(self, folder: Path) -> list[list[bytes]]:
         episodes = await self.get_episodes()
-        #for i in episodes: print(len(i.docs))
-        return await asyncio.gather(*[
-            episode.download(folder=folder / episode.title, session=self.session)
-            for episode in episodes
-        ])
+        # for i in episodes: print(len(i.docs))
+        return await asyncio.gather(
+            *[
+                episode.download(folder=folder / episode.title, session=self.session)
+                for episode in episodes
+            ]
+        )
 
 
 @dataclass
 class ComicInfo(Comic):
-    """ 漫画详情 """
+    """漫画详情"""
+
     _creator: Creator = field(default_factory=Creator)
     pagesCount: int = field(default_factory=int)
     epsCount: int = field(default_factory=int)

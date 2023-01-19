@@ -289,16 +289,16 @@ async def pica_download(
     if forward_type.matched:
         time_base = datetime.now() - timedelta(minutes=20)
 
-        node_message = lambda time, meesage: ForwardNode(
+        node_message = lambda time, message: ForwardNode(
             sender_id=bot_qq,
             time=time_base + timedelta(minutes=time),
             sender_name="纱雾酱",
-            message_chain=MessageChain(meesage),
+            message_chain=MessageChain(message),
         )
 
         step = 20
         files = list(comic_path.rglob("*.*"))
-        file_split = [files[i : i + step] for i in range(0, len(files), step)]
+        file_split = [files[i: i + step] for i in range(0, len(files), step)]
         for file in file_split:
             # oh 我的上帝，怎么能够这么套娃
             pic_node = [
@@ -327,7 +327,7 @@ async def pica_download(
         await app.send_group_message(group, "下载完成，正在压缩中，可能比较耗时...")
         zip_file = zip_directory(comic_path, comic_name)
         # QQ 文件不允许出现的字符
-        name = re.sub('[\\\\/:\\*\\?"<>\\|]', "", str(comic_name))
+        name = re.sub('[\\\\/:*?"<>|]', "", str(comic_name))
         try:
             await app.upload_file(
                 data=zip_file,
