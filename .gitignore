@@ -158,3 +158,9 @@ modules/self_contained/dd_check/vtb_list.json
 /alembic/
 alembic.ini
 modules/self_contained/emoji_mix/assets/update.json
+
+# test file
+/test
+
+# IDE config file
+/.vscode

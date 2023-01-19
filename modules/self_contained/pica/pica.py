@@ -15,8 +15,8 @@ config = create(GlobalConfig)
 loop = create(asyncio.AbstractEventLoop)
 proxy = config.proxy if config.proxy != "proxy" else ""
 pica_config = config.functions.get("pica", {})
-username = pica_config.get("username", None)
-password = pica_config.get("password", None)
+username = pica_config.get("username", "")
+password = pica_config.get("password", "")
 compress_password = pica_config.get("compress_password", "i_luv_sagiri")
 DOWNLOAD_CACHE = pica_config.get("download_cache", True)
 

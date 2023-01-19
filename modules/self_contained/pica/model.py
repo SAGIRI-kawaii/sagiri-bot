@@ -2,7 +2,7 @@ import hmac
 import time
 import asyncio
 import aiohttp
-import ujson as json
+import json
 from yarl import URL
 from enum import Enum
 from os import PathLike
@@ -66,7 +66,7 @@ class PicaMethod:
         url: str | URL,
         params: dict[str, str] | None = None,
         method: Literal["GET", "POST"] = "GET",
-        return_type: T = dict
+        return_type: type[T] = dict
     ) -> T:
         temp_header = self.update_signature(url, method)
         data = json.dumps(params) if params else None
@@ -74,12 +74,15 @@ class PicaMethod:
             ret_data = await resp.json()
             if not resp.ok:
                 logger.warning(f"报错返回json: {ret_data}")
-            if return_type == dict:
+
+            if return_type is dict:
                 return await resp.json()
-            elif return_type == bytes:
+            elif return_type is bytes:
                 return await resp.read()
-            elif return_type == str:
+            elif return_type is str:
                 return await resp.text(encoding="utf-8")
+            else:
+                raise ValueError("Unsupport return type")
 
     @staticmethod
     def update_signature(url: str | URL, method: Literal["GET", "POST"]) -> dict:
@@ -135,19 +138,21 @@ class Image:
     ) -> bytes:
         if not self.path or not self.fileServer:
             raise ValueError("Missing necessary parameter path or fileServer!")
-        if folder:
+    
+        if folder is not None:
             folder = Path(folder)
-            if not folder.exists():
-                folder.mkdir(parents=True, exist_ok=True)
-            elif (folder / (file_name or self.originalName)).exists():
-                return (folder / (file_name or self.originalName)).read_bytes()
+            folder.mkdir(parents=True, exist_ok=True)
+            file_path = folder / (file_name or self.originalName)
+            if file_path.exists():
+                return file_path.read_bytes()
+
         init_session = not bool(session)
         session = session or aiohttp.ClientSession(connector=TCPConnector(ssl=False))
         url = URL(self.fileServer) / "static" / self.path
         async with session.get(url, headers=PicaMethod.update_signature(url, "GET"), proxy=proxy) as resp:
             image_bytes = await resp.read()
-            if folder:
-                Path(folder / (file_name or self.originalName)).write_bytes(image_bytes)
+            if folder is not None:
+                (folder / (file_name or self.originalName)).write_bytes(image_bytes)
         if init_session:
             await session.close()
         return image_bytes
@@ -252,7 +257,7 @@ class Comic(PicaMethod):
             episode_data = {"docs": [], "total": 0, "limit": 0, "page": 1, "pages": 0, "_id": "", "title": ""}
             while not episode_end:
                 url = self.base_url / "comics" / self._id / "order" / str(episode + 1) / "pages" % {"page": episode_data["page"] + 1}
-                data = (await self.request(url))["data"]
+                data: dict = (await self.request(url))["data"]
                 data.update(data["pages"])
                 data.update(data["ep"])
                 del data["ep"]
@@ -271,10 +276,9 @@ class Comic(PicaMethod):
             self.episodes.append(from_dict(data_class=Episode, data=episode_data))
         return self.episodes
 
-    async def download(self, folder: str | PathLike | None = None) -> list[list[bytes]]:
+    async def download(self, folder: Path) -> list[list[bytes]]:
         episodes = await self.get_episodes()
-        for i in episodes:
-            print(len(i.docs))
+        #for i in episodes: print(len(i.docs))
         return await asyncio.gather(*[
             episode.download(folder=folder / episode.title, session=self.session)
             for episode in episodes
