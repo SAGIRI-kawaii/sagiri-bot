@@ -6,7 +6,6 @@ import aiohttp
 from creart import create
 from graia.ariadne.app import Ariadne
 from graia.ariadne.connection.util import UploadMethod
-from graia.ariadne.event.lifecycle import ApplicationLaunch
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.exception import RemoteException
 from graia.ariadne.message.chain import MessageChain
@@ -129,12 +128,6 @@ def check_limit(ty: str):
         limiter.increase(member.id)
 
     return Depend(check_limit_deco)
-
-
-@channel.use(ListenerSchema(listening_events=[ApplicationLaunch]))
-async def pica_start_init():
-    await pica_v.check()
-
 
 @channel.use(
     ListenerSchema(
