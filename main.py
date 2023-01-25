@@ -9,7 +9,8 @@ from graia.ariadne import Ariadne
 from graia.broadcast import Broadcast
 from graia.ariadne.event.lifecycle import AccountLaunch
 from graia.ariadne.event.message import ActiveFriendMessage, ActiveGroupMessage
-from graia.ariadne.event.message import Group, Member, MessageChain, Friend, Stranger
+from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.model import Group, Member, Friend, Stranger
 
 from core import Sagiri
 from shared.funcs import online_notice
@@ -89,7 +90,7 @@ async def accounts_check_run():
 
 
 if __name__ == '__main__':
-    if Path.cwd() != Path(__file__).parent:
+    if Path.cwd() != Path(__file__).parent.absolute():
         logger.critical(f"当前目录非项目所在目录！请进入{str(Path(__file__).parent)}后再运行 SAGIRI-BOT!")
         exit(0)
 
