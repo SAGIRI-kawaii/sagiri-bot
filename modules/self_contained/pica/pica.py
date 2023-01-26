@@ -40,6 +40,8 @@ class Pica(PicaMethod):
         self.loop.run_until_complete(self.check())
 
     async def check(self) -> bool | None:
+        if self.init:
+            return True
         try:
             _ = await self.login()
             self.init = True

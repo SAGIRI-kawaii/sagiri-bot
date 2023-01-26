@@ -60,16 +60,3 @@ def zip_directory(path: Path, zip_name, pwd: str = "i_luv_sagiri") -> Path:
 
     zip_file.unlink()
     return encrypt_zip_file
-
-
-async def get_thumb(comic_info: dict) -> Image:
-    thumb = SEARCH_CACHE_PATH / f"{comic_info['_id']}.jpg"
-    if thumb.exists():
-        return Image(path=thumb)
-    else:
-        return Image(
-            data_bytes=await pica.download_image(
-                url=f"{comic_info['thumb']['fileServer']}/static/{comic_info['thumb']['path']}",
-                path=thumb if SEARCH_CACHE else None,
-            )
-        )
