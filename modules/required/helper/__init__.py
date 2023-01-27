@@ -70,7 +70,7 @@ def random_pic(base_path: Path | str) -> str:
         decorators=[
             Distribute.distribute(),
             FrequencyLimit.require("helper", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, response_administrator=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
         ],
@@ -113,7 +113,7 @@ async def helper(app: Ariadne, group: Group, source: Source):
         decorators=[
             Distribute.distribute(),
             FrequencyLimit.require("helper", 1),
-            Function.require(channel.module),
+            Function.require(channel.module, response_administrator=True),
             BlackListControl.enable(),
             UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
         ],

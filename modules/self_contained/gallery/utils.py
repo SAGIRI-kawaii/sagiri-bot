@@ -7,6 +7,7 @@ import aiohttp
 from abc import ABC
 from pathlib import Path
 from loguru import logger
+from aiohttp import TCPConnector
 from typing import Type, Literal
 from dataclasses import dataclass
 
@@ -54,7 +55,7 @@ async def get_image(gallery_name: str) -> Image | str:
     if re.match(json_pattern + url_pattern, path):
         json_paths = path.split("$")[0].split(":")[1].split(".")
         url = path.split("$")[1]
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.get(url, proxy=proxy) as resp:
                 res = await resp.json(content_type=resp.content_type)
             for jp in json_paths:
@@ -66,7 +67,7 @@ async def get_image(gallery_name: str) -> Image | str:
             async with session.get(res, proxy=proxy) as resp:
                 return Image(data_bytes=await resp.read())
     elif re.match(url_pattern, path):
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=TCPConnector(ssl=False)) as session:
             async with session.get(path, proxy=proxy) as resp:
                 return Image(data_bytes=await resp.read())
     elif Path(path).exists():
