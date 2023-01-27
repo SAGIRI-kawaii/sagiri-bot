@@ -87,7 +87,7 @@ async def b23_url_extract(b23_url: str) -> Literal[False] | str:
 
 def url_vid_extract(url: str) -> Literal[False] | str:
     try:
-        return url.split("?")[0].split("/")[-1]
+        return url.split("?")[0].strip("/").split("/")[-1]
     except IndexError:
         return False
 
