@@ -41,9 +41,10 @@ channel.description(
 
 inc = InterruptControl(create(Broadcast))
 regex_list = []
-parse_big_bracket = "\\{"
-parse_mid_bracket = "\\["
-parse_bracket = "\\("
+parse_big_bracket = r"\{"
+parse_mid_bracket = r"\["
+parse_bracket = r"\("
+reply_type_set = ["fullmatch", "regex", "fuzzy"]
 
 
 class NumberWaiter(Waiter.create([GroupMessage])):
@@ -347,6 +348,41 @@ async def regex_init():
             for i in result
         ])
     print(regex_list)
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("查询回复关键词")])],
+        decorators=[
+            Distribute.distribute(),
+            BlackListControl.enable(),
+            Function.require("keyword_respondent", log=False),
+        ],
+    )
+)
+async def show_keywords(app: Ariadne, group: Group):
+    keywords = await orm.fetchall(
+        select(
+            KeywordReply.keyword,
+            KeywordReply.reply_type,
+            KeywordReply.group,
+        ).where(KeywordReply.group.in_((-1, group.id)))
+    )
+    global_keywords = filter(lambda x: x[2] == -1, keywords)
+    local_keywords = filter(lambda x: x[2] == group.id, keywords)
+    message = ["全局启用："]
+    for ks in (global_keywords, local_keywords):
+        for reply_type in reply_type_set:
+            t = set()
+            for keyword in filter(lambda x: x[1] == reply_type, ks):
+                t.add(f"    {keyword[0]}")
+            if t:
+                message.append(f"  {reply_type}:")
+                message.extend(t)
+        if local_keywords:
+            message.append("本群启用：")
+    await app.send_group_message(group, "\n".join(message[:-1]))
 
 
 def get_md5(data: str) -> str:
