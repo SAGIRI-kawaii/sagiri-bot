@@ -8,48 +8,49 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-aiohttp = "^3.8.1"
-graia-ariadne = "^0.9.8"
-graia-broadcast = "^0.19.0"
-loguru = "^0.6.0"
-graia-saya = "^0.0.16"
-graiax-silkcoder = {extras = ["ffmpeg"], version = "^0.3.5"}
-pydantic = "^1.10.1"
+aiohttp = ">=3.8.1"
+graia-ariadne = ">=0.9.8"
+graia-broadcast = ">=0.19.0"
+loguru = ">=0.6.0"
+graia-saya = ">=0.0.16"
+graiax-silkcoder = {extras = ["ffmpeg"], version = ">=0.3.5"}
+pydantic = ">=1.10.1"
 # wordcloud = "^1.8.2.2" # didn't write & not support python 3.11 now
-Jinja2 = "^3.1.2"
-creart = "^0.2.2"
-playwright = "^1.25.2"
-aiosqlite = "^0.17.0"
-SQLAlchemy = "^1.4.40"
-PyYAML = "^6.0"
-fastapi = "^0.81.0"
-beautifulsoup4 = "^4.11.1"
-jieba = "^0.42.1"
-tencentcloud-sdk-python = "^3.0.725"
-alembic = "^1.8.1"
-matplotlib = "^3.5.3"
-picimagesearch = "^3.7.4"
-psutil = "^5.9.1"
-graiax-playwright = "^0.2.1"
-Markdown = "^3.4.1"
-aiofiles = "^0.8.0"
-pymdown-extensions = "^9.5"
-python-markdown-math = "^0.8"
-Pygments = "^2.13.0"
-GitPython = "^3.1.27"
-unwind = "^0.3.2"
-pypinyin = "^0.47.1"
-qrcode = "^7.3.1"
-Pillow = "^9.2.0"
-yarl = "^1.8.1"
-uvicorn = {extras = ["standard"], version = "^0.19.0"}
-graiax-fastapi = "^0.2.0"
+Jinja2 = ">=3.1.2"
+creart = ">=0.2.2"
+playwright = ">=1.25.2"
+aiosqlite = ">=0.17.0"
+SQLAlchemy = ">=1.4.40"
+PyYAML = ">=6.0"
+fastapi = ">=0.81.0"
+beautifulsoup4 = ">=4.11.1"
+jieba = ">=0.42.1"
+tencentcloud-sdk-python = ">=3.0.725"
+alembic = ">=1.8.1"
+matplotlib = ">=3.5.3"
+picimagesearch = ">=3.7.4"
+psutil = ">=5.9.1"
+graiax-playwright = ">=0.2.1"
+Markdown = ">=3.4.1"
+aiofiles = ">=0.8.0"
+pymdown-extensions = ">=9.5"
+python-markdown-math = ">=0.8"
+Pygments = ">=2.13.0"
+GitPython = ">=3.1.27"
+unwind = ">=0.3.2"
+pypinyin = ">=0.47.1"
+qrcode = ">=7.3.1"
+Pillow = ">=9.2.0"
+yarl = ">=1.8.1"
+uvicorn = {extras = ["standard"], version = ">=0.19.0"}
+graiax-fastapi = ">=0.2.0"
+dacite = ">=1.7.0"
 
-graiax-text2img-playwright = "^0.2.0"
-graia-scheduler = "^0.0.10"
-pytz = "^2022.6"
-pyzipper = "^0.3.6"
-chatgpt-api = "^0.1.2"
+graiax-text2img-playwright = ">=0.2.0"
+graia-scheduler = ">=0.0.10"
+pytz = ">=2022.6"
+pyzipper = ">=0.3.6"
+chatgpt-api = ">=0.1.2"
 
 realesrgan = {version = "^0.3.0", optional = true}
 basicsr = {version = "^1.4.2", optional = true}
@@ -60,7 +61,7 @@ torch = {version = "^1.13.1", optional = true}
 unidecode = {version = "^1.3.6", optional = true}
 inflect = {version = "^6.0.2", optional = true}
 webrtcvad = {version = "^2.0.10", optional = true}
-dacite = "^1.7.0"
+
 
 [tool.poetry.extras]
 super_resolution = ["realesrgan", "basicsr", "imageio"]
@@ -75,3 +76,7 @@ default = false
 name = "USTC"
 url = "https://pypi.mirrors.ustc.edu.cn/simple"
 default = true
+
+[tool.poetry.group.dev.dependencies]
+black = {version = "^23.1a1", allow-prereleases = true}
+
