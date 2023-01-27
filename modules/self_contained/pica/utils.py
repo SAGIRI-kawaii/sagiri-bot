@@ -32,7 +32,6 @@ async def pica_t2i(comic_info: ComicInfo | Comic, rank: int | None = None):
     md += f"分类：{'、'.join(comic_info.categories)}<br>"
     if isinstance(comic_info, ComicInfo):
         md += f"标签：{'、'.join(comic_info.tags)}<br>" if comic_info.tags else ""
-    if isinstance(comic_info, ComicInfo):
         md += f"页数：{comic_info.pagesCount}<br>"
         md += f"章节数：{comic_info.epsCount}<br>"
     md += f"完结状态：{'已完结' if comic_info.finished else '未完结'}<br>"

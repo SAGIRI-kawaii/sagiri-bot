@@ -291,7 +291,7 @@ class Comic(PicaMethod):
                     % {"page": episode_data["page"] + 1}
                 )
                 data: dict = (await self.request(url))["data"]
-                data.update(data["pages"])
+                data |= data["pages"]
                 data.update(data["ep"])
                 del data["ep"]
                 episode_data["docs"].extend(data["docs"])
