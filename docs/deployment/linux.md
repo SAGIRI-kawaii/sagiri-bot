@@ -336,7 +336,7 @@ url:http://xxx.xxx.xxx
 
 ???+ note "不知道什么是引擎？"
 
-    <big>**如果你在上一步保持不变，这一步跳过即可。**</big>
+    <big>**如果你在上一步保持不变，这一步填写 `sqlite:///data.db` 即可**</big>
 
     - SQLite
 
