@@ -34,7 +34,9 @@ def get_current_branch(repo: Repo) -> Head:
 def get_github_repo(repo: Repo) -> str:
     remote_url = repo.remote().url
     remote_url += "" if remote_url.endswith(".git") else ".git"
-    return re.search(r"(?<=github.com/).+?(?=\.git)", remote_url).group()
+    if github_match := re.search(r"(?<=github.com[/:]).+?(?=\.git)", remote_url):
+        return github_match.group()
+    raise RuntimeError("无法获取 GitHub 仓库地址，请检查当前目录是否为克隆自 GitHub 的 Git 仓库")
 
 
 async def get_remote_commit_sha(repo: str, branch: str) -> str:
@@ -113,9 +115,7 @@ class UpdaterService(Launchable):
                 message = message.replace("<", r"\<").splitlines()[0]
                 output.append(f"<red>{sha}</red> <yellow>{message}</yellow>")
             history = "\n".join(["", *output, ""])
-            logger.opt(colors=True).warning(
-                f"<yellow>发现新版本</yellow>\n{history}"
-            )
+            logger.opt(colors=True).warning(f"<yellow>发现新版本</yellow>\n{history}")
             if not config.auto_upgrade:
                 return
             logger.opt(colors=True).info("<cyan>正在自动更新</cyan>")
