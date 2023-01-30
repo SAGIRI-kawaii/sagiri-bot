@@ -106,11 +106,19 @@ def process_info(info: ConfigInfo, interact: bool = True) -> int | str | float |
         if not interact:
             return result
         child_type = info.type[5:-1]
-        while res := InputPrompt(
-            f"请输入 {info.name}（{info.description}）（退出此项请直接输入回车）",
-            validator=validators[info.type]
-        ).prompt():
-            result.append(parse_type(res, parse[child_type]))
+        while not result:
+            while res := InputPrompt(
+                f"请输入 {info.name}（{info.description}）（退出此项请直接输入回车）",
+                validator=validators[info.type]
+            ).prompt():
+                if (parsed := parse_type(res, parse[child_type])) is None:
+                    print("输入格式错误，请重新输入")
+                    continue
+                elif parsed in result:
+                    print("已有相同的值，请重新输入")
+                    continue
+                result.append(parsed)
+                print(result)
         return result
     else:
         result = {}
