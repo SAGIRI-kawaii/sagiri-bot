@@ -24,7 +24,6 @@ class AsyncORM(object):
     session: AsyncSession | None = None
     base: DeclarativeMeta | None = None
     db_mutex: Lock | None = None
-    async_session: None = None
 
     def __init__(
         self,
@@ -32,31 +31,23 @@ class AsyncORM(object):
         engine: AsyncEngine | None = None,
         session: AsyncSession | None = None,
         base: DeclarativeMeta | None = None,
-        async_session: None = None,
         db_mutex: Lock | None = None
     ):
         self.db_link = db_link
         self.db_mutex = db_mutex or Lock() if self.db_link.startswith("sqlite") else None
         self.engine = engine or create_async_engine(self.db_link, **get_adapter(self.db_link), echo=False)
         self.session = session or AsyncSession(bind=self.engine)
-        self.base = base or declarative_base(self.engine)
-        self.async_session = async_session or sessionmaker(
-            self.engine, expire_on_commit=False, class_=AsyncSession
-        )
+        self.base = base or declarative_base()
 
     def initialize(
         self,
         engine: AsyncEngine | None = None,
         session: AsyncSession | None = None,
         base: DeclarativeMeta | None = None,
-        async_session: None = None
     ):
         self.engine = engine or create_async_engine(self.db_link, **get_adapter(self.db_link), echo=False)
         self.session = session or AsyncSession(bind=self.engine)
         self.base = base or declarative_base(self.engine)
-        self.async_session = async_session or sessionmaker(
-            self.engine, expire_on_commit=False, class_=AsyncSession
-        )
 
     async def create_all(self):
         """创建所有表"""
@@ -73,20 +64,18 @@ class AsyncORM(object):
         await self.execute(insert(table).values(**dt))
 
     async def execute(self, sql, **kwargs):
-        async with AsyncSession(self.engine) as session:
-            try:
-                if self.db_mutex:
-                    await self.db_mutex.acquire()
-                result = await session.execute(sql, **kwargs)
-                await session.commit()
-                return result
-            except Exception as e:
-                await session.rollback()
-                # await session.close()
-                raise e
-            finally:
-                if self.db_mutex:
-                    self.db_mutex.release()
+        try:
+            if self.db_mutex:
+                await self.db_mutex.acquire()
+            result = await self.session.execute(sql, **kwargs)
+            await self.session.commit()
+            return result
+        except Exception as e:
+            await self.session.rollback()
+            raise e
+        finally:
+            if self.db_mutex:
+                self.db_mutex.release()
 
     async def fetchall(self, sql):
         return (await self.execute(sql)).fetchall()

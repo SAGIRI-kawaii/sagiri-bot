@@ -61,6 +61,7 @@ torch = {version = "^1.13.1", optional = true}
 unidecode = {version = "^1.3.6", optional = true}
 inflect = {version = "^6.0.2", optional = true}
 webrtcvad = {version = "^2.0.10", optional = true}
+sqlalchemy = "^2.0.0"
 
 
 [tool.poetry.extras]
@@ -74,7 +75,7 @@ default = false
 
 [[tool.poetry.source]]
 name = "USTC"
-url = "https://pypi.mirrors.ustc.edu.cn/simple"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true
 
 [tool.poetry.group.dev.dependencies]
