@@ -96,14 +96,19 @@ parse = {
 
 def process_info(info: ConfigInfo, interact: bool = True) -> int | str | float | bool | list[int] | list[str] | dict | None:
     if info.type in ("int", "str", "float", "bool"):
-        if not interact:
-            return info.default
-        return parse_type(
-            InputPrompt(
-                f"请输入 {info.name}（{info.description}）",
-                validator=validators[info.type],
-                default_text=str(info.default) if info.default is not None else None
-            ).prompt(), parse[info.type]
+        return (
+            parse_type(
+                InputPrompt(
+                    f"请输入 {info.name}（{info.description}）",
+                    validator=validators[info.type],
+                    default_text=str(info.default)
+                    if info.default is not None
+                    else None,
+                ).prompt(),
+                parse[info.type],
+            )
+            if interact
+            else info.default
         )
     elif info.type in ("list[int]", "list[str]"):
         result = []
@@ -125,22 +130,20 @@ def process_info(info: ConfigInfo, interact: bool = True) -> int | str | float |
                 print(result)
         return result
     else:
-        result = {}
         if interact:
             print(f"{info.name} - {info.description}")
-        for i in info.children:
-            result[i.name] = process_info(i, interact)
-        return result
+        return {i.name: process_info(i, interact) for i in info.children}
 
 
 def config_init():
     if not ConfirmPrompt("未检测到配置文件，是否自动创建并进入初始化？", default_choice=True).prompt():
         exit()
     info_list = [ConfigInfo(**i) for i in json.loads(config_info_path.read_bytes())["configs"]]
-    config = {}
     required = ConfirmPrompt("配置文件初始化，是否仅进行启动必要项修改？", default_choice=True).prompt()
-    for info in info_list:
-        config[info.name] = process_info(info, not (required and not info.required))
+    config = {
+        info.name: process_info(info, bool(not required or info.required))
+        for info in info_list
+    }
     content = yaml.dump(config, encoding='utf-8', allow_unicode=True).decode(encoding="utf-8")
     print(content)
     with open(config_path, "w", encoding="utf-8") as w:
