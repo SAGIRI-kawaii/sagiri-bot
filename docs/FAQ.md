@@ -247,6 +247,10 @@ bot_qq
 * `MessageSvcPbSendMsg.Response.Failed(resultType=46, ...)`
     * 账号被冻结群消息发送，可手动登录机器人账号发送群消息解除冻结。
 
+> ## prompt_toolkit.output.win32.NoConsoleScreenBufferError: No Windows console found. Are you running cmd.exe?
+
+[点击此处查看解决方案](https://fanyi.baidu.com)
+
 > ## macOS 部署教程
 
 大部分可参考 Linux 部署教程
