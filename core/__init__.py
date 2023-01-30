@@ -290,12 +290,15 @@ class Sagiri(object):
             with open(Path.cwd() / "alembic" / "env.py", "w") as w:
                 w.write(alembic_env_py_content)
             db_link = self.config.db_link
-            db_link = db_link.split(":")[0].split("+")[0] + ":".join(db_link.split(":")[1:])
-            logger.warning(
-                f"请前往更改 {Path.cwd() / 'alembic.ini'} 文件"
-                f"将其中的 sqlalchemy.url 替换为自己的数据库url（不需注明引擎）后重启机器人，注：可能的链接为：{db_link}"
-            )
-            exit()
+            db_link = db_link.split(":")[0].split("+")[0] + ":" + ":".join(db_link.split(":")[1:])
+            logger.warning(f"尝试自动更改 sqlalchemy.url 为 {db_link}，若出现报错请自行修改")
+            alembic_ini_path = Path.cwd() / "alembic.ini"
+            lines = alembic_ini_path.read_text(encoding="utf-8").split("\n")
+            for i, line in enumerate(lines):
+                if line.startswith("sqlalchemy.url"):
+                    lines[i] = line.replace("driver://user:pass@localhost/dbname", db_link)
+                    break
+            alembic_ini_path.write_text("\n".join(lines))
         alembic_version_path = Path.cwd() / "alembic" / "versions"
         if not alembic_version_path.exists():
             alembic_version_path.mkdir()
