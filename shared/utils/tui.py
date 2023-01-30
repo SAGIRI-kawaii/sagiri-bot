@@ -1,3 +1,5 @@
+from ast import literal_eval
+
 import yaml
 import json
 from pathlib import Path
@@ -54,6 +56,8 @@ def set_config():
             _t = child
             continue
         value = InputPrompt(f"请输入你要更改的值({type(child)})：", str(child)).prompt()
+        if type(child) is list:
+            value = literal_eval(value)
         _t[res.name] = type(child)(value)
         path.pop(-1)
     content = yaml.dump(configs, encoding='utf-8', allow_unicode=True).decode(encoding="utf-8")
