@@ -2708,10 +2708,10 @@ optional = true
 python-versions = ">=3.7.0"
 
 [package.dependencies]
-nvidia-cublas-cu11 = {version = "11.10.3.66", markers = "platform_system == \"Linux\""}
-nvidia-cuda-nvrtc-cu11 = {version = "11.7.99", markers = "platform_system == \"Linux\""}
-nvidia-cuda-runtime-cu11 = {version = "11.7.99", markers = "platform_system == \"Linux\""}
-nvidia-cudnn-cu11 = {version = "8.5.0.96", markers = "platform_system == \"Linux\""}
+nvidia-cublas-cu11 = {version = "11.10.3.66", markers = "platform_machine == 'x86_64'"}
+nvidia-cuda-nvrtc-cu11 = {version = "11.7.99", markers = "platform_machine == 'x86_64'"}
+nvidia-cuda-runtime-cu11 = {version = "11.7.99", markers = "platform_machine == 'x86_64'"}
+nvidia-cudnn-cu11 = {version = "8.5.0.96", markers = "platform_machine == 'x86_64'"}
 typing-extensions = "*"
 
 [package.extras]
