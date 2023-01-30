@@ -1,0 +1,566 @@
+{
+  "configs": [
+    {
+      "name": "bot_accounts",
+      "type": "list[int]",
+      "description": "机器人账号",
+      "required": true
+    },
+    {
+      "name": "default_account",
+      "type": "int",
+      "description": "默认机器人账号",
+      "required": true
+    },
+    {
+      "name": "mirai_host",
+      "type": "str",
+      "description": "Mirai-Api-HTTP 地址及端口",
+      "default": "http://localhost:23456",
+      "required": true
+    },
+    {
+      "name": "verify_key",
+      "type": "str",
+      "description": "Mirai-Api-HTTP 验证key",
+      "default": "1234567890",
+      "required": true
+    },
+    {
+      "name": "db_link",
+      "type": "str",
+      "description": "数据库链接",
+      "default": "sqlite+aiosqlite:///data.db",
+      "required": true
+    },
+    {
+      "name": "api_port",
+      "type": "int",
+      "description": "后端管理面板api端口",
+      "default": 34567
+    },
+    {
+      "name": "api_expose",
+      "type": "bool",
+      "description": "是否将后端管理面板api暴露到公网",
+      "default": false
+    },
+    {
+      "name": "web_manager_api",
+      "type": "bool",
+      "description": "是否打开后端管理面板api",
+      "default": true
+    },
+    {
+      "name": "web_manager_auto_boot",
+      "type": "bool",
+      "description": "是否自动打开后端管理面板",
+      "default": false
+    },
+    {
+      "name": "proxy",
+      "type": "str",
+      "description": "代理端口",
+      "default": "proxy"
+    },
+    {
+      "name": "auto_upgrade",
+      "type": "bool",
+      "description": "是否自动更新",
+      "default": false
+    },
+    {
+      "name": "gallery",
+      "type": "dict",
+      "description": "图库相关",
+      "children": [
+        {
+          "name": "setu",
+          "type": "dict",
+          "description": "setu图库配置",
+          "children": [
+            {
+              "name": "path",
+              "type": "str",
+              "description": "本地/网络路径",
+              "default": "path"
+            },
+            {
+              "name": "privilege",
+              "type": "int",
+              "description": "所需用户等级",
+              "default": 1
+            },
+            {
+              "name": "interval",
+              "type": "float",
+              "description": "调用间隔",
+              "default": 1
+            },
+            {
+              "name": "default_switch",
+              "type": "bool",
+              "description": "默认开关",
+              "default": true
+            },
+            {
+              "name": "need_proxy",
+              "type": "bool",
+              "description": "是否需要代理",
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "setu18",
+          "type": "dict",
+          "description": "setu18图库配置",
+          "children": [
+            {
+              "name": "path",
+              "type": "str",
+              "description": "本地/网络路径",
+              "default": "path"
+            },
+            {
+              "name": "privilege",
+              "type": "int",
+              "description": "所需用户等级",
+              "default": 1
+            },
+            {
+              "name": "interval",
+              "type": "float",
+              "description": "调用间隔",
+              "default": 1
+            },
+            {
+              "name": "default_switch",
+              "type": "bool",
+              "description": "默认开关",
+              "default": true
+            },
+            {
+              "name": "need_proxy",
+              "type": "bool",
+              "description": "是否需要代理",
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "real",
+          "type": "dict",
+          "description": "real图库配置",
+          "children": [
+            {
+              "name": "path",
+              "type": "str",
+              "description": "本地/网络路径",
+              "default": "path"
+            },
+            {
+              "name": "privilege",
+              "type": "int",
+              "description": "所需用户等级",
+              "default": 1
+            },
+            {
+              "name": "interval",
+              "type": "float",
+              "description": "调用间隔",
+              "default": 1
+            },
+            {
+              "name": "default_switch",
+              "type": "bool",
+              "description": "默认开关",
+              "default": true
+            },
+            {
+              "name": "need_proxy",
+              "type": "bool",
+              "description": "是否需要代理",
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "real_highq",
+          "type": "dict",
+          "description": "real_highq图库配置",
+          "children": [
+            {
+              "name": "path",
+              "type": "str",
+              "description": "本地/网络路径",
+              "default": "path"
+            },
+            {
+              "name": "privilege",
+              "type": "int",
+              "description": "所需用户等级",
+              "default": 1
+            },
+            {
+              "name": "interval",
+              "type": "float",
+              "description": "调用间隔",
+              "default": 1
+            },
+            {
+              "name": "default_switch",
+              "type": "bool",
+              "description": "默认开关",
+              "default": true
+            },
+            {
+              "name": "need_proxy",
+              "type": "bool",
+              "description": "是否需要代理",
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "bizhi",
+          "type": "dict",
+          "description": "bizhi图库配置",
+          "children": [
+            {
+              "name": "path",
+              "type": "str",
+              "description": "本地/网络路径",
+              "default": "path"
+            },
+            {
+              "name": "privilege",
+              "type": "int",
+              "description": "所需用户等级",
+              "default": 1
+            },
+            {
+              "name": "interval",
+              "type": "float",
+              "description": "调用间隔",
+              "default": 1
+            },
+            {
+              "name": "default_switch",
+              "type": "bool",
+              "description": "默认开关",
+              "default": true
+            },
+            {
+              "name": "need_proxy",
+              "type": "bool",
+              "description": "是否需要代理",
+              "default": false
+            }
+          ]
+        },
+        {
+          "name": "sketch",
+          "type": "dict",
+          "description": "sketch图库配置",
+          "children": [
+            {
+              "name": "path",
+              "type": "str",
+              "description": "本地/网络路径",
+              "default": "path"
+            },
+            {
+              "name": "privilege",
+              "type": "int",
+              "description": "所需用户等级",
+              "default": 1
+            },
+            {
+              "name": "interval",
+              "type": "float",
+              "description": "调用间隔",
+              "default": 1
+            },
+            {
+              "name": "default_switch",
+              "type": "bool",
+              "description": "默认开关",
+              "default": true
+            },
+            {
+              "name": "need_proxy",
+              "type": "bool",
+              "description": "是否需要代理",
+              "default": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "commands",
+      "type": "dict",
+      "description": "命令个性化设置",
+      "children": [
+        {
+          "name": "default",
+          "type": "dict",
+          "description": "默认配置",
+          "children": [
+            {
+              "name": "prefix",
+              "type": "list[str]",
+              "description": "默认前缀",
+              "default": []
+            },
+            {
+              "name": "alias",
+              "type": "list[str]",
+              "description": "默认别名",
+              "default": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "functions",
+      "type": "dict",
+      "description": "功能相关",
+      "children": [
+        {
+          "name": "tencent",
+          "type": "dict",
+          "description": "腾讯云AI相关",
+          "children": [
+            {
+              "name": "secret_id",
+              "type": "str",
+              "description": "腾讯云 secret_id",
+              "default": "secret_id"
+            },
+            {
+              "name": "secret_key",
+              "type": "str",
+              "description": "腾讯云 secret_key",
+              "default": "secret_key"
+            }
+          ]
+        },
+        {
+          "name": "saucenao_api_key",
+          "type": "str",
+          "description": "SauceNAO API Key，前往 https://saucenao.com/user.php?page=search-api 获取",
+          "default": "saucenao_api_key"
+        },
+        {
+          "name": "wolfram_alpha_key",
+          "type": "str",
+          "description": "WolframAlpha Key，前往 https://www.wolframalpha.com/ 获取",
+          "default": "wolfram_alpha_key"
+        },
+        {
+          "name": "github",
+          "type": "dict",
+          "description": "Github相关",
+          "children": [
+            {
+              "name": "username",
+              "type": "str",
+              "description": "Github 用户名",
+              "default": "username"
+            },
+            {
+              "name": "token",
+              "type": "str",
+              "description": "Github token，前往 https://github.com/settings/tokens 获取",
+              "default": "token"
+            }
+          ]
+        },
+        {
+          "name": "pica",
+          "type": "dict",
+          "description": "哔咔漫画相关",
+          "children": [
+            {
+              "name": "username",
+              "type": "str",
+              "description": "哔咔漫画邮箱",
+              "default": "username"
+            },
+            {
+              "name": "password",
+              "type": "str",
+              "description": "哔咔漫画密码",
+              "default": "password"
+            },
+            {
+              "name": "download_cache",
+              "type": "bool",
+              "description": "下载漫画是否缓存",
+              "default": true
+            },
+            {
+              "name": "search_cache",
+              "type": "bool",
+              "description": "搜索漫画是否缓存",
+              "default": true
+            },
+            {
+              "name": "daily_download_limit",
+              "type": "int",
+              "description": "用户每日下载次数限制",
+              "default": 1
+            },
+            {
+              "name": "daily_search_limit",
+              "type": "int",
+              "description": "用户每日搜索次数限制",
+              "default": 1
+            },
+            {
+              "name": "daily_random_limit",
+              "type": "int",
+              "description": "用户每日随机漫画次数限制",
+              "default": 1
+            },
+            {
+              "name": "daily_rank_limit",
+              "type": "int",
+              "description": "用户每日获取排行榜次数限制",
+              "default": 1
+            },
+            {
+              "name": "compress_password",
+              "type": "str",
+              "description": "文件压缩包密码",
+              "default": "i_luv_sagiri"
+            }
+          ]
+        },
+        {
+          "name": "bilibili",
+          "type": "dict",
+          "description": "BiliBili 相关",
+          "children": [
+            {
+              "name": "cookie",
+              "type": "str",
+              "description": "BiliBili Cookie，打开B站网页在网页控制台查看Cookie获取",
+              "default": "cookie"
+            }
+          ]
+        },
+        {
+          "name": "stable_diffusion_api",
+          "type": "str",
+          "description": "AI绘图所需 StableDiffusion api 地址",
+          "default": "stable_diffusion_api"
+        },
+        {
+          "name": "lolicon",
+          "type": "dict",
+          "description": "Lolicon API 相关",
+          "children": [
+            {
+              "name": "image_cache",
+              "type": "bool",
+              "description": "缓存获取到的图片",
+              "default": true
+            },
+            {
+              "name": "data_cache",
+              "type": "bool",
+              "description": "缓存获取到的数据（json）",
+              "default": true
+            },
+            {
+              "name": "cache_path",
+              "type": "str",
+              "description": "非R18图缓存路径",
+              "default": "cache_path"
+            },
+            {
+              "name": "cache18_path",
+              "type": "str",
+              "description": "R18图缓存路径",
+              "default": "cache18_path"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "log_related",
+      "type": "dict",
+      "description": "日志文件相关",
+      "children": [
+        {
+          "name": "error_retention",
+          "type": "int",
+          "description": "错误日志保存天数",
+          "default": 14
+        },
+        {
+          "name": "common_retention",
+          "type": "int",
+          "description": "普通日志保存天数",
+          "default": 7
+        }
+      ]
+    },
+    {
+      "name": "data_related",
+      "type": "dict",
+      "description": "数据文件相关",
+      "children": [
+        {
+          "name": "error_retention",
+          "type": "int",
+          "description": "错误日志保存天数",
+          "default": 14
+        },
+        {
+          "name": "common_retention",
+          "type": "int",
+          "description": "普通日志保存天数",
+          "default": 7
+        }
+      ]
+    },
+    {
+      "name": "database_related",
+      "type": "dict",
+      "description": "数据库相关（若你不知道这是什么意思，请不要修改）",
+      "children": [
+        {
+          "name": "mysql",
+          "type": "dict",
+          "description": "MySQL相关",
+          "children": [
+            {
+              "name": "disable_pooling",
+              "type": "bool",
+              "description": "关闭连接池",
+              "default": false
+            },
+            {
+              "name": "pool_size",
+              "type": "int",
+              "description": "连接池大小",
+              "default": 40
+            },
+            {
+              "name": "max_overflow",
+              "type": "int",
+              "description": "",
+              "default": 40
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -101,6 +101,9 @@ if __name__ == '__main__':
         from shared.utils.tui import set_config
         set_config()
     else:
+        if not (Path.cwd() / "config.yaml").exists():
+            from shared.utils.tui import config_init
+            config_init()
         core = create(Sagiri)
         core.install_modules(Path("modules") / "self_contained")
         core.install_modules(Path("modules") / "third_party")

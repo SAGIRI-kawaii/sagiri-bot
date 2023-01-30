@@ -15,8 +15,18 @@ def is_float(s: str) -> bool:
         return False
 
 
-def parse_type(message: MessageChain, res_type: Type[T], default_value: Optional[T] = None) -> T:
-    message = message.display.strip()
+def parse_bool(message: str, default_value: bool | None = None) -> bool | None:
+    if message.lower() in ("true", "false"):
+        return message.lower() == "true"
+    return default_value
+
+
+def parse_type(message: MessageChain | str, res_type: Type[T], default_value: Optional[T] = None) -> T:
+    if isinstance(message, MessageChain):
+        message = message.display.strip()
+    message = message.strip()
+    if res_type == bool:
+        return parse_bool(message, default_value)
     try:
         return res_type(message)
     except ValueError:

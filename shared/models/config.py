@@ -81,11 +81,6 @@ class GlobalConfig(BaseModel):
         "lolicon": {}
     }
     log_related: dict = {"error_retention": 14, "common_retention": 7}
-    data_related: dict = {
-        "network_data_cache": False,
-        "automatic_update": False,
-        "data_retention": False,
-    }
 
     def get_proxy(self) -> str:
         return self.proxy if self.proxy != "proxy" else ""

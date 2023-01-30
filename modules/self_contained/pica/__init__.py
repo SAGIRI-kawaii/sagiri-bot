@@ -129,6 +129,7 @@ def check_limit(ty: str):
 
     return Depend(check_limit_deco)
 
+
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
@@ -212,7 +213,7 @@ async def pica_rank(app: Ariadne, group: Group, rank_time: RegexResult):
     )
 )
 async def pica_search(
-    app: Ariadne, group: Group, operation: RegexResult, content: RegexResult
+        app: Ariadne, group: Group, operation: RegexResult, content: RegexResult
 ):
     search = str(operation.result) == "search"
     keyword = str(content.result).strip() if content.matched else ""
@@ -266,7 +267,7 @@ async def pica_search(
     )
 )
 async def pica_download(
-    app: Ariadne, group: Group, forward_type: ArgResult, content: RegexResult
+        app: Ariadne, group: Group, forward_type: ArgResult, content: RegexResult
 ):
     if not content.matched:
         return await app.send_group_message(group, MessageChain("是要下载什么啊？"))
