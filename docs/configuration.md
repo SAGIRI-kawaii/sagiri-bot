@@ -87,18 +87,16 @@ functions:
   bilibili:
     cookie: cookie  # BiliBili Cookie（用于查询 vtb 成分）
   stable_diffusion_api: stable_diffusion_api  # Stable Diffusion 地址，后端仅适配 https://github.com/SAGIRI-kawaii/stable-diffusion-webui-api，请自行部署（用于 AI 绘图）
+  lolicon:
+    image_cache: true   # 缓存获取到的图片
+    data_cache: true    # 缓存获取到的数据（json）
+    cache_path: cache_path    # 非R18图缓存路径
+    cache18_path: cache18_path  # R18图缓存路径
 
 # 日志相关
 log_related:
   error_retention: 14 # 错误日志记录周期
   common_retention: 7 # common_retention
-
-# 数据相关
-data_related:
-  lolicon_image_cache: true # 自动缓存获取到的 Lolicon Api 图片
-  lolicon_data_cache: true # 自动缓存获取到的 Lolicon Api Json 数据
-  network_data_cache: true
-  data_retention: true
 
 # 数据库相关，若不了解请不要修改这一部分，用于自定义engine参数
 database_related:
