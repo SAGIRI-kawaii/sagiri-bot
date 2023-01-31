@@ -81,4 +81,4 @@ default = true
 
 [tool.poetry.group.dev.dependencies]
 black = {version = "^23.1a1", allow-prereleases = true}
-
+pre-commit = "^3.0.2"
