@@ -123,28 +123,6 @@ async def member_leave_event_kick(app: Ariadne, group: Group, member: Member, ev
 
 @channel.use(
     ListenerSchema(
-        listening_events=[MemberLeaveEventKick],
-        decorators=[Function.require(channel.module), Distribute.distribute()]
-    )
-)
-async def member_leave_event_kick(
-    app: Ariadne, group: Group, member: Member, event: MemberLeaveEventKick
-):
-    with contextlib.suppress(AccountMuted):
-        await app.send_message(
-            event.member.group,
-            MessageChain(
-                event_config["MemberLeaveEventKick"].format(
-                    **unpack_operator(event.operator),
-                    **unpack_member(member),
-                    **unpack_group(group)
-                )
-            ),
-        )
-
-
-@channel.use(
-    ListenerSchema(
         listening_events=[MemberSpecialTitleChangeEvent],
         decorators=[Function.require(channel.module), Distribute.distribute()]
     )

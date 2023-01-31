@@ -13,6 +13,12 @@
       "required": true
     },
     {
+      "name": "host_qq",
+      "type": "int",
+      "description": "机器人主人账号",
+      "required": true
+    },
+    {
       "name": "mirai_host",
       "type": "str",
       "description": "Mirai-Api-HTTP 地址及端口",

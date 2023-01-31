@@ -3,6 +3,22 @@ import argparse
 from pathlib import Path
 from loguru import logger
 
+if __name__ == '__main__':
+    if Path.cwd() != Path(__file__).parent.absolute():
+        logger.critical(f"当前目录非项目所在目录！请进入{str(Path(__file__).parent)}后再运行 SAGIRI-BOT!")
+        exit(0)
+
+    parser = argparse.ArgumentParser(description='命令行中传入一个数字')
+    parser.add_argument('--set-config', action="store_true", help="配置文件更改", dest="set_config")
+    args = parser.parse_args()
+    if args.set_config:
+        from shared.utils.tui import set_config
+        set_config()
+        exit(0)
+    elif not (Path.cwd() / "config.yaml").exists():
+        from shared.utils.tui import config_init
+        config_init()
+
 from creart import create
 from graia.saya import Saya
 from graia.ariadne import Ariadne
@@ -90,22 +106,8 @@ async def accounts_check_run():
 
 
 if __name__ == '__main__':
-    if Path.cwd() != Path(__file__).parent.absolute():
-        logger.critical(f"当前目录非项目所在目录！请进入{str(Path(__file__).parent)}后再运行 SAGIRI-BOT!")
-        exit(0)
-
-    parser = argparse.ArgumentParser(description='命令行中传入一个数字')
-    parser.add_argument('--set-config', action="store_true", help="配置文件更改", dest="set_config")
-    args = parser.parse_args()
-    if args.set_config:
-        from shared.utils.tui import set_config
-        set_config()
-    else:
-        if not (Path.cwd() / "config.yaml").exists():
-            from shared.utils.tui import config_init
-            config_init()
-        core = create(Sagiri)
-        core.install_modules(Path("modules") / "self_contained")
-        core.install_modules(Path("modules") / "third_party")
-        core.install_modules(Path("modules") / "required")
-        core.launch()
+    core = create(Sagiri)
+    core.install_modules(Path("modules") / "self_contained")
+    core.install_modules(Path("modules") / "third_party")
+    core.install_modules(Path("modules") / "required")
+    core.launch()
