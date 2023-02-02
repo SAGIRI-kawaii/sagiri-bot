@@ -297,9 +297,9 @@ url:http://xxx.xxx.xxx
 
 ## 配置 config
 
-- 打开 `config_demo.yaml`
+- 打开 `/config/config_demo.yaml`
 - 按文件中注释更改
-- 将文件更名为 `config.yaml`
+- 将文件更名为 `/config/config.yaml`
 
 ???+ note "不知道怎么改数据库链接？"
 

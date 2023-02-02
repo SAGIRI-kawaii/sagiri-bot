@@ -44,6 +44,7 @@ nav:
     - Windows: deployment/windows.md
     - Linux: deployment/linux.md
     - Android: deployment/android.md
+    - Docker: deployment/docker.md
   - 配置文件: configuration.md
   - 功能:
     - 必要插件（建议不删除）: functions/required_module.md
