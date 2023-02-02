@@ -15,7 +15,7 @@ if __name__ == '__main__':
         from shared.utils.tui import set_config
         set_config()
         exit(0)
-    elif not (Path.cwd() / "config.yaml").exists():
+    elif not (Path.cwd() / "config" / "config.yaml").exists():
         from shared.utils.tui import config_init
         config_init()
 

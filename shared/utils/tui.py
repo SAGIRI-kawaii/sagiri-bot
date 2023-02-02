@@ -9,8 +9,8 @@ from noneprompt import ListPrompt, Choice, InputPrompt, ConfirmPrompt
 
 from shared.utils.type import parse_type
 
-CONFIG_PATH = Path.cwd() / "config.yaml"
-CONFIG_DEMO_PATH = Path.cwd() / "config_demo.yaml"
+CONFIG_PATH = Path.cwd() / "config" / "config.yaml"
+CONFIG_DEMO_PATH = Path.cwd() / "config" / "config_demo.yaml"
 CONFIG_INFO_PATH = Path.cwd() / "resources" / "config_exp.json"
 ConfigInfoType = Literal[
     "str", "int", "float", "bool", "dict", "list[int]", "list[str]"
@@ -55,16 +55,9 @@ VALIDATORS = {
 TYPE_MAP = {"int": int, "str": str, "float": float, "bool": bool}
 
 
-def copy_config_demo():
-    if not CONFIG_PATH.exists():
-        with open(CONFIG_DEMO_PATH, "r", encoding="utf-8") as r:
-            content = r.read()
-        with open(CONFIG_PATH, "w", encoding="utf-8") as w:
-            w.write(content)
-
-
 def set_config():
-    copy_config_demo()
+    if not CONFIG_PATH.exists():
+        CONFIG_PATH.write_text(CONFIG_DEMO_PATH.read_text(encoding="utf-8"), encoding="utf-8")
     with open(CONFIG_PATH, "r", encoding="utf-8") as r:
         configs = yaml.safe_load(r.read())
     path = []

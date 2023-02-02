@@ -147,7 +147,7 @@ dmypy.json
 cython_debug/
 
 # Config file
-config.yaml
+/config/config.yaml
 
 # Data files
 data.db

@@ -3,7 +3,7 @@ from sqlalchemy.pool import NullPool
 
 
 def get_adapter(url: str) -> dict:
-    with open("config.yaml", "r", encoding="utf-8") as f:
+    with open("config/config.yaml", "r", encoding="utf-8") as f:
         configs = yaml.load(f.read(), yaml.BaseLoader)
     if adapters := configs.get("database_related"):
         adapter = None
