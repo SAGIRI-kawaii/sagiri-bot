@@ -2,13 +2,19 @@ import re
 import asyncio
 from pathlib import Path
 from loguru import logger
-from git import Repo, Commit, Head
 from aiohttp import ClientSession, ClientError
 
 from creart import create
 from launart import Launart, Launchable
 
 from shared.models.config import GlobalConfig
+
+try:
+    from git import Repo, Commit, Head
+    has_git = True
+except ImportError:
+    logger.error("未检测到git！")
+    has_git = False
 
 config = create(GlobalConfig)
 proxy = config.proxy if config.proxy != "proxy" else ""
@@ -96,6 +102,8 @@ class UpdaterService(Launchable):
 
     @staticmethod
     async def check_update():
+        if not has_git:
+            return
         logger.info("正在检查更新...")
         try:
             if not (update := await check_update()):
