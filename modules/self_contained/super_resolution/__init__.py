@@ -1,6 +1,5 @@
 import time
 import asyncio
-import imageio
 import numpy as np
 from io import BytesIO
 from pathlib import Path
@@ -9,13 +8,13 @@ from PIL import ImageSequence
 from asyncio import Lock
 from aiohttp.client_exceptions import ClientResponseError
 
-# try:
-from realesrgan import RealESRGANer
-from basicsr.archs.rrdbnet_arch import RRDBNet
-
-enable = True
-# except ImportError:
-#     enable = False
+try:
+    import imageio # imageio 不造为啥也成超分辨专用了
+    from realesrgan import RealESRGANer
+    from basicsr.archs.rrdbnet_arch import RRDBNet
+    enable = True
+except ImportError:
+    enable = False
 
 from graia.saya import Saya, Channel
 from graia.ariadne.app import Ariadne
