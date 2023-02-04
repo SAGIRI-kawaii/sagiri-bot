@@ -1,6 +1,8 @@
 name: ci
 
 on:
+  watch:
+    types: started
   push:
     branches:
       - "Ariadne-v4"
