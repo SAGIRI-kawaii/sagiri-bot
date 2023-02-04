@@ -11,10 +11,13 @@ RUN apt-get update && \
     poetry config installer.max-workers 10 && \
     poetry install
 
+ENV TZ Asia/Shanghai
+
 VOLUME /sagiri-bot/log
 
 VOLUME /sagiri-bot/config
 
 WORKDIR sagiri-bot
 
-ENTRYPOINT ["poetry", "run", "python", "main.py"]
+COPY ./entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["bash","/entrypoint.sh"]
