@@ -16,6 +16,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Generate App Version
+        run: echo APP_VERSION=`git describe --tags --always` >> $GITHUB_ENV
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build and push
@@ -24,4 +26,9 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sagiri-bot:latest
+          platforms: |
+            linux/amd64
+            linux/arm64/v8
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/sagiri-bot:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/sagiri-bot:${{ env.APP_VERSION }}
