@@ -59,6 +59,14 @@ non_log = {
     ActiveFriendMessage
 }
 
+SAGIRI_BOT_LOGO = r"""
+   _____  ___    ______ ____ ____   ____       ____   ____  ______
+  / ___/ /   |  / ____//  _// __ \ /  _/      / __ ) / __ \/_  __/
+  \__ \ / /| | / / __  / / / /_/ / / /______ / __  |/ / / / / /   
+ ___/ // ___ |/ /_/ /_/ / / _, _/_/ //_____// /_/ // /_/ / / /    
+/____//_/  |_|\____//___//_/ |_|/___/      /_____/ \____/ /_/                                          
+"""
+
 
 class Sagiri(object):
     apps: List[Ariadne]
@@ -70,6 +78,7 @@ class Sagiri(object):
     initialized: bool = False
 
     def __init__(self, g_config: GlobalConfig, base_path: str | Path):
+        logger.opt(colors=True).info(f"<magenta>{SAGIRI_BOT_LOGO}</>")
         self.launch_time = datetime.datetime.now()
         self.config = create(GlobalConfig)
         self.base_path = base_path if isinstance(base_path, Path) else Path(base_path)
