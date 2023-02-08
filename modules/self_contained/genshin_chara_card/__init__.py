@@ -1,8 +1,10 @@
+import asyncio
 import re
 import time
 import aiohttp
 import pypinyin
 from bs4 import BeautifulSoup
+from playwright._impl._api_types import TimeoutError
 
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
@@ -84,17 +86,22 @@ async def genshin_chara_card(app: Ariadne, group: Group, source: Source, uid: Re
                 break
         if index == -1 or not chara_src:
             return await app.send_group_message(group, MessageChain("获取角色头像div失败！"))
-        await page.locator(f"div.avatar.svelte-1kjx8ue >> nth={index}").click()
-        await page.locator("div.Card.svelte-11ujmwc").wait_for()
-        buffer = await page.locator("div.Card.svelte-11ujmwc").screenshot()
+        await page.locator(f"div.avatar.svelte-jlfv30 >> nth={index}").click()
+        await asyncio.sleep(1)
+        await page.get_by_role("button", name=re.compile("Export image", re.IGNORECASE)).click()
+        async with page.expect_download() as download_info:
+            for _ in range(3):
+                try:
+                    await page.get_by_role("button", name=re.compile("Download", re.IGNORECASE)).click(timeout=10000)
+                except TimeoutError:
+                    pass
+        path = await (await download_info.value).path()
         await app.send_group_message(
             group,
-            MessageChain(
-                [
-                    f"use: {round(time.time() - start_time, 2)}s\n",
-                    Image(data_bytes=buffer),
-                ]
-            ),
+            MessageChain([
+                f"use: {round(time.time() - start_time, 2)}s\n",
+                Image(path=path)
+            ]),
             quote=source,
         )
 
