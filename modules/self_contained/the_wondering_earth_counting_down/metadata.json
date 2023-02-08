@@ -1,0 +1,29 @@
+{
+  "name": "WonderingEarthCountingDown",
+  "version": "0.1",
+  "display_name": "流浪地球倒计时生成",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "",
+  "usage": [
+    "在群中发送 `/流浪地球 -t top -s start -c count -e end -b bottom` 即可，其中",
+    "-t 为上部文本，-s为倒计时开始文本",
+    "-s为倒计时开始文本",
+    "-c为倒计时时间（不支持汉字）",
+    "-e为倒计时结束文本",
+    "-b为底部（不支持汉字）",
+    "-rgba为透明背景图（非必选）",
+    "-gif为倒计时动图（非必选，仅支持count <= 100）",
+    "若某个参数有不可见字符如空格换行等请将其用双英文引号包裹，如：\"space station\""
+  ],
+  "example": [
+    "/流浪地球 -t top -s start -c count -e end -b bottom",
+    "/流浪地球 -t top -s start -c count -e end -b bottom -rgba",
+    "/流浪地球 -t 距离高考 -s 还有大约 -c 100 -e 天 -b \"Study hard, day day up\" -gif",
+    "/流浪地球 -t 距离外卖到达 -s 还有大约 -c 30 -e 秒 -b \"I'm hungry\nhurry up!\" -gif"
+  ],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["流浪地球"]
+}

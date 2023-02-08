@@ -51,10 +51,10 @@ graia-scheduler = ">=0.0.10"
 pytz = ">=2022.6"
 pyzipper = ">=0.3.6"
 chatgpt-api = ">=0.1.2"
+imageio = "^2.23.0"
 
 realesrgan = {version = "^0.3.0", optional = true}
 basicsr = {version = "^1.4.2", optional = true}
-imageio = {version = "^2.23.0", optional = true}
 
 librosa = {version = "^0.9.2", optional = true}
 torch = {version = "^1.13.1", optional = true}
@@ -63,10 +63,11 @@ inflect = {version = "^6.0.2", optional = true}
 webrtcvad = {version = "^2.0.10", optional = true}
 sqlalchemy = "^2.0.0"
 noneprompt = "^0.1.7"
+bs4 = "^0.0.1"
 
 
 [tool.poetry.extras]
-super_resolution = ["realesrgan", "basicsr", "imageio"]
+super_resolution = ["realesrgan", "basicsr"]
 mockingbird = ["librosa", "torch", "unidecode", "inflect", "webrtcvad"]
 
 [[tool.poetry.source]]
