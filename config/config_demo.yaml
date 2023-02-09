@@ -75,6 +75,10 @@ functions:
     data_cache: true
     cache_path: cache_path
     cache18_path: cache18_path
+  pdf:
+    base_url: base_url
+    username: username
+    password: password
 
 # 日志相关
 log_related:

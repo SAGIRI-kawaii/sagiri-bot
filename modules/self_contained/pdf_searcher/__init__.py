@@ -1,23 +1,28 @@
-import re
-import aiohttp
-from bs4 import BeautifulSoup
-from aiohttp import TCPConnector
+import asyncio
 
 from creart import create
 from graia.saya import Channel
 from graia.ariadne.app import Ariadne
+from graia.broadcast import Broadcast
 from graia.ariadne.message.element import Source
 from graia.ariadne.message.chain import MessageChain
+from graia.broadcast.interrupt import InterruptControl
+from graia.ariadne.connection.util import UploadMethod
 from graia.ariadne.message.parser.twilight import Twilight
-from graia.ariadne.event.message import Group, GroupMessage
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+from graia.ariadne.event.message import Group, GroupMessage, Member
 from graia.ariadne.message.parser.twilight import RegexMatch, RegexResult, SpacePolicy
 
+from shared.utils.waiter import MessageWaiter
 from shared.models.config import GlobalConfig
 from shared.utils.module_related import get_command
+from .utils import get_cookie, get_books, download_book
 from shared.utils.control import (
+    Distribute,
+    Config,
     FrequencyLimit,
     Function,
+    Permission,
     BlackListControl,
     UserCalledCountControl,
 )
@@ -29,7 +34,11 @@ channel.author("SAGIRI-kawaii")
 channel.description("可以搜索pdf的插件，在群中发送 `pdf 书名` 即可")
 
 config = create(GlobalConfig)
-proxy = config.proxy if config.proxy != "proxy" else ""
+proxy = config.get_proxy()
+pdf_config = config.functions.get("pdf", {})
+base_url = pdf_config.get("base_url")
+username = pdf_config.get("username")
+password = pdf_config.get("password")
 
 
 @channel.use(
@@ -42,6 +51,11 @@ proxy = config.proxy if config.proxy != "proxy" else ""
             ])
         ],
         decorators=[
+            Distribute.distribute(),
+            Config.require("functions.pdf.base_url"),
+            Config.require("functions.pdf.username"),
+            Config.require("functions.pdf.password"),
+            Permission.require(Permission.GROUP_ADMIN),
             FrequencyLimit.require("pdf_searcher", 4),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
@@ -49,58 +63,32 @@ proxy = config.proxy if config.proxy != "proxy" else ""
         ],
     )
 )
-async def pdf_searcher(app: Ariadne, group: Group, source: Source, keyword: RegexResult):
-    base_url = "https://zh.1lib.tw"
+async def pdf_searcher(app: Ariadne, group: Group, member: Member, source: Source, keyword: RegexResult):
     keyword = keyword.result.display.strip()
-    url = f"{base_url}/s/?q={keyword}"
-    async with aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
-        async with session.get(url=url, proxy=proxy) as resp:
-            html = await resp.read()
-    soup = BeautifulSoup(html, "html.parser")
-    try:
-        divs = soup.find("div", {"id": "searchResultBox"}).find_all(
-            "div", {"class": "resItemBox resItemBoxBooks exactMatch"}
-        )
-    except AttributeError:
-        await app.send_group_message(
-            group,
-            MessageChain(f"请检查{base_url}是否可以正常访问！若不可以请检查代理是否正常，若代理正常可能为域名更换，请向仓库提出PR"),
-        )
-        return
-    count = 0
-    books = []
-    text = "搜索到以下结果：\n\n"
-    for div in divs:
-        count += 1
-        if count > 5:
-            break
-        name = div.find("h3").get_text().strip()
-        href = div.find("h3").find("a", href=True)["href"]
-        # cover = div.find("table").find("img")["src"]
-        first_div = div.find("table").find("table").find("div")
-        publisher = (
-            first_div.get_text().strip()
-            if re.search('.*?title="Publisher".*?', str(first_div))
-            else None
-        )
-        authors = div.find("div", {"class": "authors"}).get_text().strip()
-
-        text += f"{count}.\n"
-        text += f"名字：{name}\n"
-        text += f"作者：{authors}\n" if authors else ""
-        text += f"出版社：{publisher}\n" if publisher else ""
-        text += f"页面链接：{base_url + href}\n\n"
-
-        books.append(
-            {
-                "name": name,
-                # "cover": cover,
-                "href": base_url + href,
-                "publisher": publisher,
-                "authors": authors,
-            }
-        )
-
+    books = await get_books(keyword)
     if not books:
-        text = "未搜索到结果呢 >A<\n要不要换个关键词试试呢~"
-    await app.send_group_message(group, MessageChain(text), quote=source)
+        return await app.send_group_message(group, "未搜索到结果或api失效 >A<", quote=source)
+    await app.send_group_message(
+        group,
+        MessageChain(
+            "搜索结果如下，若需要下载请在30秒内回复 `download 编号`:\n" +
+            "\n\n".join([f"{i + 1}.\n{book.display}" for i, book in enumerate(books[:10])])
+        ),
+        quote=source
+    )
+    try:
+        message = await asyncio.wait_for(InterruptControl(create(Broadcast)).wait(MessageWaiter(group, member)), 30)
+    except asyncio.TimeoutError:
+        return
+    message = message.display.strip()
+    if message.startswith("download ") and message[9:].isdigit():
+        index = int(message[9:])
+        if not 1 <= index <= len(books):
+            return await app.send_group_message(group, f"不存在这个索引，只有 1-{len(books)} 呢")
+        suffix, content = await download_book(books[index - 1])
+        await app.upload_file(
+            data=content,
+            method=UploadMethod.Group,
+            target=group,
+            name=f"{books[index - 1].name}.{suffix}",
+        )

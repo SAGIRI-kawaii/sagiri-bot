@@ -113,8 +113,10 @@ async def add_keyword(app: Ariadne, group: Group, gallery_name: RegexResult, key
 )
 async def delete_keyword(app: Ariadne, group: Group, member: Member, keyword: RegexResult):
     if record := await orm.fetchone(select(TriggerKeyword.function).where(TriggerKeyword.keyword == keyword)):
-        await app.send_group_message(group,
-                                     MessageChain(f"查找到以下信息：\n{keyword} -> {record[0]}\n是否删除？（是/否）"))
+        await app.send_group_message(
+            group,
+            MessageChain(f"查找到以下信息：\n{keyword} -> {record[0]}\n是否删除？（是/否）")
+        )
         if await InterruptControl(create(Broadcast)).wait(ConfirmWaiter(group, member)):
             _ = await orm.delete(TriggerKeyword, [TriggerKeyword.keyword == keyword])
             return await app.send_group_message(group, MessageChain(f"关键词 {keyword} 删除成功"))

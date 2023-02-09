@@ -495,6 +495,31 @@
               "default": "cache18_path"
             }
           ]
+        },
+        {
+          "name": "pdf",
+          "type": "dict",
+          "description": "Z-library 相关",
+          "children": [
+            {
+              "name": "base_url",
+              "type": "str",
+              "description": "你的私人url，前往 https://singlelogin.me/ 登录获取",
+              "default": "base_url"
+            },
+            {
+              "name": "username",
+              "type": "str",
+              "description": "z-library 用户名",
+              "default": "username"
+            },
+            {
+              "name": "password",
+              "type": "str",
+              "description": "z-library 密码",
+              "default": "password"
+            }
+          ]
         }
       ]
     },

@@ -1,7 +1,7 @@
-import asyncio
 import re
 import time
 import aiohttp
+import asyncio
 import pypinyin
 from bs4 import BeautifulSoup
 from playwright._impl._api_types import TimeoutError

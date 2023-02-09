@@ -18,6 +18,17 @@ class ConfirmWaiter(Waiter.create([GroupMessage])):
             return message.display.strip() in self.confirm_words
 
 
+class MessageWaiter(Waiter.create([GroupMessage])):
+
+    def __init__(self, group: Group, member: Member):
+        self.group_id = group.id
+        self.member_id = member.id
+
+    async def detected_event(self, group: Group, member: Member, message: MessageChain):
+        if group.id == self.group_id and member.id == self.member_id:
+            return message
+
+
 class FriendConfirmWaiter(Waiter.create([FriendMessage])):
 
     def __init__(self, friend: Friend | int, confirm_words: List[str] | None = None):

@@ -346,7 +346,7 @@ class Config(object):
                         raise ExecutionStop()
                     else:
                         current = current.get(path)
-                        if isinstance(current, str) and current == path:
+                        if isinstance(current, str) and current == path or not current:
                             await app.send_group_message(event.sender.group, msg)
                             raise ExecutionStop()
                 else:

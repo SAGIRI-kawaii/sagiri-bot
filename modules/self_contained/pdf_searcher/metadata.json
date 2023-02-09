@@ -1,6 +1,6 @@
 {
   "name": "PDFSearcher",
-  "version": "0.2",
+  "version": "0.3",
   "display_name": "PDF搜索",
   "authors": [
     "SAGIRI-kawaii"
@@ -10,6 +10,5 @@
   "example": ["/pdf 计算机网络"],
   "icon": "",
   "prefix": ["/", ""],
-  "triggers": ["pdf"],
-  "maintaining": true
+  "triggers": ["pdf"]
 }
