@@ -88,11 +88,12 @@ async def genshin_chara_card(app: Ariadne, group: Group, source: Source, uid: Re
             return await app.send_group_message(group, MessageChain("获取角色头像div失败！"))
         await page.locator(f"div.avatar.svelte-jlfv30 >> nth={index}").click()
         await asyncio.sleep(1)
-        await page.get_by_role("button", name=re.compile("Export image", re.IGNORECASE)).click()
+        await page.get_by_role("button", name=re.compile("下载", re.IGNORECASE)).click()
+        await page.evaluate("document.getElementsByClassName('toolbar')[0].remove()")
         async with page.expect_download() as download_info:
             for _ in range(3):
                 try:
-                    await page.get_by_role("button", name=re.compile("Download", re.IGNORECASE)).click(timeout=10000)
+                    await page.get_by_role("button", name=re.compile("下载", re.IGNORECASE)).click(timeout=10000)
                 except TimeoutError:
                     pass
         path = await (await download_info.value).path()

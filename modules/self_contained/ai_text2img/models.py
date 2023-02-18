@@ -8,7 +8,6 @@ class Text2Image(object):
     prompt_style: str = "None"
     prompt_style2: str = "None"
     steps: int = 20
-    sampler_index: int = 0
     restore_faces: bool = False
     tiling: bool = False
     n_iter: int = 1
@@ -21,7 +20,7 @@ class Text2Image(object):
     seed_resize_from_w: int = 0
     height: int = 512
     width: int = 512
-    enable_hr: bool = False
+    enable_hr: bool = True
     scale_latent: bool = True
     denoising_strength: float = 0.7
 
@@ -37,7 +36,6 @@ class Image2Image(object):
     mask_mode: None = None
     init_img: str = ""
     steps: int = 20
-    sampler_index: int = 0
     mask_blur: int = 0
     inpainting_fill: int = 0
     restore_faces: bool = False

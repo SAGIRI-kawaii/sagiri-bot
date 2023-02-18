@@ -1,4 +1,5 @@
 import re
+import json
 import time
 import base64
 from aiohttp.client_exceptions import ClientConnectorError
@@ -19,10 +20,10 @@ from graia.ariadne.message.parser.twilight import (
     RegexMatch
 )
 
-from .requests import sd_req
 from shared.models.config import GlobalConfig
 from shared.utils.image import get_user_avatar
 from shared.utils.type import parse_match_type
+from .requests import sd_req, get_models, change_model, get_status
 from .models import DEFAULT_NEGATIVE_PROMPT, Text2Image, Image2Image
 from shared.utils.control import (
     FrequencyLimit,
@@ -31,7 +32,8 @@ from shared.utils.control import (
     UserCalledCountControl,
     Distribute,
     Config,
-    Anonymous
+    Anonymous,
+    Permission
 )
 
 saya = create(Saya)
@@ -74,19 +76,19 @@ running = False
     )
 )
 async def ai_t2i(
-    app: Ariadne,
-    group: Group,
-    source: Source,
-    width: ArgResult,
-    height: ArgResult,
-    steps: ArgResult,
-    n_iter: ArgResult,
-    cfg_scale: ArgResult,
-    seed: ArgResult,
-    subseed: ArgResult,
-    denoising_strength: ArgResult,
-    negative_prompt: RegexResult,
-    keywords: RegexResult,
+        app: Ariadne,
+        group: Group,
+        source: Source,
+        width: ArgResult,
+        height: ArgResult,
+        steps: ArgResult,
+        n_iter: ArgResult,
+        cfg_scale: ArgResult,
+        seed: ArgResult,
+        subseed: ArgResult,
+        denoising_strength: ArgResult,
+        negative_prompt: RegexResult,
+        keywords: RegexResult,
 ):
     global running
     if running:
@@ -100,7 +102,7 @@ async def ai_t2i(
     subseed = parse_match_type(subseed, int, -1)
     denoising_strength = parse_match_type(denoising_strength, float, 0.7)
     negative_prompt = negative_prompt.result.display[4:-1] if negative_prompt.matched else ""
-    print(width, height, steps, n_iter, cfg_scale, seed, subseed, denoising_strength)
+    print(width, height, steps, n_iter, cfg_scale, seed, subseed, denoising_strength, len(negative_prompt))
     keywords = "".join(i.text for i in keywords.result[Plain]).strip()
     running = True
     st = time.time()
@@ -119,6 +121,8 @@ async def ai_t2i(
     try:
         data = await sd_req(data)
         img_b64 = data["images"][0]
+        del data["images"]
+        data = json.loads(data["info"])
         seed = data["seed"]
         await app.send_group_message(
             group,
@@ -165,21 +169,21 @@ async def ai_t2i(
     )
 )
 async def ai_i2i(
-    app: Ariadne,
-    group: Group,
-    source: Source,
-    quote: Quote | None,
-    width: ArgResult,
-    height: ArgResult,
-    steps: ArgResult,
-    n_iter: ArgResult,
-    cfg_scale: ArgResult,
-    seed: ArgResult,
-    subseed: ArgResult,
-    denoising_strength: ArgResult,
-    target: ArgResult,
-    negative_prompt: RegexResult,
-    message: RegexResult,
+        app: Ariadne,
+        group: Group,
+        source: Source,
+        quote: Quote | None,
+        width: ArgResult,
+        height: ArgResult,
+        steps: ArgResult,
+        n_iter: ArgResult,
+        cfg_scale: ArgResult,
+        seed: ArgResult,
+        subseed: ArgResult,
+        denoising_strength: ArgResult,
+        target: ArgResult,
+        negative_prompt: RegexResult,
+        message: RegexResult,
 ):
     global running
     if running:
@@ -234,3 +238,78 @@ async def ai_i2i(
     except Exception as e:
         running = False
         raise e
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("/ai models")])],
+        decorators=[
+            Distribute.distribute(),
+            FrequencyLimit.require("ai_i2i", 1),
+            Function.require(channel.module, notice=True),
+            BlackListControl.enable(),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+            Config.require("functions.stable_diffusion_api"),
+            Anonymous.block()
+        ]
+    )
+)
+async def show_models(app: Ariadne, group: Group, source: Source):
+    await app.send_group_message(group, MessageChain("\n".join(await get_models())), quote=source)
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("/ai load"), RegexMatch(r".+") @ "model_name"])],
+        decorators=[
+            Distribute.distribute(),
+            FrequencyLimit.require("ai_i2i", 1),
+            Function.require(channel.module, notice=True),
+            BlackListControl.enable(),
+            Permission.require(Permission.SUPER_ADMIN),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+            Config.require("functions.stable_diffusion_api"),
+            Anonymous.block()
+        ]
+    )
+)
+async def load_model(app: Ariadne, group: Group, source: Source, model_name: RegexResult):
+    model_name = model_name.result.display.strip()
+    if model_name not in (m := await get_models()):
+        return await app.send_group_message(group, MessageChain(f"不存在的模型名称！当前已有模型如下：\n" + "\n".join(m)))
+    res = await change_model(model_name)
+    if not res["success"]:
+        return await app.send_group_message(
+            group, MessageChain(f"模型 {model_name} 加载错误：{res['exception']}"), quote=source
+        )
+    await app.send_group_message(
+        group, MessageChain(f"模型 {model_name} 加载成功，用时{round(res['time'], 2)}s"), quote=source
+    )
+
+
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("/ai status")])],
+        decorators=[
+            Distribute.distribute(),
+            FrequencyLimit.require("ai_i2i", 1),
+            Function.require(channel.module, notice=True),
+            BlackListControl.enable(),
+            Permission.require(Permission.GROUP_ADMIN),
+            UserCalledCountControl.add(UserCalledCountControl.FUNCTIONS),
+            Config.require("functions.stable_diffusion_api"),
+            Anonymous.block()
+        ]
+    )
+)
+async def show_status(app: Ariadne, group: Group, source: Source):
+    res = await get_status()
+    ram = f"已使用：{round(res['ram']['used'] / (1024 ** 3), 2)}GB\n" \
+          f"总共：{round(res['ram']['total'] / (1024 ** 3), 2)}GB"
+    cuda = f"空闲：{round(res['cuda']['system']['free'] / (1024 ** 3), 2)}GB\n" \
+           f"已使用：{round(res['cuda']['system']['used'] / (1024 ** 3), 2)}GB\n" \
+           f"总共：{round(res['cuda']['system']['total'] / (1024 ** 3), 2)}GB"
+    return await app.send_group_message(group, f"ram: \n{ram}\n\ncuda: \n{cuda}", quote=source)

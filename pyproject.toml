@@ -64,6 +64,7 @@ webrtcvad = {version = "^2.0.10", optional = true}
 sqlalchemy = "^2.0.0"
 noneprompt = "^0.1.7"
 bs4 = "^0.0.1"
+tokenizers = "^0.13.2"
 
 
 [tool.poetry.extras]

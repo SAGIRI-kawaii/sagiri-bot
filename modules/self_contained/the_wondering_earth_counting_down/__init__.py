@@ -57,10 +57,10 @@ async def wandering_earth_counting_down(
     app: Ariadne, group: Group, top: ArgResult, start: ArgResult, count: ArgResult, end: ArgResult, bottom: ArgResult,
     rgba: ArgResult, gif: ArgResult
 ):
-    top = top.result.display
-    start = start.result.display
-    count = count.result.display
-    end = end.result.display
+    top = top.result.display.strip("\"").strip("'")
+    start = start.result.display.strip("\"").strip("'")
+    count = count.result.display.strip("\"").strip("'")
+    end = end.result.display.strip("\"").strip("'")
     bottom = bottom.result.display.strip("\"").strip("'")
     if gif.matched and not count.isnumeric():
         return await app.send_group_message(group, MessageChain("生成 gif 时 count 必须为数字！"))
