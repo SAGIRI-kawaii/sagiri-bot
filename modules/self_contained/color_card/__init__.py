@@ -101,7 +101,7 @@ async def color_card(
                 "在群中发送 `/色卡 {图片/@成员/qq号/回复有图片的消息}` 即可\n"
                 "可选参数：\n"
                 "   -s/-size：色卡颜色个数，在群中发送 `/色卡 -s={size} {图片/@成员/qq号/回复有图片的消息}` 即可，默认值为5\n"
-                "   -m/-mode：色卡形式，在群中发送 `/色卡 -s={size} {图片/@成员/qq号/回复有图片的消息}` 即可，默认值为center，可选值及说明如下：\n"
+                "   -m/-mode：色卡形式，在群中发送 `/色卡 -m={mode} {图片/@成员/qq号/回复有图片的消息}` 即可，默认值为center，可选值及说明如下：\n"
                 "       pure：纯颜色\n"
                 "       below：在下方添加方形色块\n"
                 "       center：在图片中央添加圆形色块（自适应，若图片长>宽则为center_horizon，反之则为center_vertical）\n"
@@ -167,14 +167,15 @@ async def color_card(
                 await app.send_message(
                     group, MessageChain("请在30s内发送要处理的图片"), quote=source
                 )
-                image_bytes = await asyncio.wait_for(
+                image_element: Image = await asyncio.wait_for(
                     InterruptControl(create(Broadcast)).wait(ImageWaiter(group, member)), 30
                 )
-                if not image_bytes:
+                if not image_element:
                     await app.send_group_message(
                         group, MessageChain("未检测到图片，请重新发送，进程退出"), quote=source
                     )
                     return
+                image_bytes = await image_element.get_bytes()
             except asyncio.TimeoutError:
                 await app.send_group_message(
                     group, MessageChain("图片等待超时，进程退出"), quote=source
