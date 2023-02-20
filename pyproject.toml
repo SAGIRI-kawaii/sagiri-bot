@@ -51,7 +51,6 @@ graia-scheduler = ">=0.0.10"
 pytz = ">=2022.6"
 pyzipper = ">=0.3.6"
 chatgpt-api = ">=0.1.2"
-imageio = "^2.23.0"
 
 realesrgan = {version = "^0.3.0", optional = true}
 basicsr = {version = "^1.4.2", optional = true}
@@ -65,6 +64,7 @@ sqlalchemy = "^2.0.0"
 noneprompt = "^0.1.7"
 bs4 = "^0.0.1"
 tokenizers = "^0.13.2"
+imageio = "^2.25.1"
 
 
 [tool.poetry.extras]

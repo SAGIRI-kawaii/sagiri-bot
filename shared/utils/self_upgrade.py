@@ -13,7 +13,9 @@ try:
     from git import Repo, Commit, Head
     has_git = True
 except ImportError:
+    from typing import Any
     logger.error("未检测到git！")
+    Repo = Commit = Head = Any
     has_git = False
 
 config = create(GlobalConfig)
