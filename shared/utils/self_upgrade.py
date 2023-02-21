@@ -1,6 +1,8 @@
 import re
 import asyncio
 from pathlib import Path
+from typing import Optional
+
 from loguru import logger
 from aiohttp import ClientSession, ClientError
 
@@ -11,35 +13,34 @@ from shared.models.config import GlobalConfig
 
 try:
     from git import Repo, Commit, Head
+
     has_git = True
 except ImportError:
-    from typing import Any
     logger.error("未检测到git！")
-    Repo = Commit = Head = Any
     has_git = False
 
 config = create(GlobalConfig)
 proxy = config.proxy if config.proxy != "proxy" else ""
 
 
-def get_current_repo() -> Repo | None:
+def get_current_repo() -> Optional["Repo"]:
     if (git_path := Path.cwd() / ".git").exists() and git_path.is_dir():
         return Repo(Path.cwd())
     return None
 
 
-def get_current_commit(repo: Repo) -> Commit:
+def get_current_commit(repo: "Repo") -> "Commit":
     try:
         return next(repo.iter_commits())
     except StopIteration as e:
         raise RuntimeError("无法获取当前提交，请检查当前目录是否为 Git 仓库") from e
 
 
-def get_current_branch(repo: Repo) -> Head:
+def get_current_branch(repo: "Repo") -> "Head":
     return repo.active_branch
 
 
-def get_github_repo(repo: Repo) -> str:
+def get_github_repo(repo: "Repo") -> str:
     remote_url = repo.remote().url
     remote_url += "" if remote_url.endswith(".git") else ".git"
     if github_match := re.search(r"(?<=github.com[/:]).+?(?=\.git)", remote_url):
