@@ -1,0 +1,17 @@
+{
+  "name": "GoogleVerification",
+  "version": "0.1",
+  "display_name": "谷歌图片验证码生成",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "",
+  "usage": ["在群中发送 `/谷歌验证码 [-e] {标题}{图片}` 即可"],
+  "example": [
+    "/谷歌验证码 BUGS[图片]",
+    "/谷歌验证码 -e BUGS[图片]"
+  ],
+  "icon": "",
+  "prefix": ["/", ""],
+  "triggers": ["谷歌验证码"]
+}

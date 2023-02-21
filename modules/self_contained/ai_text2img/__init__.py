@@ -169,21 +169,21 @@ async def ai_t2i(
     )
 )
 async def ai_i2i(
-        app: Ariadne,
-        group: Group,
-        source: Source,
-        quote: Quote | None,
-        width: ArgResult,
-        height: ArgResult,
-        steps: ArgResult,
-        n_iter: ArgResult,
-        cfg_scale: ArgResult,
-        seed: ArgResult,
-        subseed: ArgResult,
-        denoising_strength: ArgResult,
-        target: ArgResult,
-        negative_prompt: RegexResult,
-        message: RegexResult,
+    app: Ariadne,
+    group: Group,
+    source: Source,
+    quote: Quote | None,
+    width: ArgResult,
+    height: ArgResult,
+    steps: ArgResult,
+    n_iter: ArgResult,
+    cfg_scale: ArgResult,
+    seed: ArgResult,
+    subseed: ArgResult,
+    denoising_strength: ArgResult,
+    target: ArgResult,
+    negative_prompt: RegexResult,
+    message: RegexResult,
 ):
     global running
     if running:
@@ -215,7 +215,7 @@ async def ai_i2i(
     data = Image2Image(
         prompt=keywords,
         negative_prompt=DEFAULT_NEGATIVE_PROMPT + negative_prompt,
-        init_img=img_b64,
+        init_images=[img_b64],
         steps=steps if steps <= 150 else 20,
         n_iter=n_iter if n_iter <= 9 else 1,
         cfg_scale=cfg_scale if 0 <= cfg_scale <= 30 else 12,
@@ -228,6 +228,8 @@ async def ai_i2i(
     try:
         data = await sd_req(data)
         img_b64 = data["images"][0]
+        del data["images"]
+        data = json.loads(data["info"])
         seed = data["seed"]
         await app.send_group_message(
             group,
