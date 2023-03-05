@@ -8,12 +8,14 @@ from datetime import datetime, timedelta
 
 from creart import create
 from graia.saya import Saya
+from graia.ariadne import Ariadne
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Plain, Image
 from graia.ariadne.model.relationship import MemberPerm
 
 from .models import *
 from shared.orm import orm
+from shared.models.public_group import PublicGroup
 from shared.orm.tables import APIAccount, ChatRecord
 
 logs = []
@@ -181,3 +183,11 @@ def max_permission(permissions: list[MemberPerm]) -> MemberPerm:
         return MemberPerm.Administrator
     else:
         return MemberPerm.Member
+
+
+async def get_group_name(group_id: int) -> str | None:
+    public_group = create(PublicGroup)
+    account = list(public_group.data[group_id].keys())[0]
+    if group := await Ariadne.current(account).get_group(group_id):
+        return group.name
+    return None

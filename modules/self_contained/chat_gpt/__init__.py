@@ -11,6 +11,7 @@ from graia.ariadne.event.message import Group, GroupMessage, Member
 from graia.ariadne.message.parser.twilight import WildcardMatch, RegexResult, ArgResult, ArgumentMatch
 
 from core import Sagiri
+from .preset import preset_dict
 from shared.utils.text2img import md2img
 from shared.utils.module_related import get_command
 from .conversation_manager import ConversationManager
@@ -40,12 +41,14 @@ manager = ConversationManager()
                 get_command(__file__, channel.module),
                 ArgumentMatch("-n", "-new", action="store_true", optional=True) @ "new_thread",
                 ArgumentMatch("-t", "-text", action="store_true", optional=True) @ "text",
+                ArgumentMatch("-p", "-preset", optional=True) @ "preset",
+                ArgumentMatch("--show-preset", action="store_true", optional=True) @ "show_preset",
                 WildcardMatch().flags(re.DOTALL) @ "content",
             ])
         ],
         decorators=[
             Distribute.distribute(),
-            Config.require("functions.chat_gpt"),
+            Config.require("functions.openai_key"),
             FrequencyLimit.require("chat_gpt", 3),
             Function.require(channel.module, notice=True),
             BlackListControl.enable(),
@@ -60,10 +63,17 @@ async def chat_gpt(
     source: Source,
     new_thread: ArgResult,
     text: ArgResult,
+    preset: ArgResult,
+    show_preset: ArgResult,
     content: RegexResult
 ):
+    if show_preset.matched:
+        return await app.send_group_message(
+            group,
+            "当前内置预设：\n" + "\n".join([f"{i} ({v['name']})：{v['description']}" for i, v in preset_dict.items()])
+        )
     if new_thread.matched:
-        _ = await manager.new(group, member)
+        _ = await manager.new(group, member, preset.result.display if preset.matched else "")
     response = await manager.send_message(group, member, content.result.display.strip())
     if text.matched:
         await app.send_group_message(group, MessageChain(response), quote=source)

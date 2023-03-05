@@ -54,6 +54,7 @@ functions:
     secret_key: secret_key
   saucenao_api_key: saucenao_api_key
   wolfram_alpha_key: wolfram_alpha_key
+  openai_key: openai_key
   github:
     username: username
     token: token

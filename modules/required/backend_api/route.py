@@ -5,7 +5,6 @@ from websockets.exceptions import ConnectionClosedError
 from fastapi import Depends, WebSocket, WebSocketDisconnect
 
 from graiax.fastapi import route
-from graia.ariadne import Ariadne
 
 from .utils import *
 from .models import *
@@ -304,7 +303,7 @@ async def get_saya_info(token_valid: bool = Depends(certify_token)):
             "groups": {
                 group: {
                     "id": group,
-                    "name": "t",
+                    "name": (await get_group_name(group)) or "Undefined",
                     "modules": {
                         module: saya_data.switch[module].get(str(group), {}).get("switch", False)
                         for module in saya_data.switch

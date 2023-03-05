@@ -1,6 +1,6 @@
 {
   "name": "ChatGPT",
-  "version": "0.1",
+  "version": "0.2",
   "display_name": "ChatGPT",
   "authors": [
     "SAGIRI-kawaii"
@@ -9,15 +9,19 @@
   "usage": [
     "在群中发送 `/chat 内容` 即可开启对话，之后默认为同一轮对话",
     "在群中发送 `/chat -n 内容` 即可开启新一轮对话",
+    "在群中发送 `/chat -n -p \"{预设}\" 内容` 即可使用自定义预设开启新一轮对话",
+    "在群中发送 `/chat -n -p \"{预设名}\" 内容` 即可使用已有预设开启新一轮对话",
+    "在群中发送 `/chat --show-preset` 即可查询已有预设",
     "在群中发送 `/chat -t 内容` 即可以文字形式返回结果（默认为图片）"
   ],
   "example": [
     "/chat 你好",
     "/chat -n 你好",
     "/chat -t 你好",
-    "/chat -n -t 你好"
+    "/chat -n -t 你好",
+    "/chat -n -t -p sagiri 你好，你是谁啊"
   ],
-  "maintaining": true,
+  "maintaining": false,
   "icon": "",
   "prefix": ["/"],
   "triggers": ["chat"]
