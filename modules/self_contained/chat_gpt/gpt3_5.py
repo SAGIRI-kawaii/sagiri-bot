@@ -35,8 +35,10 @@ class GPT35(object):
         self.message["messages"].append(result)
         return result["content"]
 
-    async def reset(self, reserved_preset: bool = True):
+    def reset(self, reserved_preset: bool = True, preset: str = ""):
         if reserved_preset:
             self.message["messages"] = self.message["messages"][:1]
         else:
-            self.message["messages"] = []
+            self.message["messages"] = [
+                {"role": "system", "content": preset}
+            ]

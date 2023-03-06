@@ -31,7 +31,7 @@ class ConversationManager(object):
             (preset if preset else preset_dict["sagiri"]["content"])
         if group in self.data:
             if member in self.data[group]:
-                _ = await self.data[group][member]["gpt"].reset()
+                _ = self.data[group][member]["gpt"].reset(preset=preset)
             else:
                 self.data[group][member] = {"running": False, "gpt": GPT35(openai_key, preset, proxy)}
         else:
