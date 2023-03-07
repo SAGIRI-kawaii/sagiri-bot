@@ -1,0 +1,25 @@
+{
+  "name": "Wordle",
+  "version": "0.3",
+  "display_name": "Wordle猜单词",
+  "authors": [
+    "SAGIRI-kawaii",
+    "I_love_study"
+  ],
+  "description": "wordle猜单词游戏",
+  "usage": [
+    "发送 `/wordle -h` 查看帮助",
+    "发送 `/wordle -l={length}` 可指定单词长度",
+    "发送 `/wordle -d=SAT` 可指定词典",
+    "发送 `/wordle -g` 可放弃本局比赛",
+    "发送 `/wordle -hint` 可查看提示",
+    "发送 `/wordle -s` 可查看比赛数据"
+  ],
+  "example": [
+    "/wordle",
+    "/wordle -l=5 -d=SAT"
+  ],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["wordle"]
+}
