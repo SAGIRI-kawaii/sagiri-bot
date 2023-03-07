@@ -73,7 +73,7 @@ async def chat_gpt(
             "当前内置预设：\n" + "\n".join([f"{i} ({v['name']})：{v['description']}" for i, v in preset_dict.items()])
         )
     if new_thread.matched:
-        _ = await manager.new(group, member, preset.result.display if preset.matched else "")
+        _ = await manager.new(group, member, (preset.result.display.strip() if preset.matched else ""))
     response = await manager.send_message(group, member, content.result.display.strip())
     if text.matched:
         await app.send_group_message(group, MessageChain(response), quote=source)
