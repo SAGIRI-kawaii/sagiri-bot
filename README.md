@@ -32,6 +32,8 @@
 
 [Linux部署文档](https://sagiri-kawaii.github.io/sagiri-bot/deployment/linux/)
 
+[Docker部署文档](https://sagiri-kawaii.github.io/sagiri-bot/deployment/docker/)
+
 ## 使用文档
 
 [使用文档(部分过时)](https://sagiri-kawaii.github.io/sagiri-bot/)
