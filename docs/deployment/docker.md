@@ -32,7 +32,7 @@
 
 ## sagiri-mah
 
-1. 运行 `docker run -it -v [path]/bots:/mcl/bots --name -v [path]/config:/mcl/config --name sagiri-mah --network sagiri zaphakiel/sagiri-mah`
+1. 运行 `docker run -it -v [path]/bots:/mcl/bots -v [path]/config:/mcl/config --name sagiri-mah --network sagiri zaphakiel/sagiri-mah`
 2. 等待运行完成，出现可以输入的光标（初次运行可能时间很长，请耐心等待，这取决于网络状态），若觉得太卡可以 `Ctrl-C` 退出后使用 `docker start -i sagiri-mah` 重启继续运行
 3. 配置自动登录，输入如下命令：
     ```
