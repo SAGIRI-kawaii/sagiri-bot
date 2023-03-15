@@ -107,7 +107,7 @@ async def get_result(language: str, code: str):
     }
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.post(url=url, headers=headers, data=payload, timeout=3) as resp:
+            async with session.post(url=url, headers=headers, data=payload, timeout=10) as resp:
                 res = await resp.json()
     except asyncio.TimeoutError:
         return {"output": "", "errors": "Network Time Limit Exceeded"}

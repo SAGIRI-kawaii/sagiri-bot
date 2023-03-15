@@ -23,7 +23,7 @@ class GPT35(object):
             async with session.post(url, headers=self.headers, json=self.message, proxy=self.proxy) as resp:
                 return await resp.json()
 
-    async def send_message(self, message: str) -> str:
+    async def send_message(self, message: str, with_token: bool = True) -> str:
         self.message["messages"].append(
             {"role": "user", "content": message}
         )
@@ -32,8 +32,9 @@ class GPT35(object):
             self.message["messages"] = self.message["messages"][:-1]
             return err["message"]
         result = resp["choices"][0]["message"]
+        token_used = resp["usage"]["total_tokens"]
         self.message["messages"].append(result)
-        return result["content"]
+        return result["content"] + f"\n\ntoken: {token_used}/4096" if with_token else ""
 
     def reset(self, preset: str = ""):
         self.message["messages"] = [{"role": "system", "content": preset}] if preset else [self.message["messages"][0]]
