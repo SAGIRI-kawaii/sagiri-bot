@@ -39,6 +39,7 @@ from graia.saya.builtins.broadcast import BroadcastBehaviour
 from creart.creator import AbstractCreator, CreateTargetInfo
 
 from shared.orm import orm
+from shared.utils.launch_time import add_launch_time, LaunchTimeService
 from shared.utils.string import set_log
 from shared.models.config import GlobalConfig
 from shared.models.blacklist import GroupBlackList
@@ -56,15 +57,15 @@ non_log = {
     StrangerMessage,
     ActiveMessage,
     ActiveGroupMessage,
-    ActiveFriendMessage
+    ActiveFriendMessage,
 }
 
 SAGIRI_BOT_LOGO = r"""
    _____  ___    ______ ____ ____   ____       ____   ____  ______
   / ___/ /   |  / ____//  _// __ \ /  _/      / __ ) / __ \/_  __/
-  \__ \ / /| | / / __  / / / /_/ / / /______ / __  |/ / / / / /   
- ___/ // ___ |/ /_/ /_/ / / _, _/_/ //_____// /_/ // /_/ / / /    
-/____//_/  |_|\____//___//_/ |_|/___/      /_____/ \____/ /_/                                          
+  \__ \ / /| | / / __  / / / /_/ / / /______ / __  |/ / / / / /
+ ___/ // ___ |/ /_/ /_/ / / _, _/_/ //_____// /_/ // /_/ / / /
+/____//_/  |_|\____//___//_/ |_|/___/      /_____/ \____/ /_/
 """
 
 
@@ -82,22 +83,27 @@ class Sagiri(object):
         self.launch_time = datetime.datetime.now()
         self.config = create(GlobalConfig)
         self.base_path = base_path if isinstance(base_path, Path) else Path(base_path)
-        self.apps = [Ariadne(
-            config(
-                bot_account,
-                str(g_config.verify_key),
-                HttpClientConfig(host=g_config.mirai_host),
-                WebsocketClientConfig(host=g_config.mirai_host),
-            ),
-            log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO"),
-        ) for bot_account in self.config.bot_accounts]
+        self.apps = [
+            Ariadne(
+                config(
+                    bot_account,
+                    str(g_config.verify_key),
+                    HttpClientConfig(host=g_config.mirai_host),
+                    WebsocketClientConfig(host=g_config.mirai_host),
+                ),
+                log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO"),
+            )
+            for bot_account in self.config.bot_accounts
+        ]
         # logger.disable("uvicorn")
         if self.config.default_account:
             Ariadne.config(default_account=self.config.default_account)
         Ariadne.launch_manager.add_service(
             PlaywrightService(
                 "chromium",
-                proxy={"server": self.config.proxy} if self.config.proxy != "proxy" else None
+                proxy={"server": self.config.proxy}
+                if self.config.proxy != "proxy"
+                else None,
             )
         )
         Ariadne.launch_manager.add_service(UpdaterService())
@@ -106,11 +112,12 @@ class Sagiri(object):
         from shared.utils.alembic import AlembicService
 
         Ariadne.launch_manager.add_service(AlembicService())
+        Ariadne.launch_manager.add_service(LaunchTimeService())
         if self.config.web_manager_api:
             Ariadne.launch_manager.add_service(
                 UvicornService(
                     host="0.0.0.0" if self.config.api_expose else "127.0.0.1",
-                    port=self.config.api_port
+                    port=self.config.api_port,
                 )
             )
             fastapi = FastAPI()
@@ -149,7 +156,9 @@ class Sagiri(object):
         logger.info("本次启动活动群组如下：")
         for account, group_list in total_groups.items():
             for group in group_list:
-                logger.info(f"Bot账号: {str(account).ljust(14)}群ID: {str(group.id).ljust(14)}群名: {group.name}")
+                logger.info(
+                    f"Bot账号: {str(account).ljust(14)}群ID: {str(group.id).ljust(14)}群名: {group.name}"
+                )
         await create(GroupSetting).data_init()
         await create(GroupBlackList).data_init()
         await create(GroupPermission).data_init()
@@ -191,8 +200,16 @@ class Sagiri(object):
 
     def config_check(self) -> None:
         """配置检查"""
-        required_key = ("bot_accounts", "default_account", "host_qq", "mirai_host", "verify_key")
-        logger.info("Start checking configuration\n-----------------------------------------------")
+        required_key = (
+            "bot_accounts",
+            "default_account",
+            "host_qq",
+            "mirai_host",
+            "verify_key",
+        )
+        logger.info(
+            "Start checking configuration\n-----------------------------------------------"
+        )
         father_properties = tuple(dir(BaseModel))
         properties = [
             _
@@ -202,7 +219,9 @@ class Sagiri(object):
         for key in properties:
             value = self.config.__getattribute__(key)
             if key in required_key and key == value:
-                logger.error(f"Required initial value not changed detected: {key} - {value}")
+                logger.error(
+                    f"Required initial value not changed detected: {key} - {value}"
+                )
                 exit(0)
             elif isinstance(value, dict):
                 logger.success(f"{key}:")
@@ -211,7 +230,9 @@ class Sagiri(object):
                 logger.warning(f"Unchanged initial value detected: {key} - {value}")
             else:
                 logger.success(f"{key} - {value}")
-        logger.info("Configuration check completed\n-----------------------------------------------")
+        logger.info(
+            "Configuration check completed\n-----------------------------------------------"
+        )
 
     @staticmethod
     def dict_check(dictionary: dict, indent: int = 4) -> None:
@@ -220,12 +241,16 @@ class Sagiri(object):
                 logger.success(f"{' ' * indent}{key}:")
                 Sagiri.dict_check(dictionary[key], indent + 4)
             elif dictionary[key] == key:
-                logger.warning(f"{' ' * indent}Unchanged initial value detected: {key} - {dictionary[key]}")
+                logger.warning(
+                    f"{' ' * indent}Unchanged initial value detected: {key} - {dictionary[key]}"
+                )
             else:
                 logger.success(f"{' ' * indent}{key} - {dictionary[key]}")
 
     @staticmethod
-    def install_modules(base_path: str | Path, recursion_install: bool = False) -> Dict[str, Exception]:
+    def install_modules(
+        base_path: str | Path, recursion_install: bool = False
+    ) -> Dict[str, Exception]:
         """加载 base_path 中的模块
 
         Args:
@@ -247,29 +272,41 @@ class Sagiri(object):
                 if module in ignore:
                     continue
                 try:
+                    start = datetime.datetime.now()
                     if (base_path / module).is_dir():
                         if (base_path / module / "__init__.py").exists():
                             saya.require(f"{module_base_path}.{module}")
                         elif recursion_install:
-                            Sagiri.install_modules(base_path / module, recursion_install)
+                            Sagiri.install_modules(
+                                base_path / module, recursion_install
+                            )
                     elif (base_path / module).is_file():
                         saya.require(f"{module_base_path}.{module.split('.')[0]}")
+                    add_launch_time(
+                        module.split(".")[0],
+                        (datetime.datetime.now() - start).total_seconds(),
+                        0,
+                    )
                 except Exception as e:
                     logger.exception("")
-                    exceptions[str(base_path / module.split('.')[0])] = e
+                    exceptions[str(base_path / module.split(".")[0])] = e
+                    add_launch_time(
+                        module.split(".")[0],
+                        (datetime.datetime.now() - start).total_seconds(),
+                        1,
+                    )
         return exceptions
 
     @staticmethod
-    def module_operation(modules: str | list[str], operation_type: ModuleOperationType) -> dict[str, Exception]:
+    def module_operation(
+        modules: str | list[str], operation_type: ModuleOperationType
+    ) -> dict[str, Exception]:
         saya = create(Saya)
         exceptions = {}
         if isinstance(modules, str):
             modules = [modules]
         if operation_type == ModuleOperationType.INSTALL:
-            op_modules = {
-                module: module
-                for module in modules
-            }
+            op_modules = {module: module for module in modules}
         else:
             loaded_channels = saya.channels
             op_modules = {
@@ -294,18 +331,26 @@ class Sagiri(object):
         if not (Path.cwd() / "alembic").exists():
             logger.info("未检测到alembic目录，进行初始化")
             os.system("alembic init alembic")
-            with open(Path.cwd() / "resources" / "alembic_env_py_content.txt", "r") as r:
+            with open(
+                Path.cwd() / "resources" / "alembic_env_py_content.txt", "r"
+            ) as r:
                 alembic_env_py_content = r.read()
             with open(Path.cwd() / "alembic" / "env.py", "w") as w:
                 w.write(alembic_env_py_content)
             db_link = self.config.db_link
-            db_link = db_link.split(":")[0].split("+")[0] + ":" + ":".join(db_link.split(":")[1:])
+            db_link = (
+                db_link.split(":")[0].split("+")[0]
+                + ":"
+                + ":".join(db_link.split(":")[1:])
+            )
             logger.warning(f"尝试自动更改 sqlalchemy.url 为 {db_link}，若出现报错请自行修改")
             alembic_ini_path = Path.cwd() / "alembic.ini"
             lines = alembic_ini_path.read_text(encoding="utf-8").split("\n")
             for i, line in enumerate(lines):
                 if line.startswith("sqlalchemy.url"):
-                    lines[i] = line.replace("driver://user:pass@localhost/dbname", db_link)
+                    lines[i] = line.replace(
+                        "driver://user:pass@localhost/dbname", db_link
+                    )
                     break
             alembic_ini_path.write_text("\n".join(lines))
         alembic_version_path = Path.cwd() / "alembic" / "versions"
