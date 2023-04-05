@@ -297,9 +297,9 @@ url:http://xxx.xxx.xxx
 
 ## 配置 config
 
-- 打开 `config_demo.yaml`
+- 打开 `/config/config_demo.yaml`
 - 按文件中注释更改
-- 将文件更名为 `config.yaml`
+- 将文件更名为 `/config/config.yaml`
 
 ???+ note "不知道怎么改数据库链接？"
 
@@ -336,7 +336,7 @@ url:http://xxx.xxx.xxx
 
 ???+ note "不知道什么是引擎？"
 
-    <big>**如果你在上一步保持不变，这一步跳过即可。**</big>
+    <big>**如果你在上一步保持不变，这一步填写 `sqlite:///data.db` 即可**</big>
 
     - SQLite
 
