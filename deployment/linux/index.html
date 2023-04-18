@@ -1,0 +1,1715 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../windows/">
+      
+      
+        <link rel="next" href="../android/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.6">
+    
+    
+      
+        <title>Linux - SAGIRI BOT Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ded33207.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+  
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>');--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.5 1.75v11.5c0 .138.112.25.25.25h3.17a.75.75 0 0 1 0 1.5H2.75A1.75 1.75 0 0 1 1 13.25V1.75C1 .784 1.784 0 2.75 0h8.5C12.216 0 13 .784 13 1.75v7.736a.75.75 0 0 1-1.5 0V1.75a.25.25 0 0 0-.25-.25h-8.5a.25.25 0 0 0-.25.25Zm13.274 9.537v-.001l-4.557 4.45a.75.75 0 0 1-1.055-.008l-1.943-1.95a.75.75 0 0 1 1.062-1.058l1.419 1.425 4.026-3.932a.75.75 0 1 1 1.048 1.074ZM4.75 4h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM4 7.75A.75.75 0 0 1 4.75 7h2a.75.75 0 0 1 0 1.5h-2A.75.75 0 0 1 4 7.75Z"/></svg>');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.499.75a.75.75 0 0 1 1.5 0v.996C5.9 2.903 6.793 3.65 7.662 4.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873 10.794-.045 12.622.26 14.408.558 16 1.94 16 4.25c0 1.278-.954 2.575-2.44 2.734l.146.508.065.22c.203.701.412 1.455.476 2.226.142 1.707-.4 3.03-1.487 3.898C11.714 14.671 10.27 15 8.75 15h-6a.75.75 0 0 1 0-1.5h1.376a4.484 4.484 0 0 1-.563-1.191 3.835 3.835 0 0 1-.05-2.063 4.647 4.647 0 0 1-2.025-.293.75.75 0 0 1 .525-1.406c1.357.507 2.376-.006 2.698-.318l.009-.01a.747.747 0 0 1 1.06 0 .748.748 0 0 1-.012 1.074c-.912.92-.992 1.835-.768 2.586.221.74.745 1.337 1.196 1.621H8.75c1.343 0 2.398-.296 3.074-.836.635-.507 1.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.425 2.425 0 0 1-.507-.441 3.075 3.075 0 0 1-.633-1.248.75.75 0 0 1 1.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738 0 1.25-.615 1.25-1.25 0-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706 1.345-.46.92-.27 1.774.019 3.062l.042.19a.884.884 0 0 1 .01.05c.348.443.666.949.94 1.553a.75.75 0 1 1-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7 5.527c-.814-.68-1.75-1.462-2.692-2.619a3.737 3.737 0 0 0-1.023.88c-.406.495-.663 1.036-.722 1.508.116.122.306.21.591.239.388.038.797-.06 1.032-.19a.75.75 0 0 1 .728 1.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75 5.677V5.5c0-.984.48-1.94 1.077-2.664.46-.559 1.05-1.055 1.673-1.353V.75Z"/></svg>');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.92 6.085h.001a.749.749 0 1 1-1.342-.67c.169-.339.436-.701.849-.977C6.845 4.16 7.369 4 8 4a2.756 2.756 0 0 1 1.637.525c.503.377.863.965.863 1.725 0 .448-.115.83-.329 1.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6.24 6.24 0 0 0-.26.16.952.952 0 0 0-.276.245.75.75 0 0 1-1.248-.832c.184-.264.42-.489.692-.661.103-.067.207-.132.313-.195l.007-.004c.1-.061.182-.11.258-.161a.969.969 0 0 0 .277-.245C8.96 6.514 9 6.427 9 6.25a.612.612 0 0 0-.262-.525A1.27 1.27 0 0 0 8 5.5c-.369 0-.595.09-.74.187a1.01 1.01 0 0 0-.34.398ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.344 2.343h-.001a8 8 0 0 1 11.314 11.314A8.002 8.002 0 0 1 .234 10.089a8 8 0 0 1 2.11-7.746Zm1.06 10.253a6.5 6.5 0 1 0 9.108-9.275 6.5 6.5 0 0 0-9.108 9.275ZM6.03 4.97 8 6.94l1.97-1.97a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-1.97 1.97a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L6.94 8 4.97 6.03a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018Z"/></svg>');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9.504.43a1.516 1.516 0 0 1 2.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.249 1.249 0 0 1-.871.354h-.302a1.25 1.25 0 0 1-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429Zm1.047 1.074L3.286 8.571A.25.25 0 0 0 3.462 9H6.75a.75.75 0 0 1 .694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0 0 12.538 7H9.25a.75.75 0 0 1-.683-1.06l2.008-4.418.003-.006a.036.036 0 0 0-.004-.009l-.006-.006-.008-.001c-.003 0-.006.002-.009.004Z"/></svg>');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.72.22a.75.75 0 0 1 1.06 0l1 .999a3.488 3.488 0 0 1 2.441 0l.999-1a.748.748 0 0 1 1.265.332.75.75 0 0 1-.205.729l-.775.776c.616.63.995 1.493.995 2.444v.327c0 .1-.009.197-.025.292.408.14.764.392 1.029.722l1.968-.787a.75.75 0 0 1 .556 1.392L13 7.258V9h2.25a.75.75 0 0 1 0 1.5H13v.5c0 .409-.049.806-.141 1.186l2.17.868a.75.75 0 0 1-.557 1.392l-2.184-.873A4.997 4.997 0 0 1 8 16a4.997 4.997 0 0 1-4.288-2.427l-2.183.873a.75.75 0 0 1-.558-1.392l2.17-.868A5.036 5.036 0 0 1 3 11v-.5H.75a.75.75 0 0 1 0-1.5H3V7.258L.971 6.446a.75.75 0 0 1 .558-1.392l1.967.787c.265-.33.62-.583 1.03-.722a1.677 1.677 0 0 1-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72 1.28a.75.75 0 0 1 0-1.06Zm.53 6.28a.75.75 0 0 0-.75.75V11a3.5 3.5 0 1 0 7 0V7.25a.75.75 0 0 0-.75-.75ZM6.173 5h3.654A.172.172 0 0 0 10 4.827V4.5a2 2 0 1 0-4 0v.327c0 .096.077.173.173.173Z"/></svg>');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M5 5.782V2.5h-.25a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 0 1.5H11v3.282l3.666 5.76C15.619 13.04 14.543 15 12.767 15H3.233c-1.776 0-2.852-1.96-1.899-3.458Zm-2.4 6.565a.75.75 0 0 0 .633 1.153h9.534a.75.75 0 0 0 .633-1.153L12.225 10.5h-8.45ZM9.5 2.5h-3V6c0 .143-.04.283-.117.403L4.73 9h6.54L9.617 6.403A.746.746 0 0 1 9.5 6Z"/></svg>');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1.75 2.5h10.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm4 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5Zm0 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5ZM2.5 7.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 1.5 0Z"/></svg>');}</style>
+
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="pink">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#linux" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="SAGIRI BOT Docs" class="md-header__button md-logo" aria-label="SAGIRI BOT Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAGIRI BOT Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Linux
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="pink" data-md-color-accent="pink"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="pink" data-md-color-accent="pink"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SAGIRI-kawaii/sagiri-bot" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    SAGIRI-kawaii/sagiri-bot
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAGIRI BOT Docs" class="md-nav__button md-logo" aria-label="SAGIRI BOT Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    SAGIRI BOT Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SAGIRI-kawaii/sagiri-bot" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    SAGIRI-kawaii/sagiri-bot
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        前言
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          项目部署
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          项目部署
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../windows/" class="md-nav__link">
+        Windows
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Linux
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Linux
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mirai" class="md-nav__link">
+    安装 Mirai
+  </a>
+  
+    <nav class="md-nav" aria-label="安装 Mirai">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mirai-console-loader" class="md-nav__link">
+    使用 mirai-console-loader 安装
+  </a>
+  
+    <nav class="md-nav" aria-label="使用 mirai-console-loader 安装">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#java" class="md-nav__link">
+    安装 Java
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mirai-console-loader_1" class="md-nav__link">
+    安装 mirai-console-loader
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcl-installer" class="md-nav__link">
+    使用 mcl-installer 安装
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mirai-api-http-v2" class="md-nav__link">
+    安装 mirai-api-http-v2
+  </a>
+  
+    <nav class="md-nav" aria-label="安装 mirai-api-http-v2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mirai-api-http-v2_1" class="md-nav__link">
+    配置 mirai-api-http-v2
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    配置自动登录
+  </a>
+  
+    <nav class="md-nav" aria-label="配置自动登录">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#autologin" class="md-nav__link">
+    使用 /autoLogin 配置自动登录（推荐）
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#console" class="md-nav__link">
+    修改 Console 配置文件实现自动登录（不推荐）
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qq" class="md-nav__link">
+    登录 QQ
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python" class="md-nav__link">
+    安装 python
+  </a>
+  
+    <nav class="md-nav" aria-label="安装 python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anacondaminiconda" class="md-nav__link">
+    使用 Anaconda/Miniconda
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    自行安装
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sagiri-bot" class="md-nav__link">
+    下载 SAGIRI-BOT
+  </a>
+  
+    <nav class="md-nav" aria-label="下载 SAGIRI-BOT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    使用 git
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    直接下载
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python_1" class="md-nav__link">
+    配置 python 虚拟环境并安装依赖
+  </a>
+  
+    <nav class="md-nav" aria-label="配置 python 虚拟环境并安装依赖">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anacondaminiconda_1" class="md-nav__link">
+    使用 Anaconda/Miniconda
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#poetry" class="md-nav__link">
+    使用 poetry
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    配置 config
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alembic" class="md-nav__link">
+    配置 alembic
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    启动机器人8
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    后台运行
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../android/" class="md-nav__link">
+        Android
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docker/" class="md-nav__link">
+        Docker
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/" class="md-nav__link">
+        配置文件
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          功能
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          功能
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../functions/required_module/" class="md-nav__link">
+        必要插件（建议不删除）
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../functions/handlers/" class="md-nav__link">
+        内置插件（可删除）
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../function_extension/" class="md-nav__link">
+        功能拓展
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          二次开发
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          二次开发
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/start/" class="md-nav__link">
+        开始开发
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/orm/" class="md-nav__link">
+        数据库
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/recommend_saya_standard/" class="md-nav__link">
+        推荐的插件结构
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+          数据模型
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_4">
+          <span class="md-nav__icon md-icon"></span>
+          数据模型
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/models/config/" class="md-nav__link">
+        配置类
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
+          内置工具
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6_5">
+          <span class="md-nav__icon md-icon"></span>
+          内置工具
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/utils/control/" class="md-nav__link">
+        控制器
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/utils/waiter/" class="md-nav__link">
+        中断处理
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/utils/type/" class="md-nav__link">
+        类型转换
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/utils/module_related/" class="md-nav__link">
+        模块自定义前缀
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/utils/files/" class="md-nav__link">
+        文件相关
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manage/" class="md-nav__link">
+        管理
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../FAQ/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        关于
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mirai" class="md-nav__link">
+    安装 Mirai
+  </a>
+  
+    <nav class="md-nav" aria-label="安装 Mirai">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mirai-console-loader" class="md-nav__link">
+    使用 mirai-console-loader 安装
+  </a>
+  
+    <nav class="md-nav" aria-label="使用 mirai-console-loader 安装">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#java" class="md-nav__link">
+    安装 Java
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mirai-console-loader_1" class="md-nav__link">
+    安装 mirai-console-loader
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mcl-installer" class="md-nav__link">
+    使用 mcl-installer 安装
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mirai-api-http-v2" class="md-nav__link">
+    安装 mirai-api-http-v2
+  </a>
+  
+    <nav class="md-nav" aria-label="安装 mirai-api-http-v2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mirai-api-http-v2_1" class="md-nav__link">
+    配置 mirai-api-http-v2
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    配置自动登录
+  </a>
+  
+    <nav class="md-nav" aria-label="配置自动登录">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#autologin" class="md-nav__link">
+    使用 /autoLogin 配置自动登录（推荐）
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#console" class="md-nav__link">
+    修改 Console 配置文件实现自动登录（不推荐）
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qq" class="md-nav__link">
+    登录 QQ
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python" class="md-nav__link">
+    安装 python
+  </a>
+  
+    <nav class="md-nav" aria-label="安装 python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anacondaminiconda" class="md-nav__link">
+    使用 Anaconda/Miniconda
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    自行安装
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sagiri-bot" class="md-nav__link">
+    下载 SAGIRI-BOT
+  </a>
+  
+    <nav class="md-nav" aria-label="下载 SAGIRI-BOT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    使用 git
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    直接下载
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python_1" class="md-nav__link">
+    配置 python 虚拟环境并安装依赖
+  </a>
+  
+    <nav class="md-nav" aria-label="配置 python 虚拟环境并安装依赖">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anacondaminiconda_1" class="md-nav__link">
+    使用 Anaconda/Miniconda
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#poetry" class="md-nav__link">
+    使用 poetry
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    配置 config
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alembic" class="md-nav__link">
+    配置 alembic
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    启动机器人8
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    后台运行
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="linux">Linux 部署</h1>
+<div class="admonition danger">
+<p class="admonition-title">使用前注意</p>
+<p>本教程需要：</p>
+<ul>
+<li>
+<p>基础文件操作能力</p>
+</li>
+<li>
+<p>基础终端使用能力</p>
+</li>
+<li>
+<p>基础搜索引擎使用能力</p>
+</li>
+<li>
+<p>中文阅读理解能力</p>
+</li>
+<li>
+<p>一个可以正常运转的脑子</p>
+</li>
+</ul>
+<p>没有的话建议快跑</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">一个建议</p>
+<p>极度不建议没有任何计算机基础的人安装或使用 SAGIRI-BOT!</p>
+<p>除非你懂得如何阅读文档、虚心提问并可以正常使用搜索引擎</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">关于部署出现问题</p>
+<p>当部署出现问题时，请检查是否按文档顺序进行，如出现问题可前往 <a href="/FAQ/">FAQ</a> 寻找，如果没有找到原因可以前往 <a href="https://jq.qq.com/?_wv=1027&amp;k=9hfqo8AL">SAGIRI BOT官方交流群</a> 询问或在 github 提出 ISSUE</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">其他选择</p>
+<p>对于 <code>mirai</code> 的部署部分，如果有感觉写的不清楚的地方，可以查看官方/社区的部署教程，效果是相同的</p>
+<ul>
+<li>
+<p><a href="https://graia.cn/ariadne/appendix/mah-install/">官方文档 - Mirai API HTTP 安装</a></p>
+</li>
+<li>
+<p><a href="https://graiax.cn/before/install_mirai.html">社区文档 - Mirai 的安装与配置</a></p>
+</li>
+</ul>
+</div>
+<h2 id="mirai">安装 Mirai</h2>
+<p>本章分为使用 <a href="https://github.com/iTXTech/mirai-console-loader">mirai-console-loader</a> 安装（推荐）和使用 <a href="https://github.com/iTXTech/mcl-installer">mcl-installer</a> 安装两部分</p>
+<p>我们推荐使用 <a href="https://github.com/iTXTech/mirai-console-loader">mirai-console-loader</a> 进行安装</p>
+<p>我们不推荐直接下载 <a href="https://github.com/mamoe/mirai">Mirai</a> 使用，如果你确定自己会用，请自行部署</p>
+<h3 id="mirai-console-loader">使用 <a href="https://github.com/iTXTech/mirai-console-loader">mirai-console-loader</a> 安装</h3>
+<h4 id="java">安装 Java</h4>
+<p>关于 Java 的安装，可以查看社区文档 <a href="https://graiax.cn/before/install_mirai.html#%E5%AE%89%E8%A3%85-java">安装 Java</a>（我懒得写）</p>
+<h4 id="mirai-console-loader_1">安装 <a href="https://github.com/iTXTech/mirai-console-loader">mirai-console-loader</a></h4>
+<ul>
+<li>在终端中执行如下命令：
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>mcl
+<span class="nb">cd</span><span class="w"> </span>mcl
+wget<span class="w"> </span>https://github.com/iTXTech/mirai-console-loader/releases/download/v2.1.2/mcl-2.1.2.zip
+unzip<span class="w"> </span>mcl-2.1.2.zip
+chmod<span class="w"> </span>+x<span class="w"> </span>mcl
+./mcl
+</code></pre></div></li>
+<li>等待运行完成</li>
+</ul>
+<h3 id="mcl-installer">使用 <a href="https://github.com/iTXTech/mcl-installer">mcl-installer</a> 安装</h3>
+<ul>
+<li>从 <a href="https://github.com/iTXTech/mcl-installer/releases/latest">mcl-installer release</a> 下载对应自己系统架构的二进制文件</li>
+<li>下载完成后，运行下载后的文件，你应当见到如下输出：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>iTXTech MCL Installer 1.0.7 [OS: windows]
+Licensed under GNU AGPLv3.
+https://github.com/iTXTech/mcl-installer
+
+iTXTech MCL and Java will be downloaded to &quot;/root/mah-pure-inst&quot;
+
+Checking existing Java installation.
+...
+Would you like to install Java? (Y/N, default: Y)
+</code></pre></div>
+<p>一路回车即可（也可以按照自己情况进行修改）</p>
+<ul>
+<li>随后运行 <code>./mcl</code>，你应当见到如下输出：</li>
+</ul>
+<div class="highlight"><pre><span></span><code>[INFO] Verifying &quot;net.mamoe:mirai-console&quot; v
+[ERROR] &quot;net.mamoe:mirai-console&quot; is corrupted.
+Downloading ......
+xxxx-xx-xx xx:xx:xx I/main: Starting mirai-console...
+......
+xxxx-xx-xx xx:xx:xx I/main: mirai-console started successfully.
+
+&gt;
+</code></pre></div>
+<ul>
+<li><code>Ctrl + C</code> 退出 <code>mirai-console</code></li>
+</ul>
+<h2 id="mirai-api-http-v2">安装 <a href="https://github.com/project-mirai/mirai-api-http">mirai-api-http-v2</a></h2>
+<p>首先，我们进入 <code>mirai-console-loader</code> 的文件夹下，如果你在安装 <code>Mirai</code> 时使用的是使用的是 <code>mcl-installer</code>，则进入 <code>mcl-installer</code> 下面的 <code>mcl</code> 文件夹</p>
+<ul>
+<li>按照 <code>mirai-api-http</code> 的 <code>README</code>，在终端中运行 <code>./mcl --update-package net.mamoe:mirai-api-http --channel stable-v2 --type plugin</code></li>
+<li>切换 <code>mirai-console-loader</code> 的 <code>repo</code>，运行 <code>./mcl --mrm-use forum</code>（当出现网络报错时执行）</li>
+<li>启动 <code>mcl</code> 完成自动更新和启动</li>
+</ul>
+<h3 id="mirai-api-http-v2_1">配置 mirai-api-http-v2</h3>
+<ul>
+<li>打开 <code>mcl/config/net.mamoe.mirai-api-http/setting.yml</code>，将下面的内容复制覆盖粘贴到文件中</li>
+<li>若无此文件请检查 <code>mcl</code> 是否被成功添加并且添加后启动过一次 <code>mcl</code>，若没有请完成前文所述步骤再进行此步骤
+<div class="highlight"><pre><span></span><code><span class="nt">adapters</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws</span>
+<span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">enableVerify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">verifyKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1234567890</span><span class="w"> </span><span class="c1"># 你可以自己设定, 这里作为示范, 请保持和 config.yaml 中 verify_key 项一致</span>
+<span class="nt">singleMode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">cacheSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4096</span><span class="w"> </span><span class="c1"># 可选, 缓存大小, 默认4096. 缓存过小会导致引用回复与撤回消息失败</span>
+<span class="nt">adapterSettings</span><span class="p">:</span>
+<span class="w">  </span><span class="c1">## 详情看 http adapter 使用说明 配置</span>
+<span class="w">  </span><span class="nt">http</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23456</span><span class="w"> </span><span class="c1"># 端口</span>
+<span class="w">    </span><span class="nt">cors</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="err">*</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="c1">## 详情看 websocket adapter 使用说明 配置</span>
+<span class="w">  </span><span class="nt">ws</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23456</span><span class="w"> </span><span class="c1"># 端口</span>
+<span class="w">    </span><span class="nt">reservedSyncId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-1</span><span class="w"> </span><span class="c1"># 确保为 -1, 否则 WebsocketAdapter(Experimental) 没法正常工作.</span>
+</code></pre></div></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">安装注意</p>
+<p>当启动后出现如下方的消息才算安装并启动成功</p>
+<div class="highlight"><pre><span></span><code>2022-04-30 12:20:17 I/Mirai HTTP API: ********************************************************
+2022-04-30 12:20:17 I/http adapter: &gt;&gt;&gt; [http adapter] is listening at http://localhost:23456
+2022-04-30 12:20:17 I/ws adapter: &gt;&gt;&gt; [ws adapter] is listening at ws://localhost:23456
+2022-04-30 12:20:17 I/Mirai HTTP API: Http api server is running with verifyKey: 1234567890
+2022-04-30 12:20:17 I/Mirai HTTP API: adaptors: [http,ws]
+2022-04-30 12:20:17 I/Mirai HTTP API: ********************************************************
+</code></pre></div>
+</div>
+<h2 id="_1">配置自动登录</h2>
+<div class="admonition warning">
+<p class="admonition-title">注意</p>
+<p>为防止因填入不当数据导致无法启动 mirai-console-loader (MCL) 的问题，<strong>建议在部署时通过 mirai-console-loader (MCL) 内建的 <code>autoLogin</code> 指令配置自动登录</strong>，而非直接修改 Console 配置文件</p>
+</div>
+<h3 id="autologin">使用 /autoLogin 配置自动登录（推荐）</h3>
+<p>在 mirai-console-loader (MCL) 启动完成后，输入 <code>/autoLogin add &lt;你的QQ号&gt; &lt;你的QQ密码&gt;</code> 并回车，应该会显示 <code>已成功添加 '&lt;你的QQ号&gt;'</code></p>
+<h3 id="console">修改 Console 配置文件实现自动登录（不推荐）</h3>
+<div class="admonition warning">
+<p class="admonition-title">仅可在 mirai-console-loader (MCL) 已关闭的情况下更改配置文件</p>
+</div>
+<p>使用合适的编辑器打开位于 mirai-console-loader (MCL) 安装目录下的 <code>config/Console/AutoLogin.yml</code> 文件，应类似于如下内容：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">accounts</span><span class="p">:</span><span class="w"> </span>
+<span class="w">    </span><span class="nt">account</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">123456</span><span class="w">    </span><span class="c1"># 需要自动登录的 QQ 号</span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w">     </span><span class="c1"># 这行不填！！！这行不填！！！这行不填！！！</span>
+<span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PLAIN</span><span class="w">    </span><span class="c1">#       # 密码种类, 可选 PLAIN 或 MD5，看不懂保持默认即可</span>
+<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pwd</span><span class="w">    </span><span class="c1"># QQ 号对应的登录密码，PLAIN 时为密码文本, MD5 时为 16 进制</span>
+<span class="w">    </span><span class="nt">configuration</span><span class="p">:</span><span class="w"> </span>
+<span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ANDROID_PHONE</span><span class="w">    </span><span class="c1"># 登录协议，看不懂保持默认即可，可选 &quot;ANDROID_PHONE&quot; / &quot;ANDROID_PAD&quot; / &quot;ANDROID_WATCH&quot; /&quot;MAC&quot; / &quot;IPAD&quot;</span>
+</code></pre></div>
+<p>修改 <code>account</code> <code>kind</code> <code>value</code> <code>protocol</code> 的值并保存即可完成自动登录的配置</p>
+<details class="note">
+<summary>如何实现手机和 mirai 同时在线？</summary>
+<p>可通过更改登录协议实现，操作如下：</p>
+<p>在已配置自动登录后，输入 <code>/autoLogin setConfig &lt;你的QQ号&gt; protocol IPAD</code></p>
+<p>指令中的 <code>IPAD</code> 可更换为其他登录协议，如 <code>ANDROID_PAD</code> <code>ANDROID_WATCH</code> 等，推荐使用 <code>IPAD</code> 登录协议以防止出现部分功能无法使用的情况</p>
+<p>注意：更改协议后需要重启 <code>mcl</code> 才可生效</p>
+<blockquote>
+<p>什么？你想手机平板手表电脑和 mirai 同时在线？</p>
+<p>我的建议是，为什么不问问万能的神奇海螺呢？</p>
+</blockquote>
+</details>
+<h2 id="qq">登录 QQ</h2>
+<p>执行 <code>./mcl</code> 启动 <code>mirai-console</code></p>
+<p>如果直接显示 <code>Event: BotOnlineEvent(bot=Bot(&lt;你的QQ号&gt;))</code>，并有收到新消息，那么恭喜你，你已经完成了 <code>mirai</code> 方面的配置了</p>
+<p>若显示如下输出或出现有如下内容的弹窗：</p>
+<div class="highlight"><pre><span></span><code>需要滑动验证码，完成后请输入ticket
+url:http://xxx.xxx.xxx
+</code></pre></div>
+<ul>
+<li>
+<p>有弹窗，并且使用的是 <code>Android</code> 系统手机（或使用电脑模拟器）</p>
+<ul>
+<li>点击 <code>Open with TxCaptchaHelper</code>，下载 <a href="https://maupdate.rainchan.win/txcaptcha.apk">TxCaptchaHelper</a> 并安装</li>
+<li>输入弹窗中的4位请求码并完成滑动验证，随后在电脑端点击确定</li>
+</ul>
+</li>
+<li>
+<p>没弹窗（如 Linux NoGUI 用户）或者使用的 <code>IOS</code> 系统手机/其他不能运行 <code>apk</code> 程序系统的手机</p>
+<ul>
+<li>在电脑上打开浏览器，输入程序提供的url，应当会出现滑动认证的画面，此时先不要进行认证</li>
+<li>单击 <code>F12</code> 键，会出现一个 <code>DevTool</code>，找到上方选项卡，点击 <code>Network</code> 选项，再点击下方的 <code>Fetch/XHR</code> 选项</li>
+<li>完成滑动验证，此时在 <code>DevTool</code> 界面中应会出现新的请求，找到其中名为 <code>cap_union_new_verify</code> 选项卡，点击其中的 <code>Preview</code> 选项卡，在其中找到 <code>ticket</code> 的值填入 <code>mcl</code> 并回车</li>
+<li>gif演示：<img alt="浏览器获取ticket演示" src="../../assets/txcaptcha.gif" /></li>
+</ul>
+</li>
+</ul>
+<p>若显示需要手机验证码登录按提示操作即可</p>
+<h2 id="python">安装 python</h2>
+<div class="admonition danger">
+<p class="admonition-title">安装前请注意</p>
+<p>如果你要使用使用到深度学习库的项目，强烈推荐使用 Anaconda/Miniconda 安装 Python</p>
+<p>如果你了解这些库的配置等，可自行决定</p>
+</div>
+<h3 id="anacondaminiconda">使用 Anaconda/Miniconda</h3>
+<ul>
+<li>安装前请注意，请选择适合你的架构，本文以 <code>x86_64</code> 为例</li>
+<li>如果你的机器存储空间足够大，则执行 <code>wget -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.3.1-Linux-x86_64.sh</code> 安装 <code>Anaconda</code>，否则执行 <code>wget -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh</code> 安装 <code>Miniconda</code></li>
+<li>执行 <code>bash 刚下载的文件名.sh</code>，如 <code>bash Anaconda3-5.3.1-Linux-x86_64.sh</code> 或 <code>bash Miniconda3-latest-Linux-x86_64.sh</code></li>
+<li>执行 <code>source .bashrc</code> 更新环境变量</li>
+<li>创建虚拟环境（可选但推荐）<ul>
+<li>输入 <code>conda create -n your_env_name python=3.10</code>，其中 <code>your_env_name</code> 为你要创建的环境名，可自定义，python版本 &gt;= 3.10 即可，可自行安装其他版本</li>
+<li>等待程序询问是否安装，直接回车即可</li>
+<li>安装完毕后输入 <code>conda activate your_env_name</code> 即可激活虚拟环境</li>
+</ul>
+</li>
+</ul>
+<h3 id="_2">自行安装</h3>
+<p>搜索引擎会告诉你一切，搜索关键词：<code>Linux python3.10安装</code>，注意，安装的python版本必须大于等于 <code>3.10</code>！</p>
+<h2 id="sagiri-bot">下载 SAGIRI-BOT</h2>
+<h3 id="git">使用 git</h3>
+<ul>
+<li>打开终端，进入你想要下载的目标文件夹</li>
+<li>输入 <code>git clone https://github.com/SAGIRI-kawaii/sagiri-bot.git</code></li>
+<li>等待下载完成即可</li>
+<li>什么？你问我太慢怎么办？我的建议是，找一台可以快速链接 <code>github</code> 的机器下载再传过来</li>
+<li>或者你可以使用代理站：<code>git clone https://ghproxy.com/github.com/SAGIRI-kawaii/sagiri-bot.git</code></li>
+</ul>
+<h3 id="_3">直接下载</h3>
+<ul>
+<li>打开 <a href="https://github.com/SAGIRI-kawaii/sagiri-bot">SAGIRI-BOT 项目地址</a> ，点击绿色的 <code>Code</code> 按钮，并点击下面的 <code>Download ZIP</code></li>
+<li>下载完成后解压即可</li>
+<li>什么？你问我太慢怎么办？我的建议是，找一台可以快速链接 <code>github</code> 的机器下载再传过来</li>
+</ul>
+<div class="admonition danger">
+<p class="admonition-title"><strong><em>真的非常不建议</em></strong>直接从 GitHub 下载仓库的 zip 或 tar 文件</p>
+<p>大部分情况下，直接使用 zip 或 tar 文件进行安装无法通过 <code>git pull</code> 进行更新，即使用该方法，可能无法正常更新且可能有稳定性问题</p>
+<p><del>如果是因为直接下的 zip 或 tar 文件而且一直没更新导致的问题，就不要跑来群里或者发 issue 问了</del></p>
+</div>
+<h2 id="python_1">配置 python 虚拟环境并安装依赖</h2>
+<div class="admonition question">
+<p class="admonition-title">为什么要配置python虚拟环境？</p>
+<p>防止出现依赖混乱或冲突等问题，常用的虚拟环境有 <code>conda</code> <code>venv</code> <code>poetry</code> 等</p>
+<p><del>当然你也可以不配置，但是如果你不配置而且服务器上还有其他的一些python项目，那么你的程序可能会出现一些问题</del></p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">此处将默认你已经安装了 <code>poetry</code></p>
+<p>不会安装 <code>poetry</code> ？</p>
+<p>在终端执行 <code>curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -</code> 即可安装 <code>poetry</code></p>
+<p>随后在 <code>.bashrc</code> 或 <code>.zshrc</code> 中添加脚本打印的 <code>export</code> 以便在终端中使用 <code>poetry</code> 命令</p>
+<p>实在不会，你就 <code>pip install poetry</code></p>
+</div>
+<h3 id="anacondaminiconda_1">使用 Anaconda/Miniconda</h3>
+<ul>
+<li>若你在安装python时使用的是安装 Anaconda/Miniconda 的方法并且 <code>自带python版本&gt;=3.10</code> 或已经配置好虚拟环境可观看此项</li>
+<li>使用 win + r 组合键，打开运行窗口，输入 <code>cmd</code> 并回车，打开命令提示符</li>
+<li>输入 <code>conda activate your_env_name</code> 进入虚拟环境（Anaconda自带版本 &gt;= 3.10可忽略此步骤，但推荐使用虚拟环境以防止出现依赖混乱冲突的情况，若你还没有创建虚拟环境并且自带python版本不符合条件，请查看上方创建虚拟环境）</li>
+<li>激活成功后进入bot所在目录，因为我们使用 <code>conda</code> 创建虚拟环境，所以要先关闭 <code>poetry</code> 的虚拟环境创建，在终端执行 <code>poetry config virtualenvs.create false</code></li>
+<li>在终端输入 <code>poetry env info</code>，当其中的的 <code>Valid</code> 项为 <code>True</code> 时，就代表 <code>poetry</code> 已经可以在 <code>conda</code> 的虚拟环境中使用了</li>
+<li>执行 <code>poetry install</code>，等待安装完成</li>
+</ul>
+<h3 id="poetry">使用 poetry</h3>
+<ul>
+<li>终端进入 <code>bot</code> 所在目录，运行 <code>poetry install</code> 即可</li>
+</ul>
+<details class="note">
+<summary><code>Resolving dependencies...</code> 部分耗时过长？</summary>
+<p>首先检查一下是否误删了 <code>poetry.lock</code> 文件</p>
+<p>如果误删了，可以使用 <code>git checkout poetry.lock</code> 恢复</p>
+<p>如果没有误删，那么不用慌张！<del>这是技术性调整</del></p>
+<p>可能是因为你的网络不稳定，或者你的网络环境不符合要求，导致 <code>poetry install</code> 失败，请尝试使用 <code>pip</code> 安装依赖</p>
+<blockquote>
+<p>大概需要多久安装成功呢？</p>
+<p>截至这个区块编写完成，已知的最长用时是 20 分钟。</p>
+</blockquote>
+</details>
+<h2 id="config">配置 config</h2>
+<ul>
+<li>打开 <code>/config/config_demo.yaml</code></li>
+<li>按文件中注释更改</li>
+<li>将文件更名为 <code>/config/config.yaml</code></li>
+</ul>
+<details class="note" open="open">
+<summary>不知道怎么改数据库链接？</summary>
+<p><strong>如果没有特殊需求，或者你不知道这是什么意思，保持不变即可。</strong></p>
+<p>如需要指定使用的数据库或使用 MySQL 等，则需要更改至相应链接，格式如下：</p>
+<ul>
+<li>
+<p>SQLite</p>
+<blockquote>
+<p><code>sqlite+aiosqlite:///data.db</code></p>
+<p>使用该链接将使用 SAGIRI-BOT 部署目录下的 <code>data.db</code></p>
+</blockquote>
+</li>
+<li>
+<p>MySQL</p>
+<blockquote>
+<p><code>mysql+aiomysql://username:password@ip:port/database</code></p>
+<p>使用该链接将以 <code>username</code> 为用户名，<code>password</code> 为密码连接至位于 <code>ip:port</code> 的 <code>database</code> 数据库</p>
+<p>你可能需要自行安装 <code>mysql</code> 的异步驱动 <code>aiomysql</code></p>
+</blockquote>
+</li>
+<li>
+<p>其他数据库</p>
+<blockquote>
+<p>不知道捏，自己探索吧</p>
+<p>可查阅 SQLAlchemy 使用文档填写合适的链接</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>如果你看不懂上述文本的话保持不变即可。</strong></p>
+</details>
+<h2 id="alembic">配置 <code>alembic</code></h2>
+<ul>
+<li>首先启动 <code>mcl</code></li>
+<li>运行一次bot ( <code>python main.py</code> )，bot应会自动退出</li>
+<li>在目录下寻找 <code>alembic.ini</code> 文件并打开</li>
+<li>将其中 <code>sqlalchemy.url</code> 项更换为自己的连接（不需注明引擎否则会报错）（如 <code>sqlite:///data.db</code>）</li>
+</ul>
+<details class="note" open="open">
+<summary>不知道什么是引擎？</summary>
+<p><big><strong>如果你在上一步保持不变，这一步填写 <code>sqlite:///data.db</code> 即可</strong></big></p>
+<ul>
+<li>
+<p>SQLite</p>
+<blockquote>
+<p>假设你在上一步配置的链接为 <code>sqlite+aiosqlite:///data.db</code></p>
+<p>则你在这一步配置的链接应为 <code>sqlite:///data.db</code></p>
+</blockquote>
+</li>
+<li>
+<p>MySQL</p>
+<blockquote>
+<p>假设你在上一步配置的链接为 <code>mysql+aiomysql://username:password@ip:port/database</code></p>
+<p>则你在这一步配置的链接应为 <code>mysql://username:password@ip:port/database</code></p>
+</blockquote>
+</li>
+<li>
+<p>其他数据库</p>
+<blockquote>
+<p>不知道捏，自己探索吧</p>
+<p>可查阅 SQLAlchemy 使用文档填写合适的链接</p>
+</blockquote>
+</li>
+</ul>
+<p><big><strong>如果你看不懂上述文本的话，看这个区块的第一行</strong></big></p>
+</details>
+<h2 id="8">启动机器人8</h2>
+<ol>
+<li>启动 <code>mcl</code></li>
+<li>进入bot目录下执行 <code>poetry run python main.py</code></li>
+</ol>
+<details class="question">
+<summary>报错了怎么办？</summary>
+<p>如果你在前文使用了 <code>conda</code> 等虚拟环境，请保证其被正确激活</p>
+<p>如果是其他报错，请参考 <a href="../../FAQ/">FAQ</a></p>
+</details>
+<p>你应当见到类似如下界面：
+<div class="highlight"><pre><span></span><code>2022-01-04 23:45:08.848 | INFO     | sagiri_bot.core.app_core:__init__:59 - Initializing
+2022-01-04 23:45:08.916 | INFO     | sagiri_bot.core.app_core:__init__:84 - Initialize end
+2022-01-04 23:45:08.921 | DEBUG    | graia.saya:require:111 - require sagiri_bot.handler.handlers.abbreviated_prediction
+2022-01-04 23:45:08.939 | INFO     | graia.saya:require:134 - module loading finished: sagiri_bot.handler.handlers.abbreviated_prediction
+...
+                _           _            
+     /\        (_)         | |           
+    /  \   _ __ _  __ _  __| |_ __   ___ 
+   / /\ \ | &#39;__| |/ _` |/ _` | &#39;_ \ / _ \
+  / ____ \| |  | | (_| | (_| | | | |  __/
+ /_/    \_\_|  |_|\__,_|\__,_|_| |_|\___|
+Ariadne version: 0.4.9
+Broadcast version: 0.14.5
+Scheduler version: 0.0.6
+Saya version: 0.0.13
+2022-01-04 23:45:11.200 | INFO     | graia.ariadne.app:launch:1287 - Launching app...
+2022-01-04 23:45:11.200 | DEBUG    | graia.ariadne.app:daemon:1208 - Ariadne daemon started.
+2022-01-04 23:45:11.246 | INFO     | graia.ariadne.adapter:fetch_cycle:378 - websocket: connected
+2022-01-04 23:45:13.256 | INFO     | graia.ariadne.app:launch:1295 - Remote version: 2.4.0
+2022-01-04 23:45:13.256 | INFO     | graia.ariadne.app:launch:1298 - Application launched with 2.1s
+2022-01-04 23:45:13.256 | INFO     | sagiri_bot.core.app_core:config_check:206 - Start checking configuration
+2022-01-04 23:45:13.257 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - bot_qq - 123
+2022-01-04 23:45:13.257 | SUCCESS  | sagiri_bot.core.app_core:config_check:215 - data_related:
+2022-01-04 23:45:13.257 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     lolicon_image_cache - true
+2022-01-04 23:45:13.257 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     lolicon_data_cache - true
+2022-01-04 23:45:13.257 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     network_data_cache - true
+2022-01-04 23:45:13.258 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     automatic_update - false
+2022-01-04 23:45:13.258 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     data_retention - true
+2022-01-04 23:45:13.258 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - db_link - sqlite+aiosqlite:///data.db
+2022-01-04 23:45:13.258 | SUCCESS  | sagiri_bot.core.app_core:config_check:215 - functions:
+2022-01-04 23:45:13.258 | SUCCESS  | sagiri_bot.core.app_core:dict_check:196 -     tencent:
+2022-01-04 23:45:13.259 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -         secret_id - xxx
+2022-01-04 23:45:13.259 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -         secret_key - xxx
+2022-01-04 23:45:13.259 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     saucenao_api_key - xxx
+2022-01-04 23:45:13.259 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     loliconApiKey - xxx
+2022-01-04 23:45:13.259 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     wolfram_alpha_key - xxx
+2022-01-04 23:45:13.259 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     shadiao_app_name - xxx
+2022-01-04 23:45:13.260 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - host_qq - 123
+2022-01-04 23:45:13.260 | SUCCESS  | sagiri_bot.core.app_core:config_check:215 - image_path:
+2022-01-04 23:45:13.260 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     setu - M:\Pixiv\pxer_new\
+2022-01-04 23:45:13.260 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     setu18 - M:\Pixiv\pxer18_new\
+2022-01-04 23:45:13.260 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     real - M:\Pixiv\reality\
+2022-01-04 23:45:13.261 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     real_highq - M:\Pixiv\reality\highq\
+2022-01-04 23:45:13.261 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     wallpaper - M:\Pixiv\bizhi\highq\
+2022-01-04 23:45:13.261 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     sketch - M:\线稿\
+2022-01-04 23:45:13.261 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     cg - M:\二次元\CG\画像\ev\
+2022-01-04 23:45:13.262 | SUCCESS  | sagiri_bot.core.app_core:config_check:215 - log_related:
+2022-01-04 23:45:13.262 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     error_retention - 14
+2022-01-04 23:45:13.262 | SUCCESS  | sagiri_bot.core.app_core:dict_check:201 -     common_retention - 7
+2022-01-04 23:45:13.262 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - mirai_host - http://localhost:23456
+2022-01-04 23:45:13.263 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - proxy - http://localhost:12345
+2022-01-04 23:45:13.263 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - verify_key - 1234567890
+2022-01-04 23:45:13.263 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - web_manager_api - True
+2022-01-04 23:45:13.263 | SUCCESS  | sagiri_bot.core.app_core:config_check:220 - web_manager_auto_boot - True
+2022-01-04 23:45:13.263 | INFO     | sagiri_bot.core.app_core:config_check:221 - Configuration check completed
+2022-12-04 11:44:44.898 | DEBUG    | graia.saya:require:111 - require modules.self_contained.abbreviated_prediction
+2022-12-04 11:44:44.913 | INFO     | graia.saya:require:134 - module loading finished: modules.self_contained.abbreviated_prediction
+...
+2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:171 - 本次启动活动群组如下：
+2022-01-04 23:45:13.263 | INFO     | SAGIRIBOT.Core.AppCore:bot_launch_init:173 - 群ID: 123456789     群名: xxxxxxx
+...
+</code></pre></div></p>
+<p>其中 <code>...</code> 为省略的类似内容</p>
+<p>现在，来试一试你的机器人吧！</p>
+<h2 id="_4">后台运行</h2>
+<p>可使用 <code>bg</code> <code>screen</code> <code>tmux</code> <code>nohup</code> 等方法实现后台运行，此处不作过多阐述。</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51198bba.min.js"></script>
+      
+        <script src="../../javascripts/pageJump.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,27 @@
+.service-button {
+    width: 30%;
+    color: #3e7ffc;
+    font-size: 20px;
+    border: 1px solid #3e7ffc;
+    border-radius: 10px;
+}
+
+.service-button:hover {
+    background-color: #ebf2ff;
+    cursor: pointer;
+}
+
+.service-input {
+    border:solid 1px #3e7ffc;
+    border-radius: 10px;
+    width: 100%;
+    height: 40px;
+    background:rgba(0,0,0,0)
+}
+
+.flex {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
