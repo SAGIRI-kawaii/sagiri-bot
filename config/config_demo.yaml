@@ -1,16 +1,16 @@
 # 必要数据及设置
-bot_accounts: bot_accounts
-default_account: default_account
-host_qq: host_qq
-mirai_host: http://localhost:23456
-verify_key: !!str 1234567890
-db_link: sqlite+aiosqlite:///data.db
-api_port: 54321
-api_expose: false
-web_manager_api: true
-web_manager_auto_boot: true
-proxy: proxy
-auto_upgrade: false
+bot_accounts: bot_accounts            # 机器人账号列表，例如 [qq1, qq2, ...]
+default_account: default_account      # 默认机器人账号，从上方 bot_accounts 选一个即可
+host_qq: host_qq                      # 主人qq账号，默认权限等级 MASTER(4)
+mirai_host: http://localhost:23456    # mirai-api-http 监听地址，请与 mirai-api-http 配置一致
+verify_key: !!str 1234567890          # mirai-api-http 验证密钥，请与 mirai-api-http 配置一致
+db_link: sqlite+aiosqlite:///data.db  # 数据库连接，若你不知道是什么则保持默认即可
+api_port: 54321                       # API 端口
+api_expose: false                     # API 暴露到公网
+web_manager_api: true                 # bot 启动是否自动启动 API
+web_manager_auto_boot: true           # bot 启动是否自动管理后台（尚未实现）
+proxy: proxy                          # 代理地址，支持 http/socks5
+auto_upgrade: false                   # 自动更新
 
 # 图库相关
 gallery:

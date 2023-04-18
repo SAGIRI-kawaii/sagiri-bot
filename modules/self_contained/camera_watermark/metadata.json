@@ -1,0 +1,14 @@
+{
+  "name": "CameraWatermark",
+  "version": "0.1",
+  "display_name": "图片相机水印",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个可以根据exif信息添加相机水印的插件",
+  "usage": ["在群中发送 `/相机水印 + 图片（必须原图）` 即可"],
+  "example": ["/相机水印 {图片}"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["相机水印", "camera_watermark", "cw"]
+}

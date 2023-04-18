@@ -344,7 +344,7 @@ async def new_friend_request_event(app: Ariadne, event: NewFriendRequestEvent):
             config.host_qq,
             MessageChain(
                 event_config["NewFriendRequestEvent"].format(
-                    request_id=event.requestId,
+                    request_id=event.request_id,
                     supplicant=event.supplicant,
                     nickname=event.nickname,
                     message=event.message,

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{margin: 0; padding: 0}
+
+        body {
+            width: 1000px;
+        }
+
+        .flex-space-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #image {
+            width: 1000px;
+        }
+
+        .info {
+            margin: 20px;
+        }
+
+        .camera-info {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .gray-text {
+            color: rgb(144, 144, 144);
+        }
+
+        .brand-image-container {
+            padding-right: 10px;
+        }
+
+        #brand-image {
+            height: 48px;
+        }
+
+        .divider-div {
+            border-left: 2px solid rgb(144, 144, 144);
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div>
+            <img id="image" src="{{ image }}"/>
+        </div>
+        <div class="flex-space-between">
+            <div class="info">
+                <div class="camera-info">
+                    {{ make }} {{ model }}
+                </div>
+                <div class="gray-text">
+                    {% if software %}
+                        Produced by {{ software }}
+                    {% else %}
+                        无软件信息
+                    {% endif %}
+                </div>
+            </div>
+            <div class="info flex">
+                <div class="brand-image-container">
+                    <img id="brand-image" src="{{ brand_image }}">
+                </div>
+                <div class="divider-div">
+                    <div class="camera-info">
+                        {{ focal_length }}mm {{ exposure_time }} ƒ/{{ f_number }} ISO{{ iso }}
+                    </div>
+                    <div class="gray-text">
+                        {{ datetime }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

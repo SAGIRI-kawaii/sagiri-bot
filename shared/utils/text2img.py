@@ -1,8 +1,11 @@
-from base64 import b64encode
-
+import re
+import matplotlib
+from io import BytesIO
 from pathlib import Path
 from jinja2 import Template
+from base64 import b64encode
 from markdown_it import MarkdownIt
+from matplotlib import pyplot as plt
 from mdit_py_plugins.dollarmath import dollarmath_plugin
 
 from creart import create
@@ -16,6 +19,38 @@ from core import Sagiri
 
 config = create(Sagiri).config
 proxy = config.proxy if config.proxy != "proxy" else None
+
+
+def tex2svg(formula):
+    formula = re.sub(r"\\pmod", r"\ mod\ ", formula)
+    formula = re.sub(r"\\bmod", r"\ mod\ ", formula)
+    matplotlib.use('agg')
+    plt.rc("mathtext", fontset="cm")
+    fig = plt.figure(figsize=(0.01, 0.01))
+    fig.text(0, 0, r"${}$".format(formula), fontsize=20)
+    output = BytesIO()
+    fig.savefig(
+        output,
+        dpi=30,
+        transparent=True,
+        format="svg",
+        bbox_inches="tight",
+        pad_inches=0.0,
+    )
+    plt.close(fig)
+    output.seek(0)
+    xml_code = output.read().decode("utf-8")
+    svg_start = xml_code.index("<svg ")
+    svg_code = xml_code[svg_start:]
+    svg_code = re.sub(r"<metadata>.*</metadata>", "", svg_code, flags=re.DOTALL)
+    svg_code = re.sub(r' width="[^"]+"', "", svg_code)
+    height_match = re.search(r'height="([\d.]+)pt"', svg_code)
+    if height_match:
+        height = float(height_match.group(1))
+        new_height = height / 20  # conversion from pt to em
+        svg_code = re.sub(r'height="[\d.]+pt"', f'height="{new_height}em"', svg_code)
+    copy_code = f"<span style='font-size: 0px'>{formula}</span>"
+    return f"{copy_code}{svg_code}"
 
 
 async def html2img(
@@ -45,10 +80,11 @@ async def md2img(
 ) -> bytes:
     md = MarkdownIt("gfm-like", {"highlight": Highlighter()}).use(
         dollarmath_plugin,
-        allow_labels=True,
+        allow_labels=False,
         allow_space=True,
-        allow_digits=True,
+        allow_digits=False,
         double_inline=True,
+        renderer=tex2svg
     ).enable("table")
     res = MarkdownConverter(md).convert(markdown)
     return await html2img(res, page_option, extra_screenshot_option, use_proxy)

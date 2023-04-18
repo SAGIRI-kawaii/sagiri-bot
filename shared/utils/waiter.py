@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Type
 
-from graia.ariadne.message.element import Image
 from graia.broadcast.interrupt.waiter import Waiter
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.message.element import Image, Element
 from graia.ariadne.event.message import Group, Member, GroupMessage, FriendMessage, Friend
 
 
@@ -49,3 +49,15 @@ class ImageWaiter(Waiter.create([GroupMessage])):
     async def detected_event(self, group: Group, member: Member, message: MessageChain):
         if group.id == self.group_id and member.id == self.member_id:
             return message[Image][0] if message.has(Image) else None
+
+
+class ElementWaiter(Waiter.create([GroupMessage])):
+
+    def __init__(self, group: Group, member: Member, element_type: Type[Element]):
+        self.group_id = group.id
+        self.member_id = member.id
+        self.element_type = element_type
+
+    async def detected_event(self, group: Group, member: Member, message: MessageChain):
+        if group.id == self.group_id and member.id == self.member_id:
+            return message[self.element_type][0] if message.has(self.element_type) else None

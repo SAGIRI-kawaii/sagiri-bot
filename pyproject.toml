@@ -15,7 +15,6 @@ loguru = ">=0.6.0"
 graia-saya = ">=0.0.16"
 graiax-silkcoder = {extras = ["ffmpeg"], version = ">=0.3.5"}
 pydantic = ">=1.10.1"
-# wordcloud = "^1.8.2.2" # didn't write & not support python 3.11 now
 Jinja2 = ">=3.1.2"
 creart = ">=0.2.2"
 playwright = ">=1.25.2"
@@ -24,7 +23,7 @@ SQLAlchemy = ">=1.4.40"
 PyYAML = ">=6.0"
 fastapi = ">=0.81.0"
 beautifulsoup4 = ">=4.11.1"
-jieba = ">=0.42.1"
+jieba = "^0.42.1"
 tencentcloud-sdk-python = ">=3.0.725"
 alembic = ">=1.8.1"
 matplotlib = ">=3.5.3"
@@ -50,7 +49,6 @@ graiax-text2img-playwright = ">=0.2.0"
 graia-scheduler = ">=0.0.10"
 pytz = ">=2022.6"
 pyzipper = ">=0.3.6"
-chatgpt-api = ">=0.1.2"
 
 realesrgan = {version = "^0.3.0", optional = true}
 basicsr = {version = "^1.4.2", optional = true}
@@ -65,6 +63,12 @@ noneprompt = "^0.1.7"
 bs4 = "^0.0.1"
 tokenizers = "^0.13.2"
 imageio = "^2.25.1"
+meme-generator = "^0.0.4"
+pypdf2 = "^3.0.1"
+wordcloud = "^1.8.2.2"
+tiktoken-async = "^0.3.2"
+edgegpt = "^0.1.22"
+exifread = "^3.0.0"
 
 
 [tool.poetry.extras]

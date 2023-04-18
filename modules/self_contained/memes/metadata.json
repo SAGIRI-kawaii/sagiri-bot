@@ -1,0 +1,14 @@
+{
+  "name": "Memes",
+  "version": "0.1",
+  "display_name": "Memes生成",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "Memes生成，使用memes_generator",
+  "usage": ["在群中发送 `关键词 参数` 即可，具体请看"],
+  "example": [""],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

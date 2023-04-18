@@ -39,7 +39,6 @@ from graia.saya.builtins.broadcast import BroadcastBehaviour
 from creart.creator import AbstractCreator, CreateTargetInfo
 
 from shared.orm import orm
-from shared.utils.launch_time import add_launch_time, LaunchTimeService
 from shared.utils.string import set_log
 from shared.models.config import GlobalConfig
 from shared.models.blacklist import GroupBlackList
@@ -49,6 +48,7 @@ from shared.utils.self_upgrade import UpdaterService
 from shared.models.group_setting import GroupSetting
 from shared.models.permission import GroupPermission
 from shared.orm.tables import Setting, UserPermission
+from shared.utils.launch_time import add_launch_time, LaunchTimeService
 
 non_log = {
     GroupMessage,
