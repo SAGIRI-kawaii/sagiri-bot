@@ -199,7 +199,7 @@ url:http://xxx.xxx.xxx
     - 在电脑上打开浏览器，输入程序提供的url，应当会出现滑动认证的画面，此时先不要进行认证
     - 单击 `F12` 键，会出现一个 `DevTool`，找到上方选项卡，点击 `Network` 选项，再点击下方的 `Fetch/XHR` 选项
     - 完成滑动验证，此时在 `DevTool` 界面中应会出现新的请求，找到其中名为 `cap_union_new_verify` 选项卡，点击其中的 `Preview` 选项卡，在其中找到 `ticket` 的值填入 `mcl` 并回车
-    - gif演示：![浏览器获取ticket演示](/sagiri-bot/assets/txcaptcha.gif)
+    - gif演示：![浏览器获取ticket演示](../assets/txcaptcha.gif)
 
 若显示需要手机验证码登录按提示操作即可
 
@@ -286,8 +286,12 @@ url:http://xxx.xxx.xxx
 - 进入 bot 所在目录，运行 `poetry install` 即可
 
 ??? note "`Resolving dependencies...` 部分耗时过长？"
-    
-    不用慌张！<del>这是技术性调整</del>
+
+    首先检查一下是否误删了 `poetry.lock` 文件
+
+    如果误删了，可以使用 `git checkout poetry.lock` 恢复
+
+    如果没有误删，那么不用慌张！<del>这是技术性调整</del>
 
     可能是因为你的网络不稳定，或者你的网络环境不符合要求，导致 `poetry install` 失败，请尝试使用 `pip` 安装依赖
 
@@ -303,7 +307,7 @@ url:http://xxx.xxx.xxx
 
 ???+ note "不知道怎么改数据库链接？"
 
-    **大部分情况下保持不变即可。**
+    **如果没有特殊需求，或者你不知道这是什么意思，保持不变即可。**
 
     如需要指定使用的数据库或使用 MySQL 等，则需要更改至相应链接，格式如下：
 
@@ -350,6 +354,8 @@ url:http://xxx.xxx.xxx
 
         > 则你在这一步配置的链接应为 `mysql://username:password@ip:port/database`
 
+        > 你可能需要自行安装 `mysql` 的异步驱动 `aiomysql`
+
     - 其他数据库
 
         > 不知道捏，自己探索吧
@@ -361,7 +367,13 @@ url:http://xxx.xxx.xxx
 ## 启动机器人8
 
 1. 启动 `mcl`
-2. 进入bot目录下执行 `python main.py`
+2. 进入bot目录下执行 `poetry run python main.py`
+
+??? question "报错了怎么办？"
+
+    如果你在前文使用了 `conda` 等虚拟环境，请保证其被正确激活
+
+    如果是其他报错，请参考 [FAQ](../../FAQ/)
 
 你应当见到类似如下界面：
 ```text

@@ -202,12 +202,6 @@ python: can't open file 'mian.py': [Errno 2] No such file or directory
 
 - 使用示例：`git clone https://ghproxy.com/github.com/SAGIRI-kawaii/sagiri-bot.git`
 
-### pip
-
-- 可使用国内镜像源如清华园、豆瓣源等
-
-- 使用示例：`pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple`
-
 > ## sqlalchemy.exc.InternalError: (pymysql.err.InternalError) (1054, "Unknown column 'setting.avatar_func' in 'field list'")
 
 请检查 `alembic.ini` 是否已正确配置
@@ -234,7 +228,7 @@ bot_qq
 
 > ## 安装依赖时提示 ERROR: Could not open requirements.txt
 
-请进入 bot 目录后再进行依赖安装
+sagiri-bot 已在 4.0 版本移除 requirements.txt，请使用 poetry 安装依赖
 
 > ## 日志显示已发送图片，但是QQ无法显示
 
@@ -246,6 +240,10 @@ bot_qq
 
 * `MessageSvcPbSendMsg.Response.Failed(resultType=46, ...)`
     * 账号被冻结群消息发送，可手动登录机器人账号发送群消息解除冻结。
+
+> ## prompt_toolkit.output.win32.NoConsoleScreenBufferError: No Windows console found. Are you running cmd.exe?
+
+[点击此处查看解决方案](https://fanyi.baidu.com)
 
 > ## macOS 部署教程
 
