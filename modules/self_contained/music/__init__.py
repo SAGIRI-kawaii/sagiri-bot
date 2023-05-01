@@ -22,7 +22,7 @@ from shared.utils.control import (
 channel = Channel.current()
 channel.name("Music")
 channel.author("SAGIRI-kawaii")
-channel.description("一个获取帮助的插件，在群中发送 `/help` 即可")
+channel.description("一个可以点歌的插件")
 
 DEFAULT_MUSIC_PLATFORM = "wyy"
 DEFAULT_SEND_TYPE = "card"
