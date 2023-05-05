@@ -19,7 +19,7 @@ from shared.utils.control import Distribute, Function, BlackListControl
 channel = Channel.current()
 channel.name("AVBT")
 channel.author("SAGIRI-kawaii")
-channel.description("这是一个示例插件")
+channel.description("一个AV种子查询插件")
 
 url = "https://sukebei.nyaa.si"
 proxy = create(GlobalConfig).get_proxy()

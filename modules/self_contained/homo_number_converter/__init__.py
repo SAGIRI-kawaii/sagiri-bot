@@ -16,9 +16,9 @@ from shared.utils.control import (
 )
 
 channel = Channel.current()
-channel.name("Example")
+channel.name("HomoNumberConverter")
 channel.author("SAGIRI-kawaii")
-channel.description("这是一个示例插件")
+channel.description("一个将复数域数字转换为114514格式的插件")
 
 
 @channel.use(
