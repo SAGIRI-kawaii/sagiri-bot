@@ -7,7 +7,12 @@ from pydantic import BaseModel
 from shared.utils.text2img import template2img
 
 brands = {
-    "canon", "fujifilm", "hasselblad", "leica", "nikon", "olympus", "panasonic", "pentax", "rioch", "sony", "xiaomi"
+    "canon", "fujifilm", "hasselblad", "leica", "nikon", "olympus", "panasonic", "pentax", "rioch", "sony", "xiaomi",
+    "nikon corporation"
+}
+
+brand_alias = {
+    "nikon corporation": "nikon"
 }
 
 
@@ -76,7 +81,10 @@ async def gen_watermark(image: bytes | BytesIO) -> bytes | str:
         image = image.getvalue()
     if params["make"].lower() not in brands:
         return f"不支持的品牌：{params['make']}，当前支持的有：{'、'.join(brands)}"
-    brand_image = (Path(__file__).parent / "logo" / f"{params['make'].lower()}.png").read_bytes()
+    if params["make"].lower() in brand_alias:
+        brand_image = (Path(__file__).parent / "logo" / f"{brand_alias[params['make'].lower()]}.png").read_bytes()
+    else:
+        brand_image = (Path(__file__).parent / "logo" / f"{params['make'].lower()}.png").read_bytes()
     params["image"] = f"data:image/png;base64,{b64encode(image).decode()}"
     params["brand_image"] = f"data:image/png;base64,{b64encode(brand_image).decode()}"
     return await template2img(Path(__file__).parent / "template.html", params)

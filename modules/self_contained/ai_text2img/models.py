@@ -20,7 +20,7 @@ class Text2Image(object):
     seed_resize_from_w: int = 0
     height: int = 512
     width: int = 512
-    enable_hr: bool = True
+    enable_hr: bool = False
     scale_latent: bool = True
     denoising_strength: float = 0.7
 

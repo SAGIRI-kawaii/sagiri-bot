@@ -1,6 +1,4 @@
-import re
 import psutil
-from typing import Match
 from pathlib import Path
 from datetime import datetime
 
@@ -76,12 +74,12 @@ async def system_status(app: Ariadne, group: Group, all_info: ArgResult, info: A
         "磁盘相关：\n    "
         "图库占用空间：\n        " +
         "\n        ".join(
-            [*[
+            [
                 f"{path_name}：{round(sum(Path(data['path'] / file).stat().st_size for file in Path(data['path']).glob('*')) / 1024 ** 3, 2)}GB"
                 if Path(data["path"]).exists() else
                 (f"{path_name}：网络路径" if is_url(data["path"]) else f"{path_name}：无效本地/网络路径")
                 for path_name, data in image_path.items()
-            ]]
+            ]
         )
     )
     if all_info.matched or not info.matched and not storage.matched:

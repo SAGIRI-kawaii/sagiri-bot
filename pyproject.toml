@@ -67,7 +67,6 @@ meme-generator = "^0.0.4"
 pypdf2 = "^3.0.1"
 wordcloud = "^1.8.2.2"
 tiktoken-async = "^0.3.2"
-edgegpt = "^0.1.22"
 exifread = "^3.0.0"
 
 
