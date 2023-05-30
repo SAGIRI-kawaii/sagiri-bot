@@ -1,4 +1,5 @@
 import os
+import httpx
 import shutil
 import datetime
 from abc import ABC
@@ -77,12 +78,20 @@ class Sagiri(object):
     sent_count: int = 0
     received_count: int = 0
     initialized: bool = False
+    bot_list: list[int] = []
 
     def __init__(self, g_config: GlobalConfig, base_path: str | Path):
         logger.opt(colors=True).info(f"<magenta>{SAGIRI_BOT_LOGO}</>")
         self.launch_time = datetime.datetime.now()
         self.config = create(GlobalConfig)
         self.base_path = base_path if isinstance(base_path, Path) else Path(base_path)
+        self.bot_list = self.get_bots_list()
+        logger.info("进行账号登录检测")
+        for bot_account in self.config.bot_accounts:
+            if bot_account in self.bot_list:
+                logger.success(f"机器人账号 <{bot_account}> 已登录，创建实例")
+            else:
+                logger.error(f"机器人账号 <{bot_account}> 未登录，无法创建实例，若想增加此账号请登录后重启此程序")
         self.apps = [
             Ariadne(
                 config(
@@ -93,7 +102,7 @@ class Sagiri(object):
                 ),
                 log_config=LogConfig(lambda x: None if type(x) in non_log else "INFO"),
             )
-            for bot_account in self.config.bot_accounts
+            for bot_account in self.config.bot_accounts if bot_account in self.bot_list
         ]
         # logger.disable("uvicorn")
         if self.config.default_account:
@@ -376,6 +385,10 @@ class Sagiri(object):
 
     async def restart(self):
         ...
+
+    def get_bots_list(self) -> list[int]:
+        url = f"{self.config.mirai_host}/botList"
+        return httpx.get(url).json()["data"]
 
 
 class SagiriClassCreator(AbstractCreator, ABC):

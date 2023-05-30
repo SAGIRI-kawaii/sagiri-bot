@@ -20,5 +20,6 @@
   ],
   "icon": "",
   "prefix": ["/", ""],
-  "triggers": ["pica", "哔咔"]
+  "triggers": ["pica", "哔咔"],
+  "maintaining": true
 }
