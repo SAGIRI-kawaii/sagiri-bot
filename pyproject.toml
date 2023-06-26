@@ -75,14 +75,14 @@ super_resolution = ["realesrgan", "basicsr"]
 mockingbird = ["librosa", "torch", "unidecode", "inflect", "webrtcvad"]
 
 [[tool.poetry.source]]
-name = "pypi-public"
-url = "https://pypi.org/simple/"
-default = false
-
-[[tool.poetry.source]]
 name = "USTC"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-default = true
+priority = "default"
+
+[[tool.poetry.source]]
+name = "pypi-public"
+url = "https://pypi.org/simple/"
+priority = "primary"
 
 [tool.poetry.group.dev.dependencies]
 black = {version = "^23.1a1", allow-prereleases = true}
