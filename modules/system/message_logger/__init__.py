@@ -29,12 +29,12 @@ LAND_DICT = {
 }
 
 
-def parse_log(message: Message) -> str:
+def parse_log(message: Message) -> None:
     sender = message.sender
     land = sender["land"]
     content = message.content
     if land not in LAND_DICT:
-        return f"收到尚未支持协议<{land}>的消息：{content}"
+        return logger.warning(f"收到尚未支持协议<{land}>的消息：{content}")
     text = f"收到来自协议 <{land}>"
     current = LAND_DICT[land]
     for key in sender.pattern:
@@ -45,10 +45,10 @@ def parse_log(message: Message) -> str:
             text += f" {current['relation']}{current['name']} <{sender[key]}>"
             current = current["child"]
         else:
-            return f"收到尚未完全解析的协议 <{land}> 的消息：{content}"
-    return text + f" 的消息：{content}"
+            return logger.warning(f"收到尚未完全解析的协议 <{land}> 的消息：{content}")
+    logger.info(text + f" 的消息：{content}")
             
 
 @channel.use(ListenerSchema([MessageReceived]))
 async def message_logger(message: Message):
-    logger.info(parse_log(message))
+    parse_log(message)

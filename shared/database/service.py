@@ -8,7 +8,7 @@ from shared.database.manager import DatabaseManager
 
 
 class DatabaseService(Service):
-    id: str = "database/init"
+    id: str = "sagiri.service.database"
     db: DatabaseManager
     supported_interface_types: set[Any] = {Database}
 

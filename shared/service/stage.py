@@ -20,6 +20,7 @@ from shared.utils.modules import load_modules
 from shared.models.config import GlobalConfig
 from shared.utils.config import initialize_config
 from shared.database.service import DatabaseService
+from shared.service.launch_time import LaunchTimeService
 
 PROTOCOL_DICT = {
     "mirai_api_http": {
@@ -63,6 +64,7 @@ def init_saya():
 
 def init_services():
     launart.add_component(DatabaseService(create(GlobalConfig).database_setting.db_link))
+    launart.add_component(LaunchTimeService())
 
 
 def init_avilla():
@@ -84,7 +86,7 @@ def init_avilla():
             protocal_instance.service.connections.append(network)
             count += 1
         avilla.apply_protocols(protocal_instance)
-        logger.success(f"协议{protocal}成功加载{count}条配置，发生错误{len(info.accounts) - count}条 （{count}/{len(info.accounts)}）")
+        logger.success(f"协议{protocal}成功加载{count}条配置，发生错误{len(info.accounts) - count}条 ({count}/{len(info.accounts)})")
 
 
 def launch_avilla():
