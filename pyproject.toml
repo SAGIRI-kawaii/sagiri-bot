@@ -1,0 +1,26 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "SAGIRI-kawaii", email = ""},
+]
+dependencies = [
+    "avilla-core>=1.0.0a6",
+    "avilla-console>=0.2.0",
+    "kayaku>=0.5.2",
+    "creart>=0.3.0",
+    "graia-saya>=0.0.18",
+    "aiosqlite>=0.19.0",
+    "sqlalchemy>=2.0.19",
+    "fastapi>=0.101.0",
+    "graia-scheduler>=0.3.0",
+    "avilla-elizabeth>=1.0.0a6",
+    "avilla-standard-qq>=1.0.0a6",
+    "avilla-qqguild-tencent>=1.0.0a6",
+    "psutil>=5.9.5",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "AGPL-3.0"}
+
