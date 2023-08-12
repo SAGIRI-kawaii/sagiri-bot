@@ -13,7 +13,7 @@ ignore = ('__init__.py', '__pycache__')
 
 def load_modules(path: Path | str) -> None:
     saya = create(Saya)
-    pre_path = str(path.relative_to(Path.cwd())).replace("/", ".")
+    pre_path = str(path.relative_to(Path.cwd()).as_posix()).replace("/", ".")
     with saya.module_context():
         for module in pkgutil.iter_modules([str(path)]):
             if module.name in ignore or module.name[0] in ('#', '.', '_'):
