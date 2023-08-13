@@ -29,7 +29,7 @@ class DatabaseManager:
 
     def __init__(self, url: str | URL, engine_options: EngineOptions | None = None):
         if engine_options is None:
-            engine_options = {"echo": "debug", "pool_pre_ping": True}
+            engine_options = {"echo": False, "pool_pre_ping": True}
         self.engine = create_async_engine(url, **engine_options)
 
     @classmethod

@@ -40,8 +40,8 @@ class LaunchTimeService(Service):
             top = (
                 f"\n\n<red>本次启动耗时 </red><yellow>{delta.total_seconds()}"
                 f"</yellow> <red>秒，模块加载耗时</red> <yellow>{module_sum:.6f}"
-                f"</yellow> <red>秒</red>\n\n<red>{'模块':<{name_length}}</red> |"
-                f" <yellow>{'耗时':<{time_length + 2}}</yellow> | <yellow>状态</yellow>\n"
+                f"</yellow> <red>秒</red>\n\n<red>{'模块':<{name_length - 2}}</red> |"
+                f" <yellow>{'耗时':<{time_length}}</yellow> | <yellow>状态</yellow>\n"
             )
 
             for module, (_time, code) in sorted(

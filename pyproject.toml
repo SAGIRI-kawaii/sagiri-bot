@@ -19,7 +19,8 @@ dependencies = [
     "avilla-standard-qq>=1.0.0a6",
     "avilla-qqguild-tencent>=1.0.0a6",
     "psutil>=5.9.5",
-    "launart>=0.8.0",
+    "launart>=0.8.1",
+    "ujson>=5.8.0",
 ]
 requires-python = ">=3.10"
 readme = "README.md"

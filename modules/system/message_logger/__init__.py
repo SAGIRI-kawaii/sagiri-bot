@@ -1,9 +1,10 @@
 from loguru import logger
 
 from graia.saya import Channel
+from avilla.core import MessageReceived, Message
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from avilla.core import Context, MessageChain, MessageReceived, Message, Selector
+from shared.utils.control import Permission
 
 channel = Channel.current()
 
@@ -49,6 +50,6 @@ def parse_log(message: Message) -> None:
     logger.info(text + f" 的消息：{content}")
             
 
-@channel.use(ListenerSchema([MessageReceived]))
+@channel.use(ListenerSchema([MessageReceived], decorators=[Permission.require(1)]))
 async def message_logger(message: Message):
     parse_log(message)
