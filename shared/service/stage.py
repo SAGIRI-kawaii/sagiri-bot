@@ -10,16 +10,19 @@ from launart import Launart
 from avilla.core import Avilla
 from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
+from graiax.playwright import PlaywrightService
 from avilla.elizabeth.protocol import ElizabethProtocol
-from avilla.elizabeth.connection.ws_client import ElizabethWsClientConfig, ElizabethWsClientNetworking
 from graia.scheduler.saya import GraiaSchedulerBehaviour
 from graia.saya.builtins.broadcast import BroadcastBehaviour
+from avilla.elizabeth.connection.ws_client import ElizabethWsClientConfig, ElizabethWsClientNetworking
 
-from shared.utils.log import set_logger
 from shared.utils.modules import load_modules
 from shared.models.config import GlobalConfig
+from shared.service.alembic import AlembicService
 from shared.utils.config import initialize_config
+from shared.utils.log import set_logger, print_logo
 from shared.database.service import DatabaseService
+from shared.service.aiohttp import AiohttpClientService
 from shared.service.launch_time import LaunchTimeService
 
 PROTOCOL_DICT = {
@@ -39,6 +42,7 @@ def mapl2l(_type: Type, data: list[Any]):
 
 
 def initialize():
+    print_logo()
     prepare()
     init_avilla()
     init_services()
@@ -65,6 +69,9 @@ def init_saya():
 def init_services():
     launart.add_component(DatabaseService(create(GlobalConfig).database_setting.db_link))
     launart.add_component(LaunchTimeService())
+    launart.add_component(AiohttpClientService())
+    launart.add_component(PlaywrightService())
+    launart.add_component(AlembicService())
 
 
 def init_avilla():

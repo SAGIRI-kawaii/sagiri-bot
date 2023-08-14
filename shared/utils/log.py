@@ -113,3 +113,14 @@ def set_logger() -> None:
                 _logger.removeHandler(handler)
     logger.remove()
     logger.add(sys.stderr, level="INFO", enqueue=True)
+
+
+def print_logo():
+    SAGIRI_BOT_LOGO = r"""
+   _____  ___    ______ ____ ____   ____       ____   ____  ______
+  / ___/ /   |  / ____//  _// __ \ /  _/      / __ ) / __ \/_  __/
+  \__ \ / /| | / / __  / / / /_/ / / /______ / __  |/ / / / / /
+ ___/ // ___ |/ /_/ /_/ / / _, _/_/ //_____// /_/ // /_/ / / /
+/____//_/  |_|\____//___//_/ |_|/___/      /_____/ \____/ /_/
+"""
+    logger.opt(colors=True).info(f"<magenta>{SAGIRI_BOT_LOGO}</>")

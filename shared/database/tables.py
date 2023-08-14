@@ -1,8 +1,9 @@
+from datetime import datetime
 from dataclasses import dataclass
-from sqlalchemy.types import INTEGER, String
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column as col
 from sqlalchemy import UniqueConstraint, ForeignKey
+from sqlalchemy.types import INTEGER, String, DateTime
 
 from shared.database.model import Base
 from shared.models.permission import PermissionLevel
@@ -22,6 +23,7 @@ class User(Base):
     # 级联删除项
     user_info = relationship("UserInfo", back_populates="user", uselist=False, cascade="all, delete", primaryjoin="User.id == UserInfo.id")
     user_permission = relationship("UserPermission", back_populates="user", uselist=False, cascade="all, delete", primaryjoin="User.id == UserPermission.id")
+    chat_record = relationship("ChatRecord", back_populates="user", uselist=False, cascade="all, delete", primaryjoin="User.id == ChatRecord.uid")
 
     # 唯一约束
     # __table_args__ = (UniqueConstraint("land", "org", "sub_org", "uid"),)
@@ -44,3 +46,16 @@ class UserPermission(Base):
     level: Mapped[int] = col(INTEGER(), nullable=False, default=PermissionLevel.DEFAULT.value)
     
     user = relationship("User", back_populates="user_permission", foreign_keys=[id])
+
+
+@dataclass
+class ChatRecord(Base):
+    __tablename__ = "chat_record"
+
+    id: Mapped[int] = col(INTEGER(), nullable=False, primary_key=True, unique=True, autoincrement=True)
+    uid: Mapped[int] = col(INTEGER(), ForeignKey('user.id'), nullable=False)
+    time: Mapped[datetime] = col(DateTime(), nullable=False)
+    persistent_string: Mapped[str] = col(String(), nullable=False)
+    seg: Mapped[str] = col(String(), nullable=True)
+    
+    user = relationship("User", back_populates="chat_record", foreign_keys=[uid])

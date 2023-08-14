@@ -61,6 +61,15 @@ class DatabaseStub:  # (ExportInterface["DatabaseService"]):
 
     async def delete_many_exist(self, *rows):
         ...
+    
+    async def create_all(self):
+        ...
+    
+    async def drop_all(self):
+        ...
+
+    async def get_exist_tables(self) -> list[str]:
+        ...
 
 
 Database = DatabaseStub if TYPE_CHECKING else DatabaseImpl

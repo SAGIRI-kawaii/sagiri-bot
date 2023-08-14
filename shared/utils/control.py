@@ -1,4 +1,5 @@
 import ujson
+from loguru import logger
 from contextlib import suppress
 from sqlalchemy.sql import select
 from collections.abc import Mapping
@@ -23,7 +24,6 @@ class Permission(object):
     async def get(cls, pattern: Mapping[str, str] | Selector):
         if isinstance(pattern, Selector):
             pattern = pattern.pattern
-        print(pattern)
         launart = Launart.current()
         db = launart.get_interface(Database)
         pattern = ujson.dumps(dict(pattern))
@@ -51,5 +51,19 @@ class Blacklist(object):
         async def blacklist_check(message: Message):
             permission = await Permission.get(message.sender)
             if permission == -1:
+                logger.info(f"已屏蔽黑名单用户：{ujson.dumps(dict(message.sender.pattern))}")
                 raise ExecutionStop()
         return Depend(blacklist_check)
+
+
+class Anonymous(object):
+    """用于屏蔽qq匿名的类，不应被实例化"""
+
+    @staticmethod
+    def block(message_str: str = "不许匿名，你是不是想干坏事？") -> Depend:
+        async def judge(message: Message):
+            sender = message.sender
+            if sender.land == "qq" and "member" in sender:
+                if sender["member"] == 80000000:
+                    raise ExecutionStop()
+        return Depend(judge)

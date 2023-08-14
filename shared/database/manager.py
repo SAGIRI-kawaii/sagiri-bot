@@ -1,19 +1,19 @@
 import contextlib
+from sqlalchemy import inspect
 from asyncio import current_task
-from collections.abc import AsyncGenerator, Sequence
 from typing import Any, TypeVar, cast
-
-from sqlalchemy.engine.result import Result
 from sqlalchemy.engine.url import URL
+from sqlalchemy.sql.base import Executable
+from sqlalchemy.engine.result import Result
+from collections.abc import AsyncGenerator, Sequence
+from sqlalchemy.ext.asyncio.engine import AsyncEngine
+from sqlalchemy.sql.selectable import TypedReturnsRows
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_scoped_session,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.ext.asyncio.engine import AsyncEngine
-from sqlalchemy.sql.base import Executable
-from sqlalchemy.sql.selectable import TypedReturnsRows
 
 from shared.database.model import Base
 from shared.database.types import EngineOptions
@@ -159,3 +159,21 @@ class DatabaseManager:
         async with self.async_session() as session:
             for row in rows:
                 await session.delete(row)
+    
+    async def create_all(self):
+        async with self.engine.begin() as conn:
+            for t in Base.__subclasses__():
+                if not (await conn.run_sync(self.engine.dialect.has_table, t.__tablename__)):
+                    _ = await conn.run_sync(t.metadata.create_all)
+
+    async def drop_all(self):
+        async with self.engine.begin() as conn:
+            for t in Base.__subclasses__():
+                _ = await conn.run_sync(t.metadata.drop_all)
+
+    async def get_exist_tables(self):
+        async with self.engine.connect() as conn:
+            def use_inspector(conn):
+                inspector = inspect(conn)
+                return inspector.get_table_names()
+            return await conn.run_sync(use_inspector)
