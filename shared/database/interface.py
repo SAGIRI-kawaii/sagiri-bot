@@ -47,6 +47,9 @@ class DatabaseStub:  # (ExportInterface["DatabaseService"]):
     async def select_first(self, sql: TypedReturnsRows[tuple[T_Row]]) -> T_Row | None:
         ...
 
+    async def add_and_query(self, row, sql: TypedReturnsRows[tuple[T_Row]]) -> T_Row | None: 
+        ...
+
     async def add(self, row):
         ...
 

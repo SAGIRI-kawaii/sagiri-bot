@@ -29,7 +29,7 @@ class DatabaseService(Service):
 
     async def launch(self, _):
         logger.info("Initializing database...")
-        await self.db.initialize()
+        _ = await self.db.initialize()
         logger.success("Database initialized!")
 
         async with self.stage("preparing"):

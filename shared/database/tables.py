@@ -21,9 +21,10 @@ class User(Base):
     # uid: Mapped[int] = col(INTEGER(), nullable=False)
 
     # 级联删除项
-    user_info = relationship("UserInfo", back_populates="user", uselist=False, cascade="all, delete", primaryjoin="User.id == UserInfo.id")
-    user_permission = relationship("UserPermission", back_populates="user", uselist=False, cascade="all, delete", primaryjoin="User.id == UserPermission.id")
-    chat_record = relationship("ChatRecord", back_populates="user", uselist=False, cascade="all, delete", primaryjoin="User.id == ChatRecord.uid")
+    user_info = relationship("UserInfo", back_populates="user", uselist=False, cascade="all, delete-orphan", primaryjoin="User.id == UserInfo.id")
+    user_permission = relationship("UserPermission", back_populates="user", uselist=False, cascade="all, delete-orphan", primaryjoin="User.id == UserPermission.id")
+    chat_record = relationship("ChatRecord", back_populates="user", uselist=False, cascade="all, delete-orphan", primaryjoin="User.id == ChatRecord.uid")
+    user_function_calls = relationship("UserFunctionCalls", back_populates="user", uselist=False, cascade="all, delete-orphan", primaryjoin="User.id == UserFunctionCalls.uid")
 
     # 唯一约束
     # __table_args__ = (UniqueConstraint("land", "org", "sub_org", "uid"),)
@@ -59,3 +60,15 @@ class ChatRecord(Base):
     seg: Mapped[str] = col(String(), nullable=True)
     
     user = relationship("User", back_populates="chat_record", foreign_keys=[uid])
+
+
+@dataclass
+class UserFunctionCalls(Base):
+    __tablename__ = "user_function_calls"
+
+    id: Mapped[int] = col(INTEGER(), nullable=False, primary_key=True, unique=True, autoincrement=True)
+    uid: Mapped[int] = col(INTEGER(), ForeignKey('user.id'), nullable=False)
+    time: Mapped[datetime] = col(DateTime(), nullable=False)
+    func_name: Mapped[str] = col(String(), nullable=False)
+    
+    user = relationship("User", back_populates="user_function_calls", foreign_keys=[uid])

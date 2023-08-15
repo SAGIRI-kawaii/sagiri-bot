@@ -26,11 +26,13 @@ T_Row = TypeVar("T_Row", bound=Base)
 class DatabaseManager:
     engine: AsyncEngine
     session_factory: async_sessionmaker[AsyncSession]
+    _scoped_session: async_scoped_session
 
     def __init__(self, url: str | URL, engine_options: EngineOptions | None = None):
         if engine_options is None:
-            engine_options = {"echo": False, "pool_pre_ping": True}
+            engine_options = {"echo": True, "pool_pre_ping": True}
         self.engine = create_async_engine(url, **engine_options)
+        self._scoped_session = None
 
     @classmethod
     def get_engine_url(
@@ -69,7 +71,8 @@ class DatabaseManager:
 
     async def async_safe_session(self):
         """生成一个异步安全的session回话."""
-        self._scoped_session = async_scoped_session(self.session_factory, scopefunc=current_task)
+        if not self._scoped_session:
+            self._scoped_session = async_scoped_session(self.session_factory, scopefunc=current_task)
         return self._scoped_session
 
     @contextlib.asynccontextmanager
@@ -105,51 +108,57 @@ class DatabaseManager:
     #     return cast(Sequence[T_Row] | None, result.first())
 
     async def select_all(self, sql: TypedReturnsRows[tuple[T_Row]]) -> Sequence[T_Row]:
-        async with self.async_session() as session:
+        async with (await self.async_safe_session())() as session:
             result = await session.scalars(sql)
         return result.all()
 
     async def select_first(self, sql: TypedReturnsRows[tuple[T_Row]]) -> T_Row | None:
-        async with self.async_session() as session:
+        async with (await self.async_safe_session())() as session:
+            result = await session.scalars(sql)
+        return cast(T_Row | None, result.first())
+
+    async def add_and_query(self, row, sql: TypedReturnsRows[tuple[T_Row]]) -> T_Row | None:
+        async with (await self.async_safe_session())() as session:
+            try:
+                session.add(row)
+                _ = await session.commit()
+                _ = await session.refresh(row)
+            except Exception:
+                _ = await session.rollback()
+                raise
             result = await session.scalars(sql)
         return cast(T_Row | None, result.first())
 
     async def add(self, row):
-        scoped_session = await self.async_safe_session()
-        try:
-            scoped_session.add(row)
-            await self._scoped_session.commit()
-            await self._scoped_session.refresh(row)
-        except Exception:
-            await self._scoped_session.rollback()
-            raise
-        finally:
-            await self._scoped_session.remove()
+        async with (await self.async_safe_session())() as session:
+            try:
+                session.add(row)
+                _ = await session.commit()
+                _ = await session.refresh(row)
+            except Exception:
+                _ = await session.rollback()
+                raise
 
     async def add_many(self, rows: Sequence[Base]):
-        scoped_session = await self.async_safe_session()
-        try:
-            scoped_session.add_all(rows)
-            await self._scoped_session.commit()
-            for row in rows:
-                await self._scoped_session.refresh(row)
-        except Exception:
-            await self._scoped_session.rollback()
-            raise
-        finally:
-            await self._scoped_session.remove()
+        async with (await self.async_safe_session())() as session:
+            try:
+                session.add_all(rows)
+                _ = await session.commit()
+                for row in rows:
+                    _ = await session.refresh(row)
+            except Exception:
+                _ = await session.rollback()
+                raise
 
     async def update_or_add(self, row):
-        scoped_session = await self.async_safe_session()
-        try:
-            await scoped_session.merge(row)
-            await self._scoped_session.commit()
-            await self._scoped_session.refresh(row)
-        except Exception:
-            await self._scoped_session.rollback()
-            raise
-        finally:
-            await self._scoped_session.remove()
+        async with (await self.async_safe_session())() as session:
+            try:
+                _ = await session.merge(row)
+                _ = await session.commit()
+                _ = await session.refresh(row)
+            except Exception:
+                _ = await session.rollback()
+                raise
 
     async def delete_exist(self, row):
         async with self.async_session() as session:
