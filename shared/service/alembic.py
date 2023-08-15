@@ -68,10 +68,10 @@ class AlembicService(Service):
 
     @property
     def stages(self):
-        return {"preparing"}
+        return {"blocking"}
 
     async def launch(self, _mgr: Launart):
-        async with self.stage("preparing"):
+        async with self.stage("blocking"):
             db = Launart.current().get_interface(Database)
             try:
                 exist_tables = await db.get_exist_tables()

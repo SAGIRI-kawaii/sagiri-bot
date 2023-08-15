@@ -1,5 +1,3 @@
-import ujson
-from sqlalchemy import select
 from datetime import datetime
 
 from launart import Launart
@@ -8,9 +6,9 @@ from graiax.shortcut.saya import listen
 from avilla.core import MessageReceived, Message
 
 from .utils import seg_content
-from shared.utils.control import get_user
+from shared.utils.models import get_user
+from shared.database.tables import ChatRecord
 from shared.database.interface import Database
-from shared.database.tables import User, ChatRecord
 
 channel = Channel.current()
 

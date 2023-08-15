@@ -68,10 +68,10 @@ def init_saya():
 
 def init_services():
     launart.add_component(DatabaseService(create(GlobalConfig).database_setting.db_link))
-    launart.add_component(LaunchTimeService())
+    launart.add_component(AlembicService())
     launart.add_component(AiohttpClientService())
     launart.add_component(PlaywrightService())
-    launart.add_component(AlembicService())
+    launart.add_component(LaunchTimeService())
 
 
 def init_avilla():

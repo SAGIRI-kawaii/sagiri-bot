@@ -1,9 +1,9 @@
 from datetime import datetime
 from dataclasses import dataclass
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column as col
-from sqlalchemy import UniqueConstraint, ForeignKey
-from sqlalchemy.types import INTEGER, String, DateTime
+from sqlalchemy.types import INTEGER, String, DateTime, BOOLEAN
 
 from shared.database.model import Base
 from shared.models.permission import PermissionLevel
@@ -72,3 +72,23 @@ class UserFunctionCalls(Base):
     func_name: Mapped[str] = col(String(), nullable=False)
     
     user = relationship("User", back_populates="user_function_calls", foreign_keys=[uid])
+
+
+@dataclass
+class Scene(Base):
+    __tablename__ = "scene"
+
+    id: Mapped[int] = col(INTEGER(), nullable=False, primary_key=True, autoincrement=True, unique=True)
+    data_json: Mapped[str] = col(String(), nullable=False, unique=True)
+
+    scene_setting = relationship("SceneSetting", back_populates="scene", uselist=False, cascade="all, delete-orphan", primaryjoin="Scene.id == SceneSetting.id")
+
+
+@dataclass
+class SceneSetting(Base):
+    __tablename__ = "scene_setting"
+
+    id: Mapped[int] = col(INTEGER(), ForeignKey('scene.id'), nullable=False, primary_key=True, unique=True)
+    switch: Mapped[bool] = col(BOOLEAN(), nullable=False, default=True)
+    
+    scene = relationship("Scene", back_populates="scene_setting", foreign_keys=[id])

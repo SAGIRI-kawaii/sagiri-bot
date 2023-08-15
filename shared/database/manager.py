@@ -30,7 +30,7 @@ class DatabaseManager:
 
     def __init__(self, url: str | URL, engine_options: EngineOptions | None = None):
         if engine_options is None:
-            engine_options = {"echo": True, "pool_pre_ping": True}
+            engine_options = {"echo": False, "pool_pre_ping": True}
         self.engine = create_async_engine(url, **engine_options)
         self._scoped_session = None
 
@@ -119,13 +119,6 @@ class DatabaseManager:
 
     async def add_and_query(self, row, sql: TypedReturnsRows[tuple[T_Row]]) -> T_Row | None:
         async with (await self.async_safe_session())() as session:
-            try:
-                session.add(row)
-                _ = await session.commit()
-                _ = await session.refresh(row)
-            except Exception:
-                _ = await session.rollback()
-                raise
             result = await session.scalars(sql)
         return cast(T_Row | None, result.first())
 

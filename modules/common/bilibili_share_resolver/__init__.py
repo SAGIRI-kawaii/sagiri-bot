@@ -26,13 +26,14 @@ from dataclasses import dataclass
 
 from launart import Launart
 from graia.saya import Channel
-from graiax.shortcut.saya import listen
 from avilla.core.resource import RawResource
 from avilla.core.elements import Picture, Text
 from avilla.core import Context, MessageReceived
 from graiax.text2img.playwright import PageOption
+from graiax.shortcut.saya import listen, decorate
 
 from shared.utils.text2img import template2img
+from shared.utils.control import Switch, FunctionCall
 from shared.service.aiohttp import AiohttpClientInterface
 
 channel = Channel.current()
@@ -78,6 +79,8 @@ class VideoInfo:
 
 
 @listen(MessageReceived)
+@decorate(Switch.check())
+@decorate(FunctionCall.record("bilibili_share_resolver"))
 async def main(ctx: Context, event: MessageReceived):
     message = str(event.message.content)
     p = re.compile(f'({avid_re})|({bvid_re})')
@@ -89,12 +92,6 @@ async def main(ctx: Context, event: MessageReceived):
     if not video_id or video_id is None:
         return
     video_id = video_id.group()
-
-    # rate_limit, remaining_time = ManualInterval.require(f'{group.id}_{member.id}_bilibiliVideoInfo', 5, 2)
-    # if not rate_limit:
-    #     await app.send_message(group, MessageChain(Plain(f'冷却中，剩余{remaining_time}秒，请稍后再试')))
-    #     return
-
     video_info = await get_video_info(video_id)
     if video_info['code'] == -404:
         return await ctx.scene.send_message('视频不存在')
