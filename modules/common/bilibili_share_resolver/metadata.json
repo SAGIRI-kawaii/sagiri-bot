@@ -1,0 +1,15 @@
+{
+  "name": "BilibiliShareResolver",
+  "version": "0.1",
+  "display_name": "B站链接解析",
+  "authors": [
+    "Redlnn",
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个解析B站链接/AV/BV号/链接的插件",
+  "usage": ["自动触发"],
+  "example": [],
+  "icon": "",
+  "prefix": [],
+  "triggers": []
+}

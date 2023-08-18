@@ -4,13 +4,14 @@ from datetime import datetime
 from collections.abc import Mapping
 from sqlalchemy.orm import selectinload
 
-from launart import Launart
+from kayaku import create
 from avilla.core import Message, Context
 from avilla.core.selector import Selector
 from graia.broadcast.exceptions import ExecutionStop
 from graia.broadcast.builtin.decorators import Depend
 
-from shared.database.interface import Database
+from shared.models import PluginData
+from shared.database import get_interface
 from shared.utils.models import get_scene, get_user
 from shared.models.permission import PermissionLevel
 from shared.database.tables import User, Scene, UserFunctionCalls
@@ -20,15 +21,19 @@ class Permission(object):
     """用于管理权限的类，不应被实例化"""
 
     @classmethod
-    async def get(cls, pattern: Mapping[str, str] | Selector):
+    async def get(cls, pattern: Mapping[str, str] | Selector) -> int:
         res = await get_user(pattern, selectinload(User.user_permission))
         return res.user_permission.level if res else PermissionLevel.DEFAULT.value
         
     @classmethod
-    def require(cls, level: int | PermissionLevel):
-        async def perm_check(message: Message):
+    def require(cls, level: int | PermissionLevel, notice: bool = True):
+        if isinstance(level, PermissionLevel):
+            level = level.value
+        async def perm_check(ctx: Context, message: Message):
             permission = await cls.get(message.sender)
-            if level < permission:
+            if level > permission:
+                if notice:
+                    _ = await ctx.scene.send_message(f"权限不足，需要权限级{level}，你的权限为{permission}")
                 raise ExecutionStop()
         return Depend(perm_check)
 
@@ -68,9 +73,7 @@ class FunctionCall(object):
         async def update(message: Message):
             sender = message.sender
             user = await get_user(sender)
-            launart = Launart.current()
-            db = launart.get_interface(Database)
-            await db.add(
+            await get_interface().add(
                 UserFunctionCalls(
                     uid=user.id,
                     time=datetime.now(),
@@ -80,13 +83,33 @@ class FunctionCall(object):
         return Depend(update)
 
 
-class Switch(object):
-    """用于控制开关的类，不应被实例化"""
+class SceneSwitch(object):
+    """用于控制场景响应开关的类，不应被实例化"""
 
     @staticmethod
     def check() -> Depend:
         async def judge(message: Message):
             scene = await get_scene(message.scene, selectinload(Scene.scene_setting))
             if not scene.scene_setting.switch:
+                raise ExecutionStop()
+        return Depend(judge)
+
+
+class Function(object):
+    """用于控制单模块模块开关的类，不应被实例化"""
+
+    @staticmethod
+    def require(
+        name: str,
+        *,
+        response_administrator: bool = False,
+        notice: bool = False,
+    ) -> Depend:
+        async def judge(ctx: Context, message: Message):
+            plugin_data = create(PluginData)
+            switch = plugin_data.is_on(name, message)
+            logger.debug(f"log from decorator Function: module <{name}>'s switch: {switch}")
+            if not switch and (notice or plugin_data.is_notice_on(name, message)):
+                _ = await ctx.scene.send_message(f"模组<{name}>已关闭！请联系机器人管理员！")
                 raise ExecutionStop()
         return Depend(judge)

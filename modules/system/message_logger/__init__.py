@@ -1,10 +1,9 @@
 from loguru import logger
+from typing import Literal
 
 from graia.saya import Channel
-from avilla.core import MessageReceived, Message
-from graia.saya.builtins.broadcast.schema import ListenerSchema
-
-from shared.utils.control import Permission
+from graiax.shortcut.saya import listen
+from avilla.core import MessageReceived, Message, MessageSent, Context, Nick, Summary
 
 channel = Channel.current()
 
@@ -13,16 +12,22 @@ LAND_DICT = {
         "friend": {
             "relation": "中",
             "name": "好友",
-            "child": {}
+            "child": {},
+            "meta": Nick,
+            "meta_name": "sender"
         },
         "group": {
             "relation": "中",
             "name": "群组",
+            "meta": Summary,
+            "meta_name": "scene",
             "child": {
                 "member": {
                     "relation": "中",
                     "name": "群员",
-                    "child": {}
+                    "child": {},
+                    "meta": Nick,
+                    "meta_name": "sender"
                 }
             }
         }
@@ -30,26 +35,36 @@ LAND_DICT = {
 }
 
 
-def parse_log(message: Message) -> None:
+async def parse_log(ctx: Context, message: Message, t: Literal["receive", "send"]) -> None:
     sender = message.sender
     land = sender["land"]
-    content = message.content
+    content = str(message.content).replace("\n", r"\n")
+    prefix = "收到" if t == "receive" else "成功发送"
     if land not in LAND_DICT:
-        return logger.warning(f"收到尚未支持协议<{land}>的消息：{content}")
-    text = f"收到来自协议 <{land}>"
+        return logger.warning(f"{prefix}尚未支持协议<{land}>的消息：{content}")
+    text = f"{prefix}来自协议 <{land}>"
     current = LAND_DICT[land]
     for key in sender.pattern:
         if key == "land":
             continue
         if key in current:
             current = current[key]
-            text += f" {current['relation']}{current['name']} <{sender[key]}>"
+            if (t := current.get("meta")) and (tn := current.get("meta_name")):
+                meta = await ctx.pull(t, getattr(message, tn))
+                text += f" {current['relation']}{current['name']} <{meta.name}（{sender[key]}）>"
+            else:
+                text += f" {current['relation']}{current['name']} <{sender[key]}>"
             current = current["child"]
         else:
-            return logger.warning(f"收到尚未完全解析的协议 <{land}> 的消息：{content}")
+            return logger.warning(f"{prefix}尚未完全解析的协议 <{land}> 的消息：{content}")
     logger.info(text + f" 的消息：{content}")
             
 
-@channel.use(ListenerSchema([MessageReceived], decorators=[Permission.require(1)]))
-async def message_logger(message: Message):
-    parse_log(message)
+@listen(MessageReceived)
+async def message_logger(ctx: Context, message: Message):
+    await parse_log(ctx, message, "receive")
+            
+
+@listen(MessageSent)
+async def message_logger(ctx: Context, message: Message):
+    await parse_log(ctx, message, "send")

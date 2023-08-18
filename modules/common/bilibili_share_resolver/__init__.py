@@ -33,8 +33,8 @@ from graiax.text2img.playwright import PageOption
 from graiax.shortcut.saya import listen, decorate
 
 from shared.utils.text2img import template2img
-from shared.utils.control import Switch, FunctionCall
 from shared.service.aiohttp import AiohttpClientInterface
+from shared.utils.control import SceneSwitch, FunctionCall, Function
 
 channel = Channel.current()
 
@@ -79,7 +79,8 @@ class VideoInfo:
 
 
 @listen(MessageReceived)
-@decorate(Switch.check())
+@decorate(SceneSwitch.check())
+@decorate(Function.require(channel.module))
 @decorate(FunctionCall.record("bilibili_share_resolver"))
 async def main(ctx: Context, event: MessageReceived):
     message = str(event.message.content)

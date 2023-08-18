@@ -1,0 +1,14 @@
+{
+  "name": "Echo",
+  "version": "0.1",
+  "display_name": "HelloWorld",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个简单的回复插件",
+  "usage": ["在群中发送 /echo 即可"],
+  "example": ["/echo"],
+  "icon": "",
+  "prefix": ["/"],
+  "triggers": ["echo"]
+}

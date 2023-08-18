@@ -10,7 +10,9 @@ def main():
         logger.critical(f"当前目录非项目所在目录！请进入{str(target_main_path.parent)}后再运行 SAGIRI-BOT!")
         exit(0)
 
-    kayaku.initialize({"{**}": "./config/{**}"})
+    kayaku.initialize({
+        "{**}": "./config/{**}"
+    })
 
     from shared.service.stage import initialize
 

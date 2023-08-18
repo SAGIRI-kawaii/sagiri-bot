@@ -44,4 +44,5 @@ class GlobalConfig:
     mirai_api_http: MiraiApiHttpConfig = field(default_factory=MiraiApiHttpConfig)
     logger_setting: LoggerSetting = field(default_factory=LoggerSetting)
     database_setting: DatabaseSetting = field(default_factory=DatabaseSetting)
-    proxy: Optional[str] = None
+    proxy: str = field(default_factory=str)
+    auto_upgrade: bool = field(default=False)

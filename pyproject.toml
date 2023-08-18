@@ -30,6 +30,8 @@ dependencies = [
     "graiax-text2img-playwright>=0.4.2",
     "jinja2>=3.1.2",
     "graiax-fastapi>=0.4.0",
+    "GitPython>=3.1.32",
+    "avilla-twilight>=0.1.0",
 ]
 requires-python = ">=3.10"
 readme = "README.md"

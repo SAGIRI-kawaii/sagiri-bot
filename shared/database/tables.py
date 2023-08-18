@@ -90,5 +90,6 @@ class SceneSetting(Base):
 
     id: Mapped[int] = col(INTEGER(), ForeignKey('scene.id'), nullable=False, primary_key=True, unique=True)
     switch: Mapped[bool] = col(BOOLEAN(), nullable=False, default=True)
+    online_notice: Mapped[bool] = col(BOOLEAN(), nullable=False,  default=True)
     
     scene = relationship("Scene", back_populates="scene_setting", foreign_keys=[id])

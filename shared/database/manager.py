@@ -28,11 +28,14 @@ class DatabaseManager:
     session_factory: async_sessionmaker[AsyncSession]
     _scoped_session: async_scoped_session
 
-    def __init__(self, url: str | URL, engine_options: EngineOptions | None = None):
+    def __init__(self, url: str | URL, engine_options: EngineOptions | None = None, session_options: dict[str, Any] | None = None):
         if engine_options is None:
             engine_options = {"echo": False, "pool_pre_ping": True}
         self.engine = create_async_engine(url, **engine_options)
         self._scoped_session = None
+        if session_options is None:
+            session_options = {"expire_on_commit": False}
+        self.session_factory = async_sessionmaker(self.engine, **session_options)
 
     @classmethod
     def get_engine_url(
@@ -57,12 +60,9 @@ class DatabaseManager:
         kw = "".join(f"&{key}={value}" for key, value in kwargs.items()).lstrip("&")
         return url + kw if kw else url
 
-    async def initialize(self, session_options: dict[str, Any] | None = None):
-        if session_options is None:
-            session_options = {"expire_on_commit": False}
+    async def initialize(self):
         async with self.engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        self.session_factory = async_sessionmaker(self.engine, **session_options)
 
     async def stop(self):
         # for AsyncEngine created in function scope, close and

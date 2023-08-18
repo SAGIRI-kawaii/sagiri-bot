@@ -168,3 +168,5 @@ log/
 alembic/
 alembic.ini
 test.py
+.VSCodeCounter/
+resources/cache/

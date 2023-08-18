@@ -3,6 +3,7 @@ from pathlib import Path
 from loguru import logger
 from typing import Type, Any
 
+import kayaku
 from creart import it
 from kayaku import create
 from graia.saya import Saya
@@ -20,6 +21,7 @@ from shared.utils.modules import load_modules
 from shared.models.config import GlobalConfig
 from shared.service.alembic import AlembicService
 from shared.utils.config import initialize_config
+from shared.service.version import UpdaterService
 from shared.utils.log import set_logger, print_logo
 from shared.database.service import DatabaseService
 from shared.service.aiohttp import AiohttpClientService
@@ -64,6 +66,8 @@ def init_saya():
     )
     load_modules(Path.cwd() / "modules" / "system")
     load_modules(Path.cwd() / "modules" / "common")
+    kayaku.bootstrap()
+    kayaku.save_all()
 
 
 def init_services():
@@ -71,6 +75,7 @@ def init_services():
     launart.add_component(AlembicService())
     launart.add_component(AiohttpClientService())
     launart.add_component(PlaywrightService())
+    launart.add_component(UpdaterService())
     launart.add_component(LaunchTimeService())
 
 
