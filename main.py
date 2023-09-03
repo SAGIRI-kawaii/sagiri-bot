@@ -1,4 +1,4 @@
-from shared.service import main
+from shared.services import main
 
 
 if __name__ == "__main__":

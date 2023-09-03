@@ -6,7 +6,7 @@ from loguru import logger
 from creart import create
 from graia.saya import Saya
 
-from shared.service.launch_time import add_launch_time
+from shared.services.launch_time import add_launch_time
 
 ignore = ('__init__.py', '__pycache__')
 

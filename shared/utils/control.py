@@ -4,6 +4,7 @@ from datetime import datetime
 from collections.abc import Mapping
 from sqlalchemy.orm import selectinload
 
+from creart import it
 from kayaku import create
 from avilla.core import Message, Context
 from avilla.core.selector import Selector
@@ -14,6 +15,7 @@ from shared.models import PluginData
 from shared.database import get_interface
 from shared.utils.models import get_scene, get_user
 from shared.models.permission import PermissionLevel
+from shared.services.distribute import DistributeData
 from shared.database.tables import User, Scene, UserFunctionCalls
 
 
@@ -112,4 +114,33 @@ class Function(object):
             if not switch and (notice or plugin_data.is_notice_on(name, message)):
                 _ = await ctx.scene.send_message(f"模组<{name}>已关闭！请联系机器人管理员！")
                 raise ExecutionStop()
+        return Depend(judge)
+
+
+class Distribute(object):
+    """用于控制负载均衡的类，不应被实例化"""
+    @staticmethod
+    def distribute(require_admin: bool = False, show_log: bool = False) -> Depend:
+        async def judge(ctx: Context, message: Message):
+            base_account = ctx.account
+            land = base_account.route["land"]
+            account = base_account.route["account"]
+
+            # TODO: 添加bot冲突检测，检测已加载account
+
+            distribute_data = it(DistributeData)
+            if not distribute_data.account_initialized(account):
+                _ = await distribute_data.add_account(base_account)
+                if show_log:
+                    logger.warning(f"{account} not initialized")
+                raise ExecutionStop()
+            if all([
+                distribute_data.need_distribute(land, message.scene),
+                await distribute_data.execution_stop(base_account, message.scene, message)
+            ]):
+                if show_log:
+                    logger.debug(f"{account} stop")
+                raise ExecutionStop()
+            if show_log:
+                logger.debug(f"{account} keep")
         return Depend(judge)

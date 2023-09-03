@@ -8,9 +8,10 @@ PROTOCOLS = Literal["mirai_api_http", "onebot_v11", "onebot_v12", "telegram", "d
 
 @dataclass
 class MiraiApiHttpAccount:
-    url: str = "http://localhost:23456"
-    verify_key: str = "1234567890"
-    account: int = 0
+    qq: int = 0
+    host: str = "localhost"
+    port: int = 23456
+    access_token: str = "1234567890"
 
 
 @dataclass

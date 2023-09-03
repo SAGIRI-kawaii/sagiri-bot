@@ -20,13 +20,21 @@ from shared.database.interface import Database
 async def _alembic():
     if not (Path.cwd() / "alembic").exists():
         logger.info("未检测到alembic目录，进行初始化")
-        os.system("alembic init alembic")
+        try:
+            os.system("alembic init alembic")
+        except Exception as e:
+            logger.error(f"由于错误<{e}>，alembic初始化终止")
+            return
         with open(
             Path.cwd() / "resources" / "alembic_env_py_content.txt", "r"
         ) as r:
             alembic_env_py_content = r.read()
-        with open(Path.cwd() / "alembic" / "env.py", "w") as w:
-            w.write(alembic_env_py_content)
+        try:
+            with open(Path.cwd() / "alembic" / "env.py", "w") as w:
+                w.write(alembic_env_py_content)
+        except FileNotFoundError:
+            logger.error(f"由于错误，alembic初始化终止")
+            return
         db_link = create(GlobalConfig).database_setting.db_link
         db_link = (
             db_link.split(":")[0].split("+")[0]

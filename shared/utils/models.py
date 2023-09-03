@@ -1,12 +1,10 @@
 import ujson
-from typing import Type
 from contextlib import suppress
 from sqlalchemy.sql import select
 from collections.abc import Mapping
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql.base import ExecutableOption
 
-from launart import Launart
 from avilla.core.selector import Selector
 from shared.database.tables import User, UserPermission, Scene, SceneSetting
 

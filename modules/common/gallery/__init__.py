@@ -16,7 +16,7 @@ from shared.models.plugin import PluginMeta
 from shared.utils.image import get_md5, get_image_type
 from .utils import get_image, valid2send, gen_cache_path
 from .models import GalleryConfig, GalleryTriggerWord, GallerySwitch
-from shared.utils.control import FunctionCall, Function, SceneSwitch, Permission, PermissionLevel
+from shared.utils.control import FunctionCall, Function, SceneSwitch, Permission, PermissionLevel, Distribute
 
 channel = Channel.current()
 meta = PluginMeta.from_path(__file__)
@@ -31,6 +31,7 @@ RESPONSE_DICT = {
 
 
 @listen(MessageReceived)
+@decorate(Distribute.distribute())
 @decorate(SceneSwitch.check())
 @decorate(Function.require(channel.module))
 async def keyword_detect(ctx: Context, message: Message):
@@ -48,6 +49,7 @@ async def keyword_detect(ctx: Context, message: Message):
 
 
 @listen(MessageReceived)
+@decorate(Distribute.distribute())
 @decorate(Permission.require(PermissionLevel.USER))
 @dispatch(Twilight([
     FullMatch("添加图库关键词"), 
@@ -69,6 +71,7 @@ async def add_keyword(ctx: Context, gallery_name: MessageChain = ResultValue(), 
 
 
 @listen(MessageReceived)
+@decorate(Distribute.distribute())
 @decorate(Permission.require(PermissionLevel.USER))
 @dispatch(Twilight([
     FullMatch("删除图库关键词"), 
@@ -85,12 +88,14 @@ async def delete_keyword(ctx: Context, keyword: MessageChain = ResultValue()):
 
 
 @listen(MessageReceived)
+@decorate(Distribute.distribute())
 @dispatch(Twilight(FullMatch("查看图库列表")))
 async def show_galleries(ctx: Context):
     await ctx.scene.send_message(f"当前已加载图库：{'、'.join([str(i) for i in create(GalleryConfig).configs.keys()])}")
 
 
 @listen(MessageReceived)
+@decorate(Distribute.distribute())
 @dispatch(Twilight(
     FullMatch("查看图库关键词"),
     FullMatch(DEFAULT_SEPARATOR),
@@ -104,6 +109,7 @@ async def show_galleries(ctx: Context, gallery_name: MessageChain = ResultValue(
 
 
 @listen(MessageReceived)
+@decorate(Distribute.distribute())
 @decorate(Permission.require(PermissionLevel.USER))
 @dispatch(Twilight(
     UnionMatch("打开", "关闭") @ "operation",
@@ -120,6 +126,7 @@ async def modify_gallery_switch(ctx: Context, message: Message, operation: Messa
 
 
 @listen(MessageReceived)
+@decorate(Distribute.distribute())
 @decorate(Permission.require(PermissionLevel.USER))
 @dispatch(Twilight([
     FullMatch("添加"),

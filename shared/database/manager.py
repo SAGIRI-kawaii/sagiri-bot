@@ -148,7 +148,7 @@ class DatabaseManager:
             try:
                 _ = await session.merge(row)
                 _ = await session.commit()
-                _ = await session.refresh(row)
+                # _ = await session.refresh(row)
             except Exception:
                 _ = await session.rollback()
                 raise

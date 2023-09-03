@@ -6,7 +6,7 @@ groups = ["default"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:e485382eeff1fcb80a35504e81ebcf21f859162c0a68eba48df3f1d538ea6a1a"
+content_hash = "sha256:4bbaa863bed7097661b9c59abd63d9d70733851118c10cf1ea1f239650470637"
 
 [[package]]
 name = "aiohttp"
@@ -81,7 +81,7 @@ files = [
 
 [[package]]
 name = "alembic"
-version = "1.11.2"
+version = "1.12.0"
 requires_python = ">=3.7"
 summary = "A database migration tool for SQLAlchemy."
 dependencies = [
@@ -90,8 +90,8 @@ dependencies = [
     "typing-extensions>=4",
 ]
 files = [
-    {file = "alembic-1.11.2-py3-none-any.whl", hash = "sha256:7981ab0c4fad4fe1be0cf183aae17689fe394ff874fd2464adb774396faf0796"},
-    {file = "alembic-1.11.2.tar.gz", hash = "sha256:678f662130dc540dac12de0ea73de9f89caea9dbea138f60ef6263149bf84657"},
+    {file = "alembic-1.12.0-py3-none-any.whl", hash = "sha256:03226222f1cf943deee6c85d9464261a6c710cd19b4fe867a3ad1f25afda610f"},
+    {file = "alembic-1.12.0.tar.gz", hash = "sha256:8e7645c32e4f200675e69f0745415335eb59a3663f5feb487abfa0b30c45888b"},
 ]
 
 [[package]]
@@ -154,32 +154,32 @@ files = [
 
 [[package]]
 name = "avilla-core"
-version = "1.0.0a6"
+version = "1.0.0a8"
 requires_python = ">=3.9"
 summary = ""
 dependencies = [
     "creart>=0.3.0",
     "graia-amnesia>=0.8.1",
     "graia-broadcast>=0.23.1",
-    "launart>=0.7.0",
+    "launart>=0.8.1",
     "loguru>=0.6.0",
 ]
 files = [
-    {file = "avilla_core-1.0.0a6-py3-none-any.whl", hash = "sha256:6bd06f5ba2fc786d7fc6b503df4d783907fc6dbfe60872bc79bdecb624dd1552"},
-    {file = "avilla_core-1.0.0a6.tar.gz", hash = "sha256:41ca5529b1ef7d6b58e0983106a39a723ed2cb808a1530123734f4efc7ce4299"},
+    {file = "avilla_core-1.0.0a8-py3-none-any.whl", hash = "sha256:63d04e8573bee988c445a0ffb1131a5c5052095019ac45cf9b50a3664889d037"},
+    {file = "avilla_core-1.0.0a8.tar.gz", hash = "sha256:8085d15d10e7b4543571d73dbb351f58ef1bd6f5fb86645896f7aee3da490e4e"},
 ]
 
 [[package]]
 name = "avilla-elizabeth"
-version = "1.0.0a6"
+version = "1.0.0a7"
 requires_python = ">=3.9"
 summary = ""
 dependencies = [
     "aiohttp>=3.8.1",
 ]
 files = [
-    {file = "avilla_elizabeth-1.0.0a6-py3-none-any.whl", hash = "sha256:00139f825bbf5112bf6f1b563ee8cb810f5218751e05855873dad0468b035dbb"},
-    {file = "avilla_elizabeth-1.0.0a6.tar.gz", hash = "sha256:1c99fde2dbab12d42c0d5473c8a1b274d8507e677dcc06bb10bae2af6b252ef8"},
+    {file = "avilla_elizabeth-1.0.0a7-py3-none-any.whl", hash = "sha256:d8e6b64ff3aab92591d66888cd241780768c39fe0ad9a1f55ecab5826e1f5190"},
+    {file = "avilla_elizabeth-1.0.0a7.tar.gz", hash = "sha256:e32f5f1e93e3ff78e25caae82f957c66c7bec3f07a25257381148ebc126ff104"},
 ]
 
 [[package]]
@@ -197,12 +197,12 @@ files = [
 
 [[package]]
 name = "avilla-standard-qq"
-version = "1.0.0a6"
+version = "1.0.0a7"
 requires_python = ">=3.9"
 summary = ""
 files = [
-    {file = "avilla_standard_qq-1.0.0a6-py3-none-any.whl", hash = "sha256:47173c3926232b159ed84967f5b03ba0288cb5c776ed88441b72c93a6cbded40"},
-    {file = "avilla_standard_qq-1.0.0a6.tar.gz", hash = "sha256:c8533043cafffa2b58df414d960f90785d1744fb17f9d35a000ecf4f5d8ce4a6"},
+    {file = "avilla_standard_qq-1.0.0a7-py3-none-any.whl", hash = "sha256:e42d74ab6775d01379cad5dffb6fc441072763433c38ed617afe0ab26f5b0248"},
+    {file = "avilla_standard_qq-1.0.0a7.tar.gz", hash = "sha256:230704d60d32e1957d74b7732403486d222ea3049e77e75005d0005ec4fad19a"},
 ]
 
 [[package]]

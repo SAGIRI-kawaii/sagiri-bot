@@ -14,6 +14,6 @@ def main():
         "{**}": "./config/{**}"
     })
 
-    from shared.service.stage import initialize
+    from shared.services.stage import initialize
 
     initialize()

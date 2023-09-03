@@ -1,4 +1,3 @@
-from yarl import URL
 from pathlib import Path
 from loguru import logger
 from typing import Type, Any
@@ -12,28 +11,27 @@ from avilla.core import Avilla
 from graia.broadcast import Broadcast
 from graia.scheduler import GraiaScheduler
 from graiax.playwright import PlaywrightService
-from avilla.elizabeth.protocol import ElizabethProtocol
 from graia.scheduler.saya import GraiaSchedulerBehaviour
 from graia.saya.builtins.broadcast import BroadcastBehaviour
-from avilla.elizabeth.connection.ws_client import ElizabethWsClientConfig, ElizabethWsClientNetworking
+from avilla.elizabeth.protocol import ElizabethProtocol, ElizabethConfig
 
 from shared.utils.modules import load_modules
 from shared.models.config import GlobalConfig
-from shared.service.alembic import AlembicService
 from shared.utils.config import initialize_config
-from shared.service.version import UpdaterService
+from shared.services.alembic import AlembicService
+from shared.services.version import UpdaterService
+from shared.services.recevier import DistributeData
 from shared.utils.log import set_logger, print_logo
 from shared.database.service import DatabaseService
-from shared.service.aiohttp import AiohttpClientService
-from shared.service.launch_time import LaunchTimeService
+from shared.services.aiohttp import AiohttpClientService
+from shared.services.launch_time import LaunchTimeService
 
 PROTOCOL_DICT = {
     "mirai_api_http": {
         "protocol": ElizabethProtocol,
-        "network": ElizabethWsClientNetworking,
-        "config": ElizabethWsClientConfig,
-        "types": [URL, str, int],
-        "attributes": ["url", "verify_key", "account"]
+        "config": ElizabethConfig,
+        "types": [int, str, int, str],
+        "attributes": ["qq", "host", "port", "access_token"]
     }
 }
 launart = Launart()
@@ -77,6 +75,7 @@ def init_services():
     launart.add_component(PlaywrightService())
     launart.add_component(UpdaterService())
     launart.add_component(LaunchTimeService())
+    it(DistributeData)
 
 
 def init_avilla():
@@ -94,8 +93,7 @@ def init_avilla():
         protocal_instance = p["protocol"]()
         for account in info.accounts:
             protocol_config = p["config"](*list(map(mapl2l, p["types"], [account.get(i) for i in p["attributes"]])))
-            network = p["network"](protocal_instance, protocol_config)
-            protocal_instance.service.connections.append(network)
+            protocal_instance.configure(protocol_config)
             count += 1
         avilla.apply_protocols(protocal_instance)
         logger.success(f"协议{protocal}成功加载{count}条配置，发生错误{len(info.accounts) - count}条 ({count}/{len(info.accounts)})")
