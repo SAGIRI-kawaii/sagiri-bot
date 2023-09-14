@@ -4,6 +4,7 @@ from pathlib import Path
 from dataclasses import dataclass, field
 
 from graia.saya.channel import ChannelMeta
+from avilla.twilight.twilight import UnionMatch
 
 
 @dataclass
@@ -42,6 +43,9 @@ class PluginMeta:
 
     def gen_commands(self) -> list[str]:
         return [f"{p}{t}" for t in self.triggers for p in self.prefix]
+    
+    def gen_match(self) -> UnionMatch:
+        return UnionMatch(*self.gen_commands())
 
     def to_saya_meta(self) -> ChannelMeta:
         return ChannelMeta(

@@ -1,0 +1,13 @@
+{
+  "name": "Music",
+  "version": "0.1",
+  "display_name": "点歌",
+  "authors": [
+    "SAGIRI-kawaii"
+  ],
+  "description": "一个简单的点歌插件",
+  "usage": ["在群中发送 /点歌 + 关键词 即可"],
+  "example": ["/点歌 lemon"],
+  "prefix": ["/"],
+  "triggers": ["点歌"]
+}
